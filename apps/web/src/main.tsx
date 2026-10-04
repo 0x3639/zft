@@ -24,6 +24,13 @@ import { Vault, base64, type ItemRecord } from "../../../packages/vault";
 import { MAX_IMAGE } from "../../../packages/file-codec";
 import { api, signedRequest } from "./api";
 import * as flows from "./flows";
+import {
+  PublicProfile,
+  PublicDetail,
+  EditProfile,
+  Activity,
+} from "./public-pages";
+import { possessionText } from "../../../packages/protocol/public";
 
 type Config = { deployment: typeof manifest; sponsorEnabled: boolean };
 type PublicItem = {
@@ -65,15 +72,30 @@ const Button = ({
 );
 
 function App() {
-  const [path, setPath] = useState(location.pathname),
+  const [path, setPath] = useState(location.pathname + location.search),
     [config, setConfig] = useState<Config>(),
     [vault, setVault] = useState<Vault>(),
     [unlocked, setUnlocked] = useState(false),
     [exists, setExists] = useState(false);
   const [items, setItems] = useState<ItemRecord[]>([]),
     [gallery, setGallery] = useState<PublicItem[]>([]),
-    [selected, setSelected] = useState<PublicItem>(),
     [profile, setProfile] = useState("");
+  const [galleryCursor, setGalleryCursor] = useState<string | null>(null);
+  const [index, setIndex] = useState<{
+    block: number | null;
+    lag: number | null;
+    syncedAt: number | null;
+    error: string | null;
+  }>();
+  useEffect(() => {
+    const check = () =>
+      api<typeof index>("/api/index")
+        .then(setIndex)
+        .catch(() => {});
+    check();
+    const timer = setInterval(check, 60000);
+    return () => clearInterval(timer);
+  }, []);
   const [busy, setBusy] = useState(""),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -146,7 +168,7 @@ function App() {
     }
   }
   useEffect(() => {
-    const pop = () => setPath(location.pathname);
+    const pop = () => setPath(location.pathname + location.search);
     window.addEventListener("popstate", pop);
     return () => window.removeEventListener("popstate", pop);
   }, []);
@@ -162,9 +184,12 @@ function App() {
         if (!cancelled) setConfig(c);
       })
       .catch((e) => setError(e.message));
-    api<{ items: PublicItem[] }>("/api/gallery")
+    api<{ items: PublicItem[]; nextCursor: string | null }>("/api/gallery")
       .then((r) => {
-        if (!cancelled) setGallery(r.items);
+        if (!cancelled) {
+          setGallery(r.items);
+          setGalleryCursor(r.nextCursor);
+        }
       })
       .catch(() => {});
     if (deployment)
@@ -179,17 +204,6 @@ function App() {
       opened?.close();
     };
   }, []);
-  useEffect(() => {
-    setSelected(undefined);
-    if (path.startsWith("/item/"))
-      api<PublicItem>(`/api/items/${path.split("/")[2]}`)
-        .then((item) => {
-          if (!item.metadata || digest(item.metadata) !== item.metadataHash)
-            throw new Error("Metadata could not be verified.");
-          setSelected(item);
-        })
-        .catch((e) => setError(e.message));
-  }, [path]);
   useEffect(
     () => () => {
       if (preview) URL.revokeObjectURL(preview);
@@ -647,6 +661,7 @@ function App() {
               My collection<span className="heading-dot">.</span>
             </h1>
             <p className="mono">Profile {short(profile)}</p>
+            <Link to="/settings/profile">Edit public profile →</Link>
           </div>
           <div className="actions">
             <Link
@@ -770,6 +785,61 @@ function App() {
                         >
                           Cancel old copies
                         </Button>
+                        <Button
+                          disabled={!!busy}
+                          onClick={() =>
+                            act("Publishing an ownership proof", async () => {
+                              const p = await vault!.profile();
+                              const proof = {
+                                tokenId: item.tokenId,
+                                nonce: item.nonce,
+                                owner: privateKeyToAccount(item.privateKey)
+                                  .address,
+                                expires:
+                                  Math.floor(Date.now() / 1000) + 30 * 86400,
+                              };
+                              const signature = await privateKeyToAccount(
+                                item.privateKey,
+                              ).signMessage({
+                                message: possessionText(p.address, proof),
+                              });
+                              await signedRequest(
+                                "/api/possessions",
+                                { ...proof, signature },
+                                p,
+                              );
+                              setNotice(
+                                "This item is now linked to your public profile for up to 30 days, while this ownership epoch remains current.",
+                              );
+                            })
+                          }
+                        >
+                          Publish to my profile
+                        </Button>
+                        <Button
+                          disabled={!!busy}
+                          onClick={() =>
+                            act(
+                              "Removing the public ownership link",
+                              async () => {
+                                await signedRequest(
+                                  "/api/unpublish",
+                                  { tokenId: item.tokenId },
+                                  await vault!.profile(),
+                                );
+                                setNotice(
+                                  "Public ownership link removed. Mint provenance and on-chain history remain public.",
+                                );
+                              },
+                            )
+                          }
+                        >
+                          Remove from profile
+                        </Button>
+                        <p className="muted">
+                          Publishing links this holding to your public identity.
+                          Create your public profile first.
+                        </p>
                       </>
                     )}
                   </div>
@@ -792,85 +862,36 @@ function App() {
         )}
       </>
     );
+  else if (path === "/settings/profile")
+    content =
+      unlocked && vault ? (
+        <EditProfile vault={vault} nav={nav} onError={setError} />
+      ) : (
+        authPanel
+      );
+  else if (path === "/activity") content = <Activity onError={setError} />;
   else if (path.startsWith("/item/"))
-    content = selected ? (
-      <section className="flow-grid">
-        <img
-          className="detail-image"
-          src={new URL(selected.metadata.image).pathname}
-          alt={selected.metadata.name}
-        />
-        <div className="panel">
-          <p className="text-ledger">Verified public metadata · ZVM devnet</p>
-          <h1>{selected.metadata.name}</h1>
-          <p>{selected.metadata.description}</p>
-          <dl>
-            <dt>Creator</dt>
-            <dd>
-              <Link to={`/p/${selected.metadata.creator}`}>
-                {selected.metadata.creator}
-              </Link>
-            </dd>
-            <dt>Current owner</dt>
-            <dd>{selected.owner}</dd>
-            <dt>Ownership nonce</dt>
-            <dd>{selected.nonce}</dd>
-            <dt>Observed block</dt>
-            <dd>{selected.blockNumber}</dd>
-            <dt>Image SHA-256</dt>
-            <dd>{selected.metadata.imageHash}</dd>
-            <dt>Metadata SHA-256</dt>
-            <dd>{selected.metadataHash}</dd>
-          </dl>
-          <a
-            className="nom-btn nom-btn--outline nom-btn--default"
-            href={new URL(selected.metadata.image).pathname}
-            download
-          >
-            Download public image
-          </a>
-          <p className="muted">
-            This public image carries no ownership key. To receive the
-            collectible, get its original transfer file from the current owner.
-          </p>
-        </div>
-      </section>
-    ) : (
-      <div className="empty-state">
-        <h1>Reading on-chain proof…</h1>
-      </div>
-    );
-  else if (path.startsWith("/p/")) {
-    const addr = path.split("/")[2];
-    const created = gallery.filter(
-      (i) => i.metadata.creator.toLowerCase() === addr.toLowerCase(),
-    );
     content = (
-      <>
-        <div className="profile-cover" />
-        <section className="profile-heading">
-          <div className="avatar">Z</div>
-          <p className="text-ledger">Creator profile</p>
-          <h1>{short(addr)}</h1>
-          <p className="mono wrap">{addr}</p>
-          <p>{created.length} public creations</p>
-          <Button
-            onClick={() =>
-              act("Copying profile link", async () => {
-                await navigator.clipboard.writeText(location.href);
-                setNotice("Profile link copied.");
-              })
-            }
-          >
-            Share profile
-          </Button>
-        </section>
-        <h2>Created collectibles</h2>
-        <div className="gallery-grid">{created.map(itemCard)}</div>
-        {!created.length && <p>No published creations found.</p>}
-      </>
+      <PublicDetail
+        key={path.split("/")[2].split("?")[0]}
+        id={path.split("/")[2].split("?")[0]}
+        nav={nav}
+        onError={setError}
+      />
     );
-  } else if (path === "/about")
+  else if (path.startsWith("/p/"))
+    content = (
+      <PublicProfile
+        key={path.split("/")[2].split("?")[0].toLowerCase()}
+        address={path.split("/")[2].split("?")[0]}
+        path={path}
+        nav={nav}
+        onError={setError}
+        vault={unlocked ? vault : undefined}
+        viewer={profile}
+      />
+    );
+  else if (path === "/about" || path === "/how-it-works")
     content = (
       <section className="panel narrow">
         <p className="text-ledger">A picture with a transferable key</p>
@@ -960,6 +981,12 @@ function App() {
           </div>
           <span className="mono muted">{gallery.length} published</span>
         </div>
+        <p className="index-status">
+          {index?.error ||
+            (index?.block
+              ? `Indexed through block ${index.block.toLocaleString()} · ${index.lag} blocks behind head · six-block confirmation policy`
+              : "Waiting for the chain index.")}
+        </p>
         {gallery.length ? (
           <div className="gallery-grid">{gallery.map(itemCard)}</div>
         ) : (
@@ -970,6 +997,23 @@ function App() {
               app.
             </p>
           </div>
+        )}
+        {galleryCursor && (
+          <Button
+            disabled={!!busy}
+            onClick={() =>
+              act("Loading more collectibles", async () => {
+                const r = await api<{
+                  items: PublicItem[];
+                  nextCursor: string | null;
+                }>(`/api/gallery?cursor=${galleryCursor}`);
+                setGallery((old) => [...old, ...r.items]);
+                setGalleryCursor(r.nextCursor);
+              })
+            }
+          >
+            Load more
+          </Button>
         )}
       </>
     );
@@ -983,9 +1027,11 @@ function App() {
         <span>
           {!deployment
             ? "Contract deployment pending"
-            : ready
-              ? "Alpha · real on-chain transactions"
-              : "Alpha · sponsorship offline"}{" "}
+            : !config
+              ? "Connecting to devnet…"
+              : ready
+                ? "Alpha · real on-chain transactions"
+                : "Alpha · sponsorship offline"}{" "}
           · Devnet can reset
         </span>
       </div>
@@ -997,6 +1043,7 @@ function App() {
           </Link>
           <nav aria-label="Main navigation">
             <Link to="/">Explore</Link>
+            <Link to="/activity">Activity</Link>
             <Link to="/about">How it works</Link>
           </nav>
           <div className="actions">
@@ -1044,6 +1091,8 @@ function App() {
         <p>Pictures you can keep. Collectibles you can pass on.</p>
         <div className="actions">
           <Link to="/recovery">Recovery</Link>
+          <Link to="/activity">Activity</Link>
+          <Link to="/about">How it works</Link>
           <a
             href="https://devnet.zenon.foo/explorer/"
             target="_blank"
@@ -1057,4 +1106,7 @@ function App() {
     </>
   );
 }
-createRoot(document.getElementById("root")!).render(<App />);
+const root =
+  import.meta.hot?.data.root ?? createRoot(document.getElementById("root")!);
+if (import.meta.hot) import.meta.hot.data.root = root;
+root.render(<App />);

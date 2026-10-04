@@ -1,6 +1,6 @@
 # Implementation plan and acceptance gates
 
-Implementation authorized 2026-10-04. The first devnet slice now implements the contract, protocol/codec/vault, core transaction frontend, and a Cloudflare sponsor/API. The contract is deployed and the live SDK/Worker canary passes. See [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for exact status, evidence, and remaining gates. The table below remains the full release target; public profile/social/OG parity and production indexing are still pending.
+Implementation authorized 2026-10-04. The first devnet slice now implements the contract, protocol/codec/vault, core transaction frontend, and a Cloudflare sponsor/API. The contract is deployed and the live SDK/Worker canary passes. See [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for exact status, evidence, and remaining gates. The hosted alpha now also implements signed profiles/social relations, opt-in possession proofs, D1 indexing with checkpoint rollback, and per-page PNG sharing. The table remains the full release target; complete curated collection/avatar parity and the operational/browser beta gates are still pending.
 
 ## 1. Delivery order
 

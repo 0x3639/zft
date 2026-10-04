@@ -4,7 +4,14 @@ export const challengeInput = z
   .object({
     address: addressSchema,
     method: z.enum(["POST", "PUT"]),
-    path: z.enum(["/api/uploads", "/api/operations"]),
+    path: z.enum([
+      "/api/uploads",
+      "/api/operations",
+      "/api/profile",
+      "/api/social",
+      "/api/possessions",
+      "/api/unpublish",
+    ]),
     bodyHash: hashSchema,
   })
   .strict();

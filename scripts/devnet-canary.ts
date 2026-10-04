@@ -13,12 +13,16 @@ import {
 import { ownership } from "../packages/protocol/client";
 import { exportFile } from "../packages/file-codec";
 import * as flows from "../apps/web/src/flows";
-import { signedRequest } from "../apps/web/src/api";
+import { signedRequest, ApiError } from "../apps/web/src/api";
 import manifest from "../packages/protocol/deployment.json";
 
 if (!manifest.contract) throw new Error("Deploy the devnet contract first.");
 const d = manifest as unknown as Deployment,
   origin = process.env.ZFT_TEST_ORIGIN ?? "http://localhost:5173";
+const runLabel = process.env.ZFT_CANARY_LABEL ?? "";
+if (runLabel && !/^[a-z0-9-]{1,24}$/.test(runLabel))
+  throw new Error("Invalid canary label");
+const prefix = runLabel ? `${runLabel}-canary` : "canary";
 const nativeFetch = globalThis.fetch;
 globalThis.fetch = (input, init) =>
   nativeFetch(
@@ -43,7 +47,9 @@ type Evidence = {
 };
 let progress: { phase: number; evidence: Evidence };
 try {
-  progress = JSON.parse(await readFile(".local/canary-progress.json", "utf8"));
+  progress = JSON.parse(
+    await readFile(`.local/${prefix}-progress.json`, "utf8"),
+  );
 } catch (error) {
   if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   progress = {
@@ -56,23 +62,23 @@ if (evidence.contract !== d.contract)
   throw new Error("Canary journal belongs to a different deployment.");
 async function checkpoint(phase: number) {
   progress.phase = phase;
-  await writeFile(".local/canary-progress.json", JSON.stringify(progress), {
+  await writeFile(`.local/${prefix}-progress.json`, JSON.stringify(progress), {
     mode: 0o600,
   });
 }
 async function persist(v: Vault, label: string) {
   await writeFile(
-    `.local/canary-${label}.zft-recovery`,
+    `.local/${prefix}-${label}.zft-recovery`,
     (await v.backup()).text,
     { mode: 0o600 },
   );
 }
 async function open(label: string) {
-  const v = await Vault.open(d, `canary-${label}`);
+  const v = await Vault.open(d, `${prefix}-${label}`);
   const password = crypto.randomUUID() + crypto.randomUUID();
   try {
     await v.restore(
-      await readFile(`.local/canary-${label}.zft-recovery`, "utf8"),
+      await readFile(`.local/${prefix}-${label}.zft-recovery`, "utf8"),
       password,
     );
   } catch (error) {
@@ -93,7 +99,15 @@ async function confirmed(v: Vault, label: string, action: string) {
   const start = Date.now();
   while (Date.now() - start < 240_000) {
     const item = (await v.items())[0];
-    const job = await flows.reconcile(v, d, item);
+    let job: flows.Job | undefined;
+    try {
+      job = await flows.reconcile(v, d, item);
+    } catch (error) {
+      if (!(error instanceof ApiError && error.status === 503)) throw error;
+      // A transient receipt/RPC outage never authorizes replacing a saved operation.
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      continue;
+    }
     if (job?.state === "failed") throw new Error(`${action} reverted`);
     if (job?.state === "confirmed") {
       const current = (await v.items())[0],
@@ -197,12 +211,14 @@ if (!(await alice.items()).length) {
     { width, height, data: pixels, channels: 4, depth: 8 },
     { zlib: { level: 6 } },
   );
-  await writeFile(".local/canary-art.png", bytes);
+  await writeFile(`.local/${prefix}-art.png`, bytes);
   await flows.mint(
     alice,
     d,
     { bytes, width, height, imageHash: sha256(bytes) },
-    "First momentum · devnet canary",
+    runLabel
+      ? `Hosted momentum · ${runLabel} canary`
+      : "First momentum · devnet canary",
     "A real ZFT integration canary. Test collectible only; ZVM devnet may reset.",
   );
 }
@@ -225,20 +241,20 @@ if (progress.phase < 1) {
   evidence.checks.push(
     "Duplicate mint submission recovers the same durable transaction hash",
   );
-  await writeFile(".local/canary-original.zft.png", await file(a), {
+  await writeFile(`.local/${prefix}-original.zft.png`, await file(a), {
     mode: 0o600,
   });
   await checkpoint(1);
 }
 const original = new Uint8Array(
-  await readFile(".local/canary-original.zft.png"),
+  await readFile(`.local/${prefix}-original.zft.png`),
 );
 if (progress.phase < 2) {
   if (!(await bob.items()).length)
     await flows.rotate(bob, d, await importRecord(original));
   const b = await confirmed(bob, "bob", "claim");
   await stale(original, "Original copy rejected after claim");
-  await writeFile(".local/canary-before-cancel.zft.png", await file(b), {
+  await writeFile(`.local/${prefix}-before-cancel.zft.png`, await file(b), {
     mode: 0o600,
   });
   await checkpoint(2);
@@ -248,10 +264,10 @@ if (progress.phase < 3) {
   if (BigInt(b.nonce) === 1n) await flows.rotate(bob, d, b);
   b = await confirmed(bob, "bob", "cancel");
   await stale(
-    new Uint8Array(await readFile(".local/canary-before-cancel.zft.png")),
+    new Uint8Array(await readFile(`.local/${prefix}-before-cancel.zft.png`)),
     "Exported copy rejected after sender cancellation",
   );
-  await writeFile(".local/canary-after-cancel.zft.png", await file(b), {
+  await writeFile(`.local/${prefix}-after-cancel.zft.png`, await file(b), {
     mode: 0o600,
   });
   await checkpoint(3);
@@ -262,14 +278,14 @@ if (progress.phase < 4) {
       carol,
       d,
       await importRecord(
-        new Uint8Array(await readFile(".local/canary-after-cancel.zft.png")),
+        new Uint8Array(await readFile(`.local/${prefix}-after-cancel.zft.png`)),
       ),
     );
   await confirmed(carol, "carol", "re-export and second claim");
   await checkpoint(4);
 }
 const c = (await carol.items())[0];
-const restored = await Vault.open(d, "canary-restored");
+const restored = await Vault.open(d, `${prefix}-restored`);
 await restored.restore((await carol.backup()).text, crypto.randomUUID());
 const restoredItem = (await restored.items())[0];
 if (restoredItem.privateKey !== c.privateKey)
@@ -282,10 +298,13 @@ evidence.checks.push(
   "Recipient key and prior key persisted before every submission",
 );
 await writeFile(
-  "research/devnet-canary.json",
+  runLabel
+    ? `research/${runLabel}-devnet-canary.json`
+    : "research/devnet-canary.json",
   JSON.stringify(
     {
       ...evidence,
+      origin,
       completedAt: new Date().toISOString(),
       tokenId: c.tokenId,
       ownershipNonce: c.nonce,

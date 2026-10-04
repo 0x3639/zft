@@ -47,16 +47,8 @@ export type Job = {
   blockHash?: Hex;
   created: number;
 };
-export class HttpError extends Error {
-  constructor(
-    readonly status: number,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-export const json = (value: unknown, status = 200) =>
-  Response.json(value, { status, headers: { "cache-control": "no-store" } });
+import { HttpError, json } from "./http";
+export { HttpError, json } from "./http";
 // One global devnet sponsor. Explicit serialization covers awaits in both fetch and alarm.
 export class Sponsor extends DurableObject<Env> {
   private tail: Promise<unknown> = Promise.resolve();

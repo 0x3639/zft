@@ -4,9 +4,9 @@
 
 ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for Cloudflare. A PNG carries a disposable ownership key. Claiming the file rotates ownership on-chain, invalidating previously exported copies. JPG and PNG inputs are normalized locally into canonical PNGs.
 
-**Status: first real devnet implementation.** The React app, encrypted vault, transferable PNG codec, Solidity contract, Worker API, R2 storage adapter, and sponsor Durable Object are implemented. The contract is deployed on ZVM devnet; the app runs locally against that deployment. [Devnet alpha setup and limitations](docs/DEVNET-ALPHA.md) describe what works and what still precedes a public beta.
+**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). It includes mint/export/claim/cancel/recovery, signed public profiles and social actions, opt-in collection proofs, a D1 chain index, and unique per-page PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates.
 
-The static prototype at [zft.foo](https://zft.foo/) remains the public review site. It uses sample data. This implementation branch does not replace that deployment automatically.
+[zft.foo](https://zft.foo/) still displays the design prototype at its root. Its `/art/*` and `/metadata/*` routes now serve the real contract's immutable public media. The review app has an isolated sponsor account and Cloudflare storage.
 
 Repository: [0x3639/zft](https://github.com/0x3639/zft).
 
@@ -24,13 +24,14 @@ Repository: [0x3639/zft](https://github.com/0x3639/zft).
 10. [Prototype verification and screenshots](docs/VALIDATION.md)
 11. [Cloudflare prototype deployment](docs/DEPLOYMENT.md)
 
-Start with [the implementation runbook](docs/DEVNET-ALPHA.md). The linked specifications remain the full release target; profile editing/social features, unique OG images, and the production event index are not implemented in this first slice. Private transfers, sales, and encrypted claim links remain separate work.
+Start with [the implementation runbook](docs/DEVNET-ALPHA.md). The linked specifications remain the full release target. Additional curated collections, avatar/cover uploads, deeper operational fault tests, and actual two-browser/phone acceptance remain before beta. Private transfers, sales, and encrypted claim links remain separate work.
 
 ## Run the real devnet app
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm build
+pnpm exec wrangler d1 migrations apply zft-local-index --config wrangler.devnet.jsonc --env local --local
 pnpm exec wrangler dev --config wrangler.devnet.jsonc --env local --port 8787
 # In a second terminal:
 pnpm dev
@@ -58,7 +59,7 @@ Open `http://127.0.0.1:4173/design/`. The prototype contains the homepage, galle
 ## Implementation stack
 
 - React, TypeScript, Vite, viem, IndexedDB, and browser Web Crypto.
-- Cloudflare Workers with Static Assets, R2, and Durable Objects. D1 indexing is a later milestone.
+- Cloudflare Workers with Static Assets, R2, D1, and Durable Objects; Satori/resvg-WASM sharing images.
 - Solidity with OpenZeppelin ERC-721/EIP-712/ECDSA and Foundry verification.
 - ZVM devnet `7340469`; RPC `https://devnet.zenon.foo/zvm/rpc`.
 

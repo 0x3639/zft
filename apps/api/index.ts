@@ -17,9 +17,20 @@ import {
 } from "../../packages/protocol/client";
 import { validatePublicImage } from "../../packages/file-codec";
 import { unbase64 } from "../../packages/vault";
-import { HttpError, json } from "./sponsor";
+import { HttpError, json } from "./http";
+import {
+  gallery,
+  profileData,
+  activity,
+  directory,
+  publicMutation,
+  inProfile,
+} from "./public";
+import { indexStatus } from "./index-store";
+import { shareHTML, ogResponse } from "./sharing";
 import type { Env } from "./types";
 export { Sponsor } from "./sponsor";
+export { Indexer } from "./indexer";
 
 const uploadSchema = z
   .object({ image: z.string().max(14_000_000), metadata: metadataSchema })
@@ -109,6 +120,7 @@ async function route(request: Request, env: Env) {
     return json({
       ready: true,
       network: "ZVM devnet",
+      index: await indexStatus(env.DB),
       sponsorEnabled: env.SPONSOR_ENABLED === "true",
     });
   }
@@ -164,24 +176,61 @@ async function route(request: Request, env: Env) {
     request.method === "GET"
   )
     return internal(env, `/operation/${path.split("/").at(-1)}`);
-  if (path === "/api/gallery" && request.method === "GET") {
-    const response = await internal(env, "/gallery"),
-      catalog = (await response.json()) as {
-        items: { tokenId: string; metadataHash: Hex }[];
-      };
-    const items = await Promise.all(
-      catalog.items.map(async (item) => {
-        const object = await env.MEDIA.get(
-          `metadata/${item.metadataHash.slice(2)}.json`,
-        );
-        return object ? { ...item, metadata: await object.json() } : null;
-      }),
+  if (path === "/api/index" && request.method === "GET")
+    return env.INDEXER.get(env.INDEXER.idFromName("zft-index-v1")).fetch(
+      "https://internal/sync",
     );
-    return json({ items: items.filter(Boolean) });
+  if (path === "/api/gallery" && request.method === "GET")
+    return json(await gallery(env, url));
+  if (path === "/api/activity" && request.method === "GET")
+    return json(await activity(env, url));
+  const profileRoute =
+    /^\/api\/profiles\/(0x[\da-fA-F]{40})(?:\/(created|collection|sent|activity|followers|following))?$/.exec(
+      path,
+    );
+  if (profileRoute && request.method === "GET") {
+    const address = profileRoute[1].toLowerCase(),
+      tab = profileRoute[2];
+    if (!tab)
+      return json(
+        await profileData(
+          env,
+          address,
+          url.searchParams.get("viewer") ?? undefined,
+        ),
+      );
+    await profileData(env, address);
+    if (tab === "activity") return json(await activity(env, url, address));
+    if (tab === "followers" || tab === "following")
+      return json(await directory(env, address, tab, url));
+    return json(await gallery(env, url, address, tab));
   }
+  if (
+    [
+      "/api/profile",
+      "/api/social",
+      "/api/possessions",
+      "/api/unpublish",
+    ].includes(path) &&
+    request.method === "POST"
+  ) {
+    const body = await boundedBody(request, 4096),
+      actor = await authenticated(request, env, body, ip);
+    return publicMutation(
+      env,
+      path,
+      actor,
+      JSON.parse(new TextDecoder().decode(body)),
+    );
+  }
+  if (path.startsWith("/api/og/") && request.method === "GET")
+    return ogResponse(env, url);
   if (/^\/api\/items\/\d{1,78}$/.test(path) && request.method === "GET") {
     if (!manifest.contract) throw new HttpError(503, "Contract not deployed.");
     const tokenId = path.split("/").at(-1)!;
+    const context = url.searchParams.get("profile");
+    if (context && !(await inProfile(env, context, tokenId)))
+      throw new HttpError(404, "This artwork is not in the public profile.");
     await checkDeployment(manifest as unknown as Deployment);
     const state = await ownership(manifest.contract as Address, tokenId),
       object = await env.MEDIA.get(
@@ -227,9 +276,28 @@ async function route(request: Request, env: Env) {
     });
   }
   if (path.startsWith("/api/")) throw new HttpError(404, "Unknown API route.");
+  if (
+    (request.method === "GET" || request.method === "HEAD") &&
+    !path.startsWith("/assets/") &&
+    !path.startsWith("/licenses/") &&
+    path !== "/favicon.ico" &&
+    path !== "/favicon.svg"
+  )
+    return shareHTML(request, env);
   return env.ASSETS.fetch(request);
 }
 export default {
+  async scheduled(
+    _event: ScheduledController,
+    env: Env,
+    ctx: ExecutionContext,
+  ) {
+    ctx.waitUntil(
+      env.INDEXER.get(env.INDEXER.idFromName("zft-index-v1"))
+        .fetch("https://internal/sync")
+        .then(() => {}),
+    );
+  },
   async fetch(request: Request, env: Env) {
     let response: Response;
     try {

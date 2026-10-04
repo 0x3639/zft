@@ -1,0 +1,52 @@
+{
+  "origin": "https://devnet.zft.foo",
+  "at": "2026-10-04T23:30:18.281Z",
+  "creator": "0x35CBBfcad9A8A1A1c8D74F96D2ffEa710816ba5D",
+  "collector": "0x57952ef523253EfF57F6652d83F74CeBa45eF552",
+  "tokenId": "99787037707144967040884359368938839872488523080984950564755169339509083472381",
+  "checks": [
+    {
+      "path": "/",
+      "image": "https://devnet.zft.foo/api/og/page/home.png?v=4ab48514b1d9e5099409fb7d976fdd49266b68c72c72bdcde5e0cbf756c9eb52",
+      "bytes": 37408,
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/p/0x35CBBfcad9A8A1A1c8D74F96D2ffEa710816ba5D",
+      "image": "https://devnet.zft.foo/api/og/p/0x35cbbfcad9a8a1a1c8d74f96d2ffea710816ba5d.png?v=96fc7b9231ebb60bd66e9a4efc81a239382e84757f6d4c5dfb00473883653cbc",
+      "bytes": 101688,
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/p/0x57952ef523253EfF57F6652d83F74CeBa45eF552",
+      "image": "https://devnet.zft.foo/api/og/p/0x57952ef523253eff57f6652d83f74ceba45ef552.png?v=b9e87e7ceb854d216da4dc6c771f8f390cc7940e2ca6bda3fdde2eec6e09f73c",
+      "bytes": 102244,
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/p/0x35CBBfcad9A8A1A1c8D74F96D2ffEa710816ba5D?nft=99787037707144967040884359368938839872488523080984950564755169339509083472381",
+      "image": "https://devnet.zft.foo/api/og/p/0x35cbbfcad9a8a1a1c8d74f96d2ffea710816ba5d/99787037707144967040884359368938839872488523080984950564755169339509083472381.png?v=88b6bfe99b842be80e46e0628b04118d914831d0d13c4cd5ae7f4bb34e5cf087",
+      "bytes": 106176,
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/item/99787037707144967040884359368938839872488523080984950564755169339509083472381",
+      "image": "https://devnet.zft.foo/api/og/item/99787037707144967040884359368938839872488523080984950564755169339509083472381.png?v=4d464ec1f26642c4a1ff0a09a512460c0b23794edd8c1d9123b831ad74181a77",
+      "bytes": 106480,
+      "width": 1200,
+      "height": 630
+    }
+  ],
+  "assertions": [
+    "Signed profile publication",
+    "Current-owner collection proof",
+    "Idempotent follow retries",
+    "Signed like",
+    "Initial HTML and unique PNG per page",
+    "Unknown image revision rejected"
+  ]
+}

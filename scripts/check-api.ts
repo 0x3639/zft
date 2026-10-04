@@ -1,7 +1,7 @@
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { sha256, stringToBytes } from "viem";
 import { challengeText, type Challenge } from "../packages/protocol/auth";
-const origin = "http://localhost:5173",
+const origin = process.env.ZFT_TEST_ORIGIN ?? "http://localhost:5173",
   profile = privateKeyToAccount(generatePrivateKey());
 const post = (
   path: string,
