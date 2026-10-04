@@ -161,3 +161,18 @@ The [technical help page](https://nonfungible.cash/how-it-works?view=cryptograph
 5. Review encrypted links/cloud recovery and marketplace settlement separately. Complete actual multi-browser/phone and operational acceptance before promoting the apex homepage.
 
 These are gaps and acceptance targets, not features completed by this audit. The ZVM proof view must describe on-chain EVM ownership and signed possession messages; it must not claim the reference's Cashu zero-knowledge privacy properties.
+
+## 9. Image-click modal: screenshot acceptance reference
+
+The user's supplied 2026-10-04 screenshot of the MK1 transferred-item dialog is the visual and interaction reference for opening artwork from a profile. Apply the Zenon design system to this composition:
+
+- Keep the profile visible behind a dimmed backdrop. Open a large rounded dialog with a prominent close control at the upper right, visible keyboard focus, Escape dismissal, and focus returned to the originating artwork.
+- Use two columns on desktop. The left column is a framed collectible card: large artwork, title, shortened asset hash, and ownership-state badge. Put the Flip card action below it; the reverse shows the public proof details. Stack the columns on mobile.
+- The right column starts with an ownership-state badge, title, and a dated state explanation. Show an actual recorded transition date only when available; never substitute mint time for transfer time.
+- Follow with three separately evaluated verification rows: asset/metadata integrity, a signed possession attestation binding the item to this profile, and whether that attestation's owner/epoch is still current. A historical attestation may remain authentic while current ownership has changed. Missing, expired, invalid, and temporarily unverifiable proofs require distinct honest states; they do not receive a success mark.
+- In the transferred state, retain the historical collector context and clearly mark that the item is no longer held under that recorded ownership epoch. Do not describe cancellation or self-rotation as a proven gift to another person.
+- Below the checks, show labeled, shortened, copyable asset-hash and collector-identity values. Expose complete values accessibly.
+- Place Save image and Public proof together, followed by the disclosure that these downloads contain no transfer credential. Keep ownership-bearing export actions in the authenticated local-owner flow.
+- Preserve the selected-item URL and its unique OG image, including correct historical state where supported. Closing restores the profile and selected tab.
+
+This records the required result; the audit commit's current modal does not yet satisfy this composition or all three verification rows.
