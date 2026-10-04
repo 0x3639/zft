@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="ZFT design proposal: picture-based collectibles on Zenon’s ZVM.">
+  <title>ZFT · The NFT is the file</title>
+  <link rel="stylesheet" href="vendor/zenon/styles.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="preview-bar"><span class="text-ledger">Project proposal</span><span>Interactive design preview · sample data · no transactions</span></div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="wordmark" href="#explore" aria-label="ZFT home"><img src="vendor/zenon/assets/znn-logo.svg" alt="" width="29" height="29">zft<span>.</span></a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#market" data-nav="market">Market</a>
+        <a href="#explore" data-nav="explore">Explore</a>
+        <a href="#activity" data-nav="activity">Activity</a>
+        <a href="#about" data-nav="about">How it works</a>
+      </nav>
+      <div class="header-actions">
+        <button class="nom-btn nom-btn--ghost nom-btn--icon theme-button" id="theme-toggle" aria-label="Switch to light theme"><span data-icon="sun"></span></button>
+        <a class="nom-btn nom-btn--outline nom-btn--default collection-link" href="#collection"><span data-icon="layers"></span>My collection</a>
+        <button class="nom-btn nom-btn--primary nom-btn--default" data-action="mint"><span data-icon="plus"></span><span>Mint a picture</span></button>
+      </div>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <footer class="site-footer">
+    <a class="wordmark" href="#explore">zft<span>.</span></a>
+    <p>Pictures you can keep. Collectibles you can pass on.</p>
+    <div><a href="#about">How it works</a><button class="text-button" data-action="recovery">Recovery</button><a href="https://devnet.zenon.foo/explorer/" target="_blank" rel="noopener noreferrer">ZVM explorer <span data-icon="external"></span></a></div>
+    <span class="text-ledger">ZFT.FOO / ZVM DEVNET / DESIGN PREVIEW</span>
+  </footer>
+  <dialog id="flow-dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div class="sr-only" id="announcements" aria-live="polite"></div>
+</body>
+</html>
