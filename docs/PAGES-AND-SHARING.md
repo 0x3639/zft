@@ -92,3 +92,72 @@ Fetch HTTP HTML with JavaScript disabled for home, two different profiles, two a
 After a profile changes cover/name/featured art, its head changes to a new image revision without mutating the old snapshot. Repeated image requests hit cached R2 content. Test cache isolation between profiles and query-selected items, long titles, missing art, unsupported characters, private publication toggles, malformed IDs, and renderer failures. Inspect actual previews with the target platforms before beta; their recrawl timing remains external behavior.
 
 Primary technical references: [HTMLRewriter](https://developers.cloudflare.com/workers/runtime-apis/html-rewriter/), [Satori](https://github.com/vercel/satori), [resvg](https://github.com/thx/resvg-js), [Cloudflare OG tutorial](https://developers.cloudflare.com/browser-run/how-to/og-images-astro/).
+
+## 8. Action-by-action reference audit
+
+Inspected 2026-10-04 against ZFT implementation commit `53eb78b`. This is a public/visitor-session audit of the supplied [MK Curator profile](https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5), its collected and sent item dialogs, follower network, onboarding/unlock dialogs, and linked discovery, activity, market, homepage, and help pages. No collection was created, existing private key entered, follow/like submitted, or offer funded. Owner-only menus remain unverified; the help page provides separate evidence for some owner flows. Visible controls are not evidence that their eventual mutations succeeded.
+
+### Public profile
+
+| Action or state | Reference observation | ZFT at the audited commit | Required parity work |
+| --- | --- | --- | --- |
+| Copy public identity | Short identity button exposes the full public key as its copy target | Copyable profile address exists | Preserve feedback and accessible full address |
+| Like/unlike | Heart toggle with count; observed but not submitted | Signed reversible relation exists | Display the count with the action; preserve guest intent through unlock |
+| Follow/unfollow | Follow control; observed but not submitted | Signed reversible relation exists | Preserve target/action through unlock instead of sending visitors to a generic collection screen |
+| Share profile | Click produced profile-link-copied feedback | Copies profile URL | Existing behavior; retain profile-specific OG metadata |
+| Unlock | Dialog accepts an existing collection key and explains local storage | Unlock/recovery is on the local collection screen | Add a profile-context entry that checks the unlocked identity; adapt to ZFT vault/recovery semantics |
+| Collected / Sent / Likes counts | Three summary values; Followers and Following are separate buttons | Six counts including Created; all currently rendered as links, including Likes linking to Created | Distinguish informative counts from actionable controls; remove misleading Likes navigation |
+| Followers / Following | One Network dialog with two tabs; each entry opens another profile; Following had an empty state | Separate in-profile directory views | Match dialog, tabs, profile navigation, empty states, keyboard dismissal, and focus return |
+| Collection tab | Default view; two current holdings on inspected profile | Default is Created, with Collection as a separate tab | Make public collector profiles collection-first; keep creation provenance as an additional view |
+| Sent tab | Historical item stays visible and is labeled transferred | Published holdings with a changed epoch appear; opening goes to generic item route | Preserve historical collector context and distinguish transfer from self-rotation/cancellation |
+| Activity tab | Mint, like, and collection-creation entries with relative times; profiles and items are clickable | Profile feed is creation-related chain transfers, linking to explorer transactions | Add public social/profile events and app navigation; retain explorer as a secondary proof link |
+| Re-verify | Profile-level action is present and clickable; no lasting visible feedback was observed in this session | Refresh reloads indexed profile data; item detail separately checks live chain state | Verify the displayed holdings with bounded live reads and show per-item checking/current/transferred/unavailable results |
+| Cover / avatar | Custom images visible; editing controls not accessible as a visitor | Featured-item cover and initial avatar | Independent sanitized image uploads are still needed; owner editing flow is not verified on the reference |
+
+### Collected and sent artwork dialogs
+
+| Action or state | Reference observation | ZFT at the audited commit | Required parity work |
+| --- | --- | --- | --- |
+| Open artwork | Modal over the profile; adds `?nft=<id>` | Implemented for current profile membership | Keep deep-link and browser-back behavior; add explicit historical context |
+| Close | Returns to the profile and removes selected-item query | Implemented with close button and Escape | Preserve selected tab and focus the originating card |
+| Flip / show front | Switches between artwork and a compact ownership-proof face | Static art beside expanded on-chain data | Add an accessible two-face card, including reduced-motion behavior |
+| Current holding status | Separate checks for credential validity, collector signature, and unspent/current ownership | Metadata digest verified and live on-chain owner/epoch displayed | Show separate ZFT-appropriate checks: content/metadata integrity, signed profile possession binding, current contract owner/epoch, and observation block |
+| Transferred status | Sent item retains valid historical proof and collector signature, but clearly says it is no longer held here | Generic detail shows current owner without the prior collector's context | Historical proof must remain labeled historical; a valid signature alone must never imply current ownership |
+| Copy asset / collector | Both values have copy controls | Public detail shows full hashes; creator is a navigation link | Add copy controls for asset digest, profile, owner, and token where appropriate |
+| Save image | Download action and explicit non-transferable disclosure | Sanitized public image download exists | Preserve disclosure; do not attach item secrets |
+| Public proof | Download action and explicit non-transferable disclosure; download contents not inspected in this audit | Downloads a JSON chain observation, not a cryptographic ownership certificate | Include the public signed possession attestation where available, verification instructions, expiry, and observed block; label absent attestation honestly |
+| Selected-item sharing | Opening the modal changes the shareable URL; existing research verifies unique initial HTML/OG for that context | Unique selected-item OG and an additional Share button exist | Keep share context correct for current versus historical holdings |
+
+The inspected sent example was [MK1](https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5?nft=a85ec604d7454d7cb3bca695936fbd85). Its retained proof is a product requirement we currently miss. Do not implement this by simply relaxing the current-membership guard: a historical page must validate its retained publication, clearly label the old epoch, respect unpublishing, and have a distinct sharing snapshot. Existing profile OG checks intentionally reject artwork removed from the profile context.
+
+### Shared navigation and linked pages
+
+| Surface | Observed actions | ZFT gap or mapping |
+| --- | --- | --- |
+| Header/menu | Home link, Market, menu links to Explore/Activity/How it works, onboarding button | Add a usable compact navigation menu; the live mobile header currently hides the main navigation and leaves footer links |
+| Theme menu | System, light, and dark choices | Live app has a two-state theme toggle; add a persistent system option |
+| Profile lookup | Dialog accepts a public key or full profile link; submitting the supplied public link returned to that profile | Add address-or-link lookup using ZFT address validation |
+| Create collection | Name input, locally generated key, copy/download actions, explicit saved-key acknowledgement before creation | ZFT has encrypted vault creation and recovery-file acknowledgement; keep that model while making entry points consistent |
+| Homepage | Start/import/help entry points; ranked collections with like controls; fresh-art cards; activity links; browse-all actions | Live home has the core create/import/explore flow; ranked collection discovery and embedded social activity remain incomplete |
+| Collection discovery | Collections/NFTs tabs, search, popularity/newest/size sorting | Add collection directory, bounded search, sort options, and pagination; current app primarily lists artwork |
+| NFT discovery | Search, newest/oldest/name sorting, item dialogs, load more | Pagination exists; search and sort are missing |
+| Global activity | Everyone/Following views; guest Following state explains how to populate it | Add followed-profile filter and social events; current global feed is on-chain transfers |
+| Help | Basic/technical tabs; technical view has `?view=cryptography`; buttons link between explanations and onboarding | Expand existing short explanation into ZFT-specific product and technical views |
+| Market discovery | Listing search, newest and price sorting; listing cards include price and bid summary | Designed separately; no live ZFT marketplace |
+| Market listing | Back action, seller/bidder profile links, bids and expiry, guest onboarding before an offer | Settlement remains a separate reviewed project; no trade was initiated during this audit |
+
+The linked [MK3 market listing](https://nonfungible.cash/market/2a4e293ef8821d05c48a45f1c8a3b342) was inspected without entering an offer. Its Cashu payment mechanism is not a drop-in ZVM contract feature.
+
+### Owner flows described by the reference, not exercised
+
+The [technical help page](https://nonfungible.cash/how-it-works?view=cryptography) describes bearer-file export/claim, cancellation by rotating ownership, encrypted sharing links with an optional password, and encrypted remote backups recoverable with the collection key. The first two have working ZFT equivalents. Encrypted links and remote recovery remain deferred. ZFT's profile key alone cannot restore independent disposable item keys; do not copy a one-key recovery promise without implementing and validating the necessary encrypted backup service.
+
+### Next implementation order
+
+1. Correct public profile semantics: collection-first navigation, informative versus clickable counts, contextual unlock, and the follower dialog. Preserve local publication consent.
+2. Add the proof-card face and explicit integrity/profile-binding/current-ownership states; add historical sent dialogs and profile-wide re-verification. Include outage and self-rotation cases in the behavior contract.
+3. Add search/sort discovery and social activity with meaningful app links and Everyone/Following views. This needs persisted public events; the current `relations` table records current state only.
+4. Add independent avatar/cover media and finish mobile navigation, theme options, and technical help.
+5. Review encrypted links/cloud recovery and marketplace settlement separately. Complete actual multi-browser/phone and operational acceptance before promoting the apex homepage.
+
+These are gaps and acceptance targets, not features completed by this audit. The ZVM proof view must describe on-chain EVM ownership and signed possession messages; it must not claim the reference's Cashu zero-knowledge privacy properties.
