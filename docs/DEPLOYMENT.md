@@ -34,6 +34,6 @@ GitHub checks may be absent even when the site is serving correctly. The Cloudfl
 
 ## Full application deployment
 
-Implementation adds a checked-in Wrangler configuration, pinned tooling, a React build, Worker API and OG routes, isolated R2/D1/Durable Object resources, and deployment manifests. Solidity deploys separately to the approved ZVM network. Acceptance gates are in [IMPLEMENTATION.md](IMPLEMENTATION.md).
+The first implementation now has an explicit `wrangler.devnet.jsonc`, pinned tooling, React build, Worker API, R2/DO bindings, and a deployed contract manifest. The configuration is deliberately not named `wrangler.jsonc`, so the prototype deploy command above keeps serving static `design/` files. Follow [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for setup and the eventual domain promotion. OG routes, profile/social parity, and production indexing remain beta gates in [IMPLEMENTATION.md](IMPLEMENTATION.md).
 
 Official references: [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/), [Static Assets](https://developers.cloudflare.com/workers/static-assets/), [Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/).

@@ -1,0 +1,36 @@
+{
+  "contract": "0x42666265e38f2d1b786e8af8e9576224a95b90ae",
+  "transactions": [
+    {
+      "action": "mint",
+      "hash": "0x5aaedce52821d940b4c4d437ddc0db73eee5b41bfa441f198f40a453a3300908",
+      "block": "94031"
+    },
+    {
+      "action": "claim",
+      "hash": "0x95d4dddb5ee3779da3103974577a53735c17f02de712719f37768a631e5c180d",
+      "block": "94038"
+    },
+    {
+      "action": "cancel",
+      "hash": "0x537e9881ec93b17329de3341878662ebc414478985aa7c7ce8bf1cd0c5a64537",
+      "block": "94045"
+    },
+    {
+      "action": "re-export and second claim",
+      "hash": "0x949220d2a0225878cef3d0ac22b868661e19ef268cd8a95a8b7b7b14f3ebd3fe",
+      "block": "94052"
+    }
+  ],
+  "checks": [
+    "Duplicate mint submission recovers the same durable transaction hash",
+    "Original copy rejected after claim",
+    "Exported copy rejected after sender cancellation",
+    "Current recovery snapshot restores a valid transferable file",
+    "Recipient key and prior key persisted before every submission"
+  ],
+  "completedAt": "2026-10-04T21:36:25.784Z",
+  "tokenId": "99787037707144967040884359368938839872488523080984950564755169339509083472381",
+  "ownershipNonce": "3",
+  "confirmationPolicy": "6 subsequent EVM blocks"
+}

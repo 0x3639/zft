@@ -2,9 +2,11 @@
 
 **Collect a picture. Send the file. Pass it on.**
 
-ZFT is a proposed bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), hosted on Cloudflare. A JPG or PNG carries a disposable ownership key. Claiming the file rotates ownership on-chain, invalidating every previously exported copy.
+ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for Cloudflare. A PNG carries a disposable ownership key. Claiming the file rotates ownership on-chain, invalidating previously exported copies. JPG and PNG inputs are normalized locally into canonical PNGs.
 
-**Status: proposal and frontend prototype for review.** The static prototype is live at [zft.foo](https://zft.foo/), using sample data and simulated operations. The Solidity file is an interface specification; the contract implementation and application backend remain planned.
+**Status: first real devnet implementation.** The React app, encrypted vault, transferable PNG codec, Solidity contract, Worker API, R2 storage adapter, and sponsor Durable Object are implemented. The contract is deployed on ZVM devnet; the app runs locally against that deployment. [Devnet alpha setup and limitations](docs/DEVNET-ALPHA.md) describe what works and what still precedes a public beta.
+
+The static prototype at [zft.foo](https://zft.foo/) remains the public review site. It uses sample data. This implementation branch does not replace that deployment automatically.
 
 Repository: [0x3639/zft](https://github.com/0x3639/zft).
 
@@ -22,7 +24,26 @@ Repository: [0x3639/zft](https://github.com/0x3639/zft).
 10. [Prototype verification and screenshots](docs/VALIDATION.md)
 11. [Cloudflare prototype deployment](docs/DEPLOYMENT.md)
 
-Start with `docs/REVIEW.md` and the prototype. The recommended first release has public on-chain transfers, free-to-user sponsored claims, local encrypted custody, file export/import, and an optional public gallery. Private transfers, sales, and encrypted claim links follow separately.
+Start with [the implementation runbook](docs/DEVNET-ALPHA.md). The linked specifications remain the full release target; profile editing/social features, unique OG images, and the production event index are not implemented in this first slice. Private transfers, sales, and encrypted claim links remain separate work.
+
+## Run the real devnet app
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+pnpm exec wrangler dev --config wrangler.devnet.jsonc --env local --port 8787
+# In a second terminal:
+pnpm dev
+```
+
+Open `http://localhost:5173`. Sponsorship requires a dedicated funded devnet key in `.dev.vars.local`; see the runbook. No item or recovery keys are uploaded to the Worker.
+
+```sh
+pnpm typecheck
+pnpm test
+pnpm contracts:test
+pnpm worker:check
+```
 
 ## Preview the frontend
 
@@ -34,14 +55,14 @@ python3 -m http.server 4173 --bind 127.0.0.1
 
 Open `http://127.0.0.1:4173/design/`. The prototype contains the homepage, gallery, public profiles, collection/sent/activity tabs, artwork details, marketplace design, mint, import/claim, send/cancel, and recovery flows. Its actions simulate product states and never submit a blockchain transaction. Uploaded images remain in memory in this prototype. Unique profile/item/home social-card templates are at `design/og-preview.html`.
 
-## Proposed implementation stack
+## Implementation stack
 
 - React, TypeScript, Vite, viem, IndexedDB, and browser Web Crypto.
-- Cloudflare Workers with Static Assets, R2, D1, and Durable Objects.
+- Cloudflare Workers with Static Assets, R2, and Durable Objects. D1 indexing is a later milestone.
 - Solidity with OpenZeppelin ERC-721/EIP-712/ECDSA and Foundry verification.
 - ZVM devnet `7340469`; RPC `https://devnet.zenon.foo/zvm/rpc`.
 
-Exact dependency versions, production contract addresses, and project license are set during implementation. The static prototype responds over HTTPS at the confirmed **zft.foo** domain. API, storage, sponsor, and contract deployment verification follow during implementation. `zvm.foo` was an earlier mistaken hostname and is not the app domain.
+Dependencies are pinned in `pnpm-lock.yaml`; the devnet deployment is pinned in `packages/protocol/deployment.json`. Project source remains UNLICENSED pending the license decision. The app domain is **zft.foo**.
 
 Frontend direction: NonFungible Cash’s page structure and flows with the [Zenon design system](https://github.com/digitalSloth/zenon-design-system). The prototype includes pinned MIT-licensed theme CSS/assets with attribution in `design/vendor/zenon/NOTICE.md`.
 

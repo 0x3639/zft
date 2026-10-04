@@ -1,6 +1,6 @@
 # Implementation plan and acceptance gates
 
-Draft 0.1. Work starts after review of the recommended choices in `REVIEW.md`. This proposal includes specifications, an interface, research evidence, and a clickable prototype only.
+Implementation authorized 2026-10-04. The first devnet slice now implements the contract, protocol/codec/vault, core transaction frontend, and a Cloudflare sponsor/API. The contract is deployed and the live SDK/Worker canary passes. See [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for exact status, evidence, and remaining gates. The table below remains the full release target; public profile/social/OG parity and production indexing are still pending.
 
 ## 1. Delivery order
 

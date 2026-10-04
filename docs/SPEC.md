@@ -2,6 +2,8 @@
 
 Version: draft 0.1 · 2026-10-04 · review before implementation.
 
+Implementation note (2026-10-04): work is authorized and a first devnet slice is running. [DEVNET-ALPHA.md](DEVNET-ALPHA.md) is the authoritative implemented subset. Its frozen `zft-png/1` codec normalizes JPEG/PNG inputs to RGBA PNG and exports `zfTA` PNG envelopes. JPEG APP15 export, broader color-profile conversion, and the complete social/OG release remain planned below.
+
 ## 1. Product promise
 
 A user turns a JPG or PNG into a collectible, keeps it in a local collection, and exports a transferable picture. A recipient imports that file and claims ownership. Once the claim finalizes, earlier copies lose transfer authority. The image remains viewable in ordinary image software.
