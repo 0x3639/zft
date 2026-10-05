@@ -75,6 +75,7 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
       "/claim",
       "/recovery",
       "/settings/profile",
+      "/wallet",
     ].includes(path)
   )
     return { ...base, private: true };

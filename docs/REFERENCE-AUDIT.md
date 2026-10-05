@@ -132,3 +132,11 @@ Follow-up public HTTP/visual audit: [raw metadata and image evidence](../researc
 | SHARE-07 | Current versus historical MK1 | Different image paths/revisions, titles, profile context and bytes | HTTP verified; current MK1 OG not separately visually inspected |
 | SHARE-08 | Listing composition | MK3 art, seller, 4,999 sats price, sale state and bid summary | Visually inspected actual OG image; no payment |
 | SHARE-09 | Revision updates after mutations | Version query and immutable headers observed; exact algorithm and all update triggers unknown | Owner mutation/recrawl tests pending |
+
+## Key storage follow-up (2026-10-04)
+
+Read the reference's [technical help](https://nonfungible.cash/how-it-works?view=cryptography#trust) and its publicly served client modules. No private user storage was accessed and no reference account was created. [Evidence and asset hashes](../research/reference-key-storage.json).
+
+The main client saves collection private-key strings directly in the `cashu-nft-keys-v1` localStorage map and reads the active key back to reopen a session. The wallet module derives a credential encryption key with HKDF-SHA-256 from that profile secret plus the mint keyset, then stores AES-256-GCM ciphertext in IndexedDB and sends encrypted operation/card backups. Recovery code decrypts server-returned ciphertext using the imported profile key. This is static client evidence; server behavior and end-to-end restore remain untested.
+
+The credential encryption does not password-wrap the locally remembered root secret. Inference: access to the relevant browser storage can yield both secret and ciphertext. The help explicitly acknowledges trust in served JavaScript. ZFT should offer optional password protection for persistent browser file keys while keeping MetaMask keys in the wallet. A local unlock password and encrypted downloadable recovery are separate features; neither should be implied by the other.

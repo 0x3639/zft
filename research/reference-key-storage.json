@@ -1,0 +1,36 @@
+{
+  "observedAt": "2026-10-04",
+  "scope": "Read-only public help and served JavaScript inspection. No account creation, private browser storage inspection, or end-to-end recovery test.",
+  "sources": [
+    {
+      "url": "https://nonfungible.cash/how-it-works?view=cryptography#trust",
+      "kind": "Published architecture description"
+    },
+    {
+      "url": "https://nonfungible.cash/assets/index-C6bmIpW2.js",
+      "sha256": "308feaefab44207ce8cd73cbe11079407532d0517be8b2cc023e36c5f87a935a",
+      "findings": [
+        "Vn.get/set wrap localStorage.getItem/setItem.",
+        "hx is cashu-nft-keys-v1; ia reads its JSON map.",
+        "dt derives public identity from the input private key and stores that same private-key string in the map.",
+        "MK reads the active private key from the map and reconstructs the session."
+      ]
+    },
+    {
+      "url": "https://nonfungible.cash/assets/index-Dv919a6M.js",
+      "sha256": "54d64c7312948535e0586ae27926275b47e6913e427fc38074687a20ae20fe33",
+      "findings": [
+        "Po derives an AES-256-GCM key via HKDF-SHA-256 from the profile secret and mint keyset.",
+        "Encrypted credential records are stored in IndexedDB with per-record nonce and authenticated context.",
+        "saveAndExecute stores encrypted operation material locally and posts encrypted backup before execution.",
+        "recover decrypts returned card and operation backups using the derived key."
+      ]
+    }
+  ],
+  "inference": "Credential ciphertext is protected without the profile secret. Since the same-origin browser stores that secret without a password wrapper, obtaining the relevant browser storage can enable decryption; this is not equivalent to password-protected local key storage.",
+  "limits": [
+    "Public client inspection does not establish server-side storage behavior or constitute an independent security audit.",
+    "Source may change after the observed asset hashes.",
+    "Active malicious site JavaScript can access secrets available to the app; an optional vault password primarily adds protection while locked."
+  ]
+}

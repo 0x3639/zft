@@ -1,0 +1,36 @@
+{
+  "phase": 4,
+  "contract": "0x42666265e38f2d1b786e8af8e9576224a95b90ae",
+  "origin": "https://devnet.zft.foo",
+  "wallet": "0x219eF1e9eb8BF9D8b140143675459F27c0C136C5",
+  "transactions": [
+    {
+      "action": "mint-file",
+      "hash": "0x05b1d9c76eae3d2ce5839aca4b1676759f0cf2b83512cf38f8557a8a676b1420",
+      "block": "95002"
+    },
+    {
+      "action": "seed-wallet",
+      "hash": "0x9412dc006674658d75fb03965dcd1b608d2db0d68bd4d286aa6341bac799aebd",
+      "block": "95009"
+    },
+    {
+      "action": "wallet-to-file",
+      "hash": "0x8cc68b29baab1e4ebc1a24bef2a68da60f2486b164ac7d05459c56948458a9c1",
+      "block": "95016"
+    },
+    {
+      "action": "file-to-wallet",
+      "hash": "0x2336d3be378f5bbb1fd6242e3b0bd94a4a03e51cb19c163554a9c8dd1c09f39d",
+      "block": "95023"
+    }
+  ],
+  "checks": [
+    "real pinned-devnet wallet → backed-up file → wallet ownership",
+    "old exported file rejected",
+    "wallet private key absent from vault items",
+    "wallet API inventory contains confirmed token",
+    "SDK signer fixture only: actual MetaMask and phone acceptance remains open"
+  ],
+  "tokenId": "39906159629019302824312864297880521243192948770788506145527734550950470953978"
+}

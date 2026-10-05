@@ -4,7 +4,7 @@
 
 ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for Cloudflare. A PNG carries a disposable ownership key. Claiming the file rotates ownership on-chain, invalidating previously exported copies. JPG and PNG inputs are normalized locally into canonical PNGs.
 
-**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). It includes mint/export/claim/cancel/recovery, signed public profiles and social actions, opt-in collection proofs, a D1 chain index, and unique per-page PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates.
+**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). It includes mint/export/claim/cancel/recovery, wallet/file custody transitions, signed public profiles and social actions, opt-in collection proofs, a D1 chain index, and unique per-page PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates.
 
 [zft.foo](https://zft.foo/) still displays the design prototype at its root. Its `/art/*` and `/metadata/*` routes now serve the real contract's immutable public media. The review app has an isolated sponsor account and Cloudflare storage.
 
@@ -12,13 +12,13 @@ Repository: [0x3639/zft](https://github.com/0x3639/zft).
 
 ## Review the project
 
-Start with the [complete website functional specification](docs/FUNCTIONAL-SPEC.md) and [reference action audit](docs/REFERENCE-AUDIT.md). They cover routes, controls, dialogs, ownership states, downloads, recovery, discovery/social features, marketplace scope, OG sharing, and acceptance criteria. The audit distinguishes exercised public actions from owner/payment flows still unverified.
+Track delivery in the [implementation roadmap](docs/IMPLEMENTATION.md), including completed milestones, the current wallet-custody work and remaining acceptance gates. Start with the [complete website functional specification](docs/FUNCTIONAL-SPEC.md) and [reference action audit](docs/REFERENCE-AUDIT.md). They cover routes, controls, dialogs, ownership states, downloads, recovery, discovery/social features, marketplace scope, OG sharing, and acceptance criteria. The audit distinguishes exercised public actions from owner/payment flows still unverified.
 
 1. [Product and protocol specification](docs/SPEC.md)
 2. [Contract design and invariants](docs/CONTRACTS.md), [proposed Solidity interface](contracts/interfaces/IZFT.sol)
 3. [Frontend design and flows](docs/FRONTEND.md)
 4. [Cloudflare architecture, APIs, and operations](docs/ARCHITECTURE.md)
-5. [Implementation milestones and acceptance gates](docs/IMPLEMENTATION.md)
+5. [Live roadmap and remaining-work tracker](docs/IMPLEMENTATION.md)
 6. [Decisions for review](docs/REVIEW.md)
 7. [Research and devnet evidence](research/EVIDENCE.md)
 8. [Page parity and Open Graph specification](docs/PAGES-AND-SHARING.md)

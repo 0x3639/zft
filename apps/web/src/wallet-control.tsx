@@ -7,6 +7,7 @@ import {
   isZVMChain,
   type WalletChoice,
   type WalletProvider,
+  type WalletSession,
 } from "./wallet";
 import { CHAIN_ID, type Deployment } from "../../../packages/protocol";
 import manifest from "../../../packages/protocol/deployment.json";
@@ -15,7 +16,13 @@ import {
   publicClient,
 } from "../../../packages/protocol/client";
 const btn = "nom-btn nom-btn--outline nom-btn--default";
-export function WalletControl() {
+export function WalletControl({
+  onChange,
+  nav,
+}: {
+  onChange: (session: WalletSession | undefined) => void;
+  nav: (path: string) => void;
+}) {
   const [choices, setChoices] = useState<WalletChoice[]>([]),
     [open, setOpen] = useState(false),
     [selected, setSelected] = useState<WalletChoice>(),
@@ -26,6 +33,22 @@ export function WalletControl() {
     [error, setError] = useState("");
   const run = useRef(0),
     connection = useRef(0);
+  useEffect(() => {
+    let active = true;
+    onChange(
+      selected && account && chain
+        ? {
+            provider: selected.provider,
+            account: account as `0x${string}`,
+            chainId: chain,
+            isCurrent: () => active,
+          }
+        : undefined,
+    );
+    return () => {
+      active = false;
+    };
+  }, [selected, account, chain, onChange]);
   useEffect(
     () => () => {
       connection.current++;
@@ -218,11 +241,19 @@ export function WalletControl() {
                   Disconnect from app
                 </button>
               </div>
+              <button
+                className={btn}
+                onClick={() => {
+                  setOpen(false);
+                  nav("/wallet");
+                }}
+              >
+                Open wallet collectibles →
+              </button>
               <p className="public-note">
-                Wallet connection does not move a collectible. File-to-wallet
-                custody transfers and trading are the next wallet integration
-                step. Disconnecting here does not revoke the site's permission
-                inside MetaMask.
+                Moving a collectible requires a separate authorization.
+                Disconnecting here does not revoke the site's permission inside
+                MetaMask.
               </p>
             </>
           ) : (

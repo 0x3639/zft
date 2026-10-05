@@ -16,7 +16,7 @@ The [complete website functional specification](FUNCTIONAL-SPEC.md) covers the e
 - Per-page initial HTML metadata and deterministic 1200×630 PNGs for static pages, profiles, selected artwork, and standalone items. Known revisions are stored in R2; arbitrary revision generation and unrelated profile/item contexts are rejected.
 - Collection-first profile navigation; Network dialog; contextual guest unlock; mobile navigation and address/link lookup; persistent System/Light/Dark themes.
 - Two-face proof card with independent integrity, owner-authorized profile binding, and live ownership checks; retained historical epochs and sanitized JSON v2 proof downloads.
-- EIP-6963/MetaMask connection, pinned ZVM network add/switch, public address and devnet native-gas balance. Wallet custody transfers and trading are not implemented.
+- EIP-6963/MetaMask connection, pinned ZVM network add/switch, public address and devnet native-gas balance. Wallet/file custody transfers are implemented at `/wallet`; actual MetaMask/phone acceptance remains pending and trading is not implemented.
 - Foundry unit/fuzz tests, TypeScript codec/vault/protocol/SQLite service tests, CI, deployment scripts, and real devnet acceptance canaries.
 
 ## Deployed contract
@@ -124,7 +124,7 @@ Public results are saved in `research/public-canary.json`, `research/sharing/`, 
 
 The hosted transaction canary completed on 2026-10-04: four confirmed transactions at blocks 94503, 94510, 94517, and 94527 cover mint, claim, cancel, and second claim, followed by recovery and stale-copy checks. Public evidence is in `research/hosted-devnet-canary.json`. Hosted API admission checks also rejected cross-origin writes, unsigned requests, oversized bodies, body substitution, invalid uploads, and consumed-challenge replay. Five hosted public pages produced distinct valid sharing PNGs.
 
-Current public-parity Worker version: `027deb34-587b-4b19-9383-35b657cfecd7` (2026-10-04). Contract and storage migrations are unchanged.
+Current wallet-custody Worker version: `a5a54d62-0d22-4fd4-9355-dc0c31470c52` (2026-10-04). Contract and storage migrations are unchanged.
 
 ## Public-parity update verification
 
@@ -139,3 +139,15 @@ Browser acceptance includes current three-check proof, card flip, safe public JS
 - Sponsor crash/restart/reorg/fee-replacement fault injection, bounded journal retention, stronger Sybil admission and storage cleanup. Ambiguous or conflicting nonce state deliberately stops the sponsor for operator reconciliation.
 - Actual browser-to-browser and phone transactions, large-collection recovery performance, expanded accessibility testing, release/security review, and target social-platform preview checks.
 - Reviewed apex homepage/Git-build promotion and approved public explorer source verification. Mainnet, monetary sales, and marketplaces remain out of scope.
+
+## Wallet custody milestone
+
+Open `/wallet` from the wallet controls or compact menu. Its inventory lists indexed ZFT ownership at the connected address. Live deployment/owner/metadata/epoch checks still gate every move. Wallet → file creates and saves a fresh key, requires a new acknowledged recovery snapshot, then requests the scoped MetaMask typed-data signature. File → wallet shows the full connected recipient for confirmation and signs using only the disposable local key. The existing sponsor sends both rotations; a wallet gas payment or operator approval is not required by these flows.
+
+Saved authorization and transaction status survive reload/recovery. Unknown job failures are not treated as permission to replace keys. Expired wallet authorizations must be renewed through Wallet using the original saved destination. The vault rejects stale conditional writes so a delayed prompt or response cannot overwrite a newer custody operation. A completed return is shown as `wallet`; prior exported files are rejected against live ownership.
+
+42 TypeScript tests pass, including 11 custody-flow cases with real signatures/encrypted IndexedDB and mocked providers/chain. Typecheck, frontend build and Worker dry run pass. Local UI checks cover locked/absent-wallet guidance and Escape/focus return. Actual MetaMask and phone transactions remain open in R1.6. The current alpha remains file-first and requires the local profile vault for authenticated writes; confirmed MetaMask-first onboarding/authentication/direct minting is R1.7, and password-optional file onboarding is R1.8; neither is shipped yet. The current required passphrase encrypts browser storage, not the downloadable recovery bundle, which includes its own recovery root.
+
+Run the isolated generated-wallet SDK canary with `ZFT_TEST_ORIGIN=https://devnet.zft.foo node --import tsx scripts/check-wallet-custody.ts`. It uses only new test assets and sponsored devnet gas. Recovery files and its test wallet key remain in ignored `.local/`; retries resume the saved journal. It writes public evidence to `research/hosted-wallet-canary.json` only after the round trip, stale-file rejection and indexed wallet inventory pass. This signer fixture does not exercise a MetaMask extension.
+
+The hosted SDK custody canary passed four confirmed transactions at blocks 95002, 95009, 95016 and 95023, including wallet → file → wallet, stale-export rejection and indexed wallet holdings. Public evidence: [hosted-wallet-canary.json](../research/hosted-wallet-canary.json).

@@ -10,6 +10,32 @@ export type WalletChoice = {
   info: { uuid: string; name: string; rdns: string };
   provider: WalletProvider;
 };
+export type WalletSession = {
+  provider: WalletProvider;
+  account: Address;
+  chainId: string;
+  isCurrent?: () => boolean;
+};
+export async function assertWallet(session: WalletSession) {
+  if (session.isCurrent && !session.isCurrent())
+    throw new Error(
+      "Wallet session changed. Review the selected wallet before continuing.",
+    );
+  const chainId = await session.provider.request({ method: "eth_chainId" });
+  const account = walletAccount(
+    await session.provider.request({ method: "eth_accounts" }),
+  );
+  if (!isZVMChain(chainId))
+    throw new Error("Switch your wallet to ZVM Devnet before continuing.");
+  if (!account || account.toLowerCase() !== session.account.toLowerCase())
+    throw new Error(
+      "The wallet account changed. Review the selected account and try again.",
+    );
+  if (session.isCurrent && !session.isCurrent())
+    throw new Error(
+      "Wallet session changed. Review the selected wallet before continuing.",
+    );
+}
 export const network = {
   chainId: `0x${CHAIN_ID.toString(16)}`,
   chainName: "ZVM Devnet",

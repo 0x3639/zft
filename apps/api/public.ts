@@ -92,7 +92,10 @@ export async function gallery(
   let filter = "1=1";
   const values: unknown[] = [];
   if (profile) {
-    if (tab === "created") {
+    if (tab === "wallet") {
+      filter = "owner=?";
+      values.push(profile);
+    } else if (tab === "created") {
       filter = "creator=?";
       values.push(profile);
     } else {
@@ -111,7 +114,7 @@ export async function gallery(
     (r): r is PublicItem => !!r,
   );
   const last = page.at(-1);
-  if (profile && tab !== "created")
+  if (profile && ["collection", "sent"].includes(tab))
     await Promise.all(
       items.map(async (i) => {
         const p = await env.DB.prepare(

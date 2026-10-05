@@ -183,6 +183,11 @@ async function route(request: Request, env: Env) {
     );
   if (path === "/api/gallery" && request.method === "GET")
     return json(await gallery(env, url));
+  const walletRoute = /^\/api\/wallets\/(0x[\da-fA-F]{40})$/.exec(path);
+  if (walletRoute && request.method === "GET")
+    return json(
+      await gallery(env, url, walletRoute[1].toLowerCase(), "wallet"),
+    );
   if (path === "/api/activity" && request.method === "GET")
     return json(await activity(env, url));
   const profileRoute =

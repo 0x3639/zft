@@ -2,6 +2,7 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { zeroAddress, type Hex } from "viem";
 import {
   abi,
+  canonical,
   CANONICALIZER,
   digest,
   domain,
@@ -96,7 +97,11 @@ export async function submit(vault: Vault, d: Deployment, item: ItemRecord) {
         };
       } else {
         const state = await ownership(d.contract, item.tokenId);
-        const previous = item.previousKeys.find((k) =>
+        if (item.walletTransfer?.direction === "into-file")
+          throw new Error(
+            "This wallet authorization expired. Open Wallet to renew it using the same saved file key.",
+          );
+        const previous = [item.privateKey, ...item.previousKeys].find((k) =>
           sameAddress(privateKeyToAccount(k).address, state.owner),
         );
         if (!previous)
@@ -119,13 +124,14 @@ export async function submit(vault: Vault, d: Deployment, item: ItemRecord) {
           }),
         };
       }
+      const previousItem = item;
       item = {
         ...item,
         operation,
         operationId: operationDigest(d.contract, operation),
       };
       delete item.txHash;
-      await vault.saveItem(item);
+      await vault.saveItem(item, previousItem);
     }
   }
   const job = await signedRequest<Job>(
@@ -133,12 +139,15 @@ export async function submit(vault: Vault, d: Deployment, item: ItemRecord) {
     item.operation,
     profile,
   );
-  await vault.saveItem({
-    ...item,
-    status: "pending",
-    operationId: job.operationId,
-    txHash: job.txHash,
-  });
+  await vault.saveItem(
+    {
+      ...item,
+      status: "pending",
+      operationId: job.operationId,
+      txHash: job.txHash,
+    },
+    item,
+  );
   return job;
 }
 export async function mint(
@@ -279,28 +288,55 @@ export async function rotate(vault: Vault, d: Deployment, old: ItemRecord) {
     operationId: operationDigest(d.contract, operation),
   };
   delete record.txHash;
+  delete record.walletTransfer;
   await vault.saveItem(record);
   return submit(vault, d, record);
 }
 export async function reconcile(vault: Vault, d: Deployment, item: ItemRecord) {
   await checkDeployment(d);
   let job: Job | undefined;
-  if (item.operationId)
-    job = await api<Job>(`/api/operations/${item.operationId}`);
-  if (job && job.state !== "confirmed" && job.state !== "failed") return job;
+  if (item.operationId) {
+    try {
+      job = await api<Job>(`/api/operations/${item.operationId}`);
+    } catch (e) {
+      if (!(e instanceof ApiError && e.status === 404)) throw e;
+    }
+  }
+  if (job && job.state !== "confirmed" && job.state !== "failed") {
+    if (item.txHash !== job.txHash || item.status !== "pending")
+      await vault.saveItem(
+        { ...item, txHash: job.txHash, status: "pending" },
+        item,
+      );
+    return job;
+  }
   const state = await ownership(d.contract, item.tokenId);
   const owned = sameAddress(
     state.owner,
     privateKeyToAccount(item.privateKey).address,
   );
-  if (owned && state.metadataHash !== digest(item.metadata))
+  if (state.metadataHash !== digest(item.metadata))
     throw new Error("On-chain metadata does not match the saved image.");
-  await vault.saveItem({
+  const awaitingWallet =
+    item.walletTransfer?.direction === "into-file" &&
+    sameAddress(state.owner, item.walletTransfer.wallet) &&
+    state.nonce === item.walletTransfer.sourceNonce;
+  const next: ItemRecord = {
     ...item,
-    nonce: state.nonce,
-    status: owned ? "owned" : "stale",
+    nonce: awaitingWallet ? item.nonce : state.nonce,
+    status: owned
+      ? "owned"
+      : awaitingWallet
+        ? item.operation
+          ? "pending"
+          : "draft"
+        : item.walletTransfer?.direction === "to-wallet" &&
+            sameAddress(state.owner, item.walletTransfer.wallet)
+          ? "wallet"
+          : "stale",
     ...(job ? { txHash: job.txHash } : {}),
-  });
+  };
+  if (canonical(next) !== canonical(item)) await vault.saveItem(next, item);
   return job;
 }
 export async function send(vault: Vault, d: Deployment, item: ItemRecord) {

@@ -124,6 +124,14 @@ describe("Public identity and ownership projections", () => {
     expect(await inProfile(env, alice, "1")).toBe(true); // Immutable creator provenance.
     expect(await publicContext(env, alice, "1")).toBeNull();
     expect(
+      (await gallery(env, new URL("https://internal"), alice, "wallet")).items,
+    ).toEqual([]);
+    const walletItems = (
+      await gallery(env, new URL("https://internal"), bob, "wallet")
+    ).items;
+    expect(walletItems.map((i) => i.tokenId)).toEqual(["1"]);
+    expect(walletItems[0].publicationNonce).toBeUndefined(); // Wallet ownership is independent of profile publication.
+    expect(
       (await snapshot(env, new URL(`https://zft.foo/p/${alice}`))).art,
     ).toHaveLength(0);
     expect(

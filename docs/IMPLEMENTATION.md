@@ -1,30 +1,107 @@
-# Implementation plan and acceptance gates
+# ZFT implementation roadmap and acceptance gates
 
-Implementation authorized 2026-10-04. The first devnet slice now implements the contract, protocol/codec/vault, core transaction frontend, and a Cloudflare sponsor/API. The contract is deployed and the live SDK/Worker canary passes. See [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for exact status, evidence, and remaining gates. The hosted alpha now also implements signed profiles/social relations, opt-in possession proofs, D1 indexing with checkpoint rollback, and per-page PNG sharing. The table remains the full release target; complete curated collection/avatar parity and the operational/browser beta gates are still pending.
+This roadmap tracks delivered work and the balance of the ZFT specification. The hosted devnet alpha is live; wallet custody, the remaining public-site features and beta qualification are the active backlog. Use this document for work status, [FUNCTIONAL-SPEC.md](FUNCTIONAL-SPEC.md) for required behavior, and [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for deployed operation and limitations.
 
-## 1. Delivery order
+## Roadmap status
 
-The [complete functional specification](FUNCTIONAL-SPEC.md#14-implementation-sequence-and-remaining-decisions) now defines the ordered parity backlog and traceable acceptance IDs. The [reference audit](REFERENCE-AUDIT.md) distinguishes observed public actions from owner flows still awaiting inspection. Use these alongside the broader milestones below.
+This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Update it in the same change as implementation or acceptance evidence. Last reconciled: **2026-10-04**, prior baseline commit **`da97ce2`**, current review work on `feat/devnet-app` / [PR 1](https://github.com/0x3639/zft/pull/1), live Worker **`a5a54d62-0d22-4fd4-9355-dc0c31470c52`**.
 
-| Milestone | Deliverable | Acceptance gate |
+Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
+
+Current focus: **R1 wallet custody**. The existing contract already supports signed ownership rotation in both directions, so the initial integration can use scoped EIP-712 authorization and the existing sponsor without a new contract deployment. Both custody directions are implemented and deployed. Automated backup/signature/retry checks pass; the [hosted SDK transaction canary](../research/hosted-wallet-canary.json) passed and actual wallet/device acceptance remains open. Persist and back up a new file key before requesting a wallet signature. The user confirmed **MetaMask-first onboarding** on 2026-10-04; R1.7 below is the next UX change, before discovery work.
+
+| Work | Status | Completed baseline or remaining deliverable | Acceptance |
+| --- | --- | --- | --- |
+| B1 Core ownership | Complete for SDK and Worker scope | Deployed ERC-721, codec, encrypted vault, mint/export/claim/cancel/recovery; real devnet canary | [Transaction evidence](../research/hosted-devnet-canary.json); device acceptance remains R6 |
+| B2 Public proof and navigation | Complete for recorded scope | Collection-first profiles, Network dialogs, guest entry, proof card, historical epochs, safe proof download, theme/menu/lookup | [Browser evidence](../research/public-ui-acceptance.json); A-NAV/A-PROFILE/A-ITEM/A-PROOF subset |
+| B3 Page sharing | Complete for recorded scope | Initial HTML, current-holding collages, selected epochs, bounded thumbnail derivatives | [Hosted check](../research/public-canary.json), [renderer fixtures](../research/sharing-fixtures/results.json); remaining sharing checks in R5/R6 |
+| R1 Wallet custody | In progress | Custody transitions deployed; MetaMask-first onboarding and real-device acceptance remain | A-WALLET, A-TRANSFER, A-RECOVERY |
+| R2 Discovery and homepage | Next | Collection and NFT search/sorts/cursors; rankings, fresh art and homepage navigation | A-HOME, A-DISCOVERY |
+| R3 Activity | Next after event schema | Public event journal, Everyone/Following, actor/item links, profile feed, honest times | A-ACTIVITY, A-PROFILE |
+| R4 Profile media | Next | Avatar/cover upload, local preview/crop/reset, signed save, sharing revisions | A-PROFILE, A-SHARE |
+| R5 Help and remaining sharing | Next | Basics/Technical views, task-aware CTAs, technical metadata and remaining image compositions | A-NAV, A-SHARE |
+| R6 Browser and device acceptance | Pending acceptance | Actual wallet extension, two-browser/phone ownership and recovery, accessibility and errors | A-WALLET, A-TRANSFER, A-RECOVERY, A-NAV |
+| R7 Operations and release review | Pending acceptance | Sponsor fault injection, chain reorg/reset drills, limits, incident procedures, independent review | A-OPERATIONS |
+| R8 Apex promotion | After R6/R7 and release review | Reviewed build/deployment settings, `zft.foo` app routing, smoke checks and rollback | Hosting/release acceptance |
+| R9 Curated collections | Scope decision open | Group public items at `/c/:collectionId`; decide whether part of this beta | A-DISCOVERY, A-PROFILE, A-SHARE |
+| E1 Encrypted sharing and remote backup | Deferred | Separate encryption/storage/recovery/retention protocol | New protocol review and recovery/race tests |
+| E2 Marketplace | Deferred | Verify Karum deployment/source/order types, payment asset, safe payouts; then listings/offers/settlement | A-MARKET; [exchange plan](MARKETPLACE.md) |
+| E3 Mainnet and private ownership | Outside devnet release | Mainnet launch and privacy research are separate projects | Independent design and launch review |
+
+## Remaining work checklist
+
+### Wallet custody
+
+- [x] Provider discovery, explicit connection, pinned network add/switch, account/network/disconnect handling and balance UI.
+- [x] Confirm the existing deployed contract can authorize both custody directions without exporting a wallet private key.
+- [x] R1.1 Shared wallet session and on-chain wallet inventory with unavailable/wrong-network states.
+- [x] R1.2 Prepare a fresh disposable destination, persist it and require its recovery acknowledgment before wallet authorization.
+- [x] R1.3 Verify the exact wallet signer/domain/recipient/epoch, persist authorization, submit and reconcile without replacing a pending destination.
+- [x] R1.4 Return file custody to the selected wallet; invalidate old exports; distinguish wallet ownership from stale local records.
+- [ ] R1.5 Complete custody acceptance: 11 automated tests cover rejection, account/network/disconnect, invalid signature, unavailable sponsor/RPC, expiry/retry, recovery restore, competing edits and simulated round trip. The [hosted SDK round trip](../research/hosted-wallet-canary.json) also passed four confirmed transactions, stale-file rejection and indexed inventory; real browser restart and competing on-chain claim acceptance remain open.
+- [ ] R1.6 Exercise an actual MetaMask extension and phone wallet. Mock-provider tests do not close this item.
+- [ ] R1.7 **Next, confirmed direction:** MetaMask-first onboarding, mint/receive directly into wallet custody, and wallet-backed profile authentication with **no separate ZFT password**. File custody requires downloading/acknowledging its disposable-key recovery material; password protection for browser persistence is optional. Preserve existing local profiles and recovery files; specify account linking/migration before changing identity semantics. Connecting alone must not transfer assets or publish holdings.
+- [ ] R1.8 Password-optional file onboarding and recovery: retain existing encrypted vault unlock, define passwordless local persistence/clear-browser behavior explicitly, and test download acknowledgment, recovery import, interrupted transfer and upgrade compatibility. Offer “Protect this browser with a password” for remembered file keys, with manual lock and inactivity locking. Keep passwords off the server and avoid storing an unwrapped secret beside encrypted records. Specify a session-only choice for users who only download/restore files. Do not silently decrypt existing vaults or imply that the current recovery download is password-encrypted. [Reference storage evidence](../research/reference-key-storage.json).
+
+### Discovery and homepage
+
+- [ ] R2.1 Versioned metadata/profile search projections and a real profile creation field; preserve unknown legacy creation times rather than inventing dates.
+- [ ] R2.2 Collection directory: name search, Popular/Newest/Biggest ranking, consistent counts and independent like actions.
+- [ ] R2.3 NFT directory: title search, Newest/Oldest/A–Z, deterministic bounded cursors and current collector context when unambiguous.
+- [ ] R2.4 Homepage ranked collections, fresh artwork, recent activity, explanation and onboarding/recovery CTAs using real data.
+- [ ] R2.5 Full-dataset filters before pagination; duplicate/tie/stale-response/empty-result checks; keyboard and mobile acceptance.
+
+### Activity
+
+- [ ] R3.1 Append-only public profile/social/publication event journal; atomic idempotent transitions and explicit reversal policy.
+- [ ] R3.2 Everyone/Following, distinct guest/zero-follow/empty-feed states, stable cursor pagination and profile feed.
+- [ ] R3.3 Actor/target profile links, NFT links/thumbnails, absolute/relative timestamps and secondary explorer proof links.
+- [ ] R3.4 Unpublish visibility, duplicate requests and reorg rollback tests; never infer a known person's gift or sale from a raw address transition.
+
+### Profile media and help
+
+- [ ] R4.1 Versioned avatar/cover references and signed bounded upload; reject transferable envelopes and active content.
+- [ ] R4.2 Local preview/crop, explicit save, optimistic revision checks and reset to default.
+- [ ] R4.3 Apply public media to profiles, directory/home cards and OG revisions; old public cache limitations remain explicit.
+- [ ] R4.4 Verify image limits, wrong-profile writes, malformed uploads, fallback, responsive crop and keyboard controls.
+- [ ] R5.1 Basics/Technical help with URL/history state and correct ZVM/file/recovery explanations.
+- [ ] R5.2 Distinct technical-page HTML/OG; page-specific discovery/home artwork where appropriate.
+- [ ] R5.3 Finish copy-failure, not-found, outage, long-title/crop and 0/1/2/3+ collection sharing checks against the full spec.
+
+### Acceptance and launch
+
+- [ ] R6.1 Run the browser acceptance script below, including current/outdated recovery and interrupted pending operations.
+- [ ] R6.2 Validate keyboard/screen-reader/reduced-motion/large-text behavior at 320/360/768/1440px; preserve scroll/focus and error states.
+- [ ] R6.3 Exercise historical public proofs after an actual post-publication transfer and unpublish; inspect downloaded artifacts.
+- [ ] R6.4 Verify target social-platform previews/recrawls and hosted large-art behavior; local workerd timing is not a hosted CPU guarantee.
+- [ ] R7.1 Sponsor crash before/after broadcast, retry/nonce gaps, fee replacement and ambiguous-state recovery.
+- [ ] R7.2 Controlled reorg/reset/deep rollback tests and independent ZVM/finality assumptions; preserve deployment mismatch stops.
+- [ ] R7.3 Storage/admission/journal retention, performance/limits and incident/rollback procedures with measured evidence. Current Vite entry bundle is about 642 kB minified / 196 kB gzip and triggers its size warning; evaluate route splitting during performance work.
+- [ ] R7.4 Release review, dependency/license inventory and source-license decision; approved explorer source publication remains separate.
+- [ ] R8.1 Review release artifact and apex/Git deployment configuration; preserve canonical art and metadata routes.
+- [ ] R8.2 Promote the app to `zft.foo`, verify fresh/deep/private routes and rollback, and update the runbook.
+
+## Decisions and dependencies
+
+Continue ready work without reopening the confirmed domain, visual theme, Cloudflare hosting, real devnet implementation, or MetaMask direction. Remaining decisions are curated-collection beta scope; long-term historical publication retention; whether portable profile-key endorsements are required; project source license; encrypted-link/remote-backup protocol; and the verified exchange/payment asset. An unanswered expansion decision does not block the existing collectible app.
+
+Confirmed custody direction: MetaMask controls ordinary holdings and signs wallet actions; a fresh local disposable key controls each transferable file. Never request/export the wallet private key. The current alpha still requires its local profile vault and passphrase for writes; wallet-first authentication/minting and optional local password protection are tracked in R1.7/R1.8, not claimed as shipped. The user requested parity with the reference’s download-and-save-key onboarding; a separate ZFT password is not a chain requirement.
+
+No completion date is committed. Re-estimate each implementation slice from the actual remaining work and external acceptance dependencies rather than carrying forward the original pre-implementation estimate.
+
+## Work tracking rules
+
+For each slice, record its IDs, code/schema changes, tests, remaining gaps, commit/PR and deployed version. Check an item only when its stated outcome has evidence; a prepared patch, successful click, mocked provider or SDK canary does not establish real-device acceptance. Update the functional specification when semantics change and the runbook when deployed behavior changes. Keep unresolved findings with their affected roadmap ID. Maintain this tracker in the repository; no external issue tracker or recurring automation is configured.
+
+### Delivery log
+
+| Date | Work | Evidence and remaining work |
 | --- | --- | --- |
-| M0 · Review | Scope, ownership model, recovery policy, frontend direction, host/domain, release boundary | Resolve blocking decisions; accepted spec revision |
-| M1 · Protocol foundations | Workspace, schemas, SDK typed data, vault/pending-key journal, canonical image/file codec | Frozen golden vectors; malformed/stale-file behavior; recovery restore; no secret upload path |
-| M2 · Contract | Non-upgradeable ZFT, tests, deployment scripts, shared signing vectors | Unit/fuzz/invariant tests; reviewer can reproduce signature/nonce behavior locally |
-| M3 · Cloudflare services | Workers routes, R2/D1 bindings, sponsor DO, indexer, quotas, signed social relations, HTML share heads and unique OG generation | Idempotent jobs, crash/retry and nonce reconciliation; reorged index rebuild; isolated previews; crawler-visible per-page images |
-| M4 · Product frontend | React screens based on prototype, public profiles/tabs/detail views, real vault/codec/client integration | Two-browser mint/export/claim/re-export/cancel, updated backup restore, profile/social/share parity, mobile/accessibility |
-| M5 · Devnet beta | Verified contract canary, Cloudflare custom domain, deployment manifest, operations runbook | Independent endpoint/client verification; review of ZVM assumptions; public test flow and incident/recovery drill |
-| M6 · Optional expansion | Encrypted links/backups, wallet integration, Karum, private protocol research | Separate specifications and reviewed trust/settlement model per feature |
+| 2026-10-04 | B1 core hosted alpha | Contract `0x42666265e38f2d1b786e8af8e9576224a95b90ae`; [runbook](DEVNET-ALPHA.md), hosted SDK canary; device/operations gates remain |
+| 2026-10-04 | B2/B3 public parity | Commit `da97ce2`; 31 TypeScript tests, CI and preview build passed; live version `027deb34-587b-4b19-9383-35b657cfecd7`; wallet custody and R2–R8 remain |
+| 2026-10-04 | R1.1–R1.4 implemented and deployed | `/wallet`, indexed wallet inventory, backed-up destination keys, typed authorization, resumable sponsor jobs, return-to-wallet and conditional vault writes; 42 TypeScript tests/typecheck/frontend build/Worker dry run passed. Actual MetaMask/phone acceptance and R1.7/R1.8 remain open. Version `a5a54d62-0d22-4fd4-9355-dc0c31470c52`; [hosted canary](../research/hosted-wallet-canary.json) passed at blocks 95002/95009/95016/95023. |
 
-Some implementation work can overlap, but freeze SDK/contract signing vectors before wiring sponsorship. The image codec and pending-key persistence are prerequisites for live claims, not polish deferred to launch.
-
-## 2. Planning estimate
-
-For one experienced engineer, use **approximately 5–8 engineering weeks** as a planning range for the proposed devnet beta, including profile/social pages and unique OG previews, after decisions are settled. This excludes waiting for an independent security review, ZVM changes, unavailable source/specs, custom private cryptography, and marketplace settlement. Re-estimate after M1 validates codec performance and sponsor transport. These are effort estimates, not promises of calendar delivery.
-
-A smaller proof-of-concept can land sooner by omitting discovery/profiles and using local-only collection display. Do not reduce scope by dropping key persistence, signature binding, or race/reorg verification.
-
-## 3. Verification matrix
+## Verification matrix
 
 | Area | Meaningful verification |
 | --- | --- |
@@ -38,7 +115,7 @@ A smaller proof-of-concept can land sooner by omitting discovery/profiles and us
 
 Suggested tooling: Foundry for contract tests; Vitest for protocol/codec/vault/service logic; Cloudflare’s supported Workers test harness for bindings; Playwright for real end-to-end scenarios. Pin versions in M1. Do not write superficial snapshot tests to substitute for protocol assertions.
 
-## 4. Devnet acceptance script
+## Browser acceptance script
 
 1. Deploy and verify a canary on the allowlisted ZVM devnet. Pin deployment block and bytecode hash.
 2. Browser A creates a vault, saves recovery, and mints a fixture image. Inspect its mint and owner in explorer/RPC.
@@ -53,14 +130,14 @@ Suggested tooling: Foundry for contract tests; Vitest for protocol/codec/vault/s
 
 A public devnet test by itself cannot force network reorgs safely. Use controlled infrastructure/test fixtures for failure injection and independent operators for ZVM state reproduction.
 
-## 5. Launch artifacts
+## Launch artifacts
 
 Before beta, commit the actual deployment manifest, contract source verification link, environment/binding documentation without secrets, threat/invariant review, backup guide, incident runbook, dependency/license inventory, measured Cloudflare limits, sponsorship budget, and reproducible acceptance evidence. Build hashes identify the reviewed frontend release.
 
 The initial public beta remains clearly labeled ZVM devnet and collectible-only. Enabling sales or mainnet moves through another explicit review. An ERC-721 interface check and six BLS precompile probes are preliminary capability evidence, not proof that ZFT or ZVM is production-ready.
 
-## 6. Repository and CI workflow
+## Repository and CI workflow
 
-The proposal/prototype and hosted alpha now exist. Continue implementation with focused changes for M1–M5 and the functional-spec acceptance IDs. CI checks TypeScript/build, protocol vectors, meaningful service tests, contract suites, and end-to-end scenarios as they become applicable. Documentation/prototype changes need focused link/syntax/layout checks rather than transaction canaries for unchanged code.
+The proposal/prototype and hosted alpha now exist. Continue implementation with focused changes for the roadmap IDs and functional-spec acceptance IDs above. CI checks TypeScript/build, protocol vectors, meaningful service tests, contract suites, and end-to-end scenarios as they become applicable. Documentation/prototype changes need focused link/syntax/layout checks rather than transaction canaries for unchanged code.
 
 Cloudflare beta deployments use a scoped environment; PR previews have separate services and no beta sponsor authority. Production/mainnet deployment is not triggered merely by merging a UI change. Contract deployment requires explicit network/key configuration and verification of the approved source artifact.

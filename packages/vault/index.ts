@@ -6,6 +6,8 @@ import {
   hashSchema,
   metadataSchema,
   operationSchema,
+  addressSchema,
+  uintSchema,
   type Deployment,
   type Metadata,
   type Operation,
@@ -48,7 +50,22 @@ const recordSchema = z.discriminatedUnion("kind", [
       image: z.string().max(14_000_000),
       metadata: metadataSchema,
       nonce: z.string().regex(/^\d{1,78}$/),
-      status: z.enum(["draft", "pending", "owned", "exported", "stale"]),
+      status: z.enum([
+        "draft",
+        "pending",
+        "owned",
+        "exported",
+        "stale",
+        "wallet",
+      ]),
+      walletTransfer: z
+        .object({
+          direction: z.enum(["into-file", "to-wallet"]),
+          wallet: addressSchema,
+          sourceNonce: uintSchema,
+        })
+        .strict()
+        .optional(),
       operation: operationSchema.optional(),
       operationId: hashSchema.optional(),
       txHash: hashSchema.optional(),
@@ -234,8 +251,19 @@ export class Vault {
     if (!this.key) throw new Error("Unlock your collection first.");
     return this.key;
   }
-  async put(id: string, record: VaultRecord) {
+  async put(id: string, record: VaultRecord, expected?: ItemRecord | null) {
     const before = await this.db.get("records", id);
+    if (expected !== undefined) {
+      const current = before
+        ? recordSchema.parse(
+            JSON.parse(
+              dec.decode(await unseal(this.requireKey(), before, this.aad(id))),
+            ),
+          )
+        : null;
+      if (canonical(current) !== canonical(expected))
+        throw new Error("This item changed. Refresh before continuing.");
+    }
     if (before && record.kind === "item") {
       const current = recordSchema.parse(
         JSON.parse(
@@ -305,8 +333,8 @@ export class Vault {
     }
     return items;
   }
-  async saveItem(record: ItemRecord) {
-    await this.put(`item:${record.tokenId}`, record);
+  async saveItem(record: ItemRecord, expected?: ItemRecord | null) {
+    await this.put(`item:${record.tokenId}`, record, expected);
   }
   async backup() {
     this.requireKey();

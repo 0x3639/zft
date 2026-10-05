@@ -33,6 +33,8 @@ import {
 import { possessionText } from "../../../packages/protocol/public";
 import { ThemeControl, ProfileLookup } from "./site-controls";
 import { WalletControl } from "./wallet-control";
+import { WalletPage } from "./wallet-page";
+import type { WalletSession } from "./wallet";
 
 type Config = { deployment: typeof manifest; sponsorEnabled: boolean };
 type PublicItem = {
@@ -80,6 +82,8 @@ function App() {
     [unlocked, setUnlocked] = useState(false),
     [exists, setExists] = useState(false);
   const routePath = path.split("?")[0];
+  const [walletSession, setWalletSession] = useState<WalletSession>();
+  const [walletBusy, setWalletBusy] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false),
     [returnTo, setReturnTo] = useState<string>();
   const [items, setItems] = useState<ItemRecord[]>([]),
@@ -220,7 +224,7 @@ function App() {
   useEffect(() => {
     if (!vault || !unlocked || !deployment) return;
     const timer = setInterval(() => {
-      if (busy) return;
+      if (busy || walletBusy) return;
       const pending = items.find((i) => i.status === "pending" && i.txHash);
       if (pending)
         act("Checking transaction", async () => {
@@ -230,7 +234,7 @@ function App() {
         });
     }, 15000);
     return () => clearInterval(timer);
-  }, [vault, unlocked, items, busy]);
+  }, [vault, unlocked, items, busy, walletBusy]);
   const lock = () => {
     vault?.lock();
     setUnlocked(false);
@@ -745,27 +749,35 @@ function App() {
                     >
                       Refresh status
                     </Button>
-                    {(item.status === "draft" || item.status === "pending") && (
-                      <Button
-                        disabled={!!busy || !ready}
-                        onClick={() =>
-                          act("Resuming saved operation", async () => {
-                            if (item.operation?.kind === "mint")
-                              await signedRequest(
-                                "/api/uploads",
-                                { image: item.image, metadata: item.metadata },
-                                await vault!.profile(),
-                              );
-                            await flows.submit(vault!, deployment!, item);
-                            setNotice(
-                              "Saved operation resubmitted; no replacement item key was generated.",
-                            );
-                          })
-                        }
-                      >
-                        Resume transaction
-                      </Button>
+                    {item.walletTransfer && (
+                      <Link to="/wallet">Manage wallet custody →</Link>
                     )}
+                    {item.operation &&
+                      (item.status === "draft" || item.status === "pending") &&
+                      item.walletTransfer?.direction !== "into-file" && (
+                        <Button
+                          disabled={!!busy || !ready}
+                          onClick={() =>
+                            act("Resuming saved operation", async () => {
+                              if (item.operation?.kind === "mint")
+                                await signedRequest(
+                                  "/api/uploads",
+                                  {
+                                    image: item.image,
+                                    metadata: item.metadata,
+                                  },
+                                  await vault!.profile(),
+                                );
+                              await flows.submit(vault!, deployment!, item);
+                              setNotice(
+                                "Saved operation resubmitted; no replacement item key was generated.",
+                              );
+                            })
+                          }
+                        >
+                          Resume transaction
+                        </Button>
+                      )}
                     {["owned", "exported"].includes(item.status) && (
                       <>
                         <Button
@@ -882,6 +894,23 @@ function App() {
       ) : (
         authPanel
       );
+  else if (routePath === "/wallet" && deployment)
+    content = (
+      <WalletPage
+        session={walletSession}
+        vault={unlocked ? vault : undefined}
+        deployment={deployment}
+        items={items}
+        nav={(to) => {
+          if (to === "/collection" && !unlocked) setReturnTo("/wallet");
+          nav(to);
+        }}
+        onRefresh={refresh}
+        onBusy={setWalletBusy}
+        appBusy={!!busy}
+        sponsor={ready}
+      />
+    );
   else if (routePath === "/activity") content = <Activity onError={setError} />;
   else if (path.startsWith("/item/"))
     content = (
@@ -1079,7 +1108,7 @@ function App() {
           </nav>
           <div className="actions">
             <ThemeControl />
-            <WalletControl />
+            <WalletControl onChange={setWalletSession} nav={nav} />
             <button
               className="nom-btn nom-btn--outline nom-btn--default mobile-menu-button"
               aria-expanded={menuOpen}
@@ -1095,7 +1124,7 @@ function App() {
               My collection
             </Link>
             {unlocked && (
-              <Button onClick={lock} disabled={!!busy}>
+              <Button onClick={lock} disabled={!!busy || walletBusy}>
                 Lock
               </Button>
             )}
@@ -1109,6 +1138,7 @@ function App() {
           >
             <Link to="/">Home</Link>
             <Link to="/explore">Explore</Link>
+            <Link to="/wallet">Wallet</Link>
             <Link to="/activity">Activity</Link>
             <Link to="/how-it-works">How it works</Link>
             <Link to="/mint">Mint a picture</Link>
