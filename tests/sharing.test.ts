@@ -53,6 +53,30 @@ it.each([
     expect(html).not.toContain("A published collector");
   },
 );
+it.each([
+  ["/", "The collectible is the file.", "home"],
+  ["/explore", "Find your next favorite collection.", "explore"],
+  ["/explore/nfts", "Pictures worth keeping.", "explore-nfts"],
+])(
+  "keeps %s public with branded share metadata during a discovery outage",
+  async (path, title, image) => {
+    const response = await worker.fetch(path, {
+      headers: { "x-fixture": "database-outage" },
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/html");
+    const html = await response.text();
+    expect(html).toContain('<div id="root"></div>');
+    expect(html).toContain('src="/assets/app.js"');
+    expect(html).toContain(title);
+    expect(html).toContain(
+      `property="og:image" content="https://devnet.zft.foo/api/og/page/${image}.png?v=`,
+    );
+    expect(html).not.toContain('name="robots"');
+    expect(html).not.toContain("stale-image");
+    expect(html).not.toContain("private storage failure detail");
+  },
+);
 it("keeps public share metadata and private routes working", async () => {
   const publicPage = await worker.fetch("/explore");
   expect(publicPage.status).toBe(200);

@@ -1,9 +1,12 @@
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 // Exercise real SQLite constraints, views, and transactions using the D1 interface.
 export function database() {
   const sql = new DatabaseSync(":memory:");
-  sql.exec(readFileSync("migrations/0001_public.sql", "utf8"));
+  for (const name of readdirSync("migrations")
+    .filter((n) => n.endsWith(".sql"))
+    .sort())
+    sql.exec(readFileSync(`migrations/${name}`, "utf8"));
   class Statement {
     constructor(
       private query: string,

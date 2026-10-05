@@ -9,6 +9,7 @@ import {
   publicContext,
   publication,
 } from "./public";
+import { discoverNFTs, discoverCollections } from "./discovery";
 import { HttpError } from "./http";
 import type { Env } from "./types";
 
@@ -32,8 +33,12 @@ const staticPages: Record<string, [string, string]> = {
     "Mint a picture. Keep it in your collection. Pass the original file to someone else.",
   ],
   "/explore": [
-    "Explore the network.",
-    "Discover public collectibles on Zenon ZVM devnet.",
+    "Find your next favorite collection.",
+    "Discover public collections and collectors on Zenon ZVM devnet.",
+  ],
+  "/explore/nfts": [
+    "Pictures worth keeping.",
+    "Discover freshly minted pictures on Zenon ZVM devnet.",
   ],
   "/activity": [
     "Pictures on the move.",
@@ -62,13 +67,41 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
     art: [] as Snapshot["art"],
     revisionData: null as unknown,
   };
-  if (staticPages[path])
+  if (staticPages[path]) {
+    // Discovery artwork enriches static pages; its availability must not gate them.
+    const artwork =
+      path === "/explore"
+        ? (
+            await discoverCollections(
+              env,
+              new URL("https://internal?limit=3"),
+            ).catch(() => ({ items: [] }))
+          ).items.flatMap((p) => (p.preview ? [p.preview] : []))
+        : ["/", "/explore/nfts"].includes(path)
+          ? (
+              await discoverNFTs(
+                env,
+                new URL("https://internal?limit=3"),
+              ).catch(() => ({ items: [] }))
+            ).items
+          : [];
+    const art = [...new Map(artwork.map((i) => [i.tokenId, i])).values()].map(
+      (i) => ({
+        hash: i.metadata.imageHash,
+        width: i.metadata.width,
+        height: i.metadata.height,
+        title: i.metadata.name,
+      }),
+    );
     return {
       ...base,
       title: staticPages[path][0],
       description: staticPages[path][1],
-      imagePath: `/api/og/page/${path.slice(1) || "home"}.png`,
+      imagePath: `/api/og/page/${path === "/explore/nfts" ? "explore-nfts" : path.slice(1) || "home"}.png`,
+      art,
+      revisionData: art,
     };
+  }
   if (
     [
       "/collection",
@@ -274,7 +307,7 @@ export async function shareHTML(request: Request, env: Env) {
 }
 export async function ogResponse(env: Env, url: URL) {
   if (
-    !/^\/api\/og\/(page\/(home|explore|activity|about|how-it-works)|item\/\d{1,78}|p\/0x[\da-f]{40}(\/\d{1,78}(\/epoch\/\d{1,78})?)?)\.png$/.test(
+    !/^\/api\/og\/(page\/(home|explore|explore-nfts|activity|about|how-it-works)|item\/\d{1,78}|p\/0x[\da-f]{40}(\/\d{1,78}(\/epoch\/\d{1,78})?)?)\.png$/.test(
       url.pathname,
     )
   )

@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-10-05",
+  "origin": "http://localhost:5173",
+  "viewports": [
+    320,
+    360,
+    1440
+  ],
+  "checks": [
+    "Collection name search, Biggest sort, no-results and clear search",
+    "NFT title search, A\u2013Z sort, open current collector proof dialog",
+    "Guest like opens a dialog without navigating the collection row",
+    "Escape closes the guest dialog and returns focus to its like button",
+    "No horizontal overflow at 320px for NFT discovery and home; none at 360px for collection discovery",
+    "Desktop and mobile live-data homepage inspected, including real collection counts/artwork and confirmed block activity",
+    "Hosted homepage and NFT directory rendered all five confirmed NFTs",
+    "Hosted home OG visibly contains actual NFT artwork"
+  ],
+  "screenshots": [
+    "r2-home-desktop.png",
+    "r2-home-mobile.png",
+    "r2-collections-mobile.png",
+    "r2-nfts-320.png",
+    "r2-home-hosted.png",
+    "r2-home-hero.png",
+    "r2-og-hosted.png"
+  ],
+  "limitations": [
+    "Local seeded public data is sparse; >24-entry datasets and deterministic pagination verified by SQLite and loader tests",
+    "Actual MetaMask-signed UI likes and new-profile onboarding remain part of R6 device acceptance",
+    "Social activity timestamps and Following feed remain R3"
+  ],
+  "hostedOrigin": "https://devnet.zft.foo"
+}

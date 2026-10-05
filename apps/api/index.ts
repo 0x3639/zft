@@ -27,6 +27,11 @@ import {
   publicContext,
   item,
 } from "./public";
+import {
+  discoverCollections,
+  discoverNFTs,
+  recentDiscoveryActivity,
+} from "./discovery";
 import { indexStatus } from "./index-store";
 import { shareHTML, ogResponse } from "./sharing";
 import type { Env } from "./types";
@@ -181,6 +186,12 @@ async function route(request: Request, env: Env) {
     return env.INDEXER.get(env.INDEXER.idFromName("zft-index-v1")).fetch(
       "https://internal/sync",
     );
+  if (path === "/api/discovery/recent" && request.method === "GET")
+    return json(await recentDiscoveryActivity(env));
+  if (path === "/api/discovery/collections" && request.method === "GET")
+    return json(await discoverCollections(env, url));
+  if (path === "/api/discovery/nfts" && request.method === "GET")
+    return json(await discoverNFTs(env, url));
   if (path === "/api/gallery" && request.method === "GET")
     return json(await gallery(env, url));
   const walletRoute = /^\/api\/wallets\/(0x[\da-fA-F]{40})$/.exec(path);
