@@ -96,7 +96,7 @@ This mints a generated test artwork and exercises export → claim → cancel �
 
 ## Cloudflare deployment
 
-Current R2 release: Worker version `2ece7bbb-2268-41cc-9e5b-fc00ba3cb5c1`. Collection discovery, NFT title search/sorting, a live-data homepage, and separate artwork-filled home/directory OG images are deployed. The exact hosted bundle and route/search/count/PNG checks are in [R2 deployment evidence](../research/r2-deployment.json); [browser checks](../research/r2-ui.json). Earlier wallet-first and backup-gate evidence is retained in [the PR #2 follow-up](../research/pr2-review-deployment.json).
+Current R2 release: Worker version `a3eecbb1-597e-4c07-b7dc-661c684f5c5d`, including the PR #3 optional-discovery sharing fallback. Collection discovery, NFT title search/sorting, a live-data homepage, and separate artwork-filled home/directory OG images are deployed. Current exact-bundle and route/search/count/PNG checks are in [PR #3 deployment evidence](../research/pr3-review-deployment.json); original [R2 deployment evidence](../research/r2-deployment.json) and [browser checks](../research/r2-ui.json) are retained. Earlier wallet-first and backup-gate evidence is retained in [the PR #2 follow-up](../research/pr2-review-deployment.json).
 
 - App: **https://devnet.zft.foo**, Worker **zft-devnet**.
 - Canonical public media: **https://zft.foo/art/** and **https://zft.foo/metadata/**, routed to that same Worker. The apex homepage remains the `zft-preview` design prototype.
@@ -167,7 +167,7 @@ Apply the additive D1 migration before deploying this build:
 
 ```sh
 pnpm exec wrangler d1 migrations apply DB --remote --config wrangler.devnet.jsonc --env=
-pnpm deploy
+pnpm run deploy
 node --import tsx scripts/check-discovery.ts
 ```
 
@@ -177,6 +177,6 @@ Scheduled index ingestion projects at most eight metadata records and eight prof
 
 `/api/discovery/collections` and `/api/discovery/nfts` perform normalized literal substring search before bounded keyset pagination. Limits are 1–24. Cursors are tied to filter/sort and the data revision and expire after five minutes or the next ownership-statement expiry. A 409 means the view changed: refresh rather than append a different ranking snapshot. The frontend retains visible results on outages and blocks stale responses/duplicate loads. Current collector links require exactly one eligible published binding; unbound/ambiguous results open the neutral item page.
 
-Collection counts and profile Collection/Sent eligibility use the same valid-metadata projection. Home uses six ranked profiles, eight recent NFTs and six public chain events. Transfer rows use neutral wording and confirmed block numbers; full Everyone/Following activity and actual event timestamps remain R3. Shared home/discovery cards contain actual public NFT pixels with distinct immutable page revisions, including a neutral fallback when no artwork is available.
+Collection counts and profile Collection/Sent eligibility use the same valid-metadata projection. Home uses six ranked profiles, eight recent NFTs and six public chain events. Transfer rows use neutral wording and confirmed block numbers; full Everyone/Following activity and actual event timestamps remain R3. Shared home/discovery cards contain actual public NFT pixels with distinct immutable page revisions, including a neutral fallback when no artwork is available. Optional discovery query failures also use that fallback: these three static pages retain their titles, public OG metadata and HTTP 200. Discovery API errors and required profile/item context or snapshot-storage failures retain their error behavior.
 
-R2 adds 17 regression cases; the complete suite passes 112 TypeScript tests, plus typecheck/build/Worker dry run. The entry bundle is about 676 kB minified / 206 kB gzip; route splitting and large-dataset query/resource profiling remain R7.3. Actual MetaMask-signed browser social actions and full device acceptance remain R6. The contract, file codec, recovery format and apex routing are unchanged.
+R2 adds 17 discovery regressions and six sharing fallback cases from PR #3 review; the complete suite passes 118 TypeScript tests, plus typecheck/build/Worker dry run. The fallback cases failed before the fix and pass afterward under local outage/revision-conflict injection. The entry bundle is about 676 kB minified / 206 kB gzip; route splitting and large-dataset query/resource profiling remain R7.3. Actual MetaMask-signed browser social actions and full device acceptance remain R6. The contract, file codec, recovery format and apex routing are unchanged.

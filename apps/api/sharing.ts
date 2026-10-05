@@ -68,13 +68,22 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
     revisionData: null as unknown,
   };
   if (staticPages[path]) {
+    // Discovery artwork enriches static pages; its availability must not gate them.
     const artwork =
       path === "/explore"
         ? (
-            await discoverCollections(env, new URL("https://internal?limit=3"))
+            await discoverCollections(
+              env,
+              new URL("https://internal?limit=3"),
+            ).catch(() => ({ items: [] }))
           ).items.flatMap((p) => (p.preview ? [p.preview] : []))
         : ["/", "/explore/nfts"].includes(path)
-          ? (await discoverNFTs(env, new URL("https://internal?limit=3"))).items
+          ? (
+              await discoverNFTs(
+                env,
+                new URL("https://internal?limit=3"),
+              ).catch(() => ({ items: [] }))
+            ).items
           : [];
     const art = [...new Map(artwork.map((i) => [i.tokenId, i])).values()].map(
       (i) => ({

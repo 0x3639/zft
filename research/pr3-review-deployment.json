@@ -1,0 +1,69 @@
+{
+  "checkedAt": "2026-10-05T09:54:28.934Z",
+  "origin": "https://devnet.zft.foo",
+  "index": {
+    "block": 97064,
+    "head": 97070,
+    "syncedAt": 1791194065005,
+    "error": null,
+    "lag": 6,
+    "confirmations": 6
+  },
+  "collections": 6,
+  "nfts": 5,
+  "pending": 0,
+  "checks": [
+    "Hosted collection counts agree with public profiles",
+    "Search reaches the oldest artwork",
+    "No-result search returns an empty dataset",
+    "Three public routes return the exact tested bundle",
+    "Distinct valid 1200\u00d7630 PNG share images for all three public pages"
+  ],
+  "entry": "/assets/index-D3SlmKkC.js",
+  "assetSha256": "b83a17161d09e2086520da1b2944a3c4c4b8dd767a048aeeb5a4703b96e18d90",
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "og": "https://devnet.zft.foo/api/og/page/home.png?v=b9d9282d95c370a8d34211ad77c63e25ba916a80f7efebf36623976bb66bd315",
+      "imageBytes": 131089,
+      "imageSha256": "8b707dcc782018637eb9dd11852cce5f8834fcb6f5857d79e963a94b3e18330f",
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/explore",
+      "status": 200,
+      "og": "https://devnet.zft.foo/api/og/page/explore.png?v=f1eef448e063efe6274f1a2ce0cbe8e2cb538b494235523cbb825ac824c0b4ea",
+      "imageBytes": 120481,
+      "imageSha256": "e2fa8c5780e572f4d5788a2795fcc4e4098ca70e71c99b3ef1af062fccc265dc",
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/explore/nfts",
+      "status": 200,
+      "og": "https://devnet.zft.foo/api/og/page/explore-nfts.png?v=a842fd120e9d8789d638b95c9cda0f5cb0dd641e110418be85caf63837edb88b",
+      "imageBytes": 131014,
+      "imageSha256": "2616daf6552543c580f56759cbd107c967d73cc6f30e00a76bb9089158ddcf73",
+      "width": 1200,
+      "height": 630
+    }
+  ],
+  "workerVersion": "a3eecbb1-597e-4c07-b7dc-661c684f5c5d",
+  "migration": "0002_discovery.sql (already applied; no new migration)",
+  "reviewedCommit": "153945dcb0e7ec641a2fccc28d1fa6cd4b5ebe07",
+  "sharingSourceSha256": "aa0fc5efdf64af9de987efbd88ae01d1fccf52d67c734534a8a6f7ac480a0a22",
+  "regressionEvidence": {
+    "scope": "Local workerd and snapshot fault injection; hosted checks use healthy storage",
+    "beforeFix": "All six new cases fail (three HTML 503 responses and three propagated revision conflicts)",
+    "afterFix": "118 TypeScript tests pass, including all six regressions",
+    "preservedErrors": "Required profile/item context, item metadata and snapshot lookup/persistence still return errors",
+    "checks": [
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm build",
+      "pnpm worker:check"
+    ]
+  }
+}

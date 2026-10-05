@@ -8,6 +8,7 @@ import {
 } from "../apps/api/discovery";
 import { profileData, publicMutation } from "../apps/api/public";
 import { snapshot } from "../apps/api/sharing";
+import { HttpError } from "../apps/api/http";
 import { digest, type Metadata } from "../packages/protocol";
 import type { Env } from "../apps/api/types";
 import { readFileSync } from "node:fs";
@@ -361,6 +362,25 @@ describe("Discovery projections and pagination", () => {
       (await snapshot(f.env, new URL("https://devnet.zft.foo/explore"))).art,
     ).toHaveLength(0);
   });
+  it.each(["/", "/explore", "/explore/nfts"])(
+    "keeps the branded %s snapshot when discovery reports a revision conflict",
+    async (path) => {
+      const f = fixture();
+      const page = new URL(path, "https://devnet.zft.foo");
+      const fallback = await snapshot(f.env, page);
+      const conflict = new HttpError(409, "Discovery changed; refresh");
+      vi.spyOn(f.env.DB, "prepare").mockImplementation(() => {
+        throw conflict;
+      });
+      expect(await snapshot(f.env, page)).toEqual(fallback);
+      expect(fallback.art).toEqual([]);
+      await expect(
+        path === "/explore"
+          ? discoverCollections(f.env, url())
+          : discoverNFTs(f.env, url()),
+      ).rejects.toBe(conflict);
+    },
+  );
   it("migrates old profiles without inventing creation dates and remains compatible with old profile inserts", () => {
     const sql = new DatabaseSync(":memory:");
     sql.exec(readFileSync("migrations/0001_public.sql", "utf8"));
