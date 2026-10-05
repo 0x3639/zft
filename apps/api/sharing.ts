@@ -1,4 +1,5 @@
 import { digest, addressSchema, uintSchema } from "../../packages/protocol";
+import { ZodError } from "zod";
 import manifest from "../../packages/protocol/deployment.json";
 import {
   item,
@@ -206,14 +207,41 @@ export function headTags(page: Snapshot, origin: string, revision: string) {
   );
 }
 export async function shareHTML(request: Request, env: Env) {
-  const page = await snapshot(env, new URL(request.url));
-  const revision = digest(page).slice(2);
-  if (!page.private) {
-    const key = `og-snapshots${page.imagePath}/${revision}.json`;
-    if (!(await env.MEDIA.head(key)))
-      await env.MEDIA.put(key, JSON.stringify(page), {
-        httpMetadata: { contentType: "application/json" },
-      });
+  const url = new URL(request.url);
+  let page: Snapshot,
+    revision = "",
+    status = 200;
+  try {
+    page = await snapshot(env, url);
+    revision = digest(page).slice(2);
+    if (!page.private) {
+      const key = `og-snapshots${page.imagePath}/${revision}.json`;
+      if (!(await env.MEDIA.head(key)))
+        await env.MEDIA.put(key, JSON.stringify(page), {
+          httpMetadata: { contentType: "application/json" },
+        });
+    }
+  } catch (error) {
+    status =
+      error instanceof HttpError
+        ? error.status
+        : error instanceof ZodError
+          ? 400
+          : 503;
+    // The client still needs to mount its not-found, indexing and retry states.
+    page = {
+      version: 1,
+      deployment: manifest.contract,
+      path: url.pathname,
+      imagePath: "",
+      title: "File collectibles",
+      description: "Picture-based collectibles on Zenon ZVM devnet.",
+      label: "",
+      subtitle: "",
+      art: [],
+      revisionData: null,
+      private: true,
+    };
   }
   const shell = await env.ASSETS.fetch(
     new Request(new URL("/index.html", request.url), {
@@ -225,7 +253,7 @@ export async function shareHTML(request: Request, env: Env) {
   headers.delete("etag");
   return new HTMLRewriter()
     .on(
-      'title, meta[name="description"], meta[property^="og:"], meta[name^="twitter:"], link[rel="canonical"]',
+      'title, meta[name="description"], meta[name="robots"], meta[property^="og:"], meta[name^="twitter:"], link[rel="canonical"]',
       {
         element(e) {
           e.remove();
@@ -237,7 +265,12 @@ export async function shareHTML(request: Request, env: Env) {
         e.append(headTags(page, env.PUBLIC_ORIGIN, revision), { html: true });
       },
     })
-    .transform(new Response(shell.body, { status: shell.status, headers }));
+    .transform(
+      new Response(shell.body, {
+        status: shell.ok ? status : shell.status,
+        headers,
+      }),
+    );
 }
 export async function ogResponse(env: Env, url: URL) {
   if (

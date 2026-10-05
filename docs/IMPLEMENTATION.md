@@ -78,6 +78,7 @@ Current focus: **R1 wallet custody**. The existing contract already supports sig
 - [ ] R7.2 Controlled reorg/reset/deep rollback tests and independent ZVM/finality assumptions; preserve deployment mismatch stops.
 - [ ] R7.3 Storage/admission/journal retention, performance/limits and incident/rollback procedures with measured evidence. Current Vite entry bundle is about 642 kB minified / 196 kB gzip and triggers its size warning; evaluate route splitting during performance work.
 - [ ] R7.4 Release review, dependency/license inventory and source-license decision; approved explorer source publication remains separate.
+- [ ] R7.5 Remove sponsor RPC waits from authentication and status polling. CodeRabbit identified the shared serial queue in `apps/api/sponsor.ts`: a slow RPC blocks challenges/authentication and queues polling behind submissions. Preserve atomic one-time challenge consumption and quota counters through a separate auth service or atomic D1 transitions; retain serialization for sponsor nonces/broadcasts. Prove bounded auth/poll latency under a stalled RPC and concurrent submissions, and test challenge replay and quota races before changing this boundary.
 - [ ] R8.1 Review release artifact and apex/Git deployment configuration; preserve canonical art and metadata routes.
 - [ ] R8.2 Promote the app to `zft.foo`, verify fresh/deep/private routes and rollback, and update the runbook.
 
@@ -100,6 +101,18 @@ For each slice, record its IDs, code/schema changes, tests, remaining gaps, comm
 | 2026-10-04 | B1 core hosted alpha | Contract `0x42666265e38f2d1b786e8af8e9576224a95b90ae`; [runbook](DEVNET-ALPHA.md), hosted SDK canary; device/operations gates remain |
 | 2026-10-04 | B2/B3 public parity | Commit `da97ce2`; 31 TypeScript tests, CI and preview build passed; live version `027deb34-587b-4b19-9383-35b657cfecd7`; wallet custody and R2–R8 remain |
 | 2026-10-04 | R1.1–R1.4 implemented and deployed | `/wallet`, indexed wallet inventory, backed-up destination keys, typed authorization, resumable sponsor jobs, return-to-wallet and conditional vault writes; 42 TypeScript tests/typecheck/frontend build/Worker dry run passed. Actual MetaMask/phone acceptance and R1.7/R1.8 remain open. Version `a5a54d62-0d22-4fd4-9355-dc0c31470c52`; [hosted canary](../research/hosted-wallet-canary.json) passed at blocks 95002/95009/95016/95023. |
+| 2026-10-04 | PR #1 CodeRabbit follow-up · B2/B3, R1.5, R5.3 | Four validated findings fixed: isolate invalid token metadata; serve the app shell when share metadata/storage fails; preserve interrupted claim/cancel retries and renew reverted jobs without changing destination keys; correct custody documentation. Numeric schema validation now rejects malformed selections before BigInt conversion. 67 tests pass, including 11 real workerd HTML cases, plus typecheck/build/Worker dry run. Sponsor queue isolation remains open as R7.5. |
+
+### CodeRabbit review disposition
+
+Review on commit `6738866`, [PR #1](https://github.com/0x3639/zft/pull/1):
+
+- [Invalid metadata breaks a gallery](https://github.com/0x3639/zft/pull/1#discussion_r4180193321): confirmed and fixed. Missing/malformed/schema-invalid/hash/image/creator-mismatched metadata is excluded per token; actual storage outages still fail visibly. Regression tests retain valid peers in gallery, profile tabs and OG collection previews.
+- [Share failures return JSON](https://github.com/0x3639/zft/pull/1#discussion_r4180193347): confirmed and fixed, including snapshot R2 lookup/write failures. Workerd tests verify usable HTML, original error status, noindex/no image disclosure, removed stale tags, unavailable asset-shell status and HEAD semantics.
+- [Unsent/reverted rotations become stale](https://github.com/0x3639/zft/pull/1#discussion_r4180193351): confirmed and fixed. Prior-owner keys keep the saved transition resumable; retries retain the destination and expected nonce. Reverted operations get a distinct authorization digest before expiry too; live/confirmed jobs remain unchanged and unrelated winning owners stay stale.
+- [Stale custody docs](https://github.com/0x3639/zft/pull/1#discussion_r4180193360): corrected in the marketplace proposal and review agenda; real MetaMask/phone acceptance remains open.
+- Sponsor queue performance suggestion: valid but deferred to R7.5 because challenge consumption and quota increments currently depend on the same serialization. Removing the queue without an atomic replacement would weaken those guarantees.
+- CodeRabbit's generic 80% docstring advisory is not a repository build requirement. No blanket docstring expansion is planned. GitHub verification and Cloudflare preview checks for the reviewed commit passed; the earlier preview configuration failure was already fixed.
 
 ## Verification matrix
 

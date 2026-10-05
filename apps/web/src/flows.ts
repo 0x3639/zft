@@ -59,19 +59,26 @@ async function prepared(vault: Vault, d: Deployment) {
 export async function submit(vault: Vault, d: Deployment, item: ItemRecord) {
   if (!item.operation) throw new Error("No saved operation.");
   const profile = await prepared(vault, d);
-  if (
-    BigInt(item.operation.authorization.deadline) <=
-    BigInt(Math.floor(Date.now() / 1000))
-  ) {
-    let existing: Job | undefined;
+  let existing: Job | undefined;
+  if (item.operationId) {
     try {
       existing = await api<Job>(`/api/operations/${item.operationId}`);
     } catch (error) {
       if (!(error instanceof ApiError) || error.status !== 404) throw error;
     }
-    // Only renew an expired, absent/reverted authorization. Keep the original recipient key.
+  }
+  if (
+    BigInt(item.operation.authorization.deadline) <=
+      BigInt(Math.floor(Date.now() / 1000)) ||
+    existing?.state === "failed"
+  ) {
+    // Never replace a live job. A reverted job needs a fresh digest even before expiry.
     if (!existing || existing.state === "failed") {
-      const deadline = String(Math.floor(Date.now() / 1000) + 900);
+      const limit = Math.floor(Date.now() / 1000) + 900;
+      const deadline = String(
+        limit -
+          (String(limit) === item.operation.authorization.deadline ? 1 : 0),
+      );
       let operation: Operation;
       if (item.operation.kind === "mint") {
         const creatorNonce = await publicClient.readContract({
@@ -99,7 +106,7 @@ export async function submit(vault: Vault, d: Deployment, item: ItemRecord) {
         const state = await ownership(d.contract, item.tokenId);
         if (item.walletTransfer?.direction === "into-file")
           throw new Error(
-            "This wallet authorization expired. Open Wallet to renew it using the same saved file key.",
+            "This wallet authorization needs renewal. Open Wallet to sign again using the same saved file key.",
           );
         const previous = [item.privateKey, ...item.previousKeys].find((k) =>
           sameAddress(privateKeyToAccount(k).address, state.owner),
@@ -321,12 +328,19 @@ export async function reconcile(vault: Vault, d: Deployment, item: ItemRecord) {
     item.walletTransfer?.direction === "into-file" &&
     sameAddress(state.owner, item.walletTransfer.wallet) &&
     state.nonce === item.walletTransfer.sourceNonce;
+  const resumable =
+    !owned &&
+    item.operation?.kind === "rotate" &&
+    (!job || job.state === "failed") &&
+    item.previousKeys.some((key) =>
+      sameAddress(privateKeyToAccount(key).address, state.owner),
+    );
   const next: ItemRecord = {
     ...item,
-    nonce: awaitingWallet ? item.nonce : state.nonce,
+    nonce: awaitingWallet || resumable ? item.nonce : state.nonce,
     status: owned
       ? "owned"
-      : awaitingWallet
+      : awaitingWallet || resumable
         ? item.operation
           ? "pending"
           : "draft"

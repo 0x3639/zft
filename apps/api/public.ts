@@ -49,13 +49,23 @@ export async function hydrate(
     `metadata/${row.metadata_hash.slice(2)}.json`,
   );
   if (!object) return null;
-  const m = metadataSchema.parse(await object.json());
+  let value: unknown;
+  try {
+    value = await object.json();
+  } catch (error) {
+    if (error instanceof SyntaxError) return null;
+    throw error;
+  }
+  const parsed = metadataSchema.safeParse(value);
+  if (!parsed.success) return null;
+  const m = parsed.data;
   if (
     digest(m) !== row.metadata_hash ||
     BigInt(m.imageHash).toString() !== row.token_id ||
     !sameAddress(m.creator, row.creator)
   )
-    throw new HttpError(503, "Public metadata failed verification.");
+    // Permissionless mints can reference foreign metadata; omit only that token.
+    return null;
   return {
     tokenId: row.token_id,
     metadataHash: row.metadata_hash,

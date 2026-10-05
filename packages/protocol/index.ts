@@ -82,7 +82,7 @@ export const hashSchema = z
 export const uintSchema = z
   .string()
   .regex(/^(0|[1-9]\d{0,77})$/)
-  .refine((v) => BigInt(v) < 2n ** 256n);
+  .pipe(z.string().refine((v) => BigInt(v) < 2n ** 256n));
 export const signatureSchema = z
   .string()
   .regex(/^0x[\da-fA-F]{130}$/)

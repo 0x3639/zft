@@ -7,6 +7,7 @@ import {
   inProfile,
   publicContext,
   collectionPreview,
+  item,
 } from "../apps/api/public";
 import { headTags, snapshot, ogResponse } from "../apps/api/sharing";
 import { digest, type Metadata } from "../packages/protocol";
@@ -31,6 +32,81 @@ function setup() {
   return { env, sql, objects };
 }
 describe("Public identity and ownership projections", () => {
+  it.each(["creator", "digest", "image", "schema", "json", "missing"])(
+    "excludes a token with invalid %s metadata without breaking its gallery or profile preview",
+    async (invalid) => {
+      const { env, sql, objects } = setup();
+      for (let id = 1; id <= 2; id++) {
+        const imageHash =
+          `0x${(id === 2 && invalid === "image" ? 3 : id).toString(16).padStart(64, "0")}` as `0x${string}`;
+        const m: Metadata = {
+          name: `Art ${id}`,
+          description: "",
+          image: `https://zft.foo/art/${imageHash.slice(2)}.png`,
+          imageHash,
+          canonicalizer: "zft-png/1",
+          mediaType: "image/png",
+          width: 1,
+          height: 1,
+          creator: id === 2 && invalid === "creator" ? alice : bob,
+          createdAt: "2026-10-04T00:00:00.000Z",
+        };
+        const hash = digest(m);
+        let content = JSON.stringify(m);
+        if (id === 2) {
+          if (invalid === "digest")
+            content = JSON.stringify({ ...m, name: "Tampered" });
+          if (invalid === "schema") content = "{}";
+          if (invalid === "json") content = "{";
+        }
+        if (id !== 2 || invalid !== "missing")
+          objects.set(`metadata/${hash.slice(2)}.json`, content);
+        sql
+          .prepare("INSERT INTO chain_events VALUES(?,0,?,?,?,?,?,?,?,?)")
+          .run(id, "block", "tx", "Minted", String(id), null, null, bob, hash);
+        sql
+          .prepare("INSERT INTO chain_events VALUES(?,1,?,?,?,?,?,?,?,?)")
+          .run(
+            id,
+            "block",
+            "tx",
+            "Transfer",
+            String(id),
+            null,
+            bob,
+            null,
+            null,
+          );
+        sql
+          .prepare("INSERT INTO possessions VALUES(?,?,?,?,?,?,?)")
+          .run(
+            bob,
+            String(id),
+            bob,
+            "0",
+            "signature",
+            Math.floor(Date.now() / 1000) + 100,
+            id,
+          );
+      }
+      const url = new URL("https://zft.foo/api/gallery");
+      expect((await gallery(env, url)).items.map((i) => i.tokenId)).toEqual([
+        "1",
+      ]);
+      for (const tab of ["created", "collection", "wallet"])
+        expect(
+          (await gallery(env, url, bob, tab)).items.map((i) => i.tokenId),
+        ).toEqual(["1"]);
+      expect((await collectionPreview(env, bob)).map((i) => i.tokenId)).toEqual(
+        ["1"],
+      );
+      await expect(item(env, "2")).rejects.toMatchObject({ status: 404 });
+      env.MEDIA.get = async () => {
+        throw new Error("R2 unavailable");
+      };
+      await expect(gallery(env, url)).rejects.toThrow("R2 unavailable");
+    },
+  );
   it("orders profile previews by publication time and excludes expired holdings", async () => {
     const { env, sql, objects } = setup();
     for (let id = 1; id <= 4; id++) {

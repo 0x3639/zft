@@ -14,6 +14,7 @@ The [complete website functional specification](FUNCTIONAL-SPEC.md) covers the e
 - Signed, versioned public profile editing; featured artwork; follow/unfollow and like/unlike; follower directories; opt-in item-owner possession proofs; collection/sent/creation activity tabs; profile-selected artwork dialogs; public image and observation downloads.
 - D1 event journal indexed independently from sponsor submissions, cursor pagination, six-block confirmation policy, serialized scans and checkpoint rewind on fork detection. Cron and rate-limited public index reads wake ingestion.
 - Per-page initial HTML metadata and deterministic 1200×630 PNGs for static pages, profiles, selected artwork, and standalone items. Known revisions are stored in R2; arbitrary revision generation and unrelated profile/item contexts are rejected.
+- Invalid per-token metadata is omitted from public galleries and collection previews; valid peers remain visible. Missing/invalid deep links and share-storage outages still serve the app shell with noindex metadata and the corresponding 400/404/503 status, so client error/retry states can mount.
 - Collection-first profile navigation; Network dialog; contextual guest unlock; mobile navigation and address/link lookup; persistent System/Light/Dark themes.
 - Two-face proof card with independent integrity, owner-authorized profile binding, and live ownership checks; retained historical epochs and sanitized JSON v2 proof downloads.
 - EIP-6963/MetaMask connection, pinned ZVM network add/switch, public address and devnet native-gas balance. Wallet/file custody transfers are implemented at `/wallet`; actual MetaMask/phone acceptance remains pending and trading is not implemented.
@@ -56,7 +57,7 @@ SPONSOR_ENABLED=true
 
 Never use a real-money account. `scripts/prepare-devnet.ts` creates separate deployer and sponsor keys in `.local/devnet-keys.json` with restricted permissions; `--fund` and `--fund --sponsor` request free ZVM faucet funds. Existing local keys are reused. Keys and recovery files are ignored by Git. Restart Wrangler after creating/changing its secrets file.
 
-Create a local collection, save and acknowledge recovery, then mint an image. Claim and cancellation create a new saved key before submission. If a request times out, **Resume transaction** reuses the saved operation. Expired requests are renewed only after the server confirms the prior operation is absent or reverted, preserving the recipient key. Export is disabled for keys with external transaction/approval history; rotate to a fresh app key first.
+Create a local collection, save and acknowledge recovery, then mint an image. Claim and cancellation create a new saved key before submission. If a request times out, **Resume transaction** reuses the saved operation. Refresh keeps a claim/cancellation resumable when no live job exists and a saved prior key still owns the collectible. Expired requests are renewed only after the server confirms the prior operation is absent or reverted; reverted requests receive a fresh authorization even before expiry. The saved recipient key is preserved. Wallet authorizations require renewal through Wallet. Export is disabled for keys with external transaction/approval history; rotate to a fresh app key first.
 
 A recovery file is a **secret bearer snapshot**, not a password-encrypted transport format. The local passphrase encrypts the browser vault; it does not protect a downloaded recovery file. New keys require a newer snapshot. Restore into a fresh browser profile so an existing vault is never overwritten. No administrator can recover missing item keys.
 
@@ -67,6 +68,8 @@ A recovery file is a **secret bearer snapshot**, not a password-encrypted transp
 APNG, indexed/16-bit/interlaced PNG, CMYK JPEG, and embedded ICC profiles are rejected. Convert those to an 8-bit sRGB image first. Arbitrary color-profile conversion is not implemented. Exports use one `zfTA` PNG chunk and remain viewable as pictures. JPEG APP15 export is reserved for a future explicitly versioned codec. Send `.zft.png` as the original attachment; screenshots/recompression are not transferable.
 
 ## Verification
+
+`pnpm test` includes isolated local workerd sharing tests using synthetic D1/R2/asset bindings. These require local socket access and exercise the real HTML rewriter; they do not use hosted storage, keys or chain transactions.
 
 ```sh
 pnpm typecheck

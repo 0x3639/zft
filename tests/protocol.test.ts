@@ -6,7 +6,22 @@ import {
   mintSchema,
   operationSchema,
   canonical,
+  uintSchema,
 } from "../packages/protocol";
+it("validates uint256 text before converting it to BigInt", () => {
+  for (const value of [
+    "bad",
+    "1.5",
+    "-1",
+    "01",
+    "",
+    "0x1",
+    (2n ** 256n).toString(),
+  ])
+    expect(uintSchema.safeParse(value).success).toBe(false);
+  for (const value of ["0", (2n ** 256n - 1n).toString()])
+    expect(uintSchema.parse(value)).toBe(value);
+});
 it("freezes the cross-language EIP-712 mint digest", () => {
   expect(
     hashTypedData({

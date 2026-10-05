@@ -173,6 +173,8 @@ Current codec is `zft-png/1`, with one `zfTA` envelope on transferable PNG outpu
 
 **Pending/error states:** preparing, waiting to submit, submitted, included, confirmed, reconciling, reverted, expired, quota exhausted, sponsor unavailable, chain unavailable, deployment mismatch. No automatic switch to paid transactions. Retry preserves authorization/recipient identity until reconciliation establishes a new authorization is appropriate. Two racing claims must yield one valid epoch transition.
 
+An absent or reverted claim/cancel job remains pending when a saved prior key still owns the collectible; refreshing must preserve its resume action, destination key and expected nonce. A known reverted job may be reauthorized before expiry with a distinct request digest; an unknown job outcome must not trigger replacement. Wallet-controlled signatures are renewed through Wallet.
+
 ## 9. Discovery and activity — DISCOVERY / ACTIVITY
 
 Collection directory: search by public name; Popular, Newest, Biggest; card profile links, public counts, and independent like controls. Define ranking explicitly in the API contract: proposed Popular = active likes descending, then followers descending, then stable address; Biggest = eligible public holdings descending, then stable address; Newest = profile creation timestamp descending, then stable address. These are ZFT choices, not reverse-engineered reference ranking formulas. Store `created_at` independently from profile edit time before shipping Newest.
@@ -208,6 +210,8 @@ Required tags: title, description, canonical, OG type/site/title/description/url
 Output is 1200×630 PNG, bounded to 1 MiB with a page-specific text fallback. Use pinned local fonts, sanitized R2 images, bounded text and image counts, no arbitrary remote media fetch. Revisions bind page kind/ID, template/theme version, public content, selected art and context, network, and displayed counts. Old versions remain immutable while eligible; unpublishing blocks context access. Existing external social caches cannot be recalled.
 
 Never include transfer credentials, recovery content, private inventory, encrypted-link fragments, or uncensored exception text. Private local routes get generic safe metadata. Historical shared art must not be labeled a current holding; cached art cards should avoid an enduring current-owner assertion. The detailed rendering/caching contract remains in [PAGES-AND-SHARING.md](PAGES-AND-SHARING.md).
+
+If share-context validation or metadata storage fails, serve the app shell with generic noindex metadata and the corresponding HTTP error status (400/404/503), without artwork or stale OG tags. This lets the client render not-found/indexing/retry states on a direct load. Invalid per-token metadata must be excluded from public gallery/preview results without hiding valid peers; genuine storage outages remain errors.
 
 ## 12. Services, data, and contracts
 
