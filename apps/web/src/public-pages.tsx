@@ -378,7 +378,7 @@ export function PublicProfile({
     } catch (e) {
       onError(
         (e as Error).message +
-          " If this is a new local collection, publish your profile from My collection first.",
+          " If this wallet is new, publish its profile first.",
       );
     } finally {
       setBusy(false);
@@ -489,7 +489,7 @@ export function PublicProfile({
             </button>
             {!identity && (
               <button className={btn} onClick={() => setGuest("unlock")}>
-                Connect profile
+                Connect wallet
               </button>
             )}
           </div>
@@ -638,16 +638,11 @@ export function PublicProfile({
         />
       )}
       {guest && (
-        <Modal
-          title={
-            guest === "unlock" ? "Choose your profile" : "Connect your profile"
-          }
-          onClose={() => setGuest("")}
-        >
+        <Modal title="Connect your wallet" onClose={() => setGuest("")}>
           <p>
             {guest === "unlock"
-              ? "Connect your wallet or unlock your existing local profile. Editing requires the matching identity."
-              : "Use your connected wallet or an existing local profile to like and follow. You will return here to finish your action."}
+              ? "Your wallet address is your profile identity. Connect the matching wallet to edit your profile."
+              : "Connect your wallet to like and follow. You will return here to finish your action."}
           </p>
           <button
             className={btn}
@@ -656,11 +651,8 @@ export function PublicProfile({
               onUnlock(`${root}?intent=${guest}`);
             }}
           >
-            Choose a profile
+            Connect wallet
           </button>
-          <RouteLink to="/recovery" nav={nav} className={btn}>
-            Restore recovery file
-          </RouteLink>
         </Modal>
       )}
     </>
@@ -734,6 +726,7 @@ export function EditProfile({
     <section className="panel narrow">
       <p className="text-ledger">Your public identity</p>
       <h1>Make it yours.</h1>
+      <p className="mono wrap">{identity.address}</p>
       <p>
         Your name and bio will be public. Imported collectibles stay private
         until you publish each one from your local collection.

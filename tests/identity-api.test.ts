@@ -2,7 +2,9 @@ import { afterEach, expect, it, vi } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
 import { signedRequest } from "../apps/web/src/api";
 import { key } from "./fixtures";
-import { verifyMessage } from "viem";
+import { hexToString, verifyMessage, type Hex } from "viem";
+import { walletIdentity } from "../apps/web/src/identity";
+import { network, type WalletSession } from "../apps/web/src/wallet";
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
@@ -96,3 +98,50 @@ it("does not send a signed request after the active identity changes", async () 
   ).rejects.toThrow("Selected identity changed");
   expect(s.fetch).toHaveBeenCalledOnce();
 });
+it.each(["unchanged", "account", "network", "disconnect"])(
+  "checks the wallet profile session after signing: %s",
+  async (change) => {
+    const s = setup();
+    let address = s.account.address,
+      chain = network.chainId,
+      connected = true;
+    const request = vi.fn(async ({ method, params }) => {
+      if (method === "eth_accounts") return [address];
+      if (method === "eth_chainId") return chain;
+      if (method === "personal_sign") {
+        expect(params[1]).toBe(s.account.address);
+        const signature = await s.account.signMessage({
+          message: hexToString(params[0] as Hex),
+        });
+        if (change === "account")
+          address = "0x1111111111111111111111111111111111111111";
+        if (change === "network") chain = "0x1";
+        if (change === "disconnect") connected = false;
+        return signature;
+      }
+      throw new Error(`Unexpected method ${method}`);
+    });
+    const session: WalletSession = {
+      account: s.account.address,
+      chainId: network.chainId,
+      isCurrent: () => connected,
+      provider: { request },
+    };
+    const result = signedRequest(
+      "/api/profile",
+      { name: "Wallet profile", bio: "", featured: null, revision: 0 },
+      walletIdentity(session),
+    );
+    if (change === "unchanged") {
+      await expect(result).resolves.toEqual({ ok: true });
+      expect(s.fetch).toHaveBeenCalledTimes(2);
+      expect(s.fetch.mock.calls[1][0]).toBe("/api/profile");
+    } else {
+      await expect(result).rejects.toThrow();
+      expect(s.fetch).toHaveBeenCalledOnce();
+    }
+    expect(JSON.parse(String(s.fetch.mock.calls[0][1]!.body)).address).toBe(
+      s.account.address,
+    );
+  },
+);

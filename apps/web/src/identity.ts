@@ -16,7 +16,6 @@ import {
   type Rotation,
 } from "../../../packages/protocol";
 import { assertWallet, type WalletSession } from "./wallet";
-import type { Vault } from "../../../packages/vault";
 
 export type Identity = {
   address: Address;
@@ -48,24 +47,6 @@ export function walletIdentity(session: WalletSession): Identity {
           "The wallet returned a signature for a different request.",
         );
       return signature as Hex;
-    },
-  };
-}
-
-export async function localIdentity(vault: Vault): Promise<Identity> {
-  const address = (await vault.profile()).address;
-  const assertCurrent = async () => {
-    if (!vault.unlocked || (await vault.profile()).address !== address)
-      throw new Error(
-        "Local profile locked or changed. Unlock it before continuing.",
-      );
-  };
-  return {
-    address,
-    assertCurrent,
-    async signMessage(input) {
-      await assertCurrent();
-      return (await vault.profile()).signMessage(input);
     },
   };
 }

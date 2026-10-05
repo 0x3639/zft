@@ -50,7 +50,46 @@ export function Modal({
     </dialog>
   );
 }
+function ThemeIcon({ theme }: { theme: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      aria-hidden="true"
+    >
+      {theme === "light" ? (
+        <>
+          <circle cx="12" cy="12" r="4" />
+          <path
+            d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"
+            strokeLinecap="round"
+          />
+        </>
+      ) : theme === "dark" ? (
+        <path
+          d="M20.5 13A8.5 8.5 0 0 1 11 3.5 8.5 8.5 0 1 0 20.5 13Z"
+          strokeLinejoin="round"
+        />
+      ) : (
+        <>
+          <circle cx="12" cy="12" r="8.5" />
+          <path
+            d="M12 3.5a8.5 8.5 0 0 1 0 17Z"
+            fill="currentColor"
+            stroke="none"
+          />
+        </>
+      )}
+    </svg>
+  );
+}
 export function ThemeControl() {
+  const [open, setOpen] = useState(false);
+  const container = useRef<HTMLDivElement>(null),
+    trigger = useRef<HTMLButtonElement>(null);
+  const optionsId = React.useId();
   const [theme, setTheme] = useState(() => {
     try {
       const saved = localStorage.getItem("zft-theme");
@@ -59,6 +98,24 @@ export function ThemeControl() {
       return "system";
     }
   });
+  useEffect(() => {
+    if (!open) return;
+    const dismiss = (e: PointerEvent) => {
+      if (!container.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const escape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        trigger.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", dismiss);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", dismiss);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [open]);
   useEffect(() => {
     const media = matchMedia("(prefers-color-scheme: dark)");
     const apply = () =>
@@ -74,14 +131,45 @@ export function ThemeControl() {
     return () => media.removeEventListener("change", apply);
   }, [theme]);
   return (
-    <label className="theme-control">
-      <span className="sr-only">Color theme</span>
-      <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-        <option value="system">◐ System</option>
-        <option value="light">☀ Light</option>
-        <option value="dark">☾ Dark</option>
-      </select>
-    </label>
+    <div className="theme-control" ref={container}>
+      <button
+        ref={trigger}
+        type="button"
+        className="theme-toggle"
+        aria-label={`Color theme: ${theme}`}
+        title="Change color theme"
+        aria-expanded={open}
+        aria-controls={optionsId}
+        onClick={() => setOpen(!open)}
+      >
+        <ThemeIcon theme={theme} />
+      </button>
+      {open && (
+        <div
+          className="theme-options"
+          id={optionsId}
+          role="group"
+          aria-label="Color theme"
+        >
+          {(["system", "light", "dark"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              className="theme-option"
+              aria-pressed={theme === value}
+              onClick={() => {
+                setTheme(value);
+                setOpen(false);
+                trigger.current?.focus();
+              }}
+            >
+              <ThemeIcon theme={value} />
+              {value[0].toUpperCase() + value.slice(1)}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 export function profileLocation(input: string, origin: string) {

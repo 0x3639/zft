@@ -21,13 +21,60 @@
   text-align: left;
 }
 .theme-control {
+  position: relative;
+  flex-shrink: 0;
   margin: 0;
-  min-width: 108px;
 }
-.theme-control select {
-  margin: 0;
-  font-size: 12px;
+.theme-toggle {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+.theme-control svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.theme-options {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  min-width: 156px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: 0 8px 24px #0003;
+}
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
   min-height: 44px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--foreground);
+  text-align: left;
+  cursor: pointer;
+}
+.theme-toggle:hover,
+.theme-option:hover,
+.theme-option[aria-pressed="true"] {
+  background: var(--muted);
+}
+.theme-option[aria-pressed="true"] {
+  color: var(--primary);
 }
 .header-inner .mobile-menu-button {
   display: none;
@@ -250,13 +297,16 @@
   }
 }
 @media (max-width: 640px) {
+  .theme-options {
+    left: 0;
+    right: auto;
+  }
   .header-inner > .actions {
     width: 100%;
     flex-wrap: wrap;
     justify-content: space-between;
   }
-  .header-inner .actions > .nom-btn,
-  .header-inner .actions > .theme-control select {
+  .header-inner .actions > .nom-btn {
     min-height: 44px;
     font-size: 12px;
   }
@@ -1155,23 +1205,25 @@ select {
   }
 }
 /* Wallet-first onboarding uses the same Zenon form and card language. */
-.identity-bar {
+.profile-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
 }
-.identity-bar label {
+.profile-controls p {
+  flex-basis: 100%;
   margin: 0;
-  min-width: 220px;
+  min-width: 0;
 }
-.identity-bar .muted {
+.profile-controls .muted {
   flex-basis: 100%;
   font-size: 0.85rem;
+}
+.profile-controls a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 .custody-choice {
   display: flex;
@@ -1197,10 +1249,6 @@ select {
   margin-bottom: 2rem;
 }
 @media (max-width: 600px) {
-  .identity-bar label {
-    width: 100%;
-    min-width: 0;
-  }
   .custody-choice {
     flex-direction: column;
   }

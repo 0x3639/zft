@@ -156,8 +156,8 @@ function CollectionRow({
       {guest && (
         <Modal title="Like this collection" onClose={() => setGuest(false)}>
           <p>
-            Connect your wallet or unlock your local profile, then return to
-            like {entry.name}.
+            Connect your wallet and set up its profile, then return to like{" "}
+            {entry.name}.
           </p>
           <button
             className={primary}
@@ -166,7 +166,7 @@ function CollectionRow({
               onUnlock(`/p/${entry.address}`);
             }}
           >
-            Continue
+            Connect wallet
           </button>
         </Modal>
       )}

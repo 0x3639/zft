@@ -33,11 +33,11 @@ import {
   Activity,
 } from "./public-pages";
 import { possessionText } from "../../../packages/protocol/public";
-import { ThemeControl, ProfileLookup } from "./site-controls";
+import { ThemeControl, ProfileLookup, Modal } from "./site-controls";
 import { WalletControl } from "./wallet-control";
 import { WalletPage } from "./wallet-page";
 import { isZVMChain, type WalletSession } from "./wallet";
-import { localIdentity, walletIdentity, type Identity } from "./identity";
+import { walletIdentity, type Identity } from "./identity";
 import { WalletJournal } from "./wallet-journal";
 import { Discovery, Home } from "./discovery-pages";
 import { inactivityLock } from "./inactivity";
@@ -90,44 +90,39 @@ function App() {
   const [journal, setJournal] = useState<WalletJournal>(),
     [persistentVault, setPersistentVault] = useState<Vault>(),
     [protectBrowser, setProtectBrowser] = useState(false),
-    [profileMode, setProfileMode] = useState<"wallet" | "local">("wallet"),
-    [localSigner, setLocalSigner] = useState<Identity>(),
     [connectRequest, setConnectRequest] = useState(0),
-    [mintMode, setMintMode] = useState<"wallet" | "file">("wallet"),
     [claimMode, setClaimMode] = useState<"wallet" | "file">("wallet");
   const walletSigner = useMemo(
     () => (walletSession ? walletIdentity(walletSession) : undefined),
     [walletSession],
   );
-  const selectedSigner = profileMode === "wallet" ? walletSigner : localSigner;
-  const activeIdentity = useRef(selectedSigner);
-  activeIdentity.current = selectedSigner;
+  const activeIdentity = useRef(walletSigner);
+  activeIdentity.current = walletSigner;
   const identity = useMemo<Identity | undefined>(
     () =>
-      selectedSigner && {
-        ...selectedSigner,
+      walletSigner && {
+        ...walletSigner,
         async assertCurrent() {
-          if (activeIdentity.current !== selectedSigner)
+          if (activeIdentity.current !== walletSigner)
             throw new Error(
               "Selected profile changed. Review your identity and try again.",
             );
-          await selectedSigner.assertCurrent?.();
+          await walletSigner.assertCurrent?.();
         },
       },
-    [selectedSigner],
+    [walletSigner],
   );
   const profile = identity?.address ?? "";
   const activeVault = useRef(vault);
   activeVault.current = vault;
-  const signerVault = useRef<Vault | undefined>(undefined);
   function activateVault(next: Vault | undefined) {
     activeVault.current = next;
     setVault(next);
   }
   const [menuOpen, setMenuOpen] = useState(false),
+    [profileMenuOpen, setProfileMenuOpen] = useState(false),
     [returnTo, setReturnTo] = useState<string>();
-  const [items, setItems] = useState<ItemRecord[]>([]),
-    [localProfile, setLocalProfile] = useState("");
+  const [items, setItems] = useState<ItemRecord[]>([]);
   const [index, setIndex] = useState<{
     block: number | null;
     lag: number | null;
@@ -173,6 +168,7 @@ function App() {
     setNotice("");
     setRiskAccepted(false);
     setMenuOpen(false);
+    setProfileMenuOpen(false);
     if (!samePage) window.scrollTo(0, 0);
   };
   const Link = ({
@@ -200,16 +196,9 @@ function App() {
   async function refresh(v = vault) {
     if (!v?.unlocked) return;
     const localItems = await v.items();
-    const signer = await localIdentity(v);
     const revs = await v.revisions();
     if (!v.unlocked || activeVault.current !== v) return;
     setItems(localItems);
-    setLocalProfile(signer.address);
-    const sameVault = signerVault.current === v;
-    signerVault.current = v;
-    setLocalSigner((old) =>
-      sameVault && old?.address === signer.address ? old : signer,
-    );
     setRevisions(revs);
   }
   async function act(label: string, fn: () => Promise<void>) {
@@ -228,7 +217,11 @@ function App() {
     }
   }
   useEffect(() => {
-    const pop = () => setPath(location.pathname + location.search);
+    const pop = () => {
+      setPath(location.pathname + location.search);
+      setProfileMenuOpen(false);
+      setMenuOpen(false);
+    };
     window.addEventListener("popstate", pop);
     return () => window.removeEventListener("popstate", pop);
   }, []);
@@ -253,7 +246,6 @@ function App() {
         setPersistentVault(v);
         const existing = await v.exists();
         setExists(existing);
-        if (existing) setProfileMode("local");
       });
     if (deployment)
       WalletJournal.open(deployment)
@@ -293,13 +285,10 @@ function App() {
   const lock = () => {
     vault?.lock();
     if (!vault?.persistent) activateVault(persistentVault);
-    signerVault.current = undefined;
     setUnlocked(false);
     setItems([]);
     setBackup(undefined);
     setTransfer(undefined);
-    setLocalProfile("");
-    setLocalSigner(undefined);
     setPassphrase("");
     setConfirmPassphrase("");
     setNotice("Collection locked.");
@@ -357,7 +346,6 @@ function App() {
     if (vault && !vault.persistent) vault.close();
     activateVault(v);
     setUnlocked(true);
-    if (!walletSession) setProfileMode("local");
     await refresh(v);
     if (recovery === undefined) nav("/recovery");
   }
@@ -379,7 +367,6 @@ function App() {
     setConfirmPassphrase("");
     setUnlocked(true);
     activateVault(persistentVault);
-    if (!walletSession) setProfileMode("local");
     await refresh(persistentVault);
     if ((await persistentVault!.revisions()).backedUp < 0) nav("/recovery");
   }
@@ -524,37 +511,21 @@ function App() {
     </section>
   );
   const profilePanel = (
-    <>
-      {walletSession ? (
-        <section className="panel narrow">
-          <h1>Choose your public identity.</h1>
-          <p>
-            Use your wallet address as a separate profile. Existing local
-            profiles and their URLs stay unchanged.
-          </p>
-          <Button primary onClick={() => setProfileMode("wallet")}>
-            Use wallet profile
-          </Button>
-        </section>
-      ) : (
-        walletPanel
-      )}
-      <section className="panel narrow">
-        <h2>Already have a local profile?</h2>
-        <p>
-          Unlock its vault or restore its recovery file to keep the same
-          identity. Profiles are not merged automatically.
-        </p>
-        <Button
-          onClick={() => {
-            setProfileMode("local");
-            nav("/collection");
-          }}
-        >
-          Open local profile
-        </Button>
-      </section>
-    </>
+    <section className="panel narrow">
+      <p className="text-ledger">One wallet. One profile.</p>
+      <h1>Connect your wallet.</h1>
+      <p>
+        Your wallet address is your public identity. Connect MetaMask to create
+        your profile, like collections and follow people.
+      </p>
+      <Button primary onClick={() => setConnectRequest((n) => n + 1)}>
+        Connect wallet
+      </Button>
+      <p className="muted">
+        Connecting does not move collectibles or publish your profile. You
+        approve each action in your wallet.
+      </p>
+    </section>
   );
   const custodyChoice = (
     value: "wallet" | "file",
@@ -582,24 +553,63 @@ function App() {
       </label>
     </fieldset>
   );
+  const profileControls = (
+    <div className="profile-controls">
+      {identity ? (
+        <>
+          <p className="mono wrap">{profile}</p>
+          <Link to="/settings/profile">Edit profile</Link>
+          <Link to={`/p/${profile}`}>View public profile ↗</Link>
+        </>
+      ) : (
+        <>
+          <p>Connect your wallet to use your public profile.</p>
+          <Button
+            onClick={() => {
+              setProfileMenuOpen(false);
+              setConnectRequest((n) => n + 1);
+            }}
+          >
+            Connect wallet
+          </Button>
+        </>
+      )}
+      <Link to="/collection">My files</Link>
+      {unlocked && (
+        <Button
+          onClick={() => {
+            setProfileMenuOpen(false);
+            if (
+              !vault?.persistent &&
+              revisions.current !== revisions.backedUp
+            ) {
+              nav("/recovery");
+              setNotice(
+                "Save and confirm current recovery before ending this file session.",
+              );
+            } else lock();
+          }}
+          disabled={!!busy || walletBusy}
+        >
+          {vault?.persistent ? "Lock files" : "End file session"}
+        </Button>
+      )}
+    </div>
+  );
   let content: ReactNode;
   if (routePath === "/mint")
-    content = (mintMode === "wallet" ? !walletSession : !unlocked) ? (
-      mintMode === "wallet" ? (
-        walletPanel
-      ) : (
-        authPanel
-      )
+    content = !walletSession ? (
+      walletPanel
     ) : (
       <section className="flow-grid">
         <div className="panel">
           <p className="text-ledger">Create a collectible</p>
-          <h1>
-            {mintMode === "wallet" ? "Make it yours." : "Make it a file."}
-          </h1>
-          {mintMode === "wallet" && (
-            <p className="mono wrap">Mint to {walletSession!.account}</p>
-          )}
+          <h1>Make it yours.</h1>
+          <p className="mono wrap">Mint to {walletSession!.account}</p>
+          <p className="muted">
+            Want to send it as a file? Mint first, then choose Make transferable
+            file in your wallet collection.
+          </p>
           <p>
             Choose a picture. We strip its metadata locally and create a
             canonical PNG. Minting publishes the clean picture and its
@@ -647,57 +657,36 @@ function App() {
               !normalized ||
               !title.trim() ||
               !!busy ||
-              (mintMode === "wallet" &&
-                (!journal || !isZVMChain(walletSession?.chainId)))
+              !journal ||
+              !isZVMChain(walletSession?.chainId)
             }
             onClick={() =>
               act("Preparing your mint", async () => {
-                if (mintMode === "wallet") {
-                  const record = await prepareWalletMint(
-                    journal!,
-                    deployment!,
-                    walletSession!,
-                    normalized!,
-                    title,
-                    description,
-                  );
-                  nav("/wallet");
-                  const job = await submitWallet(
-                    journal!,
-                    deployment!,
-                    walletSession!,
-                    record,
-                  );
-                  setNotice(
-                    `Wallet mint ${job.state}. Check Wallet for confirmation.`,
-                  );
-                } else {
-                  await flows.prepareMint(
-                    vault!,
-                    deployment!,
-                    normalized!,
-                    title,
-                    description,
-                  );
-                  await refresh();
-                  setReturnTo("/collection");
-                  nav("/recovery");
-                  setNotice(
-                    "Your file key is prepared. Save and confirm recovery, then resume the mint from your file collection.",
-                  );
-                }
+                const record = await prepareWalletMint(
+                  journal!,
+                  deployment!,
+                  walletSession!,
+                  normalized!,
+                  title,
+                  description,
+                );
+                nav("/wallet");
+                const job = await submitWallet(
+                  journal!,
+                  deployment!,
+                  walletSession!,
+                  record,
+                );
+                setNotice(
+                  `Wallet mint ${job.state}. Check Wallet for confirmation.`,
+                );
                 setNormalized(undefined);
                 setPreview("");
               })
             }
           >
-            {mintMode === "wallet"
-              ? "Sign and mint to wallet"
-              : "Prepare file mint"}
+            Sign and mint to wallet
           </Button>
-          {mintMode === "file" && revisions.backedUp < 0 && (
-            <Link to="/recovery">Save recovery before minting →</Link>
-          )}
         </div>
         <div className="preview-surface">
           {preview ? (
@@ -990,7 +979,6 @@ function App() {
                     activateVault(persistentVault);
                     setExists(true);
                     setUnlocked(true);
-                    if (!walletSession) setProfileMode("local");
                     await refresh(persistentVault);
                   } else await startSession(await restore!.text());
                   setPassphrase("");
@@ -1024,8 +1012,11 @@ function App() {
             <h1>
               My files<span className="heading-dot">.</span>
             </h1>
-            <p className="mono">Local profile {short(localProfile)}</p>
-            <Link to="/settings/profile">Edit public profile →</Link>
+            <Link to="/settings/profile">
+              {identity
+                ? "Edit public profile →"
+                : "Connect wallet for your public profile →"}
+            </Link>
           </div>
           <div className="actions">
             <Link
@@ -1194,7 +1185,7 @@ function App() {
                             })
                           }
                         >
-                          Publish to selected profile
+                          Publish to wallet profile
                         </Button>
                         <Button
                           disabled={!!busy || !identity}
@@ -1217,8 +1208,8 @@ function App() {
                           Remove from profile
                         </Button>
                         <p className="muted">
-                          Publishing links this holding to your public identity.
-                          Create your public profile first.
+                          Publishing links this holding to your wallet profile.
+                          Connect your wallet and create its profile first.
                         </p>
                       </>
                     )}
@@ -1263,16 +1254,12 @@ function App() {
         session={walletSession}
         journal={journal}
         onConnect={() => setConnectRequest((n) => n + 1)}
-        onWalletProfile={() => {
-          setProfileMode("wallet");
-          nav("/settings/profile");
-        }}
+        onWalletProfile={() => nav("/settings/profile")}
         vault={unlocked ? vault : undefined}
         deployment={deployment}
         items={items}
         nav={(to) => {
           if (to === "/collection" && !unlocked) setReturnTo("/wallet");
-          if (to === "/mint") setMintMode("wallet");
           if (to === "/claim") setClaimMode("wallet");
           nav(to);
         }}
@@ -1439,24 +1426,14 @@ function App() {
             >
               My collection
             </Link>
-            {unlocked && (
-              <Button
-                onClick={() => {
-                  if (
-                    !vault?.persistent &&
-                    revisions.current !== revisions.backedUp
-                  ) {
-                    nav("/recovery");
-                    setNotice(
-                      "Save and confirm current recovery before ending this file session.",
-                    );
-                  } else lock();
-                }}
-                disabled={!!busy || walletBusy}
-              >
-                {vault?.persistent ? "Lock files" : "End file session"}
-              </Button>
-            )}
+            <button
+              className="nom-btn nom-btn--outline nom-btn--default"
+              aria-haspopup="dialog"
+              aria-expanded={profileMenuOpen}
+              onClick={() => setProfileMenuOpen(true)}
+            >
+              Profile
+            </button>
           </div>
         </div>
         {menuOpen && (
@@ -1477,6 +1454,11 @@ function App() {
           </nav>
         )}
       </header>
+      {profileMenuOpen && (
+        <Modal title="Your profile" onClose={() => setProfileMenuOpen(false)}>
+          {profileControls}
+        </Modal>
+      )}
       <main id="main" tabIndex={-1}>
         <div className="messages" aria-live="polite">
           {busy && (
@@ -1491,43 +1473,6 @@ function App() {
           )}
           {notice && <p className="callout success">{notice}</p>}
         </div>
-        {(walletSession || exists || unlocked) && (
-          <div className="identity-bar">
-            <label>
-              Profile identity
-              <select
-                value={profileMode}
-                disabled={!!busy || walletBusy}
-                onChange={(e) =>
-                  setProfileMode(e.target.value as "wallet" | "local")
-                }
-              >
-                <option value="wallet">
-                  Wallet
-                  {walletSession
-                    ? ` · ${short(walletSession.account)}`
-                    : " · connect to use"}
-                </option>
-                <option value="local">
-                  Local profile
-                  {localProfile
-                    ? ` · ${short(localProfile)}`
-                    : " · unlock or restore"}
-                </option>
-              </select>
-            </label>
-            <Link to="/settings/profile">Edit profile</Link>
-            <Link to="/collection">My files</Link>
-            {identity && (
-              <Link to={`/p/${profile}`}>View public profile ↗</Link>
-            )}
-            <span className="muted">
-              Profiles stay separate. Switching does not move items or merge
-              identities.
-            </span>
-          </div>
-        )}
-        {routePath === "/mint" && custodyChoice(mintMode, setMintMode)}
         {routePath === "/claim" && custodyChoice(claimMode, setClaimMode)}
         {content}
       </main>

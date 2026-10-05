@@ -1,0 +1,80 @@
+{
+  "checkedAt": "2026-10-05T10:22:10.613Z",
+  "origin": "https://devnet.zft.foo",
+  "index": {
+    "block": 97174,
+    "head": 97180,
+    "syncedAt": 1791195726372,
+    "error": null,
+    "lag": 6,
+    "confirmations": 6
+  },
+  "collections": 7,
+  "nfts": 5,
+  "pending": 0,
+  "checks": [
+    "Hosted collection counts agree with public profiles",
+    "Search reaches the oldest artwork",
+    "No-result search returns an empty dataset",
+    "Three public routes return the exact tested bundle",
+    "Distinct valid 1200×630 PNG share images for all three public pages"
+  ],
+  "entry": "/assets/index-DuADbB8-.js",
+  "assetSha256": "514b14ecd77303187d4c15a3fee4bcbd0a81b6c0ab669d24aa5da5caa78b07cc",
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "og": "https://devnet.zft.foo/api/og/page/home.png?v=b9d9282d95c370a8d34211ad77c63e25ba916a80f7efebf36623976bb66bd315",
+      "imageBytes": 131089,
+      "imageSha256": "8b707dcc782018637eb9dd11852cce5f8834fcb6f5857d79e963a94b3e18330f",
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/explore",
+      "status": 200,
+      "og": "https://devnet.zft.foo/api/og/page/explore.png?v=c8008580accdf574e98e962eea4f0cae7d7e07f3c92c753113788366f27704d5",
+      "imageBytes": 111592,
+      "imageSha256": "17cb8ccc58ace07ac98d88849f71ada9e356d89e371f7e7880e62732e8d06f6c",
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/explore/nfts",
+      "status": 200,
+      "og": "https://devnet.zft.foo/api/og/page/explore-nfts.png?v=a842fd120e9d8789d638b95c9cda0f5cb0dd641e110418be85caf63837edb88b",
+      "imageBytes": 131014,
+      "imageSha256": "2616daf6552543c580f56759cbd107c967d73cc6f30e00a76bb9089158ddcf73",
+      "width": 1200,
+      "height": 630
+    }
+  ],
+  "workerVersion": "19044da4-6ff9-4054-9a16-b58418d476d8",
+  "uiChecks": [
+    "No global identity panel on public pages",
+    "Profile dialog offers wallet connection without a wallet/local selector",
+    "Profile settings and new minting require wallet connection",
+    "Guest collection likes lead to wallet profile onboarding",
+    "My files and file recovery remain accessible separately",
+    "Profile dialog Escape and navigation close it with focus restored",
+    "Icon theme button exposes System, Light and Dark with the selected choice announced",
+    "Theme changes persist across reload; Escape and outside click close the menu",
+    "No horizontal overflow at 1440, 1024, 360 and 320 CSS pixels in local layout checks; theme menu fits within the 320px viewport",
+    "Hosted homepage, Profile dialog and theme menu verified against the exact deployed bundle"
+  ],
+  "screenshots": [
+    "profile-navigation-hosted.png",
+    "profile-menu-hosted.png",
+    "theme-menu-hosted.png"
+  ],
+  "validation": [
+    "122 TypeScript tests pass",
+    "Typecheck, frontend build and Worker dry run pass",
+    "Four wallet-profile API cases verify the signed wallet address and block submission after account/network/disconnect changes during signing"
+  ],
+  "identityPolicy": "Connected wallet address is the only public identity and new mint creator/owner; no old-profile migration. Legacy file authority and recovery remain compatible.",
+  "limitations": [
+    "Browser checks used a disconnected wallet; connected profile signatures are verified with real cryptography and a mocked provider. Actual extension/device acceptance remains R6."
+  ]
+}
