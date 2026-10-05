@@ -96,6 +96,8 @@ This mints a generated test artwork and exercises export → claim → cancel �
 
 ## Cloudflare deployment
 
+Wallet-first release: Worker version `f0261da2-d978-4781-8e03-b72b2f6b77df`. The hosted frontend bundle matches the tested build byte-for-byte, and `/mint`, `/claim`, `/wallet`, `/recovery` return the new app with noindex metadata. [Deployment evidence](../research/wallet-first-deployment.json).
+
 - App: **https://devnet.zft.foo**, Worker **zft-devnet**.
 - Canonical public media: **https://zft.foo/art/** and **https://zft.foo/metadata/**, routed to that same Worker. The apex homepage remains the `zft-preview` design prototype.
 - D1 **zft-devnet-index**, R2 **zft-devnet-public**, Sponsor and Indexer Durable Objects, one-minute cron. Local bindings are isolated.
