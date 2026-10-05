@@ -1,0 +1,45 @@
+{
+  "at": "2026-10-05T02:12:56.933Z",
+  "commit": "7f65ba0",
+  "workerVersion": "b7464b4d-00d6-4271-bd01-85c86d74d789",
+  "origin": "https://devnet.zft.foo",
+  "galleryItems": 4,
+  "checks": [
+    {
+      "path": "/item/42",
+      "status": 404,
+      "appShell": true,
+      "privateMetadata": true
+    },
+    {
+      "path": "/p/0x1111111111111111111111111111111111111111",
+      "status": 404,
+      "appShell": true,
+      "privateMetadata": true
+    },
+    {
+      "path": "/p/0x8FD41A4b7a53f6740C21a267DC42909025e0e1EF?nft=bad",
+      "status": 400,
+      "appShell": true,
+      "privateMetadata": true
+    },
+    {
+      "path": "/explore",
+      "status": 200,
+      "appShell": true,
+      "privateMetadata": false
+    },
+    {
+      "path": "/item/39906159629019302824312864297880521243192948770788506145527734550950470953978",
+      "status": 200,
+      "appShell": true,
+      "privateMetadata": false
+    },
+    {
+      "path": "/wallet",
+      "status": 200,
+      "appShell": true,
+      "privateMetadata": true
+    }
+  ]
+}
