@@ -27,6 +27,11 @@ export const possessionInput = z
   })
   .strict();
 export const unpublishInput = z.object({ tokenId: uintSchema }).strict();
+export const publicationSchema = possessionInput.extend({
+  profile: addressSchema,
+  publishedAt: z.number().int().nonnegative(),
+});
+export type Publication = z.infer<typeof publicationSchema>;
 export const possessionText = (
   profile: string,
   p: { tokenId: string; nonce: string; expires: number },

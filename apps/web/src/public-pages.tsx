@@ -4,6 +4,9 @@ import { digest } from "../../../packages/protocol";
 import type { Profile } from "../../../packages/protocol/public";
 import type { Vault } from "../../../packages/vault";
 import manifest from "../../../packages/protocol/deployment.json";
+import { verifyPublicEvidence } from "../../../packages/protocol/public-proof";
+import { PublicDetail } from "./proof-card";
+import { Modal } from "./site-controls";
 import { api, ApiError, signedRequest } from "./api";
 
 export type PublicItem = {
@@ -14,6 +17,7 @@ export type PublicItem = {
   nonce?: string;
   blockNumber?: string;
   blockHash?: string;
+  publicationNonce?: string;
 };
 type ProfileData = {
   featuredItem?: PublicItem | null;
@@ -88,138 +92,7 @@ export function PublicCard({
     </RouteLink>
   );
 }
-export function PublicDetail({
-  id,
-  nav,
-  onError,
-  context,
-}: { id: string; context?: string } & Navigation) {
-  const [item, setItem] = useState<PublicItem>(),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [copied, setCopied] = useState(false);
-  async function refresh() {
-    setBusy(true);
-    setError("");
-    try {
-      const i = await api<PublicItem>(
-        `/api/items/${id}${context ? `?profile=${context}` : ""}`,
-      );
-      if (!i.metadata || digest(i.metadata) !== i.metadataHash)
-        throw new Error("Metadata could not be verified.");
-      setItem(i);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
-  useEffect(() => {
-    void refresh();
-  }, [id]);
-  if (!item)
-    return (
-      <section className="empty-state">
-        <h2>{error || "Reading the on-chain proof…"}</h2>
-        {error && (
-          <button className={btn} onClick={refresh}>
-            Retry
-          </button>
-        )}
-      </section>
-    );
-  const proof = () => {
-    const data = {
-      format: "zft-public-observation",
-      version: 1,
-      deployment: manifest,
-      tokenId: item.tokenId,
-      metadata: item.metadata,
-      metadataHash: item.metadataHash,
-      observed: {
-        owner: item.owner,
-        ownershipNonce: item.nonce,
-        block: item.blockNumber,
-        blockHash: item.blockHash,
-      },
-      note: "Public observation only. Re-query the pinned contract to verify current ownership.",
-    };
-    const url = URL.createObjectURL(
-      new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `zft-proof-${id.slice(0, 12)}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-  return (
-    <section className="flow-grid public-detail">
-      <img
-        className="detail-image"
-        src={`/art/${item.metadata.imageHash.slice(2)}.png`}
-        alt={item.metadata.name}
-      />
-      <div className="panel">
-        <p className="text-ledger">Public collectible · ZVM devnet</p>
-        <h1>{item.metadata.name}</h1>
-        <p>{item.metadata.description}</p>
-        <div className="actions">
-          <a
-            className={btn}
-            href={`/art/${item.metadata.imageHash.slice(2)}.png`}
-            download
-          >
-            Save image
-          </a>
-          <button className={btn} onClick={proof}>
-            Public proof
-          </button>
-          <button
-            className={btn}
-            onClick={() =>
-              navigator.clipboard
-                .writeText(location.href)
-                .then(() => setCopied(true))
-                .catch((e) => onError(e.message))
-            }
-          >
-            {copied ? "Link copied" : "Share"}
-          </button>
-        </div>
-        <details className="proof-details" open>
-          <summary>On-chain proof</summary>
-          <dl>
-            <dt>Creator</dt>
-            <dd>
-              <RouteLink to={`/p/${item.metadata.creator}`} nav={nav}>
-                {item.metadata.creator}
-              </RouteLink>
-            </dd>
-            <dt>Current owner · observed, not a permanent certificate</dt>
-            <dd>{item.owner}</dd>
-            <dt>Ownership nonce</dt>
-            <dd>{item.nonce}</dd>
-            <dt>Observed block</dt>
-            <dd>{item.blockNumber}</dd>
-            <dt>Image SHA-256</dt>
-            <dd>{item.metadata.imageHash}</dd>
-            <dt>Metadata SHA-256</dt>
-            <dd>{item.metadataHash}</dd>
-          </dl>
-        </details>
-        <button className={btn} disabled={busy} onClick={refresh}>
-          {busy ? "Checking…" : "Re-verify ownership"}
-        </button>
-        {error && <p role="alert">Could not check: {error}</p>}
-        <p className="muted public-note">
-          The public image and proof contain no ownership key. Get the original
-          transfer file from the current owner to claim this collectible.
-        </p>
-      </div>
-    </section>
-  );
-}
+export { PublicDetail } from "./proof-card";
 export function Activity({
   profile,
   onError,
@@ -297,6 +170,111 @@ export function Activity({
     </>
   );
 }
+function NetworkDialog({
+  address,
+  kind,
+  onClose,
+  nav,
+}: {
+  address: string;
+  kind: "followers" | "following";
+  onClose: () => void;
+  nav: Navigation["nav"];
+}) {
+  const [tab, setTab] = useState(kind),
+    [people, setPeople] = useState<{ address: string; name: string | null }[]>(
+      [],
+    ),
+    [cursor, setCursor] = useState<string | null>(),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const generation = useRef(0);
+  async function load(more = false) {
+    const run = ++generation.current;
+    setBusy(true);
+    setError("");
+    try {
+      const data = await api<{
+        profiles: typeof people;
+        nextCursor: string | null;
+      }>(
+        `/api/profiles/${address}/${tab}${more && cursor ? `?after=${cursor}` : ""}`,
+      );
+      if (run === generation.current) {
+        setPeople((old) => (more ? [...old, ...data.profiles] : data.profiles));
+        setCursor(data.nextCursor);
+      }
+    } catch (e) {
+      if (run === generation.current) setError((e as Error).message);
+    } finally {
+      if (run === generation.current) setBusy(false);
+    }
+  }
+  useEffect(() => {
+    setPeople([]);
+    setCursor(null);
+    void load();
+    return () => {
+      generation.current++;
+    };
+  }, [tab, address]);
+  return (
+    <Modal title="Network" onClose={onClose}>
+      <div
+        className="segment-control"
+        role="tablist"
+        aria-label="Network views"
+      >
+        {(["followers", "following"] as const).map((t) => (
+          <button
+            key={t}
+            role="tab"
+            aria-selected={tab === t}
+            onClick={() => setTab(t)}
+          >
+            {t === "followers" ? "Followers" : "Following"}
+          </button>
+        ))}
+      </div>
+      <div className="people-list">
+        {people.map((p) => (
+          <RouteLink
+            key={p.address}
+            to={`/p/${p.address}`}
+            nav={(to) => {
+              onClose();
+              nav(to);
+            }}
+          >
+            <span className="mini-avatar">{(p.name || "Z").slice(0, 1)}</span>
+            <span>
+              {p.name || short(p.address)}
+              <small className="mono">{short(p.address)}</small>
+            </span>
+          </RouteLink>
+        ))}
+      </div>
+      {busy && <p role="status">Loading profiles…</p>}
+      {!busy && !error && !people.length && (
+        <p>
+          {tab === "followers"
+            ? "No followers yet."
+            : "This profile is not following anyone yet."}
+        </p>
+      )}
+      {error && <p role="alert">{error}</p>}
+      {(error || cursor) && (
+        <button
+          className={btn}
+          disabled={busy}
+          onClick={() => load(!!cursor && !error)}
+        >
+          {error ? "Retry" : "Load more"}
+        </button>
+      )}
+    </Modal>
+  );
+}
 export function PublicProfile({
   address,
   path,
@@ -304,71 +282,80 @@ export function PublicProfile({
   onError,
   vault,
   viewer,
+  onUnlock,
 }: {
   address: string;
   path: string;
   vault?: Vault;
   viewer: string;
+  onUnlock: (returnTo: string) => void;
 } & Navigation) {
   const [data, setData] = useState<ProfileData>(),
     [items, setItems] = useState<PublicItem[]>([]),
     [cursor, setCursor] = useState<string | null>(),
-    [people, setPeople] = useState<{ address: string; name: string | null }[]>(
-      [],
-    ),
-    [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
-    [copied, setCopied] = useState(false);
+    [error, setError] = useState(""),
+    [notice, setNotice] = useState(""),
+    [network, setNetwork] = useState<"followers" | "following">(),
+    [guest, setGuest] = useState(""),
+    [checking, setChecking] = useState(false),
+    [states, setStates] = useState<Record<string, string>>({});
+  const generation = useRef(0),
+    reverify = useRef(0);
   const query = new URLSearchParams(path.split("?")[1] ?? ""),
-    tab = query.get("tab") ?? "created",
-    selected = query.get("nft");
+    requested = query.get("tab") ?? "collection",
+    tab = ["created", "collection", "sent", "activity"].includes(requested)
+      ? requested
+      : "collection",
+    selected = query.get("nft"),
+    epoch = query.get("epoch") ?? undefined;
   const root = `/p/${address.toLowerCase()}`,
-    dialog = useRef<HTMLDialogElement>(null);
-  const owner = viewer.toLowerCase() === address.toLowerCase();
+    owner = viewer.toLowerCase() === address.toLowerCase();
   async function load(more = false) {
+    const run = ++generation.current;
     setBusy(true);
     setError("");
     try {
       const p = await api<ProfileData>(
         `/api/profiles/${address}${viewer ? `?viewer=${viewer}` : ""}`,
       );
+      if (run !== generation.current) return;
       setData(p);
-      if (tab === "activity") return;
-      if (tab === "followers" || tab === "following") {
-        const r = await api<{
-          profiles: typeof people;
-          nextCursor: string | null;
-        }>(
-          `/api/profiles/${address}/${tab}${more && cursor ? `?after=${cursor}` : ""}`,
-        );
-        setPeople((old) => (more ? [...old, ...r.profiles] : r.profiles));
-        setCursor(r.nextCursor);
-      } else {
-        const t = ["created", "collection", "sent"].includes(tab)
-          ? tab
-          : "created";
+      if (tab !== "activity") {
         const r = await api<{ items: PublicItem[]; nextCursor: string | null }>(
-          `/api/profiles/${address}/${t}${more && cursor ? `?cursor=${cursor}` : ""}`,
+          `/api/profiles/${address}/${tab}${more && cursor ? `?cursor=${cursor}` : ""}`,
         );
-        setItems((old) => (more ? [...old, ...r.items] : r.items));
-        setCursor(r.nextCursor);
+        if (run === generation.current) {
+          setItems((old) => (more ? [...old, ...r.items] : r.items));
+          setCursor(r.nextCursor);
+        }
       }
     } catch (e) {
-      setError((e as Error).message);
+      if (run === generation.current) setError((e as Error).message);
     } finally {
-      setBusy(false);
+      if (run === generation.current) setBusy(false);
     }
   }
   useEffect(() => {
+    setItems([]);
+    setCursor(null);
+    setStates({});
+    setChecking(false);
     void load();
+    return () => {
+      generation.current++;
+      reverify.current++;
+    };
   }, [address, tab, viewer]);
-  useEffect(() => {
-    if (selected && data && !dialog.current?.open) dialog.current?.showModal();
-  }, [selected, data]);
-  const close = () => nav(`${root}?tab=${tab}`);
+  const close = () => {
+    const q = new URLSearchParams(query);
+    q.delete("nft");
+    q.delete("epoch");
+    nav(`${root}${q.size ? `?${q}` : ""}`);
+  };
   async function social(kind: "follow" | "like", active: boolean) {
     if (!vault?.unlocked) {
-      nav("/collection");
+      setGuest(kind);
       return;
     }
     setBusy(true);
@@ -379,11 +366,64 @@ export function PublicProfile({
         await vault.profile(),
       );
       await load();
+      setNotice(
+        kind === "follow"
+          ? active
+            ? "Following collection"
+            : "Unfollowed collection"
+          : active
+            ? "Collection liked"
+            : "Like removed",
+      );
     } catch (e) {
-      onError((e as Error).message);
+      onError(
+        (e as Error).message +
+          " If this is a new local collection, publish your profile from My collection first.",
+      );
     } finally {
       setBusy(false);
     }
+  }
+  async function verifyVisible() {
+    const run = ++reverify.current;
+    setChecking(true);
+    setStates({});
+    for (let start = 0; start < items.length; start += 4) {
+      if (run !== reverify.current) return;
+      await Promise.all(
+        items.slice(start, start + 4).map(async (i) => {
+          let label = "Could not check";
+          try {
+            const r = await api<
+              import("../../../packages/protocol/public-proof").Evidence
+            >(
+              `/api/items/${i.tokenId}?profile=${address}${i.publicationNonce === undefined ? "" : `&epoch=${i.publicationNonce}`}`,
+            );
+            const check = await verifyPublicEvidence(
+              r,
+              undefined,
+              Date.now(),
+              address,
+            );
+            label =
+              check.current === "pass"
+                ? "Ownership current"
+                : check.current === "historical"
+                  ? "Ownership changed"
+                  : check.current === "expired"
+                    ? "Proof expired"
+                    : check.current === "fail"
+                      ? "Proof invalid"
+                      : !r.publication && r.chainVerified
+                        ? "Chain checked · creator view"
+                        : "Could not check";
+          } catch {}
+          if (run === reverify.current)
+            setStates((old) => ({ ...old, [i.tokenId]: label }));
+        }),
+      );
+    }
+    if (run === reverify.current) setChecking(false);
   }
   if (!data)
     return (
@@ -397,13 +437,12 @@ export function PublicProfile({
       </section>
     );
   const { profile, counts } = data;
-  const featured = data.featuredItem;
   return (
     <>
       <div className="profile-cover rich-cover">
-        {featured && (
+        {data.featuredItem && (
           <img
-            src={`/art/${featured.metadata.imageHash.slice(2)}.png`}
+            src={`/art/${data.featuredItem.metadata.imageHash.slice(2)}.png`}
             alt=""
           />
         )}
@@ -422,6 +461,7 @@ export function PublicProfile({
                 <button
                   className={`${btn} ${data.viewer.following ? "is-active" : ""}`}
                   disabled={busy}
+                  aria-pressed={data.viewer.following}
                   onClick={() => social("follow", !data.viewer.following)}
                 >
                   {data.viewer.following ? "Following" : "Follow"}
@@ -429,10 +469,10 @@ export function PublicProfile({
                 <button
                   className={btn}
                   disabled={busy}
-                  onClick={() => social("like", !data.viewer.liked)}
                   aria-pressed={data.viewer.liked}
+                  onClick={() => social("like", !data.viewer.liked)}
                 >
-                  {data.viewer.liked ? "♥ Liked" : "♡ Like"}
+                  {data.viewer.liked ? "♥ Liked" : "♡ Like"} · {counts.likes}
                 </button>
               </>
             )}
@@ -441,23 +481,29 @@ export function PublicProfile({
               onClick={() =>
                 navigator.clipboard
                   .writeText(`${location.origin}${root}`)
-                  .then(() => setCopied(true))
-                  .catch((e) => onError(e.message))
+                  .then(() => setNotice("Profile link copied"))
+                  .catch(() => onError("Could not copy the profile link."))
               }
             >
-              {copied ? "Link copied" : "Share"}
+              Share
             </button>
+            {!vault?.unlocked && (
+              <button className={btn} onClick={() => setGuest("unlock")}>
+                Unlock
+              </button>
+            )}
           </div>
         </div>
         <p className="text-ledger">Public collection · ZVM devnet</p>
         <h1>{profile.name}</h1>
         <button
           className="identity mono"
+          title={address}
           onClick={() =>
             navigator.clipboard
               .writeText(address)
-              .then(() => setCopied(true))
-              .catch((e) => onError(e.message))
+              .then(() => setNotice("Public identity copied"))
+              .catch(() => onError("Could not copy the identity."))
           }
         >
           {short(address)} ⧉
@@ -466,35 +512,44 @@ export function PublicProfile({
         <div className="profile-counts">
           {(
             [
-              ["created", "Created"],
-              ["collected", "Collected"],
-              ["sent", "Sent"],
-              ["followers", "Followers"],
-              ["following", "Following"],
-              ["likes", "Likes"],
+              ["collected", "Collected", "collection"],
+              ["sent", "Sent", "sent"],
+              ["created", "Created", "created"],
             ] as const
-          ).map(([key, label]) => (
-            <RouteLink
-              key={key}
-              nav={nav}
-              to={`${root}?tab=${key === "collected" ? "collection" : key === "likes" ? "created" : key}`}
-            >
+          ).map(([key, label, view]) => (
+            <RouteLink key={key} nav={nav} to={`${root}?tab=${view}`}>
               <strong>{counts[key]}</strong>
               <span>{label}</span>
             </RouteLink>
           ))}
+          <div>
+            <strong>{counts.likes}</strong>
+            <span>Likes</span>
+          </div>
+          {(["followers", "following"] as const).map((kind) => (
+            <button
+              className="text-button"
+              key={kind}
+              onClick={() => setNetwork(kind)}
+            >
+              <strong>{counts[kind]}</strong>
+              <span>{kind === "followers" ? "Followers" : "Following"}</span>
+            </button>
+          ))}
         </div>
+        <p role="status" className="profile-notice">
+          {notice ||
+            (query.get("intent")
+              ? "Your collection is unlocked. You can continue with the profile action above."
+              : "")}
+        </p>
       </section>
-      <div
-        className="profile-tabs"
-        role="navigation"
-        aria-label="Profile views"
-      >
+      <nav className="profile-tabs" aria-label="Profile views">
         {[
-          ["created", "Created"],
           ["collection", "Collection"],
           ["sent", "Sent"],
           ["activity", "Activity"],
+          ["created", "Created"],
         ].map(([id, label]) => (
           <RouteLink
             key={id}
@@ -505,95 +560,110 @@ export function PublicProfile({
             {label}
           </RouteLink>
         ))}
-        <button className={btn} disabled={busy} onClick={() => load()}>
-          Refresh
-        </button>
-      </div>
+        {tab !== "activity" && (
+          <button
+            className={btn}
+            disabled={busy || checking || !items.length}
+            onClick={verifyVisible}
+          >
+            {checking ? "Checking…" : "Re-verify"}
+          </button>
+        )}
+      </nav>
       {error && <p role="alert">{error}</p>}
       {tab === "activity" ? (
         <Activity profile={address} onError={onError} />
-      ) : tab === "followers" || tab === "following" ? (
-        <>
-          <h2>{tab === "followers" ? "Followers" : "Following"}</h2>
-          <div className="people-list">
-            {people.map((p) => (
-              <RouteLink key={p.address} to={`/p/${p.address}`} nav={nav}>
-                <span className="mini-avatar">
-                  {(p.name || "Z").slice(0, 1)}
-                </span>
-                <span>
-                  {p.name || short(p.address)}
-                  <small className="mono">{short(p.address)}</small>
-                </span>
-              </RouteLink>
-            ))}
-          </div>
-          {!people.length && <p>No profiles here yet.</p>}
-        </>
       ) : (
         <>
           <p className="muted">
             {tab === "collection"
-              ? "Items this profile chose to publish with an ownership proof."
+              ? "Public holdings with an unexpired ownership statement."
               : tab === "sent"
-                ? "Previously published holdings whose ownership epoch has changed."
-                : "Public creations are permanent mint provenance, independent of current ownership."}
+                ? "Previous public ownership epochs. Changes can include transfers or cancellations."
+                : "Permanent mint provenance, independent of current ownership."}
           </p>
           <div className="gallery-grid">
             {items.map((i) => (
-              <PublicCard
-                key={i.tokenId}
-                item={i}
-                nav={nav}
-                to={
-                  tab === "sent"
-                    ? `/item/${i.tokenId}`
-                    : `${root}?tab=${tab}&nft=${i.tokenId}`
-                }
-              />
+              <div key={i.tokenId}>
+                <PublicCard
+                  item={i}
+                  nav={nav}
+                  to={`${root}?tab=${tab}&nft=${i.tokenId}${i.publicationNonce === undefined ? "" : `&epoch=${i.publicationNonce}`}`}
+                />
+                <p role="status" className="card-check">
+                  {states[i.tokenId] ||
+                    (tab === "sent" ? "Previous ownership epoch" : "")}
+                </p>
+              </div>
             ))}
           </div>
+          {busy && <p role="status">Loading public pieces…</p>}
           {!items.length && !busy && (
             <div className="empty-state compact">
               <h2>No public pieces here yet.</h2>
               <p>
-                Private browser collections are never published automatically.
+                Holding publication is optional. Created items have a separate
+                provenance view.
               </p>
             </div>
           )}
+          {cursor && (
+            <button
+              className={`${btn} load-more`}
+              disabled={busy}
+              onClick={() => load(true)}
+            >
+              Load more
+            </button>
+          )}
         </>
       )}
-      {cursor && tab !== "activity" && (
-        <button
-          className={`${btn} load-more`}
-          disabled={busy}
-          onClick={() => load(true)}
-        >
-          Load more
-        </button>
-      )}
       {selected && (
-        <dialog
-          ref={dialog}
-          className="item-dialog"
-          onCancel={(e) => {
-            e.preventDefault();
-            close();
-          }}
-        >
-          <div className="dialog-bar">
-            <span className="text-ledger">{profile.name} / Public artwork</span>
-            <button className={btn} onClick={close} autoFocus>
-              Close ×
-            </button>
-          </div>
+        <Modal title={`${profile.name} / Public artwork`} onClose={close} wide>
           <PublicDetail
             id={selected}
             context={address}
+            epoch={epoch}
             nav={nav}
             onError={onError}
           />
-        </dialog>
+        </Modal>
+      )}
+      {network && (
+        <NetworkDialog
+          address={address}
+          kind={network}
+          onClose={() => setNetwork(undefined)}
+          nav={nav}
+        />
+      )}
+      {guest && (
+        <Modal
+          title={
+            guest === "unlock"
+              ? "Unlock your collection"
+              : "Start with your collection"
+          }
+          onClose={() => setGuest("")}
+        >
+          <p>
+            {guest === "unlock"
+              ? "Unlock this browser's vault or restore its recovery snapshot. Editing requires the matching profile identity."
+              : "Unlock or create a local collection to like and follow public profiles. You will return here to finish your action."}
+          </p>
+          <button
+            className={btn}
+            onClick={() => {
+              setGuest("");
+              onUnlock(`${root}?intent=${guest}`);
+            }}
+          >
+            Unlock or create collection
+          </button>
+          <RouteLink to="/recovery" nav={nav} className={btn}>
+            Restore recovery file
+          </RouteLink>
+        </Modal>
       )}
     </>
   );

@@ -31,6 +31,8 @@ import {
   Activity,
 } from "./public-pages";
 import { possessionText } from "../../../packages/protocol/public";
+import { ThemeControl, ProfileLookup } from "./site-controls";
+import { WalletControl } from "./wallet-control";
 
 type Config = { deployment: typeof manifest; sponsorEnabled: boolean };
 type PublicItem = {
@@ -77,6 +79,9 @@ function App() {
     [vault, setVault] = useState<Vault>(),
     [unlocked, setUnlocked] = useState(false),
     [exists, setExists] = useState(false);
+  const routePath = path.split("?")[0];
+  const [menuOpen, setMenuOpen] = useState(false),
+    [returnTo, setReturnTo] = useState<string>();
   const [items, setItems] = useState<ItemRecord[]>([]),
     [gallery, setGallery] = useState<PublicItem[]>([]),
     [profile, setProfile] = useState("");
@@ -117,12 +122,14 @@ function App() {
     : undefined;
   const ready = !!deployment && !!config?.sponsorEnabled;
   const nav = (p: string) => {
+    const samePage = p.split("?")[0] === location.pathname;
     history.pushState({}, "", p);
     setPath(p);
     setError("");
     setNotice("");
     setRiskAccepted(false);
-    window.scrollTo(0, 0);
+    setMenuOpen(false);
+    if (!samePage) window.scrollTo(0, 0);
   };
   const Link = ({
     to,
@@ -235,6 +242,12 @@ function App() {
     setConfirmPassphrase("");
     setNotice("Collection locked.");
   };
+  useEffect(() => {
+    if (returnTo && unlocked && revisions.backedUp >= 0) {
+      setReturnTo(undefined);
+      nav(returnTo);
+    }
+  }, [returnTo, unlocked, revisions.backedUp]);
   async function unlock() {
     if (!vault)
       throw new Error("A deployment is required before creating a vault.");
@@ -349,7 +362,7 @@ function App() {
     );
   }
   let content: ReactNode;
-  if (path === "/mint")
+  if (routePath === "/mint")
     content = !unlocked ? (
       authPanel
     ) : (
@@ -447,7 +460,7 @@ function App() {
         </div>
       </section>
     );
-  else if (path === "/claim")
+  else if (routePath === "/claim")
     content = !unlocked ? (
       authPanel
     ) : (
@@ -530,7 +543,7 @@ function App() {
         )}
       </section>
     );
-  else if (path === "/recovery")
+  else if (routePath === "/recovery")
     content = (
       <section className="panel narrow">
         <p className="text-ledger">Recovery snapshot</p>
@@ -649,7 +662,7 @@ function App() {
         )}
       </section>
     );
-  else if (path === "/collection")
+  else if (routePath === "/collection")
     content = !unlocked ? (
       authPanel
     ) : (
@@ -862,14 +875,14 @@ function App() {
         )}
       </>
     );
-  else if (path === "/settings/profile")
+  else if (routePath === "/settings/profile")
     content =
       unlocked && vault ? (
         <EditProfile vault={vault} nav={nav} onError={setError} />
       ) : (
         authPanel
       );
-  else if (path === "/activity") content = <Activity onError={setError} />;
+  else if (routePath === "/activity") content = <Activity onError={setError} />;
   else if (path.startsWith("/item/"))
     content = (
       <PublicDetail
@@ -889,9 +902,13 @@ function App() {
         onError={setError}
         vault={unlocked ? vault : undefined}
         viewer={profile}
+        onUnlock={(to) => {
+          setReturnTo(to);
+          nav("/collection");
+        }}
       />
     );
-  else if (path === "/about" || path === "/how-it-works")
+  else if (routePath === "/about" || routePath === "/how-it-works")
     content = (
       <section className="panel narrow">
         <p className="text-ledger">A picture with a transferable key</p>
@@ -930,54 +947,60 @@ function App() {
         </p>
       </section>
     );
-  else
+  else if (routePath === "/" || routePath === "/explore")
     content = (
       <>
-        <section className="hero">
-          <div>
-            <p className="eyebrow">
-              <span className="live-dot" /> ZVM devnet · first implementation
-            </p>
-            <h1>
-              The collectible
-              <br />
-              is <span>the file.</span>
-            </h1>
-            <p>
-              Mint a picture. Keep it in your collection.
-              <br />
-              Pass the original file to someone else.
-            </p>
-            <div className="actions">
-              <Link
-                className="nom-btn nom-btn--primary nom-btn--default"
-                to="/mint"
-              >
-                Mint a picture
-              </Link>
-              <Link
-                className="nom-btn nom-btn--outline nom-btn--default"
-                to="/claim"
-              >
-                Receive a file
-              </Link>
+        {routePath === "/" && (
+          <section className="hero">
+            <div>
+              <p className="eyebrow">
+                <span className="live-dot" /> ZVM devnet · first implementation
+              </p>
+              <h1>
+                The collectible
+                <br />
+                is <span>the file.</span>
+              </h1>
+              <p>
+                Mint a picture. Keep it in your collection.
+                <br />
+                Pass the original file to someone else.
+              </p>
+              <div className="actions">
+                <Link
+                  className="nom-btn nom-btn--primary nom-btn--default"
+                  to="/mint"
+                >
+                  Mint a picture
+                </Link>
+                <Link
+                  className="nom-btn nom-btn--outline nom-btn--default"
+                  to="/claim"
+                >
+                  Receive a file
+                </Link>
+              </div>
+              <p className="hero-note text-ledger">
+                Public ownership · local keys · sponsored devnet gas
+              </p>
             </div>
-            <p className="hero-note text-ledger">
-              Public ownership · local keys · sponsored devnet gas
-            </p>
-          </div>
-          <div className="hero-file">
-            <img src={logo} alt="Zenon" />
-            <span className="file-name mono">your-picture.zft.png</span>
-            <span className="text-ledger">
-              One image. A new way to pass it on.
-            </span>
-          </div>
-        </section>
+            <div className="hero-file">
+              <img src={logo} alt="Zenon" />
+              <span className="file-name mono">your-picture.zft.png</span>
+              <span className="text-ledger">
+                One image. A new way to pass it on.
+              </span>
+            </div>
+          </section>
+        )}
         <div className="section-heading">
           <div>
             <p className="text-ledger">Discover</p>
-            <h2>Fresh from the network</h2>
+            {routePath === "/explore" ? (
+              <h1>Explore the network.</h1>
+            ) : (
+              <h2>Fresh from the network</h2>
+            )}
           </div>
           <span className="mono muted">{gallery.length} published</span>
         </div>
@@ -1017,6 +1040,14 @@ function App() {
         )}
       </>
     );
+  else
+    content = (
+      <section className="empty-state">
+        <h1>Page not found.</h1>
+        <p>This link does not point to a ZFT page.</p>
+        <Link to="/explore">Explore collectibles →</Link>
+      </section>
+    );
   return (
     <>
       <a className="skip-link" href="#main">
@@ -1042,18 +1073,21 @@ function App() {
             zft<span>.</span>
           </Link>
           <nav aria-label="Main navigation">
-            <Link to="/">Explore</Link>
+            <Link to="/explore">Explore</Link>
             <Link to="/activity">Activity</Link>
             <Link to="/about">How it works</Link>
           </nav>
           <div className="actions">
-            <Button
-              onClick={() => {
-                document.documentElement.classList.toggle("dark");
-              }}
+            <ThemeControl />
+            <WalletControl />
+            <button
+              className="nom-btn nom-btn--outline nom-btn--default mobile-menu-button"
+              aria-expanded={menuOpen}
+              aria-controls="compact-navigation"
+              onClick={() => setMenuOpen(!menuOpen)}
             >
-              Theme
-            </Button>
+              Menu
+            </button>
             <Link
               className="nom-btn nom-btn--outline nom-btn--default"
               to="/collection"
@@ -1067,6 +1101,22 @@ function App() {
             )}
           </div>
         </div>
+        {menuOpen && (
+          <nav
+            id="compact-navigation"
+            className="compact-navigation"
+            aria-label="Compact navigation"
+          >
+            <Link to="/">Home</Link>
+            <Link to="/explore">Explore</Link>
+            <Link to="/activity">Activity</Link>
+            <Link to="/how-it-works">How it works</Link>
+            <Link to="/mint">Mint a picture</Link>
+            <Link to="/claim">Receive a file</Link>
+            <Link to="/collection">My collection</Link>
+            <Link to="/recovery">Recovery</Link>
+          </nav>
+        )}
       </header>
       <main id="main" tabIndex={-1}>
         <div className="messages" aria-live="polite">
@@ -1090,6 +1140,7 @@ function App() {
         </Link>
         <p>Pictures you can keep. Collectibles you can pass on.</p>
         <div className="actions">
+          <ProfileLookup nav={nav} />
           <Link to="/recovery">Recovery</Link>
           <Link to="/activity">Activity</Link>
           <Link to="/about">How it works</Link>

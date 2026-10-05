@@ -7,6 +7,10 @@ import { possessionText } from "../packages/protocol/public";
 import manifest from "../packages/protocol/deployment.json";
 import { api, signedRequest, ApiError } from "../apps/web/src/api";
 import type { Profile } from "../packages/protocol/public";
+import {
+  verifyPublicEvidence,
+  type Evidence,
+} from "../packages/protocol/public-proof";
 
 const origin = process.env.ZFT_TEST_ORIGIN ?? "http://localhost:5173";
 const htmlOrigin =
@@ -108,12 +112,27 @@ const held = await api<{ items: { tokenId: string }[] }>(
 );
 if (!held.items.some((i) => i.tokenId === record.tokenId))
   throw new Error("Published holding missing");
+const evidence = await api<Evidence>(
+  `/api/items/${record.tokenId}?profile=${collector.address}&epoch=${record.nonce}`,
+);
+const art = await fetchNative(
+  `${origin}/art/${evidence.metadata.imageHash.slice(2)}.png`,
+);
+const verified = await verifyPublicEvidence(
+  evidence,
+  new Uint8Array(await art.arrayBuffer()),
+  Date.now(),
+  collector.address,
+);
+if (Object.values(verified).some((check) => check !== "pass"))
+  throw new Error("Current public proof did not verify");
 const routes = [
   "/",
   `/p/${creator.address}`,
   `/p/${collector.address}`,
   `/p/${creator.address}?nft=${record.tokenId}`,
   `/item/${record.tokenId}`,
+  `/p/${collector.address}?nft=${record.tokenId}&epoch=${record.nonce}`,
 ];
 const checks: unknown[] = [];
 await mkdir("research/sharing", { recursive: true });
@@ -170,6 +189,8 @@ await writeFile(
       assertions: [
         "Signed profile publication",
         "Current-owner collection proof",
+        "Three independently evaluated public proof checks",
+        "Explicit published-epoch selected-item HTML and OG",
         "Idempotent follow retries",
         "Signed like",
         "Initial HTML and unique PNG per page",

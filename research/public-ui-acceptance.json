@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-05T00:50:56.937447+00:00",
+  "workerVersion": "027deb34-587b-4b19-9383-35b657cfecd7",
+  "origins": [
+    "http://localhost:5173",
+    "https://devnet.zft.foo"
+  ],
+  "viewports": [
+    {
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "passed": [
+    "Collection default and supplementary Created view",
+    "Current holder: integrity, signed profile binding and live owner/epoch all pass",
+    "Creator-only artwork does not claim a collector binding",
+    "Card front/reverse",
+    "Downloaded public observation JSON v2; expected fields, epoch 3, no private-key fields",
+    "Followers dialog and linked collector profile",
+    "Guest follow opens contextual unlock entry",
+    "Foreign-host lookup rejected; legitimate ZFT profile URL navigates",
+    "Dark theme survives reload",
+    "Wallet-unavailable message in browser without extension",
+    "Modal Escape restores originating card focus",
+    "Modal back/forward/reload retains route context",
+    "390px page and dialog have no horizontal overflow",
+    "Hosted profile re-verify reports Ownership current",
+    "Desktop compact menu is hidden; mobile menu reveals app routes",
+    "Hosted session has no captured console errors"
+  ],
+  "notExercised": [
+    "Actual MetaMask extension connection and wallet transactions",
+    "New vault creation/unlock return after user passphrase entry",
+    "Real transfer after publication to exercise historical view end to end; service regression tests cover historical membership/unpublish",
+    "Two-browser and phone transfer/recovery acceptance",
+    "External social crawler recrawl"
+  ]
+}

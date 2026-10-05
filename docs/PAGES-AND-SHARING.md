@@ -14,9 +14,11 @@ Fetched initial HTML demonstrated **distinct profile and selected-artwork metada
 | --- | --- |
 | `/` | Brand homepage title/description and default image `/assets/og-2.png` |
 | `/p/<profile-id>` | Profile-specific title/description and `/api/og/p/<profile-id>.jpg?v=<revision>` |
-| `/p/<profile-id>?nft=<item-id>` | Artwork-specific title/description/canonical URL and `/api/og/p/<profile-id>/<item-id>.jpg?v=<revision>` |
+| `/p/<profile-id>?nft=<item-id>` | Artwork-specific title/description/`og:url` and `/api/og/p/<profile-id>/<item-id>.jpg?v=<revision>` |
 
 The observed images are 1200×630 and include `og:image:alt`, dimensions, and Twitter `summary_large_image`. The inspected profile card contains its avatar/name, counts, and overlapping featured artwork cards. ZFT should reproduce this semantic behavior with its own branding and public art. This is a verified behavior for the inspected routes, not a claim that every possible reference URL uses unique metadata.
+
+The expanded HTTP/visual audit in §10 confirms the actual NFT pixels are composited into these images. Initial reference HTML supplied `og:url`; a `link rel="canonical"` element was absent on all seven pages fetched in that pass. ZFT still requires both fields. Reference revision hashes and their invalidation algorithm have not been reverse-engineered.
 
 ## 2. Route and page inventory
 
@@ -47,7 +49,7 @@ Only a locally unlocked matching profile can edit its identity fields. A public 
 
 Artwork detail preserves the reference’s distinction between public art/proof and transferable files. `Save image` exports a sanitized preview only. `Public proof` exports the non-secret attestation, image/metadata digests, chain/deployment, observed owner/epoch/block, and verification instructions. It is evidence at a stated observation point, not a perpetual current-owner certificate. `Send collectible` is available only in the local owner context and contains secret authority.
 
-Implemented alpha parity includes signed profile text/featured-item editing, social relations, follower directories, paginated public lists, and unique profile/item/static PNG sharing. Independent cover/avatar uploads, full modal/network-dialog composition, portable cryptographic proof downloads, complete activity/discovery parity, and market settlement remain incomplete. Current public-proof JSON is a labeled chain observation. The standalone prototype's simulated actions must not be confused with these real services.
+Implemented alpha parity includes signed profile text/featured-item editing, social relations, follower directories, paginated public lists, and unique profile/item/static PNG sharing. The next implementation adds the proof-card/Network dialogs, historical epoch context, and public-observation JSON v2 containing the signed item-owner possession statement. Independent cover/avatar uploads, portable profile-key endorsements, complete activity/discovery parity, and market settlement remain incomplete. Public-proof JSON remains a labeled RPC observation, with independently verifiable signatures where present. The standalone prototype's simulated actions must not be confused with these real services.
 
 ## 4. Unique Open Graph images
 
@@ -130,7 +132,7 @@ Inspected 2026-10-04 against ZFT implementation commit `53eb78b`. This is a publ
 | Public proof | Downloaded JSON parsed: public showing, profile signature, status, asset/collector IDs, mint public verification material; reference cryptography not independently verified | Downloads a JSON chain observation, not a cryptographic ownership certificate | Include the public signed possession attestation where available, verification instructions, expiry, and observed block; label absent attestation honestly |
 | Selected-item sharing | Opening the modal changes the shareable URL; existing research verifies unique initial HTML/OG for that context | Unique selected-item OG and an additional Share button exist | Keep share context correct for current versus historical holdings |
 
-The inspected sent example was [MK1](https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5?nft=a85ec604d7454d7cb3bca695936fbd85). Its retained proof is a product requirement we currently miss. Do not implement this by simply relaxing the current-membership guard: a historical page must validate its retained publication, clearly label the old epoch, respect unpublishing, and have a distinct sharing snapshot. Existing profile OG checks intentionally reject artwork removed from the profile context.
+The inspected sent example was [MK1](https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5?nft=a85ec604d7454d7cb3bca695936fbd85). Its retained proof motivated the now-implemented explicit historical-epoch context. Do not implement this by simply relaxing the current-membership guard: a historical page must validate its retained publication, clearly label the old epoch, respect unpublishing, and have a distinct sharing snapshot. Existing profile OG checks intentionally reject artwork removed from the profile context.
 
 ### Shared navigation and linked pages
 
@@ -154,7 +156,9 @@ The linked [MK3 market listing](https://nonfungible.cash/market/2a4e293ef8821d05
 
 The [technical help page](https://nonfungible.cash/how-it-works?view=cryptography) describes bearer-file export/claim, cancellation by rotating ownership, encrypted sharing links with an optional password, and encrypted remote backups recoverable with the collection key. The first two have working ZFT equivalents. Encrypted links and remote recovery remain deferred. ZFT's profile key alone cannot restore independent disposable item keys; do not copy a one-key recovery promise without implementing and validating the necessary encrypted backup service.
 
-### Next implementation order
+### Implementation order
+
+Steps 1–2, mobile navigation, three-way themes, profile lookup, and the OG thumbnail/history work are implemented in the public-parity milestone. The tables above preserve the earlier audited-commit comparison; consult [the current functional specification](FUNCTIONAL-SPEC.md#15-public-parity-milestone-acceptance) for status.
 
 1. Correct public profile semantics: collection-first navigation, informative versus clickable counts, contextual unlock, and the follower dialog. Preserve local publication consent.
 2. Add the proof-card face and explicit integrity/profile-binding/current-ownership states; add historical sent dialogs and profile-wide re-verification. Include outage and self-rotation cases in the behavior contract.
@@ -178,3 +182,38 @@ The user's supplied 2026-10-04 screenshot of the MK1 transferred-item dialog is 
 - Preserve the selected-item URL and its unique OG image, including correct historical state where supported. Closing restores the profile and selected tab.
 
 This records the required result; the audit commit's current modal does not yet satisfy this composition or all three verification rows.
+
+## 10. NFT-populated OG images: verified reference behavior
+
+Follow-up inspection on 2026-10-04 (local time) fetched seven public pages without JavaScript and fetched their exact `og:image` responses. Public metadata, MIME type, byte size, dimensions, cache headers, and image SHA-256 are saved in [reference-sharing.json](../research/reference-sharing.json). All seven image responses were HTTP 200, 1200×630, and had different byte digests. Five dynamic images were also opened and visually inspected in the browser: MK Curator, current MK2, historical MK1, Smoke Test Collection, and the MK3 listing. This verifies composition as well as distinct URLs; title-only differences would not prove artwork parity.
+
+| Reference page | Actual share-image content | ZFT requirement |
+| --- | --- | --- |
+| MK Curator profile | Avatar/name, follower/like counts, 2-NFT badge, overlapping **MK2 and MK3 artwork** with titles | Use that collector's eligible public NFTs in a multi-card composition; theme with Zenon |
+| Smoke Test Collection profile | Different avatar/name/count and **three overlapping artwork cards** for a four-item collection | Cap representative art at three; keep the true full count; handle 0/1/2/3+ items intentionally |
+| MK2 selected artwork | Collector/avatar, MK2 title, collection context, **one large MK2 artwork** and edition badge | Selected `nft` must choose the exact art; it must not reuse the profile collage |
+| Historical MK1 | MK1 art, former collector identity, **Sent on** badge and explanation that it moved | Retained public history gets a distinct image context with an honest historical state |
+| Current MK1 under another profile | Different profile/item image URL, title, metadata and bytes from historical MK1 | Bind image revision to publication context, not just the image hash; current image pixels were fetched but not separately visually inspected |
+| MK3 market listing | MK3 art, seller/avatar, sale state, **4,999 sats** price badge and bid summary | Future real listing template uses actual settlement units and listing state; no fabricated live trading data |
+| Homepage | Static branded `/assets/og-2.png` | Homepage has its own identity; profile/item content is dynamically populated |
+
+Observed dynamic routes are `/api/og/p/<profile>.jpg?v=<revision>`, `/api/og/p/<profile>/<item>.jpg?v=<revision>`, and `/api/og/market/<listing>.jpg?v=<revision>`. The inspected dynamic responses used `image/jpeg` and `Cache-Control: public, max-age=31536000, immutable`; the homepage used PNG. Both OG and Twitter image tags pointed to the same page-specific image. This observes immutable versioned responses, not the server's generation library or the full set of events that trigger a new revision.
+
+### Required artwork selection and rendering
+
+1. **Actual artwork is required when eligible public art exists.** A unique filename, changed title, or different accent color is insufficient. The card must show the NFT image bytes/derived thumbnail associated with that exact public context.
+2. For a collector profile, choose an eligible featured current holding first, then newest published current holdings with stable token-ID tie-breaking, de-duplicate, and cap at three. Keep all cards recognizable; use individual titles where legible. If a separate Created view is shared, label that provenance context explicitly. Never silently mix previously created/sent art into a current-holdings collage.
+3. For selected/standalone artwork, show exactly that NFT as the dominant image. For a historical publication, use the retained art and historical collector with the correct state. For a future market listing, use that listing's item, price/asset, seller and status snapshot.
+4. Use sanitized public thumbnails generated from canonical R2 art; **never** re-encode or alter the canonical image used by token identity. Oversized but otherwise valid NFTs need bounded thumbnail generation before OG rendering. Thumbnail objects bind the original digest and transformation version and stay outside the private file/vault path.
+5. Empty collections get an intentional branded empty layout. Missing/corrupt media or renderer failure gets a page-specific fallback. A large valid image should not routinely disappear merely because the OG renderer cannot decode the original within its request budget. Bound transformation work separately; do not remove the existing memory limits to force images through.
+6. New public holdings, removal, ownership-context change, featured selection, displayed profile fields/counts, thumbnail/template changes, and actual market state changes must invalidate the affected share snapshot. HTML advertises the new ready revision; old responses remain immutable where publication remains eligible. External platform recrawl is a separate dependency.
+
+### Current ZFT implementation versus this requirement
+
+The alpha already embeds actual NFT images from R2 into generated 1200×630 PNGs. `apps/api/sharing.ts` selects up to three profile artworks and one selected/standalone item; `apps/api/og-render.tsx` draws them. [The hosted First Momentum canary](../research/sharing/page-1.png) visibly contains its real minted artwork, so the pipeline is not just a generic logo renderer.
+
+Implementation update: profile images use eligible current holdings, with an eligible featured holding first, then publication recency and a stable token tie-breaker. Cards include titles. Selected historical epochs have distinct retained-publication guards and revisions. The streaming derivative pipeline supports canonical art up to 24 MP/10 MiB with a 65,536-pixel scanline-width bound. Independent avatar rendering and market image contexts remain incomplete. Static home/explore/activity images currently have no NFT art. Any future dynamic discovery collage must use a bounded public snapshot rather than arbitrary request-time scans.
+
+### Additional acceptance evidence
+
+Render fixtures with 0, 1, 2 and 4 distinct eligible NFTs and visually confirm exactly the intended images/counts. Use contrasting fixture artwork so omission, duplication, ordering and an incorrect collector are apparent. Test one item across standalone, current profile, historical profile and listing contexts. Inspect initial HTML and actual decoded image pixels, not only URL uniqueness or PNG dimensions. Test a valid >2 MP/1 MiB NFT through thumbnail generation, corrupt/missing art fallback, profile updates, unpublishing, membership changes, revision isolation, long titles and image crops. A selected NFT must never inherit another item's cached pixels.

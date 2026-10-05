@@ -8,6 +8,11 @@ import mono from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-norm
 import type { Snapshot } from "./sharing";
 import type { Env } from "./types";
 import { base64 } from "../../packages/vault";
+import {
+  thumbnail,
+  THUMBNAIL_VERSION,
+} from "../../packages/file-codec/thumbnail";
+import { sha256 } from "viem";
 
 let initialized: Promise<unknown> | undefined;
 export async function renderOG(page: Snapshot, env: Env) {
@@ -16,16 +21,31 @@ export async function renderOG(page: Snapshot, env: Env) {
   // Only admitted, immutable R2 art; never URLs supplied by metadata or requests.
   const images: (string | null)[] = [];
   for (const art of page.art.slice(0, 3)) {
-    if (art.width * art.height > 2_000_000) {
+    try {
+      const key = `preview/${art.hash.slice(2)}/${THUMBNAIL_VERSION}.png`;
+      let object = await env.MEDIA.get(key);
+      let bytes: Uint8Array;
+      if (object) bytes = new Uint8Array(await object.arrayBuffer());
+      else {
+        object = await env.MEDIA.get(`art/${art.hash.slice(2)}.png`);
+        if (!object || object.size > 10 * 1024 * 1024)
+          throw new Error("Missing art");
+        const original = new Uint8Array(await object.arrayBuffer());
+        if (sha256(original) !== art.hash)
+          throw new Error("Art digest mismatch");
+        bytes = await thumbnail(original);
+        await env.MEDIA.put(key, bytes, {
+          httpMetadata: { contentType: "image/png" },
+        });
+      }
+      images.push(
+        bytes.length <= 1_048_576
+          ? `data:image/png;base64,${base64(bytes)}`
+          : null,
+      );
+    } catch {
       images.push(null);
-      continue;
     }
-    const object = await env.MEDIA.get(`art/${art.hash.slice(2)}.png`);
-    images.push(
-      object && object.size <= 1_048_576
-        ? `data:image/png;base64,${base64(new Uint8Array(await object.arrayBuffer()))}`
-        : null,
-    );
   }
   const title = Array.from(
     page.title.replace(/[^\u0020-\u024f\u2000-\u206f]/gu, "·"),
@@ -119,34 +139,50 @@ export async function renderOG(page: Snapshot, env: Env) {
         }}
       >
         {images.filter(Boolean).length ? (
-          images.map(
-            (src, i) =>
-              src && (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    position: "absolute",
-                    top: i * 22,
-                    left: i * 16,
-                    width: 365,
-                    height: 365,
-                    padding: 12,
-                    borderRadius: 22,
-                    background: "#16242a",
-                    border: "1px solid #385146",
-                    transform: `rotate(${i * 7 - 5}deg)`,
-                  }}
-                >
-                  <img
-                    src={src}
-                    width={341}
-                    height={341}
-                    style={{ objectFit: "cover", borderRadius: 14 }}
-                  />
-                </div>
-              ),
-          )
+          images
+            .map((src, i) => ({ src, i }))
+            .reverse()
+            .map(
+              ({ src, i }) =>
+                src && (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      position: "absolute",
+                      top: i * 22,
+                      left: i * 16,
+                      width: 365,
+                      height: page.art[i]?.title ? 401 : 365,
+                      flexDirection: "column",
+                      padding: 12,
+                      borderRadius: 22,
+                      background: "#16242a",
+                      border: "1px solid #385146",
+                      transform: `rotate(${i * 7 - 5}deg)`,
+                    }}
+                  >
+                    <img
+                      src={src}
+                      width={341}
+                      height={341}
+                      style={{ objectFit: "cover", borderRadius: 14 }}
+                    />
+                    {page.art[i]?.title && (
+                      <span
+                        style={{
+                          fontSize: 18,
+                          paddingTop: 7,
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {page.art[i].title!.slice(0, 28)}
+                      </span>
+                    )}
+                  </div>
+                ),
+            )
         ) : (
           <div
             style={{

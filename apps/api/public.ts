@@ -5,6 +5,7 @@ import {
   digest,
   metadataSchema,
   sameAddress,
+  uintSchema,
   type Metadata,
   type Deployment,
 } from "../../packages/protocol";
@@ -15,6 +16,7 @@ import {
   unpublishInput,
   possessionText,
   type Profile,
+  type Publication,
 } from "../../packages/protocol/public";
 import manifest from "../../packages/protocol/deployment.json";
 import { checkDeployment, ownership } from "../../packages/protocol/client";
@@ -37,6 +39,7 @@ export type PublicItem = {
   owner: string;
   nonce: string;
   mintBlock: number;
+  publicationNonce?: string;
 };
 export async function hydrate(
   env: Env,
@@ -108,6 +111,17 @@ export async function gallery(
     (r): r is PublicItem => !!r,
   );
   const last = page.at(-1);
+  if (profile && tab !== "created")
+    await Promise.all(
+      items.map(async (i) => {
+        const p = await env.DB.prepare(
+          `SELECT nonce FROM possessions WHERE profile=? AND token_id=? AND ${tab === "sent" ? "(owner<>? OR nonce<>?)" : "owner=? AND nonce=?"} ORDER BY length(nonce) DESC,nonce DESC LIMIT 1`,
+        )
+          .bind(profile, i.tokenId, i.owner, i.nonce)
+          .first<{ nonce: string }>();
+        i.publicationNonce = p?.nonce;
+      }),
+    );
   return {
     items,
     nextCursor:
@@ -201,6 +215,85 @@ export async function inProfile(env: Env, address: string, tokenId: string) {
     )
     .first();
   return !!row;
+}
+export async function collectionPreview(env: Env, address: string) {
+  const rows = await env.DB.prepare(
+    `SELECT i.* FROM indexed_items i JOIN possessions p ON p.token_id=i.token_id
+     WHERE p.profile=? AND p.owner=i.owner AND CAST(p.nonce AS INTEGER)=i.nonce AND p.expires>?
+     ORDER BY p.published_at DESC,length(i.token_id) DESC,i.token_id DESC LIMIT 3`,
+  )
+    .bind(address.toLowerCase(), Math.floor(Date.now() / 1000))
+    .all<IndexedItem>();
+  return (
+    await Promise.all(rows.results.map((row) => hydrate(env, row)))
+  ).filter((row): row is PublicItem => !!row);
+}
+// Historical routes require the exact retained, explicitly published epoch.
+// Creator provenance and current membership do not grant historical membership.
+export async function publication(
+  env: Env,
+  profile: string,
+  tokenId: string,
+  epoch?: string,
+) {
+  const addr = addressSchema.parse(profile).toLowerCase();
+  uintSchema.parse(tokenId);
+  if (epoch !== undefined) uintSchema.parse(epoch);
+  const row = await env.DB.prepare(
+    `SELECT * FROM possessions WHERE profile=? AND token_id=? ${epoch === undefined ? "" : "AND nonce=?"} ORDER BY length(nonce) DESC,nonce DESC LIMIT 1`,
+  )
+    .bind(addr, tokenId, ...(epoch === undefined ? [] : [epoch]))
+    .first<{
+      profile: string;
+      token_id: string;
+      owner: string;
+      nonce: string;
+      signature: Hex;
+      expires: number;
+      published_at: number;
+    }>();
+  if (!row) return null;
+  return {
+    profile: addr as Address,
+    tokenId: row.token_id,
+    owner: row.owner as Address,
+    nonce: row.nonce,
+    signature: row.signature,
+    expires: row.expires,
+    publishedAt: row.published_at,
+  } satisfies Publication;
+}
+export async function publicContext(
+  env: Env,
+  profile: string,
+  tokenId: string,
+  epoch?: string,
+) {
+  const p = await publication(env, profile, tokenId, epoch);
+  if (epoch !== undefined) {
+    if (!p)
+      throw new HttpError(
+        404,
+        "This ownership epoch is not published by this profile.",
+      );
+  } else if (!(await inProfile(env, profile, tokenId))) {
+    throw new HttpError(404, "This artwork is not in the public profile.");
+  }
+  if (epoch === undefined && p) {
+    const current = await env.DB.prepare(
+      "SELECT owner,nonce FROM indexed_items WHERE token_id=?",
+    )
+      .bind(tokenId)
+      .first<{ owner: string; nonce: number }>();
+    if (
+      !current ||
+      !sameAddress(current.owner, p.owner) ||
+      String(current.nonce) !== p.nonce ||
+      p.expires * 1000 <= Date.now()
+    )
+      return null;
+  }
+  return p;
 }
 export async function activity(env: Env, url: URL, profile?: string) {
   const [block, log] = cursor(url.searchParams.get("cursor"));

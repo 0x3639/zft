@@ -4,6 +4,8 @@ Draft 0.1. The full project includes the reference’s Market surface and listin
 
 ## Recommended integration
 
+The user confirmed ZVM assets and MetaMask as the expected wallet direction on 2026-10-04. MetaMask is the primary planned external wallet for wallet custody, approvals, purchases, and payout receipt. The alpha now connects to MetaMask-compatible providers for address, pinned network and devnet balance. File/wallet custody transitions, approvals and settlement are still planned. ZFT NFTs are ERC-721 tokens on ZVM; no separate fungible ZFT token is required. Gas currently uses Devnet ZNN in the app configuration. Choose and validate the actual market payment asset against the exchange rather than treating gas currency, an ERC-20 quote token, and native Zenon L1 ZNN as interchangeable.
+
 Integrate the existing [Karum market](https://devnet.zenon.foo/karum/) on the same ZVM when its source/API and contract compatibility are verified. Do not deploy a new exchange merely to reproduce a page. Contract requirements for listings, order cancellation, approvals, royalties, and payouts must be checked against the actual deployment.
 
 V1 ZFT is an ERC-721, which is a starting compatibility condition rather than proof an exchange will support every flow. A new marketplace contract is only justified by an identified gap and gets its own spec/review before implementation.

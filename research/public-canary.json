@@ -1,6 +1,6 @@
 {
   "origin": "https://devnet.zft.foo",
-  "at": "2026-10-04T23:30:18.281Z",
+  "at": "2026-10-05T00:48:11.295Z",
   "creator": "0x35CBBfcad9A8A1A1c8D74F96D2ffEa710816ba5D",
   "collector": "0x57952ef523253EfF57F6652d83F74CeBa45eF552",
   "tokenId": "99787037707144967040884359368938839872488523080984950564755169339509083472381",
@@ -14,29 +14,36 @@
     },
     {
       "path": "/p/0x35CBBfcad9A8A1A1c8D74F96D2ffEa710816ba5D",
-      "image": "https://devnet.zft.foo/api/og/p/0x35cbbfcad9a8a1a1c8d74f96d2ffea710816ba5d.png?v=96fc7b9231ebb60bd66e9a4efc81a239382e84757f6d4c5dfb00473883653cbc",
-      "bytes": 101688,
+      "image": "https://devnet.zft.foo/api/og/p/0x35cbbfcad9a8a1a1c8d74f96d2ffea710816ba5d.png?v=08efb7349f8cb0aafcef8ed104f251df4943758cc48c4718da9fc2f19406f011",
+      "bytes": 34515,
       "width": 1200,
       "height": 630
     },
     {
       "path": "/p/0x57952ef523253EfF57F6652d83F74CeBa45eF552",
-      "image": "https://devnet.zft.foo/api/og/p/0x57952ef523253eff57f6652d83f74ceba45ef552.png?v=b9e87e7ceb854d216da4dc6c771f8f390cc7940e2ca6bda3fdde2eec6e09f73c",
-      "bytes": 102244,
+      "image": "https://devnet.zft.foo/api/og/p/0x57952ef523253eff57f6652d83f74ceba45ef552.png?v=1a5bb42370b946dbd3caf0091feac88a34817094b61c3caad774c1bea00b0b81",
+      "bytes": 106286,
       "width": 1200,
       "height": 630
     },
     {
       "path": "/p/0x35CBBfcad9A8A1A1c8D74F96D2ffEa710816ba5D?nft=99787037707144967040884359368938839872488523080984950564755169339509083472381",
-      "image": "https://devnet.zft.foo/api/og/p/0x35cbbfcad9a8a1a1c8d74f96d2ffea710816ba5d/99787037707144967040884359368938839872488523080984950564755169339509083472381.png?v=88b6bfe99b842be80e46e0628b04118d914831d0d13c4cd5ae7f4bb34e5cf087",
-      "bytes": 106176,
+      "image": "https://devnet.zft.foo/api/og/p/0x35cbbfcad9a8a1a1c8d74f96d2ffea710816ba5d/99787037707144967040884359368938839872488523080984950564755169339509083472381.png?v=8ff72d5ce276e5dd320c7ddf660405a69ee32d5102d39548ff2bd89dde86c030",
+      "bytes": 110431,
       "width": 1200,
       "height": 630
     },
     {
       "path": "/item/99787037707144967040884359368938839872488523080984950564755169339509083472381",
-      "image": "https://devnet.zft.foo/api/og/item/99787037707144967040884359368938839872488523080984950564755169339509083472381.png?v=4d464ec1f26642c4a1ff0a09a512460c0b23794edd8c1d9123b831ad74181a77",
-      "bytes": 106480,
+      "image": "https://devnet.zft.foo/api/og/item/99787037707144967040884359368938839872488523080984950564755169339509083472381.png?v=faf5bf9ecdf29a52042859280bfe77c1eb2cdda080a617a5265a9ba26cd342ad",
+      "bytes": 110730,
+      "width": 1200,
+      "height": 630
+    },
+    {
+      "path": "/p/0x57952ef523253EfF57F6652d83F74CeBa45eF552?nft=99787037707144967040884359368938839872488523080984950564755169339509083472381&epoch=3",
+      "image": "https://devnet.zft.foo/api/og/p/0x57952ef523253eff57f6652d83f74ceba45ef552/99787037707144967040884359368938839872488523080984950564755169339509083472381/epoch/3.png?v=aa310e94f6f2dd319d7545b43bfe662d89bc97534465d87fc3e1424f62397164",
+      "bytes": 110515,
       "width": 1200,
       "height": 630
     }
@@ -44,6 +51,8 @@
   "assertions": [
     "Signed profile publication",
     "Current-owner collection proof",
+    "Three independently evaluated public proof checks",
+    "Explicit published-epoch selected-item HTML and OG",
     "Idempotent follow retries",
     "Signed like",
     "Initial HTML and unique PNG per page",

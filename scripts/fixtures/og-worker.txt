@@ -1,0 +1,10 @@
+import {renderOG} from '../../apps/api/og-render';
+import {sha256} from 'viem';
+import red from './red.png';
+import blue from './blue.png';
+import yellow from './yellow.png';
+import large from './large.png';
+const media = new Map<string, Uint8Array>();
+const art = [red,blue,yellow,large].map((b,i)=>{const bytes=new Uint8Array(b);const hash=sha256(bytes);media.set(`art/${hash.slice(2)}.png`, bytes);return {hash,width:i===3?6000:320,height:i===3?4000:320,title:['Ruby lines','Blue lines','Golden lines','24 megapixel original'][i]};});
+const env={MEDIA:{get:async(key:string)=>{const b=media.get(key);return b?{size:b.length,arrayBuffer:async()=>b.buffer}:null},put:async(key:string,bytes:Uint8Array)=>media.set(key,bytes)}};
+export default {async fetch(req:Request){const key=new URL(req.url).pathname.slice(1);const selected=key==='large'?[art[3]]:key==='missing'?[{...art[0],hash:'0x'+'1'.repeat(64)}]:art.slice(0,Math.min(3,Number(key)));const started=Date.now();const image=await renderOG({version:1,deployment:'fixture',path:'/',imagePath:'',title:`${key} artwork fixture`,description:'',label:'Renderer acceptance fixture',subtitle:'PUBLIC TEST PIXELS',art:selected,revisionData:null},env as any);return new Response(image,{headers:{'content-type':'image/png','x-render-ms':String(Date.now()-started)}})}};

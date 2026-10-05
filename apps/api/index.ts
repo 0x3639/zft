@@ -24,7 +24,8 @@ import {
   activity,
   directory,
   publicMutation,
-  inProfile,
+  publicContext,
+  item,
 } from "./public";
 import { indexStatus } from "./index-store";
 import { shareHTML, ogResponse } from "./sharing";
@@ -229,18 +230,34 @@ async function route(request: Request, env: Env) {
     if (!manifest.contract) throw new HttpError(503, "Contract not deployed.");
     const tokenId = path.split("/").at(-1)!;
     const context = url.searchParams.get("profile");
-    if (context && !(await inProfile(env, context, tokenId)))
-      throw new HttpError(404, "This artwork is not in the public profile.");
-    await checkDeployment(manifest as unknown as Deployment);
-    const state = await ownership(manifest.contract as Address, tokenId),
-      object = await env.MEDIA.get(
-        `metadata/${state.metadataHash.slice(2)}.json`,
-      );
-    return json({
-      tokenId,
-      ...state,
-      metadata: object ? await object.json() : null,
-    });
+    const epoch = url.searchParams.get("epoch") ?? undefined;
+    if (epoch !== undefined && !context)
+      throw new HttpError(400, "An ownership epoch requires a public profile.");
+    const publication = context
+      ? await publicContext(env, context, tokenId, epoch)
+      : null;
+    const indexed = await item(env, tokenId);
+    try {
+      await checkDeployment(manifest as unknown as Deployment);
+      const state = await ownership(manifest.contract as Address, tokenId);
+      if (state.metadataHash !== indexed.metadataHash)
+        throw new Error("On-chain metadata differs from the index.");
+      return json({
+        ...indexed,
+        ...state,
+        publication,
+        observedAt: new Date().toISOString(),
+        chainVerified: true,
+      });
+    } catch {
+      return json({
+        ...indexed,
+        publication,
+        chainVerified: false,
+        chainError:
+          "Live ownership is unavailable. Indexed data is not a current ownership check.",
+      });
+    }
   }
   const media = /^\/(art|metadata)\/([\da-f]{64})\.(png|json)$/.exec(path);
   if (media && request.method === "GET") {

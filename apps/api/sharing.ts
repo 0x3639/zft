@@ -1,6 +1,13 @@
 import { digest, addressSchema, uintSchema } from "../../packages/protocol";
 import manifest from "../../packages/protocol/deployment.json";
-import { item, profileData, inProfile, gallery } from "./public";
+import {
+  item,
+  profileData,
+  inProfile,
+  collectionPreview,
+  publicContext,
+  publication,
+} from "./public";
 import { HttpError } from "./http";
 import type { Env } from "./types";
 
@@ -13,7 +20,8 @@ export type Snapshot = {
   description: string;
   label: string;
   subtitle: string;
-  art: { hash: string; width: number; height: number }[];
+  art: { hash: string; width: number; height: number; title?: string }[];
+  publication?: { profile: string; tokenId: string; nonce: string };
   revisionData: unknown;
   private?: boolean;
 };
@@ -78,48 +86,60 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
     const selected = url.searchParams.get("nft");
     if (selected) {
       uintSchema.parse(selected);
-      if (!(await inProfile(env, address, selected)))
-        throw new HttpError(404, "This artwork is not in the public profile.");
+      const epoch = url.searchParams.get("epoch") ?? undefined;
+      const proof = await publicContext(env, address, selected, epoch);
       const i = await item(env, selected);
+      const historical =
+        proof &&
+        (proof.owner.toLowerCase() !== i.owner.toLowerCase() ||
+          proof.nonce !== i.nonce);
       return {
         ...base,
-        path: `/p/${address}?nft=${selected}`,
-        imagePath: `/api/og/p/${address}/${selected}.png`,
+        path: `/p/${address}?nft=${selected}${epoch === undefined ? "" : `&epoch=${epoch}`}`,
+        imagePath: `/api/og/p/${address}/${selected}${epoch === undefined ? "" : `/epoch/${epoch}`}.png`,
         title: i.metadata.name,
         description:
           i.metadata.description ||
           `A collectible shared by ${p.profile.name}.`,
         label: p.profile.name,
-        subtitle: "ONE PICTURE / ONE COLLECTIBLE",
+        subtitle: historical
+          ? "PREVIOUS OWNERSHIP EPOCH"
+          : "ONE PICTURE / ONE COLLECTIBLE",
         art: [
           {
             hash: i.metadata.imageHash,
             width: i.metadata.width,
             height: i.metadata.height,
+            title: i.metadata.name,
           },
         ],
-        revisionData: [i.metadataHash, p.profile.revision],
+        ...(epoch !== undefined
+          ? {
+              publication: {
+                profile: address,
+                tokenId: selected,
+                nonce: epoch,
+              },
+            }
+          : {}),
+        revisionData: [
+          3,
+          i.metadataHash,
+          p.profile.revision,
+          proof,
+          historical,
+        ],
       };
     }
-    const created = await gallery(env, new URL("https://internal"), address);
-    const collected = await gallery(
-      env,
-      new URL("https://internal"),
-      address,
-      "collection",
-    );
+    const collected = await collectionPreview(env, address);
     const featured =
-      p.profile.featured && (await inProfile(env, address, p.profile.featured))
+      p.profile.featured &&
+      (await publicContext(env, address, p.profile.featured).catch(() => null))
         ? await item(env, p.profile.featured).catch(() => null)
         : null;
     const pieces = [
       ...(featured ? [featured] : []),
-      ...created.items.filter((i) => i.tokenId !== featured?.tokenId),
-      ...collected.items.filter(
-        (i) =>
-          i.tokenId !== featured?.tokenId &&
-          !created.items.some((c) => c.tokenId === i.tokenId),
-      ),
+      ...collected.filter((i) => i.tokenId !== featured?.tokenId),
     ].slice(0, 3);
     return {
       ...base,
@@ -128,13 +148,14 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
       title: p.profile.name,
       description: p.profile.bio || "A public ZFT collection on ZVM devnet.",
       label: "Public collection",
-      subtitle: `${p.counts.created} CREATED / ${p.counts.collected} COLLECTED / ${p.counts.followers} FOLLOWERS`,
+      subtitle: `${p.counts.collected} COLLECTED / ${p.counts.followers} FOLLOWERS / ${p.counts.likes} LIKES`,
       art: pieces.map((i) => ({
         hash: i.metadata.imageHash,
         width: i.metadata.width,
         height: i.metadata.height,
+        title: i.metadata.name,
       })),
-      revisionData: [p.profile.revision, p.counts],
+      revisionData: [3, p.profile.revision, p.counts],
     };
   }
   if (artwork) {
@@ -153,9 +174,10 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
           hash: i.metadata.imageHash,
           width: i.metadata.width,
           height: i.metadata.height,
+          title: i.metadata.name,
         },
       ],
-      revisionData: i.metadataHash,
+      revisionData: [3, i.metadataHash],
     };
   }
   throw new HttpError(404, "Page not found.");
@@ -218,7 +240,7 @@ export async function shareHTML(request: Request, env: Env) {
 }
 export async function ogResponse(env: Env, url: URL) {
   if (
-    !/^\/api\/og\/(page\/(home|explore|activity|about|how-it-works)|item\/\d{1,78}|p\/0x[\da-f]{40}(\/\d{1,78})?)\.png$/.test(
+    !/^\/api\/og\/(page\/(home|explore|activity|about|how-it-works)|item\/\d{1,78}|p\/0x[\da-f]{40}(\/\d{1,78}(\/epoch\/\d{1,78})?)?)\.png$/.test(
       url.pathname,
     )
   )
@@ -235,7 +257,17 @@ export async function ogResponse(env: Env, url: URL) {
   if (digest(page).slice(2) !== revision || page.imagePath !== url.pathname)
     throw new HttpError(404, "Image revision mismatch.");
   const profileContext = /^\/p\/(0x[\da-f]{40})/.exec(page.path)?.[1];
-  if (profileContext)
+  if (page.publication) {
+    const p = page.publication;
+    if (
+      p.profile !== profileContext ||
+      !(await publication(env, p.profile, p.tokenId, p.nonce))
+    )
+      throw new HttpError(
+        404,
+        "This profile no longer publishes that artwork.",
+      );
+  } else if (profileContext)
     for (const art of page.art)
       if (!(await inProfile(env, profileContext, BigInt(art.hash).toString())))
         throw new HttpError(

@@ -100,6 +100,8 @@ The proof's top-level fields were `id`, `pubkey`, `h`, `title`, `showing`, `sign
 
 ## Owner and consequential flows still to inspect
 
+The following owner-session gaps do not apply to public OG inspection; the separate sharing checks below required no account or payment.
+
 | ID | Flow | Current evidence | Required follow-up |
 | --- | --- | --- | --- |
 | OWNER-01 | Create a collection; save key; acknowledgment; submit | Name/generated-key/copy/download/checkbox/gated button observed | Authorized disposable collection; save key privately; verify resulting owner navigation |
@@ -114,3 +116,19 @@ The proof's top-level fields were `id`, `pubkey`, `h`, `title`, `showing`, `sign
 | OWNER-10 | Remove local/public item; account/backup deletion | No owner controls observed | Discover actual controls before defining reference parity; consequential deletion handled explicitly |
 
 The complete ZFT specification includes requirements for these journeys, but their exact reference controls remain open. Do not fabricate hidden-menu labels or mark them exercised from help text alone. Further findings should update this ledger and the relevant acceptance IDs in the functional spec together.
+
+## Open Graph and artwork composition
+
+Follow-up public HTTP/visual audit: [raw metadata and image evidence](../research/reference-sharing.json), [detailed composition and ZFT gaps](PAGES-AND-SHARING.md#10-nft-populated-og-images-verified-reference-behavior).
+
+| ID | Check | Result | Coverage |
+| --- | --- | --- | --- |
+| SHARE-01 | Initial HTML, no JavaScript | Seven pages returned their own OG/Twitter metadata and advertised image URL; no canonical link tag found | HTTP verified |
+| SHARE-02 | Image responses | All seven HTTP 200; 1200×630; different image byte digests; one-year immutable cache headers | HTTP/image-header verified |
+| SHARE-03 | MK profile composition | Actual MK2/MK3 NFT art, titles, avatar, collection count, followers/likes | Visually inspected actual OG image |
+| SHARE-04 | Different profile composition | Smoke Test Collection has different NFT art, three cards for four items, different identity/count | Visually inspected actual OG image |
+| SHARE-05 | Selected NFT composition | MK2-only dominant artwork, collector/title/context, edition badge | Visually inspected actual OG image |
+| SHARE-06 | Historical selected NFT | MK1 art and former collector with Sent on badge and moved-on explanation | Visually inspected actual OG image |
+| SHARE-07 | Current versus historical MK1 | Different image paths/revisions, titles, profile context and bytes | HTTP verified; current MK1 OG not separately visually inspected |
+| SHARE-08 | Listing composition | MK3 art, seller, 4,999 sats price, sale state and bid summary | Visually inspected actual OG image; no payment |
+| SHARE-09 | Revision updates after mutations | Version query and immutable headers observed; exact algorithm and all update triggers unknown | Owner mutation/recrawl tests pending |

@@ -14,6 +14,9 @@ The [complete website functional specification](FUNCTIONAL-SPEC.md) covers the e
 - Signed, versioned public profile editing; featured artwork; follow/unfollow and like/unlike; follower directories; opt-in item-owner possession proofs; collection/sent/creation activity tabs; profile-selected artwork dialogs; public image and observation downloads.
 - D1 event journal indexed independently from sponsor submissions, cursor pagination, six-block confirmation policy, serialized scans and checkpoint rewind on fork detection. Cron and rate-limited public index reads wake ingestion.
 - Per-page initial HTML metadata and deterministic 1200×630 PNGs for static pages, profiles, selected artwork, and standalone items. Known revisions are stored in R2; arbitrary revision generation and unrelated profile/item contexts are rejected.
+- Collection-first profile navigation; Network dialog; contextual guest unlock; mobile navigation and address/link lookup; persistent System/Light/Dark themes.
+- Two-face proof card with independent integrity, owner-authorized profile binding, and live ownership checks; retained historical epochs and sanitized JSON v2 proof downloads.
+- EIP-6963/MetaMask connection, pinned ZVM network add/switch, public address and devnet native-gas balance. Wallet custody transfers and trading are not implemented.
 - Foundry unit/fuzz tests, TypeScript codec/vault/protocol/SQLite service tests, CI, deployment scripts, and real devnet acceptance canaries.
 
 ## Deployed contract
@@ -106,10 +109,10 @@ For a future Git build integration on **zft-devnet**, use build command `pnpm in
 
 Profile edits require a single-use signed request and matching revision. Public possession proofs are signed by the current disposable item owner and bind the profile, contract, token, epoch, and expiry (maximum 31 days). They never transmit the key. The index suppresses holdings whose epoch/owner has changed. Removing a holding deletes its profile association; mint provenance stays public. Public cached previews can remain on other platforms.
 
-OG rendering uses pinned Satori 0.26.0 plus resvg-WASM 2.6.2 with bundled Space Grotesk/JetBrains Mono fonts. The newer HarfBuzz-based renderer required browser facilities unavailable in the Worker canary. The deployed pipeline was tested on Cloudflare. Render at most three R2 images, each at most 1 MiB / 2 megapixels; larger artworks get a page-specific text card. Image failure or output above 1 MiB also falls back to the text card. This keeps renderer memory bounded without fetching arbitrary media URLs. Profile revisions preserve old snapshots; unpublishing blocks fresh retrieval of selected-profile artwork images that no longer belong in that context.
+OG rendering uses pinned Satori 0.26.0 plus resvg-WASM 2.6.2 with bundled Space Grotesk/JetBrains Mono fonts. The newer HarfBuzz-based renderer required browser facilities unavailable in the Worker canary. The deployed pipeline was tested on Cloudflare. Render at most three 480px R2 thumbnails derived from hash-verified canonical PNGs, up to 24 MP/10 MiB. The derivative decoder holds two scanlines and bounded output; originals wider than 65,536 pixels receive a text fallback. Derivatives are immutable by source hash and transform version; original bytes stay unchanged. Profile collages use current public holdings, with eligible featured art first/in front, then newest publication and token-ID tie-breaker. Image failure or output above 1 MiB also falls back to the text card. This keeps renderer memory bounded without fetching arbitrary media URLs. Profile revisions preserve old snapshots; unpublishing blocks fresh retrieval of selected-profile artwork images that no longer belong in that context. Historical selected-item routes include `epoch` and require that exact retained possession statement; creator provenance alone cannot grant a historical context.
 
 ```sh
-# Local signed profiles, social idempotency, possession and five unique PNGs:
+# Local signed profiles, social idempotency, possession and six unique PNGs:
 node --import tsx scripts/check-public.ts
 # Hosted public acceptance, using the previously generated canary identities:
 ZFT_TEST_ORIGIN=https://devnet.zft.foo node --import tsx scripts/check-public.ts
@@ -120,6 +123,14 @@ ZFT_TEST_ORIGIN=https://devnet.zft.foo ZFT_CANARY_LABEL=hosted node --import tsx
 Public results are saved in `research/public-canary.json`, `research/sharing/`, and the transaction-canary evidence. Generated recovery and transfer files remain in ignored `.local/`. SDK canaries use isolated IndexedDB emulation; they do not substitute for actual two-browser or phone acceptance.
 
 The hosted transaction canary completed on 2026-10-04: four confirmed transactions at blocks 94503, 94510, 94517, and 94527 cover mint, claim, cancel, and second claim, followed by recovery and stale-copy checks. Public evidence is in `research/hosted-devnet-canary.json`. Hosted API admission checks also rejected cross-origin writes, unsigned requests, oversized bodies, body substitution, invalid uploads, and consumed-challenge replay. Five hosted public pages produced distinct valid sharing PNGs.
+
+Current public-parity Worker version: `027deb34-587b-4b19-9383-35b657cfecd7` (2026-10-04). Contract and storage migrations are unchanged.
+
+## Public-parity update verification
+
+31 TypeScript tests pass, including independent proof states, wrong-profile binding, historical epoch access/unpublish, current collage selection, large PNG thumbnails, and wallet network/lookup behavior. The production frontend and Worker build pass. `node scripts/check-og-renderer.mjs` starts an isolated local workerd, renders 0/1/2/3-piece, missing-media and 24 MP fixtures, saves public evidence under `research/sharing-fixtures/`, then stops the Worker. It does not touch hosted bindings or keys. Render timing is local wall time, not a Cloudflare CPU allowance measurement.
+
+Browser acceptance includes current three-check proof, card flip, safe public JSON download, Network/profile navigation, contextual guest unlock, keyboard dismissal/focus return, theme persistence, lookup, and 390px layout. MetaMask network/rejection behavior has mocked provider tests; actual extension, wallet account-change UI and phone transaction acceptance still need completion.
 
 ## Remaining beta gates
 

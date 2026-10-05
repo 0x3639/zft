@@ -1,0 +1,258 @@
+{
+  "observedAt": "2026-10-05T00:13:02.483006+00:00",
+  "method": "Unauthenticated HTTP GET; parsed initial HTML without JavaScript; image headers/dimensions/hash inspected in memory. No source algorithm inferred.",
+  "pages": [
+    {
+      "url": "https://nonfungible.cash/",
+      "status": 200,
+      "title": "Nonfungible.cash \u00b7 The NFT is the JPG",
+      "canonical": null,
+      "meta": {
+        "description": "Turn any picture into a collectible. Send the JPG, or a link, and you've sent the NFT. Free to mint.",
+        "og:type": "website",
+        "og:site_name": "Nonfungible.cash",
+        "og:title": "Nonfungible.cash \u00b7 The NFT is the JPG",
+        "og:description": "Turn any picture into a collectible. Send the JPG, or a link, and you've sent the NFT. Free to mint.",
+        "og:url": "https://nonfungible.cash/",
+        "og:image": "https://nonfungible.cash/assets/og-2.png",
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        "og:image:alt": "The NFT is the JPG. Collectible cards with stickers reading Free mint, 1 of 1 and No gas.",
+        "twitter:card": "summary_large_image",
+        "twitter:title": "Nonfungible.cash \u00b7 The NFT is the JPG",
+        "twitter:description": "Turn any picture into a collectible. Send the JPG, or a link, and you've sent the NFT.",
+        "twitter:image": "https://nonfungible.cash/assets/og-2.png"
+      },
+      "initialHtml": true,
+      "image": {
+        "url": "https://nonfungible.cash/assets/og-2.png",
+        "status": 200,
+        "type": "image/png",
+        "cacheControl": "public, max-age=31536000, immutable",
+        "etag": "\"tme7ch2ln9\"",
+        "bytes": 121365,
+        "dimensions": [
+          1200,
+          630
+        ],
+        "sha256": "52b3c26f3e5a4fc1a20574eee9a5dc43182b773c59994a296d9e784eb10c03ab"
+      }
+    },
+    {
+      "url": "https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5",
+      "status": 200,
+      "title": "MK Curator \u00b7 Nonfungible.cash",
+      "canonical": null,
+      "meta": {
+        "description": "2 NFTs on Nonfungible.cash: MK3, MK2",
+        "og:type": "website",
+        "og:site_name": "Nonfungible.cash",
+        "og:title": "MK Curator \u00b7 Nonfungible.cash",
+        "og:description": "2 NFTs on Nonfungible.cash: MK3, MK2",
+        "og:url": "https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5",
+        "og:image": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5.jpg?v=4727cd4405",
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        "og:image:alt": "MK Curator, a collection of 2 NFTs on Nonfungible.cash.",
+        "twitter:card": "summary_large_image",
+        "twitter:title": "MK Curator \u00b7 Nonfungible.cash",
+        "twitter:description": "2 NFTs on Nonfungible.cash: MK3, MK2",
+        "twitter:image": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5.jpg?v=4727cd4405"
+      },
+      "initialHtml": true,
+      "image": {
+        "url": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5.jpg?v=4727cd4405",
+        "status": 200,
+        "type": "image/jpeg",
+        "cacheControl": "public, max-age=31536000, immutable",
+        "etag": null,
+        "bytes": 69603,
+        "dimensions": [
+          1200,
+          630
+        ],
+        "sha256": "60bd48e4837c660e361af128a409ababe981494d2920d33cbedd47d77722976d"
+      }
+    },
+    {
+      "url": "https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5?nft=43e5d084b5e340b8afd664c2e661602c",
+      "status": 200,
+      "title": "MK2 \u00b7 MK Curator",
+      "canonical": null,
+      "meta": {
+        "description": "One of 2 NFTs in MK Curator on Nonfungible.cash.",
+        "og:type": "website",
+        "og:site_name": "Nonfungible.cash",
+        "og:title": "MK2 \u00b7 MK Curator",
+        "og:description": "One of 2 NFTs in MK Curator on Nonfungible.cash.",
+        "og:url": "https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5?nft=43e5d084b5e340b8afd664c2e661602c",
+        "og:image": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5/43e5d084b5e340b8afd664c2e661602c.jpg?v=43f5605ad0",
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        "og:image:alt": "MK2, an NFT in MK Curator on Nonfungible.cash.",
+        "twitter:card": "summary_large_image",
+        "twitter:title": "MK2 \u00b7 MK Curator",
+        "twitter:description": "One of 2 NFTs in MK Curator on Nonfungible.cash.",
+        "twitter:image": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5/43e5d084b5e340b8afd664c2e661602c.jpg?v=43f5605ad0"
+      },
+      "initialHtml": true,
+      "image": {
+        "url": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5/43e5d084b5e340b8afd664c2e661602c.jpg?v=43f5605ad0",
+        "status": 200,
+        "type": "image/jpeg",
+        "cacheControl": "public, max-age=31536000, immutable",
+        "etag": null,
+        "bytes": 67025,
+        "dimensions": [
+          1200,
+          630
+        ],
+        "sha256": "b130bd07263815766fb795a1276074e50c6fe5f1a58181312c05402a473da4bf"
+      }
+    },
+    {
+      "url": "https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5?nft=a85ec604d7454d7cb3bca695936fbd85",
+      "status": 200,
+      "title": "MK1 \u00b7 MK Curator",
+      "canonical": null,
+      "meta": {
+        "description": "Sent on from MK Curator on Nonfungible.cash.",
+        "og:type": "website",
+        "og:site_name": "Nonfungible.cash",
+        "og:title": "MK1 \u00b7 MK Curator",
+        "og:description": "Sent on from MK Curator on Nonfungible.cash.",
+        "og:url": "https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5?nft=a85ec604d7454d7cb3bca695936fbd85",
+        "og:image": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5/a85ec604d7454d7cb3bca695936fbd85.jpg?v=432f5d36ef",
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        "og:image:alt": "MK1, an NFT in MK Curator on Nonfungible.cash.",
+        "twitter:card": "summary_large_image",
+        "twitter:title": "MK1 \u00b7 MK Curator",
+        "twitter:description": "Sent on from MK Curator on Nonfungible.cash.",
+        "twitter:image": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5/a85ec604d7454d7cb3bca695936fbd85.jpg?v=432f5d36ef"
+      },
+      "initialHtml": true,
+      "image": {
+        "url": "https://nonfungible.cash/api/og/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5/a85ec604d7454d7cb3bca695936fbd85.jpg?v=432f5d36ef",
+        "status": 200,
+        "type": "image/jpeg",
+        "cacheControl": "public, max-age=31536000, immutable",
+        "etag": null,
+        "bytes": 75016,
+        "dimensions": [
+          1200,
+          630
+        ],
+        "sha256": "514ed70b759bfc39f6ab431ec2a23b2ee7318d1844aa9280d8e6fb382d573b67"
+      }
+    },
+    {
+      "url": "https://nonfungible.cash/p/91760d0abdfb8cd351aaee1252056a1170c10fa24347dda3448053dc493337e1?nft=36308438d38b43a5834bc1811ab02f8a",
+      "status": 200,
+      "title": "MK1 \u00b7 Untitled collection",
+      "canonical": null,
+      "meta": {
+        "description": "One of 3 NFTs in Untitled collection on Nonfungible.cash.",
+        "og:type": "website",
+        "og:site_name": "Nonfungible.cash",
+        "og:title": "MK1 \u00b7 Untitled collection",
+        "og:description": "One of 3 NFTs in Untitled collection on Nonfungible.cash.",
+        "og:url": "https://nonfungible.cash/p/91760d0abdfb8cd351aaee1252056a1170c10fa24347dda3448053dc493337e1?nft=36308438d38b43a5834bc1811ab02f8a",
+        "og:image": "https://nonfungible.cash/api/og/p/91760d0abdfb8cd351aaee1252056a1170c10fa24347dda3448053dc493337e1/36308438d38b43a5834bc1811ab02f8a.jpg?v=4129e12c91",
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        "og:image:alt": "MK1, an NFT in Untitled collection on Nonfungible.cash.",
+        "twitter:card": "summary_large_image",
+        "twitter:title": "MK1 \u00b7 Untitled collection",
+        "twitter:description": "One of 3 NFTs in Untitled collection on Nonfungible.cash.",
+        "twitter:image": "https://nonfungible.cash/api/og/p/91760d0abdfb8cd351aaee1252056a1170c10fa24347dda3448053dc493337e1/36308438d38b43a5834bc1811ab02f8a.jpg?v=4129e12c91"
+      },
+      "initialHtml": true,
+      "image": {
+        "url": "https://nonfungible.cash/api/og/p/91760d0abdfb8cd351aaee1252056a1170c10fa24347dda3448053dc493337e1/36308438d38b43a5834bc1811ab02f8a.jpg?v=4129e12c91",
+        "status": 200,
+        "type": "image/jpeg",
+        "cacheControl": "public, max-age=31536000, immutable",
+        "etag": null,
+        "bytes": 75758,
+        "dimensions": [
+          1200,
+          630
+        ],
+        "sha256": "fc2665e51be1b0dc9b6f88f63262ad4900c3d1e34fe061b19cd14811fff3bd3f"
+      }
+    },
+    {
+      "url": "https://nonfungible.cash/p/0486e9d3dac2948174c31dc87809a1e6c8196d4ebb0496b16c51fba8902fea83",
+      "status": 200,
+      "title": "Smoke Test Collection \u00b7 Nonfungible.cash",
+      "canonical": null,
+      "meta": {
+        "description": "4 NFTs on Nonfungible.cash: art-04, art-03, art-02",
+        "og:type": "website",
+        "og:site_name": "Nonfungible.cash",
+        "og:title": "Smoke Test Collection \u00b7 Nonfungible.cash",
+        "og:description": "4 NFTs on Nonfungible.cash: art-04, art-03, art-02",
+        "og:url": "https://nonfungible.cash/p/0486e9d3dac2948174c31dc87809a1e6c8196d4ebb0496b16c51fba8902fea83",
+        "og:image": "https://nonfungible.cash/api/og/p/0486e9d3dac2948174c31dc87809a1e6c8196d4ebb0496b16c51fba8902fea83.jpg?v=7febc2cfe2",
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        "og:image:alt": "Smoke Test Collection, a collection of 4 NFTs on Nonfungible.cash.",
+        "twitter:card": "summary_large_image",
+        "twitter:title": "Smoke Test Collection \u00b7 Nonfungible.cash",
+        "twitter:description": "4 NFTs on Nonfungible.cash: art-04, art-03, art-02",
+        "twitter:image": "https://nonfungible.cash/api/og/p/0486e9d3dac2948174c31dc87809a1e6c8196d4ebb0496b16c51fba8902fea83.jpg?v=7febc2cfe2"
+      },
+      "initialHtml": true,
+      "image": {
+        "url": "https://nonfungible.cash/api/og/p/0486e9d3dac2948174c31dc87809a1e6c8196d4ebb0496b16c51fba8902fea83.jpg?v=7febc2cfe2",
+        "status": 200,
+        "type": "image/jpeg",
+        "cacheControl": "public, max-age=31536000, immutable",
+        "etag": null,
+        "bytes": 77618,
+        "dimensions": [
+          1200,
+          630
+        ],
+        "sha256": "7c266ba5d1f7f2b2b832b5de977d70afad99de9c27bc93e0b9a20861581292a1"
+      }
+    },
+    {
+      "url": "https://nonfungible.cash/market/2a4e293ef8821d05c48a45f1c8a3b342",
+      "status": 200,
+      "title": "MK3 \u00b7 4,999 sats",
+      "canonical": null,
+      "meta": {
+        "description": "For sale by MK Curator on Nonfungible.cash. Pay with Cashu ecash. 1 bid so far.",
+        "og:type": "website",
+        "og:site_name": "Nonfungible.cash",
+        "og:title": "MK3 \u00b7 4,999 sats",
+        "og:description": "For sale by MK Curator on Nonfungible.cash. Pay with Cashu ecash. 1 bid so far.",
+        "og:url": "https://nonfungible.cash/market/2a4e293ef8821d05c48a45f1c8a3b342",
+        "og:image": "https://nonfungible.cash/api/og/market/2a4e293ef8821d05c48a45f1c8a3b342.jpg?v=f4595a14a8",
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        "og:image:alt": "MK3, listed by MK Curator on Nonfungible.cash.",
+        "twitter:card": "summary_large_image",
+        "twitter:title": "MK3 \u00b7 4,999 sats",
+        "twitter:description": "For sale by MK Curator on Nonfungible.cash. Pay with Cashu ecash. 1 bid so far.",
+        "twitter:image": "https://nonfungible.cash/api/og/market/2a4e293ef8821d05c48a45f1c8a3b342.jpg?v=f4595a14a8"
+      },
+      "initialHtml": true,
+      "image": {
+        "url": "https://nonfungible.cash/api/og/market/2a4e293ef8821d05c48a45f1c8a3b342.jpg?v=f4595a14a8",
+        "status": 200,
+        "type": "image/jpeg",
+        "cacheControl": "public, max-age=31536000, immutable",
+        "etag": null,
+        "bytes": 74834,
+        "dimensions": [
+          1200,
+          630
+        ],
+        "sha256": "144c53eb49bb5b15bd552071502e11d507836f45e215df684d8ee602eaa15f7f"
+      }
+    }
+  ]
+}

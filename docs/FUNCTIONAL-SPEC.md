@@ -1,10 +1,10 @@
 # ZFT complete website functional specification
 
-Revision 1 · 2026-10-04 · reference audit and implementation plan.
+Revision 2 · 2026-10-04 · reference audit, implementation, and remaining work.
 
 This is the central specification for reproducing NonFungible Cash's website functionality with the Zenon design system and ZVM ownership. It covers the full intended product, including deferred features. It is **not a declaration that every feature is implemented or every reference operation has been tested**. The [reference action ledger](REFERENCE-AUDIT.md) records actual clicks, results, and unverified flows. The [hosted alpha runbook](DEVNET-ALPHA.md) records what is deployed.
 
-The implementation baseline for this comparison is `53eb78b`; subsequent documentation-only commits do not add functionality. Live alpha: [devnet.zft.foo](https://devnet.zft.foo/). Intended app domain: **zft.foo**. The apex root currently serves the design prototype. Do not promote it merely because this specification is complete.
+The original audit baseline was `53eb78b`. The public-profile/proof/sharing implementation now adds Collection-first profiles, contextual unlock, Network dialogs, explicit published-epoch history, independent proof checks, thumbnail-backed OG cards, and wallet connection. Discovery/social-feed parity and wallet custody transfers remain unfinished. Live alpha: [devnet.zft.foo](https://devnet.zft.foo/). Intended app domain: **zft.foo**. The apex root currently serves the design prototype. Do not promote it merely because this specification is complete.
 
 For product interactions and route spellings, this revision supersedes conflicting draft text in older documents. The frozen codec, deployed manifest, contract source, and current API schemas remain authoritative for existing files and transactions. [SPEC](SPEC.md), [CONTRACTS](CONTRACTS.md), [ARCHITECTURE](ARCHITECTURE.md), [PAGES-AND-SHARING](PAGES-AND-SHARING.md), and [MARKETPLACE](MARKETPLACE.md) supply the detailed protocol, infrastructure, sharing, and expansion designs. Proposed schema additions below require versioned implementation and review; they do not silently change the deployed protocol.
 
@@ -27,6 +27,12 @@ The reference uses Cashu/Pointcheval–Sanders credentials and describes private
 
 The **profile identity** signs publication and social requests. An **item owner** is a separate disposable key. A **creator** is immutable mint provenance. A **collector** is an optional public profile bound to an ownership epoch. A **local collection** is the private vault's inventory. A **curated collection** groups public items and is not another ERC-721 deployment. Never infer a recipient's profile from an on-chain address alone.
 
+Wallet direction clarified by the user on 2026-10-04: assets live on **ZVM**, with **MetaMask as the primary external wallet integration**. ZFT collectibles are ERC-721 tokens issued on ZVM; this does not require a separate fungible ZFT currency. The current alpha uses local disposable keys and sponsored gas; MetaMask-compatible EIP-6963/injected-provider connection, pinned-network add/switch, address/balance display and account/network/disconnect handling are implemented. Actual extension and mobile-wallet acceptance is pending; token custody transitions and trading are not implemented. Preserve the file-transfer path alongside wallet custody. Connecting a wallet alone does not move a token, replace the profile identity, or publish a holding.
+
+The MetaMask adapter must identify the selected provider, request connection from an explicit user action, add/switch only the pinned ZVM network, and handle rejected requests, account/network changes, disconnection, wrong deployment, insufficient balance, and pending transactions. Current app network configuration is chain `7340469`, RPC `https://devnet.zenon.foo/zvm/rpc`, and native gas currency **Devnet ZNN** (18 decimals). These are devnet settings, not finalized mainnet asset policy. [Sol's proposal](https://forum.zenon.org/t/zenoglyphs-vm-zvm/2371) describes the MetaMask relayer path and leaves mainnet currency/deposit/exit choices open.
+
+Wallet custody supports holding and, after exchange review, paying/trading and receiving proceeds. Entering file custody requires an explicit token transfer to a freshly generated disposable key; returning to MetaMask uses an explicit ownership rotation to the connected address. Persist/recover the destination item key before moving a token into file custody. **Never export a MetaMask private key into a picture.** The exact marketplace payment asset must match the reviewed exchange; ZVM-native gas and an ERC-20 settlement token are different configuration fields. Do not assume every ZVM-side asset is a native Zenon L1 token or redeemable 1:1.
+
 | Session | Available actions |
 | --- | --- |
 | Visitor | Browse, search, verify, copy public values, save public art/proofs, share public URLs, open onboarding/unlock |
@@ -45,12 +51,12 @@ The **profile identity** signs publication and social requests. An **item owner*
 | `/how-it-works` | Product basics | Existing short explanation; expanded content pending |
 | `/how-it-works?view=cryptography` | Technical explanation for ZFT | Planned; do not copy reference cryptography claims |
 | `/about` | Compatibility alias to help | Existing alias; preserve it |
-| `/p/:profileAddress` | Public collector profile, Collection default | Exists; currently defaults to Created |
-| `/p/:profileAddress?tab=sent` | Historical publications | Exists partially; history/proof semantics need correction |
+| `/p/:profileAddress` | Public collector profile, Collection default | Implemented; Collection is the default |
+| `/p/:profileAddress?tab=sent` | Historical publications | Retained published epochs, explicit history links, separate live verification; gallery still ordered by mint position |
 | `/p/:profileAddress?tab=activity` | Profile-related public events | Exists for limited chain history |
 | `/p/:profileAddress?tab=created` | Immutable mint provenance | Existing extra ZFT view; retain after Collection/Sent/Activity |
-| `/p/:profileAddress?nft=:tokenId` | Selected-artwork dialog over profile; retain current tab when supplied | Existing for eligible public contexts; historical context pending |
-| `/item/:tokenId` | Standalone public item, verification, sanitized downloads, share | Implemented; new proof-card composition pending |
+| `/p/:profileAddress?nft=:tokenId` | Selected-artwork dialog over profile; retain current tab when supplied | Current/creator context implemented; historical links require `&epoch=:nonce` and an exact retained publication |
+| `/item/:tokenId` | Standalone public item, verification, sanitized downloads, share | Implemented with two-face card and three independent verification checks |
 | `/collection` | Private local inventory, vault creation/unlock, item actions, backup status | Implemented |
 | `/mint` | Normalize, preview, describe, authorize mint | Implemented |
 | `/claim` | Local transferable-file import, validation, claim | Implemented; this is the current file-import URL |
@@ -183,6 +189,10 @@ Use [MARKETPLACE.md](MARKETPLACE.md) as the custody/review gate: investigate Kar
 
 Every public page family has intentional initial HTML metadata. Home/static pages use page-specific cards; profiles use name/avatar/counts/public art; selected artwork uses that exact item/context; standalone item and future curated collection/listing use their own identity. The audited reference emitted different 1200×630 profile and selected-artwork JPEG URLs. ZFT generates unique versioned PNGs.
 
+**The NFTs populate the share image itself.** A profile card composites up to three distinct eligible current public holdings, with a preferred featured holding first, followed by newest publications and a stable token-ID tie-breaker. Its total count reflects the whole eligible collection. A selected/standalone NFT uses that exact artwork as the dominant image. Historical and listing cards retain their own collector/state or seller/price context. Do not satisfy this requirement with title-only changes to a generic graphic, or silently substitute created/sent NFTs into a current-holdings collage. The [expanded OG audit](PAGES-AND-SHARING.md#10-nft-populated-og-images-verified-reference-behavior) records actual profile collages, item, historical and market compositions with [HTTP evidence](../research/reference-sharing.json).
+
+Generate bounded public thumbnails for valid art too large to decode directly in the OG request budget; preserve the immutable canonical art used by token identity. Empty collections and genuinely unavailable/corrupt media receive intentional page-specific fallbacks. The alpha now selects current published holdings by publication time with a stable token tie-breaker; an eligible featured holding is first and drawn in front. It generates immutable 480px derivatives from canonical RGBA PNGs up to 24 MP/10 MiB, processing two scanlines at a time. Extremely wide originals above 65,536 pixels fall back to a text card to bound scanline memory. Canonical image bytes and token identity are unchanged. Test the actual visible NFT content with 0/1/2/3+ pieces and oversized valid artwork, rather than treating a distinct URL or byte hash alone as sufficient.
+
 Required tags: title, description, canonical, OG type/site/title/description/url/image/width/height/type/alt, Twitter large-image fields. Return them in the first HTTP response for browsers and crawlers. Hash-router state and client effects do not satisfy this. Public share URLs use the configured environment origin, never untrusted Host values. Strip irrelevant query parameters while preserving token and, when needed, historical publication identity.
 
 Output is 1200×630 PNG, bounded to 1 MiB with a page-specific text fallback. Use pinned local fonts, sanitized R2 images, bounded text and image counts, no arbitrary remote media fetch. Revisions bind page kind/ID, template/theme version, public content, selected art and context, network, and displayed counts. Old versions remain immutable while eligible; unpublishing blocks context access. Existing external social caches cannot be recalled.
@@ -206,7 +216,7 @@ Worker/API, R2 public art, D1 public records/events, sponsor Durable Object, ind
 
 The draft architecture's separate `/operations/mint`, PUT profile/follow routes, and curated-collection API are proposals, not current endpoints. Extend the actual shared schemas instead of shipping conflicting undocumented APIs.
 
-Required additions: public profile creation timestamp; directory/search/sort queries; retained and versioned historical publications with visibility; portable profile endorsement if that claim is shown; social/publication event journal; media references/revisions for independent avatar/cover; optional curated collection records; share revision identity including historical context. Specify migrations, backfill policy, retention, and bounded indexes before implementation. Old records lacking an endorsement/history timestamp stay explicitly incomplete; do not fabricate evidence.
+Implemented history uses retained `possessions` rows keyed by profile/token/nonce; unpublishing removes all epochs for that profile/item. Required additions: public profile creation timestamp; directory/search/sort queries; broader history retention policy; portable profile endorsement if that claim is shown; social/publication event journal; media references/revisions for independent avatar/cover; optional curated collection records; share revision identity including historical context. Specify migrations, backfill policy, retention, and bounded indexes before implementation. Old records lacking an endorsement/history timestamp stay explicitly incomplete; do not fabricate evidence.
 
 Current profile limits are name 1–64, bio up to 320, optional featured token and optimistic revision. Current possession statements bind deployment/profile/token/epoch/expiry, with a maximum 31-day lifetime. IDs/nonces/amounts use lossless decimal strings where necessary. Mutations use strict bounded schemas and single-use signatures bound to method/path/body; no secret is needed by the server. Replays, wrong origin, mismatched revision, invalid signature, expired statement, nonexistent target, and stale authority require distinct errors.
 
@@ -227,7 +237,8 @@ RPC/index/media outages preserve known local data and expose freshness. Retry is
 | A-ACTIVITY | Everyone/Following including both empty cases; actor/subject/thumbnail links; social event idempotency and reorg rollback |
 | A-TRANSFER | Actual two-browser mint→export→claim→re-export; stale-copy rejection; competing claims/cancel; refresh during pending; safe approval/custody gate |
 | A-RECOVERY | Clean-browser restore of current snapshot; outdated backup explanation; wrong passphrase/corrupt file; no existing-vault overwrite; backup reminder after each new key |
-| A-SHARE | Initial HTML without JavaScript for distinct profiles/items/historical context; valid distinct 1200×630 PNGs; cache isolation/revision/unpublish/error cases |
+| A-WALLET | MetaMask add/switch/connect/reject/account-change/disconnect; pinned-chain validation; wallet→file→wallet ownership round trip; stale-export rejection; no wallet key export; correct payment asset and proceeds recipient |
+| A-SHARE | Initial HTML without JavaScript; actual correct NFT pixels in distinct profile/item/historical/listing compositions; 0/1/2/3+ pieces; valid large-art thumbnails; 1200×630 PNGs; cache isolation/revision/unpublish/error cases |
 | A-OPERATIONS | Sponsor crash/retry/nonce/reorg faults, index rewind/reset, quota/outage messaging, no secret upload/log; deployment identity stop |
 | A-MARKET | Separately approved exchange/custody/asset rules; list/cancel/offer/accept/buy/expiry/refund races and payout verification before enabling trading |
 
@@ -243,3 +254,11 @@ The hosted SDK canaries and existing tests are evidence for their specific scope
 6. **Expansion:** encrypted links/remote backup and live marketplace only after their protocol/custody reviews; continue reference owner-flow audit with an authorized disposable test collection.
 
 Open decisions are the source license; exact historical-publication retention/removal policy; whether portable profile endorsements are mandatory for beta; curated-collection scope; remote-backup/link protocol; and marketplace integration/settlement asset. The visual direction, corrected domain, Cloudflare hosting, and real devnet implementation are already authorized. Do not reopen those merely because earlier draft documents call them proposals.
+
+## 15. Public-parity milestone acceptance
+
+Implemented on 2026-10-04: Collection-first profiles and informative Likes counts; contextual guest unlock/return; two-tab Network dialog; bounded profile re-verification; native dialogs with Escape/focus return; public proof card front/reverse; public-observation JSON v2 with the signed item-owner statement; explicit historical `epoch` routes and sharing; current-holdings OG collages with real thumbnail pixels; mobile menu, identity/link lookup, persistent System/Light/Dark themes; initial wallet connection and native gas balance. No contract or database migration is required.
+
+Verification: 31 TypeScript tests, type checking, production frontend build and Worker bundling; local/hosted public canary; six local workerd OG fixtures including 0/1/2/3 artworks, missing art and a 6000×4000 (24 MP), 3.96 MB original. Browser checks cover current proof, front/reverse, public JSON download, Network navigation, Escape/focus return, guest onboarding, theme persistence, lookup, mobile layout and wallet-unavailable state. Full wallet-extension/device transactions and target social-platform recrawls remain acceptance gates. Reproducible renderer fixtures: `node scripts/check-og-renderer.mjs`.
+
+The public proof verifies the **item owner's signature binding the profile**. It does not claim an independently portable profile-key endorsement; JSON explicitly records `profileEndorsement: null`. A live observation comes from the app's pinned RPC and is not an EVM state proof. The current Sent view groups by item and opens the latest retained prior epoch. Current/Sent gallery pagination still uses mint position; richer event chronology, profile media, discovery search/sorts, Everyone/Following social feeds, and expanded help remain the next public-site work.
