@@ -8,7 +8,8 @@ The [complete website functional specification](FUNCTIONAL-SPEC.md) covers the e
 
 - Non-upgradeable ERC-721 with EIP-712 mint and ownership rotation. Every ordinary, approved, operator, and self-transfer increments the ownership epoch. No administrator or seizure path.
 - React frontend using the pinned Zenon theme and self-hosted fonts: exploration, public item proof, creator pages, local collection, mint, file import/claim, export, cancellation, recovery, and lock/unlock.
-- Fresh independent keys per ownership transition; encrypted IndexedDB records; PBKDF2/HKDF/AES-GCM; pending requests and both sides of each transition saved before submission.
+- MetaMask-first mint/receive/profile authentication; wallet-owned tokens need no local vault or ZFT password. Account-scoped public operation journals preserve exact pending authorizations without private keys.
+- File custody uses independent keys in session memory or optional password-protected IndexedDB (PBKDF2/HKDF/AES-GCM). New destination keys require a downloaded, acknowledged v1 recovery snapshot before submission. Manual lock and 15-minute inactivity lock protect remembered keys; existing vaults and profiles remain compatible.
 - Strict transferable PNG envelopes with hash/metadata checks, CRC validation, deployment allowlisting, large-number handling, and bounded decoding. Uploaded public art contains only PNG pixels.
 - Signed single-use API challenges, R2 media adapter, fixed-contract sponsor, per-profile/IP quotas, gas caps, explicitly serialized Durable Object delivery, durable signed-transaction journal, retries by authorization digest, receipt reconciliation, and a small confirmed-mint catalog.
 - Signed, versioned public profile editing; featured artwork; follow/unfollow and like/unlike; follower directories; opt-in item-owner possession proofs; collection/sent/creation activity tabs; profile-selected artwork dialogs; public image and observation downloads.
@@ -57,9 +58,9 @@ SPONSOR_ENABLED=true
 
 Never use a real-money account. `scripts/prepare-devnet.ts` creates separate deployer and sponsor keys in `.local/devnet-keys.json` with restricted permissions; `--fund` and `--fund --sponsor` request free ZVM faucet funds. Existing local keys are reused. Keys and recovery files are ignored by Git. Restart Wrangler after creating/changing its secrets file.
 
-Create a local collection, save and acknowledge recovery, then mint an image. Claim and cancellation create a new saved key before submission. If a request times out, **Resume transaction** reuses the saved operation. Refresh keeps a claim/cancellation resumable when no live job exists and a saved prior key still owns the collectible. Expired requests are renewed only after the server confirms the prior operation is absent or reverted; reverted requests receive a fresh authorization even before expiry. The saved recipient key is preserved. Wallet authorizations require renewal through Wallet. Export is disabled for keys with external transaction/approval history; rotate to a fresh app key first.
+Connect MetaMask to mint directly into the wallet or receive a transferable PNG; choose the wallet identity for profile actions. A locked file vault does not block wallet actions. Choose “A transferable file” for local file custody: start a memory-only session or opt into browser password protection, download/acknowledge recovery, prepare the new file key, then download/acknowledge its updated snapshot before Resume transaction. Claims and cancellations follow this checkpoint too. Timeout recovery reuses the saved operation/destination. Unknown job outcomes fail closed; expired or known-reverted operations renew consent to the same recipient. Wallet drafts appear in Wallet; expired wallet claims require reopening the original file. Wallet and local profile identities stay separate; switching does not migrate assets or public relations.
 
-A recovery file is a **secret bearer snapshot**, not a password-encrypted transport format. The local passphrase encrypts the browser vault; it does not protect a downloaded recovery file. New keys require a newer snapshot. Restore into a fresh browser profile so an existing vault is never overwritten. No administrator can recover missing item keys.
+A recovery file is a **secret bearer snapshot**, not password-encrypted transport. A browser passphrase protects stored records, not the download. Session keys disappear on reload/tab close; restore the snapshot to continue. A session can be remembered with a password after acknowledging a current snapshot. Existing encrypted vaults require their password and are never overwritten/downgraded. New keys require a newer snapshot; no administrator can recover missing keys. Legacy headers without acknowledged-key hashes require one fresh backup acknowledgment before file operations.
 
 ## Image format frozen for this slice
 
@@ -68,6 +69,8 @@ A recovery file is a **secret bearer snapshot**, not a password-encrypted transp
 APNG, indexed/16-bit/interlaced PNG, CMYK JPEG, and embedded ICC profiles are rejected. Convert those to an 8-bit sRGB image first. Arbitrary color-profile conversion is not implemented. Exports use one `zfTA` PNG chunk and remain viewable as pictures. JPEG APP15 export is reserved for a future explicitly versioned codec. Send `.zft.png` as the original attachment; screenshots/recompression are not transferable.
 
 ## Verification
+
+The wallet-first hosted canary uses two isolated generated test wallets: direct wallet mint → backed-up session file → direct claim into the second wallet, plus a wallet-authenticated profile update and stale-file rejection. Three transactions confirmed at blocks 95382, 95393 and 95400. [Public evidence](../research/hosted-wallet-first.json). Run `node --import tsx scripts/check-wallet-first.ts` to resume its saved journals; all keys, recovery and bearer files stay under ignored `.local/`. This SDK check does not establish MetaMask extension or phone acceptance.
 
 `pnpm test` includes isolated local workerd sharing tests using synthetic D1/R2/asset bindings. These require local socket access and exercise the real HTML rewriter; they do not use hosted storage, keys or chain transactions.
 
@@ -97,7 +100,7 @@ This mints a generated test artwork and exercises export → claim → cancel �
 - Canonical public media: **https://zft.foo/art/** and **https://zft.foo/metadata/**, routed to that same Worker. The apex homepage remains the `zft-preview` design prototype.
 - D1 **zft-devnet-index**, R2 **zft-devnet-public**, Sponsor and Indexer Durable Objects, one-minute cron. Local bindings are isolated.
 - Hosted sponsor **0x3FDefb23b5ccd02a9f706E478335aB000C4464d1**, funded only with free devnet ZNN. Its key is a Cloudflare secret, separate from the local sponsor and deployer. Never run two outboxes with one gas account.
-- Explicit **wrangler.devnet.jsonc** keeps the legacy prototype Git deploy command separate. No Git build settings or main-branch merge has been changed by this milestone.
+- Explicit **wrangler.devnet.jsonc** keeps the legacy prototype Git deploy command separate. PR 1 is merged into main. Its prototype Git build passed; the devnet app is still deployed explicitly with its own configuration.
 
 ```sh
 pnpm exec wrangler d1 migrations apply zft-devnet-index --config wrangler.devnet.jsonc --env= --remote
@@ -149,7 +152,7 @@ Open `/wallet` from the wallet controls or compact menu. Its inventory lists ind
 
 Saved authorization and transaction status survive reload/recovery. Unknown job failures are not treated as permission to replace keys. Expired wallet authorizations must be renewed through Wallet using the original saved destination. The vault rejects stale conditional writes so a delayed prompt or response cannot overwrite a newer custody operation. A completed return is shown as `wallet`; prior exported files are rejected against live ownership.
 
-42 TypeScript tests pass, including 11 custody-flow cases with real signatures/encrypted IndexedDB and mocked providers/chain. Typecheck, frontend build and Worker dry run pass. Local UI checks cover locked/absent-wallet guidance and Escape/focus return. Actual MetaMask and phone transactions remain open in R1.6. The current alpha remains file-first and requires the local profile vault for authenticated writes; confirmed MetaMask-first onboarding/authentication/direct minting is R1.7, and password-optional file onboarding is R1.8; neither is shipped yet. The current required passphrase encrypts browser storage, not the downloadable recovery bundle, which includes its own recovery root.
+93 TypeScript tests pass, including 12 wallet/file-custody cases, 11 direct-wallet cases, 8 scoped challenge cases and memory/recovery/upgrade/inactivity checks. Typecheck, frontend build and Worker dry run pass. Local UI inspection confirms wallet-first/no-password onboarding, the optional protection checkbox, no-provider guidance and session recovery entry. Actual MetaMask extension, phone and full browser recovery acceptance remain open in R1.5/R1.6/R6. The recovery format and deployed contract/API remain unchanged.
 
 Run the isolated generated-wallet SDK canary with `ZFT_TEST_ORIGIN=https://devnet.zft.foo node --import tsx scripts/check-wallet-custody.ts`. It uses only new test assets and sponsored devnet gas. Recovery files and its test wallet key remain in ignored `.local/`; retries resume the saved journal. It writes public evidence to `research/hosted-wallet-canary.json` only after the round trip, stale-file rejection and indexed wallet inventory pass. This signer fixture does not exercise a MetaMask extension.
 

@@ -19,11 +19,14 @@ const btn = "nom-btn nom-btn--outline nom-btn--default";
 export function WalletControl({
   onChange,
   nav,
+  openRequest = 0,
 }: {
   onChange: (session: WalletSession | undefined) => void;
   nav: (path: string) => void;
+  openRequest?: number;
 }) {
   const [choices, setChoices] = useState<WalletChoice[]>([]),
+    [sessionEpoch, setSessionEpoch] = useState(0),
     [open, setOpen] = useState(false),
     [selected, setSelected] = useState<WalletChoice>(),
     [account, setAccount] = useState<string>(),
@@ -32,23 +35,28 @@ export function WalletControl({
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const run = useRef(0),
-    connection = useRef(0);
+    connection = useRef(0),
+    epoch = useRef(0);
+  useEffect(() => {
+    if (openRequest) setOpen(true);
+  }, [openRequest]);
   useEffect(() => {
     let active = true;
+    const version = epoch.current;
     onChange(
       selected && account && chain
         ? {
             provider: selected.provider,
             account: account as `0x${string}`,
             chainId: chain,
-            isCurrent: () => active,
+            isCurrent: () => active && version === epoch.current,
           }
         : undefined,
     );
     return () => {
       active = false;
     };
-  }, [selected, account, chain, onChange]);
+  }, [selected, account, chain, onChange, sessionEpoch]);
   useEffect(
     () => () => {
       connection.current++;
@@ -93,6 +101,7 @@ export function WalletControl({
     if (!selected) return;
     const p = selected.provider;
     const accounts = (v: unknown) => {
+      setSessionEpoch(++epoch.current);
       run.current++;
       setBalance("");
       try {
@@ -102,11 +111,13 @@ export function WalletControl({
       }
     };
     const changed = (v: unknown) => {
+      setSessionEpoch(++epoch.current);
       run.current++;
       setChain(String(v));
       setBalance("");
     };
     const disconnected = () => {
+      setSessionEpoch(++epoch.current);
       connection.current++;
       run.current++;
       setBusy(false);
@@ -123,6 +134,7 @@ export function WalletControl({
     };
   }, [selected]);
   async function connect(choice: WalletChoice) {
+    setSessionEpoch(++epoch.current);
     const attempt = ++connection.current;
     setBusy(true);
     setError("");
@@ -228,6 +240,7 @@ export function WalletControl({
                 <button
                   className={btn}
                   onClick={() => {
+                    setSessionEpoch(++epoch.current);
                     connection.current++;
                     run.current++;
                     setBusy(false);

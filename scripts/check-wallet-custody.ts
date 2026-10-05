@@ -3,7 +3,7 @@ import "fake-indexeddb/auto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { encode } from "fast-png";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { sha256, type Hex } from "viem";
+import { hexToString, sha256, type Hex } from "viem";
 import { Vault, unbase64 } from "../packages/vault";
 import {
   CANONICALIZER,
@@ -70,6 +70,8 @@ const session: WalletSession = {
     request: async ({ method, params }) => {
       if (method === "eth_chainId") return network.chainId;
       if (method === "eth_accounts") return [wallet.address];
+      if (method === "personal_sign")
+        return wallet.signMessage({ message: hexToString(params![0] as Hex) });
       if (method !== "eth_signTypedData_v4")
         throw new Error(`Unexpected method ${method}`);
       const typed = JSON.parse(String(params![1]));
@@ -84,11 +86,11 @@ const session: WalletSession = {
 };
 const vault = await Vault.open(d, prefix);
 async function persist() {
-  await writeFile(
-    `.local/${prefix}.zft-recovery`,
-    (await vault.backup()).text,
-    { mode: 0o600 },
-  );
+  const snapshot = await vault.backup();
+  await writeFile(`.local/${prefix}.zft-recovery`, snapshot.text, {
+    mode: 0o600,
+  });
+  await vault.acknowledgeBackup(snapshot.revision);
 }
 async function backup() {
   const b = await vault.backup();

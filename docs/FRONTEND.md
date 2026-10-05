@@ -42,15 +42,15 @@ Empty states are concrete: “Your collection starts with one picture” and “
 
 1. Choose a picture locally. Validate type/dimensions/size and show canonicalization progress in a worker.
 2. Preview the exact canonical image and fill title/description. Explain removed photo metadata and public mint provenance. Default **profile holding association** off. The existing index discovers minted items; a future gallery visibility option does not make the underlying art or on-chain metadata private.
-3. If the vault does not exist, create it and set an unlock passphrase. Ask for a local recovery bundle download and acknowledgment before proceeding.
+3. Default to wallet custody and connect MetaMask without a ZFT password. Choosing file custody offers session-only local keys or optional password-protected browser storage. Prepare and acknowledge a recovery snapshot containing the new key before submission; retain legacy encrypted-vault unlock.
 4. Show `Sponsored on ZVM devnet`, expected confirmation policy, and sponsor availability. Never silently request wallet payment.
-5. Mint, then present progress, success, and `View in my collection`. Update the recovery reminder because a new random key was created.
+5. Persist exact consent before submission and show resumable progress in Wallet or My files. A wallet mint uses its connected address as creator/owner. File minting resumes only after its new key is backed up; after confirmation, update the snapshot reminder for changed records.
 
 The prototype uses a demo image and allows a local JPG/PNG preview. Its “mint” updates sample collection state only. It explicitly labels the action as simulated. It does not pretend to validate canonical bytes or create a cryptographic key.
 
 ## 5. Import and claim flow
 
-Parsing is local. Separate results: **Picture matches** (hash), **Transfer key is current** (chain), **Ready to claim** (recipient key persisted). In production, a stale file, unknown deployment, RPC outage, or missing backup blocks the corresponding dependent action.
+Parsing is local. Separate results: **Picture matches** (hash), **Transfer key is current** (chain), **Ready to claim** (connected wallet selected, or fresh file key prepared and backed up). In production, a stale file, unknown deployment, RPC outage, or missing backup blocks the corresponding dependent action.
 
 Claim confirmation copy: “Claim this collectible into your collection. After confirmation, older copies of this file cannot claim it.” Main button: `Claim collectible`; secondary action: `Keep viewing`.
 

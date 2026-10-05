@@ -1,4 +1,10 @@
-import React, { useEffect, useState, type ReactNode } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { privateKeyToAccount } from "viem/accounts";
 import type { Hex } from "viem";
@@ -34,7 +40,15 @@ import { possessionText } from "../../../packages/protocol/public";
 import { ThemeControl, ProfileLookup } from "./site-controls";
 import { WalletControl } from "./wallet-control";
 import { WalletPage } from "./wallet-page";
-import type { WalletSession } from "./wallet";
+import { isZVMChain, type WalletSession } from "./wallet";
+import { localIdentity, walletIdentity, type Identity } from "./identity";
+import { WalletJournal } from "./wallet-journal";
+import { inactivityLock } from "./inactivity";
+import {
+  prepareWalletMint,
+  prepareWalletClaim,
+  submitWallet,
+} from "./wallet-direct";
 
 type Config = { deployment: typeof manifest; sponsorEnabled: boolean };
 type PublicItem = {
@@ -84,11 +98,48 @@ function App() {
   const routePath = path.split("?")[0];
   const [walletSession, setWalletSession] = useState<WalletSession>();
   const [walletBusy, setWalletBusy] = useState(false);
+  const [journal, setJournal] = useState<WalletJournal>(),
+    [persistentVault, setPersistentVault] = useState<Vault>(),
+    [protectBrowser, setProtectBrowser] = useState(false),
+    [profileMode, setProfileMode] = useState<"wallet" | "local">("wallet"),
+    [localSigner, setLocalSigner] = useState<Identity>(),
+    [connectRequest, setConnectRequest] = useState(0),
+    [mintMode, setMintMode] = useState<"wallet" | "file">("wallet"),
+    [claimMode, setClaimMode] = useState<"wallet" | "file">("wallet");
+  const walletSigner = useMemo(
+    () => (walletSession ? walletIdentity(walletSession) : undefined),
+    [walletSession],
+  );
+  const selectedSigner = profileMode === "wallet" ? walletSigner : localSigner;
+  const activeIdentity = useRef(selectedSigner);
+  activeIdentity.current = selectedSigner;
+  const identity = useMemo<Identity | undefined>(
+    () =>
+      selectedSigner && {
+        ...selectedSigner,
+        async assertCurrent() {
+          if (activeIdentity.current !== selectedSigner)
+            throw new Error(
+              "Selected profile changed. Review your identity and try again.",
+            );
+          await selectedSigner.assertCurrent?.();
+        },
+      },
+    [selectedSigner],
+  );
+  const profile = identity?.address ?? "";
+  const activeVault = useRef(vault);
+  activeVault.current = vault;
+  const signerVault = useRef<Vault | undefined>(undefined);
+  function activateVault(next: Vault | undefined) {
+    activeVault.current = next;
+    setVault(next);
+  }
   const [menuOpen, setMenuOpen] = useState(false),
     [returnTo, setReturnTo] = useState<string>();
   const [items, setItems] = useState<ItemRecord[]>([]),
     [gallery, setGallery] = useState<PublicItem[]>([]),
-    [profile, setProfile] = useState("");
+    [localProfile, setLocalProfile] = useState("");
   const [galleryCursor, setGalleryCursor] = useState<string | null>(null);
   const [index, setIndex] = useState<{
     block: number | null;
@@ -110,6 +161,8 @@ function App() {
     [notice, setNotice] = useState(""),
     [passphrase, setPassphrase] = useState(""),
     [confirmPassphrase, setConfirmPassphrase] = useState("");
+  const activityBlocked = useRef(false);
+  activityBlocked.current = !!busy || walletBusy;
   const [backup, setBackup] = useState<{ revision: number; text: string }>(),
     [revisions, setRevisions] = useState({ current: 0, backedUp: -1 }),
     [backupChecked, setBackupChecked] = useState(false);
@@ -159,9 +212,18 @@ function App() {
   );
   async function refresh(v = vault) {
     if (!v?.unlocked) return;
-    setItems(await v.items());
-    setProfile((await v.profile()).address);
-    setRevisions(await v.revisions());
+    const localItems = await v.items();
+    const signer = await localIdentity(v);
+    const revs = await v.revisions();
+    if (!v.unlocked || activeVault.current !== v) return;
+    setItems(localItems);
+    setLocalProfile(signer.address);
+    const sameVault = signerVault.current === v;
+    signerVault.current = v;
+    setLocalSigner((old) =>
+      sameVault && old?.address === signer.address ? old : signer,
+    );
+    setRevisions(revs);
   }
   async function act(label: string, fn: () => Promise<void>) {
     setBusy(label);
@@ -186,6 +248,7 @@ function App() {
   useEffect(() => {
     let cancelled = false;
     let opened: Vault | undefined;
+    let openedJournal: WalletJournal | undefined;
     api<Config>("/api/config")
       .then((c) => {
         if (JSON.stringify(c.deployment) !== JSON.stringify(manifest))
@@ -207,12 +270,25 @@ function App() {
       Vault.open(deployment).then(async (v) => {
         opened = v;
         if (cancelled) return v.close();
-        setVault(v);
-        setExists(await v.exists());
+        activateVault(v);
+        setPersistentVault(v);
+        const existing = await v.exists();
+        setExists(existing);
+        if (existing) setProfileMode("local");
       });
+    if (deployment)
+      WalletJournal.open(deployment)
+        .then((j) => {
+          openedJournal = j;
+          if (cancelled) j.close();
+          else setJournal(j);
+        })
+        .catch((e) => setError(e.message));
     return () => {
       cancelled = true;
       opened?.close();
+      if (activeVault.current !== opened) activeVault.current?.close();
+      openedJournal?.close();
     };
   }, []);
   useEffect(
@@ -237,36 +313,77 @@ function App() {
   }, [vault, unlocked, items, busy, walletBusy]);
   const lock = () => {
     vault?.lock();
+    if (!vault?.persistent) activateVault(persistentVault);
+    signerVault.current = undefined;
     setUnlocked(false);
     setItems([]);
     setBackup(undefined);
     setTransfer(undefined);
-    setProfile("");
+    setLocalProfile("");
+    setLocalSigner(undefined);
     setPassphrase("");
     setConfirmPassphrase("");
     setNotice("Collection locked.");
   };
   useEffect(() => {
-    if (returnTo && unlocked && revisions.backedUp >= 0) {
+    if (!unlocked || !vault?.persistent) return;
+    return inactivityLock(window, lock, () => activityBlocked.current);
+  }, [unlocked, vault]);
+  useEffect(() => {
+    if (
+      !unlocked ||
+      vault?.persistent ||
+      revisions.current === revisions.backedUp
+    )
+      return;
+    const leaving = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", leaving);
+    return () => window.removeEventListener("beforeunload", leaving);
+  }, [unlocked, vault, revisions]);
+  useEffect(() => {
+    if (
+      returnTo &&
+      ((returnTo.startsWith("/p/") && identity) ||
+        (unlocked && revisions.backedUp === revisions.current))
+    ) {
       setReturnTo(undefined);
       nav(returnTo);
     }
-  }, [returnTo, unlocked, revisions.backedUp]);
+  }, [returnTo, unlocked, revisions.backedUp, revisions.current, identity]);
+  async function startSession(recovery?: string) {
+    if (!deployment) throw new Error("Deployment unavailable.");
+    const v = await Vault.session(deployment, recovery);
+    if (vault && !vault.persistent) vault.close();
+    activateVault(v);
+    setUnlocked(true);
+    if (!walletSession) setProfileMode("local");
+    await refresh(v);
+    if (recovery === undefined) nav("/recovery");
+  }
   async function unlock() {
     if (!vault)
       throw new Error("A deployment is required before creating a vault.");
-    if (exists) await vault.unlock(passphrase);
+    if (!exists && !protectBrowser) {
+      await startSession();
+      return;
+    }
+    if (exists) await persistentVault!.unlock(passphrase);
     else {
       if (passphrase !== confirmPassphrase)
         throw new Error("Passphrases do not match.");
-      await vault.create(passphrase);
+      await persistentVault!.create(passphrase);
       setExists(true);
     }
     setPassphrase("");
     setConfirmPassphrase("");
     setUnlocked(true);
-    await refresh(vault);
-    if ((await vault.revisions()).backedUp < 0) nav("/recovery");
+    activateVault(persistentVault);
+    if (!walletSession) setProfileMode("local");
+    await refresh(persistentVault);
+    if ((await persistentVault!.revisions()).backedUp < 0) nav("/recovery");
   }
   async function normalize(file: File) {
     setNormalized(undefined);
@@ -301,50 +418,171 @@ function App() {
     );
     if (!title) setTitle(file.name.replace(/\.[^.]+$/, ""));
   }
-  const authPanel = (
-    <section className="panel narrow">
-      <p className="text-ledger">Local encrypted collection</p>
-      <h1>{exists ? "Welcome back." : "Your keys. Your collection."}</h1>
-      <p>
-        Your passphrase unlocks this browser’s vault. It stays on your device.
-      </p>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          act("Unlocking collection", unlock);
-        }}
-      >
+  const protectionChoice = (
+    <label className="check">
+      <input
+        type="checkbox"
+        checked={protectBrowser}
+        disabled={!!busy}
+        onChange={(e) => setProtectBrowser(e.target.checked)}
+      />
+      Protect this browser with a password
+    </label>
+  );
+  const passwordFields = (
+    <>
+      <label>
+        {exists ? "Passphrase" : "New passphrase"}
+        <input
+          type="password"
+          autoComplete={exists ? "current-password" : "new-password"}
+          value={passphrase}
+          onChange={(e) => setPassphrase(e.target.value)}
+          minLength={12}
+          required
+          disabled={!!busy}
+        />
+      </label>
+      {!exists && (
         <label>
-          Passphrase
+          Confirm passphrase
           <input
             type="password"
-            autoComplete={exists ? "current-password" : "new-password"}
-            value={passphrase}
-            onChange={(e) => setPassphrase(e.target.value)}
-            minLength={12}
+            autoComplete="new-password"
+            value={confirmPassphrase}
+            onChange={(e) => setConfirmPassphrase(e.target.value)}
             required
             disabled={!!busy}
           />
         </label>
+      )}
+    </>
+  );
+  const authPanel = (
+    <section className="panel narrow">
+      <p className="text-ledger">File custody · local keys</p>
+      <h1>
+        {exists ? "Unlock your saved files." : "Keep a file. Keep a way back."}
+      </h1>
+      <p>
+        {exists
+          ? "Your existing collection stays encrypted. Use its passphrase to reopen it."
+          : "Download a secret recovery file to keep your keys. A password is optional."}
+      </p>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          act("Opening file collection", unlock);
+        }}
+      >
+        {!exists && protectionChoice}
         {!exists && (
-          <label>
-            Confirm passphrase
-            <input
-              type="password"
-              autoComplete="new-password"
-              value={confirmPassphrase}
-              onChange={(e) => setConfirmPassphrase(e.target.value)}
-              required
-              disabled={!!busy}
-            />
-          </label>
+          <p className="muted">
+            {protectBrowser
+              ? "Encrypted keys stay in this browser. It locks after 15 minutes without activity. Your recovery download still needs to be kept private."
+              : "Session only: keys stay in memory. Reloading, closing this tab or ending the session clears them. Restore your downloaded recovery file to continue."}
+          </p>
         )}
-        <Button type="submit" primary disabled={!!busy || !deployment}>
-          {exists ? "Unlock collection" : "Create collection"}
+        {(exists || protectBrowser) && passwordFields}
+        <Button type="submit" primary disabled={!!busy || !persistentVault}>
+          {exists
+            ? "Unlock collection"
+            : protectBrowser
+              ? "Create protected collection"
+              : "Start file session"}
         </Button>
       </form>
-      {!exists && <Link to="/recovery">Restore a recovery file →</Link>}
+      {exists && (
+        <Button
+          disabled={!!busy}
+          onClick={() =>
+            act("Starting temporary file session", () => startSession())
+          }
+        >
+          Use a temporary file session
+        </Button>
+      )}
+      <Link to="/recovery">Restore a recovery file →</Link>
+      <p className="public-note">
+        Wallet minting and receiving need no local vault.{" "}
+        <Link to="/wallet">Open wallet →</Link>
+      </p>
     </section>
+  );
+  const walletPanel = (
+    <section className="panel narrow">
+      <p className="text-ledger">Your wallet is your collection</p>
+      <h1>Start with MetaMask.</h1>
+      <p>
+        Mint and receive collectibles directly into your wallet. Use it to sign
+        profile actions, with no separate ZFT password.
+      </p>
+      <Button primary onClick={() => setConnectRequest((n) => n + 1)}>
+        Connect wallet
+      </Button>
+      <p className="muted">
+        Connecting alone does not transfer a collectible or publish a profile.
+      </p>
+    </section>
+  );
+  const profilePanel = (
+    <>
+      {walletSession ? (
+        <section className="panel narrow">
+          <h1>Choose your public identity.</h1>
+          <p>
+            Use your wallet address as a separate profile. Existing local
+            profiles and their URLs stay unchanged.
+          </p>
+          <Button primary onClick={() => setProfileMode("wallet")}>
+            Use wallet profile
+          </Button>
+        </section>
+      ) : (
+        walletPanel
+      )}
+      <section className="panel narrow">
+        <h2>Already have a local profile?</h2>
+        <p>
+          Unlock its vault or restore its recovery file to keep the same
+          identity. Profiles are not merged automatically.
+        </p>
+        <Button
+          onClick={() => {
+            setProfileMode("local");
+            nav("/collection");
+          }}
+        >
+          Open local profile
+        </Button>
+      </section>
+    </>
+  );
+  const custodyChoice = (
+    value: "wallet" | "file",
+    change: (v: "wallet" | "file") => void,
+  ) => (
+    <fieldset className="custody-choice" disabled={!!busy || walletBusy}>
+      <legend>Keep this collectible in</legend>
+      <label className="check">
+        <input
+          type="radio"
+          name="custody"
+          checked={value === "wallet"}
+          onChange={() => change("wallet")}
+        />
+        My wallet · recommended
+      </label>
+      <label className="check">
+        <input
+          type="radio"
+          name="custody"
+          checked={value === "file"}
+          onChange={() => change("file")}
+        />
+        A transferable file
+      </label>
+    </fieldset>
   );
   function itemCard(item: PublicItem) {
     return (
@@ -367,13 +605,22 @@ function App() {
   }
   let content: ReactNode;
   if (routePath === "/mint")
-    content = !unlocked ? (
-      authPanel
+    content = (mintMode === "wallet" ? !walletSession : !unlocked) ? (
+      mintMode === "wallet" ? (
+        walletPanel
+      ) : (
+        authPanel
+      )
     ) : (
       <section className="flow-grid">
         <div className="panel">
           <p className="text-ledger">Create a collectible</p>
-          <h1>Make it a file.</h1>
+          <h1>
+            {mintMode === "wallet" ? "Make it yours." : "Make it a file."}
+          </h1>
+          {mintMode === "wallet" && (
+            <p className="mono wrap">Mint to {walletSession!.account}</p>
+          )}
           <p>
             Choose a picture. We strip its metadata locally and create a
             canonical PNG. Minting publishes the clean picture and its
@@ -421,29 +668,55 @@ function App() {
               !normalized ||
               !title.trim() ||
               !!busy ||
-              revisions.backedUp < 0
+              (mintMode === "wallet" &&
+                (!journal || !isZVMChain(walletSession?.chainId)))
             }
             onClick={() =>
-              act("Saving your key and submitting mint", async () => {
-                await flows.mint(
-                  vault!,
-                  deployment!,
-                  normalized!,
-                  title,
-                  description,
-                );
+              act("Preparing your mint", async () => {
+                if (mintMode === "wallet") {
+                  const record = await prepareWalletMint(
+                    journal!,
+                    deployment!,
+                    walletSession!,
+                    normalized!,
+                    title,
+                    description,
+                  );
+                  nav("/wallet");
+                  const job = await submitWallet(
+                    journal!,
+                    deployment!,
+                    walletSession!,
+                    record,
+                  );
+                  setNotice(
+                    `Wallet mint ${job.state}. Check Wallet for confirmation.`,
+                  );
+                } else {
+                  await flows.prepareMint(
+                    vault!,
+                    deployment!,
+                    normalized!,
+                    title,
+                    description,
+                  );
+                  await refresh();
+                  setReturnTo("/collection");
+                  nav("/recovery");
+                  setNotice(
+                    "Your file key is prepared. Save and confirm recovery, then resume the mint from your file collection.",
+                  );
+                }
                 setNormalized(undefined);
                 setPreview("");
-                nav("/collection");
-                setNotice(
-                  "Mint submitted. Your item key is saved; check the transaction for confirmation.",
-                );
               })
             }
           >
-            Mint on ZVM devnet
+            {mintMode === "wallet"
+              ? "Sign and mint to wallet"
+              : "Prepare file mint"}
           </Button>
-          {revisions.backedUp < 0 && (
+          {mintMode === "file" && revisions.backedUp < 0 && (
             <Link to="/recovery">Save recovery before minting →</Link>
           )}
         </div>
@@ -465,16 +738,24 @@ function App() {
       </section>
     );
   else if (routePath === "/claim")
-    content = !unlocked ? (
-      authPanel
+    content = (claimMode === "wallet" ? !walletSession : !unlocked) ? (
+      claimMode === "wallet" ? (
+        walletPanel
+      ) : (
+        authPanel
+      )
     ) : (
       <section className="panel narrow">
         <p className="text-ledger">Receive a collectible</p>
         <h1>Open. Verify. Claim.</h1>
         <p>
           Choose the original <span className="mono">.zft.png</span> attachment.
-          Its ownership key is read locally and stays in this browser.
+          Its ownership key is read locally. Choose where to receive the
+          collectible before claiming.
         </p>
+        {claimMode === "wallet" && (
+          <p className="mono wrap">Receive in {walletSession!.account}</p>
+        )}
         <label className="file-input">
           Open a transfer file
           <input
@@ -515,34 +796,62 @@ function App() {
             <Button
               primary
               disabled={
-                !ready || !!busy || !riskAccepted || revisions.backedUp < 0
+                !ready ||
+                !!busy ||
+                !riskAccepted ||
+                (claimMode === "wallet" &&
+                  (!journal || !isZVMChain(walletSession?.chainId)))
               }
               onClick={() =>
-                act("Saving your new key and claiming", async () => {
-                  const e = transfer.envelope;
-                  await flows.rotate(vault!, deployment!, {
-                    kind: "item",
-                    tokenId: e.tokenId,
-                    privateKey: e.authority.privateKey,
-                    previousKeys: [],
-                    image: base64(transfer.image),
-                    metadata: e.metadata,
-                    nonce: e.authority.ownershipNonce,
-                    status: "draft",
-                  });
+                act("Preparing your claim", async () => {
+                  if (claimMode === "wallet") {
+                    const record = await prepareWalletClaim(
+                      journal!,
+                      deployment!,
+                      walletSession!,
+                      transfer,
+                    );
+                    nav("/wallet");
+                    const job = await submitWallet(
+                      journal!,
+                      deployment!,
+                      walletSession!,
+                      record,
+                      transfer,
+                    );
+                    setNotice(
+                      `Wallet claim ${job.state}. Keep the original file until confirmation.`,
+                    );
+                  } else {
+                    const e = transfer.envelope;
+                    await flows.prepareRotation(vault!, deployment!, {
+                      kind: "item",
+                      tokenId: e.tokenId,
+                      privateKey: e.authority.privateKey,
+                      previousKeys: [],
+                      image: base64(transfer.image),
+                      metadata: e.metadata,
+                      nonce: e.authority.ownershipNonce,
+                      status: "draft",
+                    });
+                    await refresh();
+                    setReturnTo("/collection");
+                    nav("/recovery");
+                    setNotice(
+                      "Your fresh key is prepared. Save and confirm recovery, then resume this claim from your file collection.",
+                    );
+                  }
                   setTransfer(undefined);
-                  nav("/collection");
-                  setNotice(
-                    "Claim submitted. The new key and previous key are saved for recovery.",
-                  );
                 })
               }
             >
-              Claim with a fresh key
+              {claimMode === "wallet"
+                ? "Claim into this wallet"
+                : "Prepare a fresh file key"}
             </Button>
           </>
         )}
-        {revisions.backedUp < 0 && (
+        {claimMode === "file" && revisions.backedUp < 0 && (
           <Link to="/recovery">Save recovery before claiming →</Link>
         )}
       </section>
@@ -558,6 +867,11 @@ function App() {
         </p>
         {unlocked ? (
           <>
+            <p className="callout">
+              {vault?.persistent
+                ? "This browser remembers encrypted keys and locks after 15 minutes of inactivity."
+                : "Session only. Reloading or closing this tab clears your keys. Keep a downloaded recovery file before leaving."}
+            </p>
             <p>
               Saved snapshot:{" "}
               <span className="mono">
@@ -609,17 +923,62 @@ function App() {
               </>
             )}
             <p className="muted">
-              Save a new snapshot after each mint or claim. Earlier backups
-              cannot recreate later item keys.
+              Save a new snapshot whenever you prepare a file key, before
+              submitting its mint or transfer. Earlier backups cannot recreate
+              later item keys.
             </p>
+            {!vault?.persistent && !exists && (
+              <section className="protection-panel">
+                <h2>Remember encrypted keys here</h2>
+                <p>
+                  Keep this session in the browser with a passphrase. Your
+                  downloaded recovery file still gives full access without that
+                  passphrase.
+                </p>
+                {passwordFields}
+                <Button
+                  disabled={
+                    !!busy ||
+                    passphrase.length < 12 ||
+                    passphrase !== confirmPassphrase ||
+                    revisions.current !== revisions.backedUp
+                  }
+                  onClick={() =>
+                    act("Protecting browser storage", async () => {
+                      const snapshot = await vault!.backup();
+                      if (
+                        (await vault!.revisions()).backedUp !==
+                        snapshot.revision
+                      )
+                        throw new Error(
+                          "Save and confirm current recovery before remembering these keys.",
+                        );
+                      await persistentVault!.restore(snapshot.text, passphrase);
+                      vault!.close();
+                      activateVault(persistentVault);
+                      setExists(true);
+                      setPassphrase("");
+                      setConfirmPassphrase("");
+                      await refresh(persistentVault);
+                      setNotice(
+                        "Keys are now remembered in encrypted browser storage.",
+                      );
+                    })
+                  }
+                >
+                  Protect this browser with a password
+                </Button>
+              </section>
+            )}
           </>
         ) : exists ? (
           authPanel
         ) : (
           <>
             <p>
-              Restore into an empty browser vault. Your new local passphrase
-              does not change the recovery file.
+              Restore your keys for this session, or choose password protection
+              to remember them in this browser. This does not change the
+              recovery file.
             </p>
             <label>
               Recovery file
@@ -629,29 +988,34 @@ function App() {
                 onChange={(e) => setRestore(e.target.files?.[0])}
               />
             </label>
-            <label>
-              New passphrase
-              <input
-                type="password"
-                autoComplete="new-password"
-                value={passphrase}
-                onChange={(e) => setPassphrase(e.target.value)}
-                minLength={12}
-              />
-            </label>
+            {protectionChoice}
+            {protectBrowser && passwordFields}
             <Button
               disabled={
-                !restore || !deployment || passphrase.length < 12 || !!busy
+                !restore ||
+                !deployment ||
+                (protectBrowser &&
+                  (passphrase.length < 12 ||
+                    passphrase !== confirmPassphrase)) ||
+                !!busy
               }
               onClick={() =>
                 act("Restoring recovery snapshot", async () => {
                   if (restore!.size > 100_000_000)
                     throw new Error("Recovery file is too large.");
-                  await vault!.restore(await restore!.text(), passphrase);
+                  if (protectBrowser) {
+                    await persistentVault!.restore(
+                      await restore!.text(),
+                      passphrase,
+                    );
+                    activateVault(persistentVault);
+                    setExists(true);
+                    setUnlocked(true);
+                    if (!walletSession) setProfileMode("local");
+                    await refresh(persistentVault);
+                  } else await startSession(await restore!.text());
                   setPassphrase("");
-                  setExists(true);
-                  setUnlocked(true);
-                  await refresh();
+                  setConfirmPassphrase("");
                   nav("/collection");
                   setNotice(
                     "Restored. Refresh each item to verify its current ownership.",
@@ -673,11 +1037,15 @@ function App() {
       <>
         <div className="section-heading">
           <div>
-            <p className="text-ledger">Your local vault</p>
+            <p className="text-ledger">
+              {vault?.persistent
+                ? "Encrypted browser storage"
+                : "Session-only file keys"}
+            </p>
             <h1>
-              My collection<span className="heading-dot">.</span>
+              My files<span className="heading-dot">.</span>
             </h1>
-            <p className="mono">Profile {short(profile)}</p>
+            <p className="mono">Local profile {short(localProfile)}</p>
             <Link to="/settings/profile">Edit public profile →</Link>
           </div>
           <div className="actions">
@@ -759,6 +1127,7 @@ function App() {
                           disabled={!!busy || !ready}
                           onClick={() =>
                             act("Resuming saved operation", async () => {
+                              await vault!.requireItemBackup(item);
                               if (item.operation?.kind === "mint")
                                 await signedRequest(
                                   "/api/uploads",
@@ -801,9 +1170,16 @@ function App() {
                           disabled={!!busy || !ready}
                           onClick={() =>
                             act("Rotating to a new private key", async () => {
-                              await flows.rotate(vault!, deployment!, item);
+                              await flows.prepareRotation(
+                                vault!,
+                                deployment!,
+                                item,
+                              );
+                              await refresh();
+                              setReturnTo("/collection");
+                              nav("/recovery");
                               setNotice(
-                                "Cancellation submitted. Old copies stop working after the rotation is confirmed.",
+                                "New cancellation key prepared. Save recovery, then resume the rotation. Old copies work until the rotation is confirmed.",
                               );
                             })
                           }
@@ -811,10 +1187,10 @@ function App() {
                           Cancel old copies
                         </Button>
                         <Button
-                          disabled={!!busy}
+                          disabled={!!busy || !identity}
                           onClick={() =>
                             act("Publishing an ownership proof", async () => {
-                              const p = await vault!.profile();
+                              const p = identity!;
                               const proof = {
                                 tokenId: item.tokenId,
                                 nonce: item.nonce,
@@ -839,10 +1215,10 @@ function App() {
                             })
                           }
                         >
-                          Publish to my profile
+                          Publish to selected profile
                         </Button>
                         <Button
-                          disabled={!!busy}
+                          disabled={!!busy || !identity}
                           onClick={() =>
                             act(
                               "Removing the public ownership link",
@@ -850,7 +1226,7 @@ function App() {
                                 await signedRequest(
                                   "/api/unpublish",
                                   { tokenId: item.tokenId },
-                                  await vault!.profile(),
+                                  identity!,
                                 );
                                 setNotice(
                                   "Public ownership link removed. Mint provenance and on-chain history remain public.",
@@ -888,26 +1264,38 @@ function App() {
       </>
     );
   else if (routePath === "/settings/profile")
-    content =
-      unlocked && vault ? (
-        <EditProfile vault={vault} nav={nav} onError={setError} />
-      ) : (
-        authPanel
-      );
+    content = identity ? (
+      <EditProfile
+        key={profile}
+        identity={identity}
+        nav={nav}
+        onError={setError}
+      />
+    ) : (
+      profilePanel
+    );
   else if (routePath === "/wallet" && deployment)
     content = (
       <WalletPage
         session={walletSession}
+        journal={journal}
+        onConnect={() => setConnectRequest((n) => n + 1)}
+        onWalletProfile={() => {
+          setProfileMode("wallet");
+          nav("/settings/profile");
+        }}
         vault={unlocked ? vault : undefined}
         deployment={deployment}
         items={items}
         nav={(to) => {
           if (to === "/collection" && !unlocked) setReturnTo("/wallet");
+          if (to === "/mint") setMintMode("wallet");
+          if (to === "/claim") setClaimMode("wallet");
           nav(to);
         }}
         onRefresh={refresh}
         onBusy={setWalletBusy}
-        appBusy={!!busy}
+        appBusy={!!busy || walletBusy}
         sponsor={ready}
       />
     );
@@ -929,11 +1317,11 @@ function App() {
         path={path}
         nav={nav}
         onError={setError}
-        vault={unlocked ? vault : undefined}
+        identity={identity}
         viewer={profile}
         onUnlock={(to) => {
           setReturnTo(to);
-          nav("/collection");
+          nav("/settings/profile");
         }}
       />
     );
@@ -946,26 +1334,35 @@ function App() {
           <li>
             <h2>Mint a picture</h2>
             <p>
-              Your browser cleans the image, generates a unique item key, and
-              signs a mint authorization. A sponsor submits it to ZVM.
+              Connect MetaMask and mint into your wallet. Your wallet signs the
+              authorization and a sponsor submits it to ZVM. No separate ZFT
+              password is needed.
             </p>
           </li>
           <li>
             <h2>Pass on the original file</h2>
             <p>
-              The downloaded PNG carries that item’s key. Send it as an
-              attachment. Screenshots and social media recompression remove
-              transferability.
+              Choose Make transferable file to move an item to a fresh file key.
+              Save its recovery file before authorizing the move. The downloaded
+              PNG carries that item’s key. Send it as an attachment. Screenshots
+              and social media recompression remove transferability.
             </p>
           </li>
           <li>
-            <h2>Claim with a fresh key</h2>
+            <h2>Receive into your wallet or a new file</h2>
             <p>
               The recipient rotates ownership on-chain. Earlier copies become
               stale. The sender can cancel by winning the same race.
             </p>
           </li>
         </ol>
+        <p>
+          File keys can stay in memory for this session, backed up in a
+          downloaded recovery file. Optionally protect them with a password to
+          remember them in this browser. Protected storage locks after 15
+          minutes of inactivity. A downloaded recovery file is a secret backup;
+          the browser password does not encrypt that download.
+        </p>
         <p>
           Ownership history is public. This alpha runs on ZVM devnet, which can
           reset. No marketplace, payments, or mainnet assets are enabled.
@@ -1010,7 +1407,7 @@ function App() {
                 </Link>
               </div>
               <p className="hero-note text-ledger">
-                Public ownership · local keys · sponsored devnet gas
+                Your wallet · transferable files · sponsored devnet gas
               </p>
             </div>
             <div className="hero-file">
@@ -1108,7 +1505,11 @@ function App() {
           </nav>
           <div className="actions">
             <ThemeControl />
-            <WalletControl onChange={setWalletSession} nav={nav} />
+            <WalletControl
+              onChange={setWalletSession}
+              nav={nav}
+              openRequest={connectRequest}
+            />
             <button
               className="nom-btn nom-btn--outline nom-btn--default mobile-menu-button"
               aria-expanded={menuOpen}
@@ -1119,13 +1520,26 @@ function App() {
             </button>
             <Link
               className="nom-btn nom-btn--outline nom-btn--default"
-              to="/collection"
+              to="/wallet"
             >
               My collection
             </Link>
             {unlocked && (
-              <Button onClick={lock} disabled={!!busy || walletBusy}>
-                Lock
+              <Button
+                onClick={() => {
+                  if (
+                    !vault?.persistent &&
+                    revisions.current !== revisions.backedUp
+                  ) {
+                    nav("/recovery");
+                    setNotice(
+                      "Save and confirm current recovery before ending this file session.",
+                    );
+                  } else lock();
+                }}
+                disabled={!!busy || walletBusy}
+              >
+                {vault?.persistent ? "Lock files" : "End file session"}
               </Button>
             )}
           </div>
@@ -1143,7 +1557,7 @@ function App() {
             <Link to="/how-it-works">How it works</Link>
             <Link to="/mint">Mint a picture</Link>
             <Link to="/claim">Receive a file</Link>
-            <Link to="/collection">My collection</Link>
+            <Link to="/collection">My files</Link>
             <Link to="/recovery">Recovery</Link>
           </nav>
         )}
@@ -1162,6 +1576,44 @@ function App() {
           )}
           {notice && <p className="callout success">{notice}</p>}
         </div>
+        {(walletSession || exists || unlocked) && (
+          <div className="identity-bar">
+            <label>
+              Profile identity
+              <select
+                value={profileMode}
+                disabled={!!busy || walletBusy}
+                onChange={(e) =>
+                  setProfileMode(e.target.value as "wallet" | "local")
+                }
+              >
+                <option value="wallet">
+                  Wallet
+                  {walletSession
+                    ? ` · ${short(walletSession.account)}`
+                    : " · connect to use"}
+                </option>
+                <option value="local">
+                  Local profile
+                  {localProfile
+                    ? ` · ${short(localProfile)}`
+                    : " · unlock or restore"}
+                </option>
+              </select>
+            </label>
+            <Link to="/settings/profile">Edit profile</Link>
+            <Link to="/collection">My files</Link>
+            {identity && (
+              <Link to={`/p/${profile}`}>View public profile ↗</Link>
+            )}
+            <span className="muted">
+              Profiles stay separate. Switching does not move items or merge
+              identities.
+            </span>
+          </div>
+        )}
+        {routePath === "/mint" && custodyChoice(mintMode, setMintMode)}
+        {routePath === "/claim" && custodyChoice(claimMode, setClaimMode)}
         {content}
       </main>
       <footer>

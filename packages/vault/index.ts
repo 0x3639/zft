@@ -12,7 +12,7 @@ import {
   type Metadata,
   type Operation,
 } from "../protocol";
-import type { Hex } from "viem";
+import { sha256, type Hex } from "viem";
 
 const VERSION = 1,
   ITERATIONS = 600_000;
@@ -35,6 +35,7 @@ type Header = {
   root: Sealed;
   revision: number;
   backedUpRevision: number;
+  backedUpKeys?: Hex[];
 };
 const sealedSchema = z
   .object({ iv: z.string().max(32), ciphertext: z.string().max(20_000_000) })
@@ -152,8 +153,14 @@ async function unseal(key: CryptoKey, data: Sealed, aad: string) {
 export class Vault {
   private root?: Uint8Array;
   private key?: CryptoKey;
+  private memory = {
+    records: new Map<string, Sealed>(),
+    revision: 0,
+    backedUpRevision: -1,
+    backedUpKeys: [] as Hex[],
+  };
   private constructor(
-    private db: IDBPDatabase,
+    private db: IDBPDatabase | undefined,
     readonly namespace: string,
   ) {}
   static async open(
@@ -169,10 +176,42 @@ export class Vault {
     });
     return new Vault(db, namespace);
   }
+  static async session(
+    deployment: Pick<Deployment, "chainId" | "contract">,
+    recovery?: string,
+  ) {
+    const v = new Vault(
+      undefined,
+      `${deployment.chainId}:${deployment.contract.toLowerCase()}`,
+    );
+    if (recovery !== undefined) await v.restore(recovery);
+    else {
+      v.root = bytes(32);
+      v.key = await rootKey(v.root);
+      await v.put("profile", {
+        kind: "profile",
+        privateKey: generatePrivateKey(),
+      });
+    }
+    return v;
+  }
+  get persistent() {
+    return !!this.db;
+  }
+  private rawGet(id: string): Promise<Sealed | undefined> {
+    return this.db
+      ? this.db.get("records", id)
+      : Promise.resolve(this.memory.records.get(id));
+  }
   async exists() {
-    return !!(await this.db.get("meta", "header"));
+    return this.db ? !!(await this.db.get("meta", "header")) : this.unlocked;
   }
   async revisions(): Promise<{ current: number; backedUp: number }> {
+    if (!this.db)
+      return {
+        current: this.memory.revision,
+        backedUp: this.memory.backedUpRevision,
+      };
     const h: Header = await this.db.get("meta", "header");
     return { current: h?.revision ?? 0, backedUp: h?.backedUpRevision ?? -1 };
   }
@@ -183,6 +222,7 @@ export class Vault {
     return `zft-vault/1:${this.namespace}:${id}`;
   }
   async create(passphrase: string) {
+    if (!this.db) throw new Error("Use session setup for temporary keys.");
     if (passphrase.length < 12)
       throw new Error("Use a passphrase with at least 12 characters.");
     if (await this.exists())
@@ -223,6 +263,10 @@ export class Vault {
     this.key = key;
   }
   async unlock(passphrase: string) {
+    if (!this.db)
+      throw new Error(
+        "Restore your recovery file to reopen session-only keys.",
+      );
     const h: Header = await this.db.get("meta", "header");
     if (!h || h.version !== 1) throw new Error("No supported vault found.");
     try {
@@ -242,17 +286,25 @@ export class Vault {
     this.root?.fill(0);
     this.root = undefined;
     this.key = undefined;
+    if (!this.db)
+      this.memory = {
+        records: new Map(),
+        revision: 0,
+        backedUpRevision: -1,
+        backedUpKeys: [],
+      };
   }
   close() {
     this.lock();
-    this.db.close();
+    this.db?.close();
   }
   private requireKey() {
     if (!this.key) throw new Error("Unlock your collection first.");
     return this.key;
   }
   async put(id: string, record: VaultRecord, expected?: ItemRecord | null) {
-    const before = await this.db.get("records", id);
+    const key = this.requireKey();
+    const before = await this.rawGet(id);
     if (expected !== undefined) {
       const current = before
         ? recordSchema.parse(
@@ -287,10 +339,21 @@ export class Vault {
     }
     const checked = recordSchema.parse(record);
     const sealed = await seal(
-      this.requireKey(),
+      key,
       enc.encode(canonical(checked)),
       this.aad(id),
     );
+    if (this.key !== key)
+      throw new Error("Collection locked during this action.");
+    if (!this.db) {
+      if (
+        JSON.stringify(this.memory.records.get(id)) !== JSON.stringify(before)
+      )
+        throw new Error("This item changed. Refresh before continuing.");
+      this.memory.records.set(id, sealed);
+      this.memory.revision++;
+      return;
+    }
     const tx = this.db.transaction(["meta", "records"], "readwrite");
     if (
       JSON.stringify(await tx.objectStore("records").get(id)) !==
@@ -311,7 +374,7 @@ export class Vault {
   }
   async get(id: string): Promise<VaultRecord | undefined> {
     const key = this.requireKey(),
-      data: Sealed | undefined = await this.db.get("records", id);
+      data: Sealed | undefined = await this.rawGet(id);
     return data
       ? recordSchema.parse(
           JSON.parse(dec.decode(await unseal(key, data, this.aad(id)))),
@@ -325,7 +388,9 @@ export class Vault {
     return privateKeyToAccount(record.privateKey);
   }
   async items() {
-    const keys = await this.db.getAllKeys("records");
+    const keys = this.db
+      ? await this.db.getAllKeys("records")
+      : [...this.memory.records.keys()];
     const items: ItemRecord[] = [];
     for (const key of keys) {
       const r = await this.get(String(key));
@@ -338,6 +403,18 @@ export class Vault {
   }
   async backup() {
     this.requireKey();
+    if (!this.db)
+      return {
+        revision: this.memory.revision,
+        text: canonical({
+          format: "zft-recovery",
+          version: 1,
+          namespace: this.namespace,
+          root: base64(this.root!),
+          revision: this.memory.revision,
+          records: Object.fromEntries(this.memory.records),
+        }),
+      };
     const tx = this.db.transaction(["meta", "records"]);
     const h: Header = await tx.objectStore("meta").get("header");
     const keys = await tx.objectStore("records").getAllKeys(),
@@ -359,6 +436,21 @@ export class Vault {
     };
   }
   async acknowledgeBackup(revision: number) {
+    const backedUpKeys = [
+      ...new Set(
+        (await this.items())
+          .flatMap((i) => [i.privateKey, ...i.previousKeys])
+          .map((k) => sha256(k)),
+      ),
+    ];
+    if (!this.db) {
+      this.requireKey();
+      if (revision !== this.memory.revision)
+        throw new Error("Your collection changed. Save a new recovery file.");
+      this.memory.backedUpRevision = revision;
+      this.memory.backedUpKeys = backedUpKeys;
+      return;
+    }
     const tx = this.db.transaction("meta", "readwrite"),
       h: Header = await tx.store.get("header");
     if (h.revision !== revision) {
@@ -366,19 +458,39 @@ export class Vault {
       await tx.done.catch(() => {});
       throw new Error("Your collection changed. Save a new recovery file.");
     }
-    await tx.store.put({ ...h, backedUpRevision: revision }, "header");
+    await tx.store.put(
+      { ...h, backedUpRevision: revision, backedUpKeys },
+      "header",
+    );
     await tx.done;
   }
   async requireBackup() {
     if ((await this.revisions()).backedUp < 0)
       throw new Error("Save and confirm your recovery file first.");
   }
-  async restore(text: string, passphrase: string) {
+  async requireItemBackup(item: ItemRecord) {
+    this.requireKey();
+    const backedUpKeys = this.db
+      ? (((await this.db.get("meta", "header")) as Header)?.backedUpKeys ?? [])
+      : this.memory.backedUpKeys;
+    if (
+      ![item.privateKey, ...item.previousKeys].every((k) =>
+        backedUpKeys.includes(sha256(k)),
+      )
+    )
+      throw new Error(
+        "Save and confirm a recovery file containing this item's keys before submitting.",
+      );
+  }
+  async restore(text: string, passphrase?: string) {
     if (await this.exists())
       throw new Error(
         "Restore into a fresh browser profile to preserve this vault.",
       );
-    if (text.length > 100_000_000 || passphrase.length < 12)
+    if (
+      text.length > 100_000_000 ||
+      (this.db && (!passphrase || passphrase.length < 12))
+    )
       throw new Error("Invalid recovery file or short passphrase.");
     const bundle = z
       .object({
@@ -399,6 +511,7 @@ export class Vault {
     )
       throw new Error("Invalid recovery snapshot.");
     const key = await rootKey(root);
+    const backedUpKeys: Hex[] = [];
     for (const [id, sealed] of Object.entries(bundle.records)) {
       const r = recordSchema.parse(
         JSON.parse(dec.decode(await unseal(key, sealed, this.aad(id)))),
@@ -406,18 +519,34 @@ export class Vault {
       if (id !== (r.kind === "profile" ? "profile" : `item:${r.tokenId}`))
         throw new Error("Recovery record identity mismatch.");
       privateKeyToAccount(r.privateKey);
+      if (r.kind === "item")
+        backedUpKeys.push(
+          ...[r.privateKey, ...r.previousKeys].map((k) => sha256(k)),
+        );
+    }
+    if (!this.db) {
+      this.memory = {
+        records: new Map(Object.entries(bundle.records)),
+        revision: bundle.revision,
+        backedUpRevision: bundle.revision,
+        backedUpKeys,
+      };
+      this.root = root;
+      this.key = key;
+      return;
     }
     const salt = bytes(16),
       header: Header = {
         version: 1,
         salt: base64(salt),
         root: await seal(
-          await passwordKey(passphrase, salt),
+          await passwordKey(passphrase!, salt),
           root,
           this.aad("root"),
         ),
         revision: bundle.revision,
         backedUpRevision: bundle.revision,
+        backedUpKeys,
       };
     const tx = this.db.transaction(["meta", "records"], "readwrite");
     if (await tx.objectStore("meta").get("header")) {

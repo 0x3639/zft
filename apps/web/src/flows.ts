@@ -33,11 +33,13 @@ import {
   type ItemRecord,
 } from "../../../packages/vault";
 import { api, ApiError, signedRequest } from "./api";
+import type { Identity } from "./identity";
 export type Job = {
   operationId: Hex;
   txHash: Hex;
   state: "submitted" | "included" | "confirmed" | "failed";
   blockNumber?: string;
+  confirmationPolicy?: string;
 };
 export function download(
   data: Uint8Array | string,
@@ -56,9 +58,15 @@ async function prepared(vault: Vault, d: Deployment) {
   await checkDeployment(d);
   return vault.profile();
 }
-export async function submit(vault: Vault, d: Deployment, item: ItemRecord) {
+export async function submit(
+  vault: Vault,
+  d: Deployment,
+  item: ItemRecord,
+  identity?: Identity,
+) {
   if (!item.operation) throw new Error("No saved operation.");
   const profile = await prepared(vault, d);
+  await vault.requireItemBackup(item);
   let existing: Job | undefined;
   if (item.operationId) {
     try {
@@ -144,7 +152,7 @@ export async function submit(vault: Vault, d: Deployment, item: ItemRecord) {
   const job = await signedRequest<Job>(
     "/api/operations",
     item.operation,
-    profile,
+    identity ?? profile,
   );
   await vault.saveItem(
     {
@@ -157,7 +165,7 @@ export async function submit(vault: Vault, d: Deployment, item: ItemRecord) {
   );
   return job;
 }
-export async function mint(
+export async function prepareMint(
   vault: Vault,
   d: Deployment,
   normalized: {
@@ -224,10 +232,16 @@ export async function mint(
   };
   // The independent item key and exact signed request are durable before any network mutation.
   await vault.saveItem(record);
+  return record;
+}
+export async function mint(...args: Parameters<typeof prepareMint>) {
+  const [vault, d] = args;
+  const record = await prepareMint(...args);
+  await vault.requireItemBackup(record);
   await signedRequest(
     "/api/uploads",
-    { image: record.image, metadata },
-    profile,
+    { image: record.image, metadata: record.metadata },
+    await vault.profile(),
   );
   return submit(vault, d, record);
 }
@@ -250,7 +264,11 @@ export async function readTransfer(file: File, d: Deployment) {
     throw new Error("This copy is stale or has already been claimed.");
   return imported;
 }
-export async function rotate(vault: Vault, d: Deployment, old: ItemRecord) {
+export async function prepareRotation(
+  vault: Vault,
+  d: Deployment,
+  old: ItemRecord,
+) {
   await prepared(vault, d);
   const state = await ownership(d.contract, old.tokenId);
   const previous = [old.privateKey, ...old.previousKeys].find((k) =>
@@ -297,6 +315,10 @@ export async function rotate(vault: Vault, d: Deployment, old: ItemRecord) {
   delete record.txHash;
   delete record.walletTransfer;
   await vault.saveItem(record);
+  return record;
+}
+export async function rotate(vault: Vault, d: Deployment, old: ItemRecord) {
+  const record = await prepareRotation(vault, d, old);
   return submit(vault, d, record);
 }
 export async function reconcile(vault: Vault, d: Deployment, item: ItemRecord) {

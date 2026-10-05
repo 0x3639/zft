@@ -39,6 +39,6 @@ GitHub checks may be absent even when the site is serving correctly. The Cloudfl
 
 The real alpha is hosted separately at [devnet.zft.foo](https://devnet.zft.foo/) using `wrangler.devnet.jsonc`. It includes the API, R2/D1, sponsor/indexer Durable Objects, profiles, social actions, and unique sharing images. Routes `zft.foo/art/*` and `zft.foo/metadata/*` serve canonical media from the app Worker; the apex homepage still uses the prototype Git integration above.
 
-Follow [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for the actual resources, secret handling, migrations, deployment command (`pnpm run deploy`), and remaining beta gates. This milestone has not changed the prototype's Git settings or merged the app branch.
+Follow [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for the actual resources, secret handling, migrations, deployment command (`pnpm run deploy`), and remaining beta gates. PR 1 was merged into main and its CI/prototype Git deployment passed. Devnet app increments use the explicit app deployment command; apex promotion remains R8.
 
 Official references: [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/), [Static Assets](https://developers.cloudflare.com/workers/static-assets/), [Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/).

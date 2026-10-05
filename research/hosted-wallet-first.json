@@ -1,0 +1,34 @@
+{
+  "phase": 4,
+  "origin": "https://devnet.zft.foo",
+  "contract": "0x42666265e38f2d1b786e8af8e9576224a95b90ae",
+  "walletA": "0x94Ff2fBb2A0df0466d6e9CdFc150d3E3A7a84e4b",
+  "walletB": "0x322DE4a296a3e5694a8923E3e3e44D65A061379D",
+  "transactions": [
+    {
+      "action": "mint-direct-to-wallet",
+      "txHash": "0xc041c43c3877a8897879a4ffc333e59a708d242788ce661e719ab53d828951c1",
+      "block": "95382"
+    },
+    {
+      "action": "wallet-to-session-file",
+      "txHash": "0x6b7a3d4340b04c04ab527973f2bc6f0831f0ce6fa1303f43123bde7ac02e24ff",
+      "block": "95393"
+    },
+    {
+      "action": "claim-file-direct-to-other-wallet",
+      "txHash": "0x6b5b3dee2912168b2e30cc436b8ca54b01dfe8b48743c6be7f6953ec135b493e",
+      "block": "95400"
+    }
+  ],
+  "checks": [
+    "direct wallet mint with no file vault",
+    "wallet profile authenticated with scoped personal_sign",
+    "wallet-to-file with acknowledged session recovery",
+    "file claimed directly into a second wallet",
+    "old file rejected",
+    "wallet journal contains no wallet or imported file keys",
+    "generated SDK provider only; MetaMask/device acceptance remains open"
+  ],
+  "tokenId": "24541820492725923539748211751166535200001190311783571730626979402421815641339"
+}

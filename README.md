@@ -4,7 +4,7 @@
 
 ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for Cloudflare. A PNG carries a disposable ownership key. Claiming the file rotates ownership on-chain, invalidating previously exported copies. JPG and PNG inputs are normalized locally into canonical PNGs.
 
-**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). It includes mint/export/claim/cancel/recovery, wallet/file custody transitions, signed public profiles and social actions, opt-in collection proofs, a D1 chain index, and unique per-page PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates.
+**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). MetaMask-first minting, receiving and profile actions need no ZFT password. File custody offers session-only keys or optional encrypted browser storage, with recovery saved before moving ownership. The app also includes export/cancel/recovery, wallet/file custody transitions, signed profiles and social actions, opt-in collection proofs, a D1 chain index, and page-specific PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates, including actual MetaMask/phone acceptance.
 
 [zft.foo](https://zft.foo/) still displays the design prototype at its root. Its `/art/*` and `/metadata/*` routes now serve the real contract's immutable public media. The review app has an isolated sponsor account and Cloudflare storage.
 

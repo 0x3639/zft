@@ -17,6 +17,82 @@ const record = (): ItemRecord => ({
   status: "pending",
 });
 describe("encrypted local vault and recovery", () => {
+  it("keeps a passwordless session out of IndexedDB and restores its keys from the existing recovery format", async () => {
+    const before = await indexedDB.databases();
+    const session = await Vault.session(deployment);
+    expect(session.persistent).toBe(false);
+    await session.saveItem(record());
+    await expect(session.requireItemBackup(record())).rejects.toThrow(
+      "recovery file",
+    );
+    const snapshot = await session.backup();
+    await session.acknowledgeBackup(snapshot.revision);
+    await session.requireItemBackup(record());
+    expect(await indexedDB.databases()).toEqual(before);
+    const identity = (await session.profile()).address;
+    session.close();
+    expect(session.unlocked).toBe(false);
+    await expect(session.items()).resolves.toEqual([]);
+    const restored = await Vault.session(deployment, snapshot.text);
+    expect((await restored.profile()).address).toBe(identity);
+    expect(await restored.items()).toEqual([record()]);
+    await restored.requireItemBackup(record());
+    restored.close();
+  });
+  it("requires a backup containing newly generated keys but allows status updates with the same backed-up keys", async () => {
+    const session = await Vault.session(deployment);
+    const early = await session.backup();
+    await session.acknowledgeBackup(early.revision);
+    await session.saveItem(record());
+    await expect(session.requireItemBackup(record())).rejects.toThrow(
+      "recovery file",
+    );
+    const latest = await session.backup();
+    await session.acknowledgeBackup(latest.revision);
+    await session.saveItem({ ...record(), status: "owned" });
+    await session.requireItemBackup(record());
+    const rotated = {
+      ...record(),
+      privateKey: generatePrivateKey(),
+      previousKeys: [key],
+    };
+    await session.saveItem(rotated);
+    await expect(session.requireItemBackup(rotated)).rejects.toThrow(
+      "recovery file",
+    );
+    session.close();
+  });
+  it("upgrades a recovered session into password protection while preserving identities and existing encrypted vaults", async () => {
+    const session = await Vault.session(deployment);
+    await session.saveItem(record());
+    const snapshot = await session.backup();
+    const profile = (await session.profile()).address;
+    const name = crypto.randomUUID(),
+      protectedVault = await Vault.open(deployment, name);
+    await protectedVault.restore(snapshot.text, pass);
+    protectedVault.close();
+    session.close();
+    const reopened = await Vault.open(deployment, name);
+    await expect(reopened.unlock("wrong password")).rejects.toThrow(
+      "Unable to unlock",
+    );
+    await reopened.unlock(pass);
+    expect((await reopened.profile()).address).toBe(profile);
+    expect(await reopened.items()).toEqual([record()]);
+    await reopened.requireItemBackup(record());
+    await expect(reopened.restore(snapshot.text, pass)).rejects.toThrow(
+      "fresh browser",
+    );
+    reopened.close();
+  });
+  it("does not finish saving a session key after manual lock", async () => {
+    const session = await Vault.session(deployment);
+    const saving = session.saveItem(record());
+    session.lock();
+    await expect(saving).rejects.toThrow();
+    expect(session.unlocked).toBe(false);
+    expect(await session.items()).toEqual([]);
+  });
   it("rejects a competing tab instead of overwriting a newly persisted ownership key", async () => {
     const name = crypto.randomUUID(),
       a = await Vault.open(deployment, name);

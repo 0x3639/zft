@@ -301,6 +301,28 @@ it("performs the custody round trip with scoped signatures and rejects the old e
   expect(next.privateKey).not.toBe(prepared.privateKey);
   expect(next.previousKeys).toContain(prepared.privateKey);
 });
+it("renews a reverted wallet transfer in the same second without replacing its backed-up key", async () => {
+  vi.spyOn(Date, "now").mockReturnValue(Date.now());
+  const s = await setup(),
+    prepared = await s.prepare();
+  await backup(s.vault);
+  const first = await authorizeWalletFile(
+    s.vault,
+    deployment,
+    s.session,
+    prepared,
+  );
+  const before = await s.saved();
+  s.jobs.set(first.operationId, { ...first, state: "failed" });
+  await authorizeWalletFile(s.vault, deployment, s.session, before);
+  const after = await s.saved();
+  expect(after.operationId).not.toBe(before.operationId);
+  expect(after.privateKey).toBe(before.privateKey);
+  expect(after.operation?.authorization).toMatchObject({
+    newOwner: privateKeyToAccount(before.privateKey).address,
+  });
+  expect(s.sign).toHaveBeenCalledTimes(2);
+});
 
 it("preserves a newer record when another tab edits during the signature prompt", async () => {
   const s = await setup(),
