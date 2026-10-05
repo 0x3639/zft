@@ -1,0 +1,245 @@
+# ZFT complete website functional specification
+
+Revision 1 · 2026-10-04 · reference audit and implementation plan.
+
+This is the central specification for reproducing NonFungible Cash's website functionality with the Zenon design system and ZVM ownership. It covers the full intended product, including deferred features. It is **not a declaration that every feature is implemented or every reference operation has been tested**. The [reference action ledger](REFERENCE-AUDIT.md) records actual clicks, results, and unverified flows. The [hosted alpha runbook](DEVNET-ALPHA.md) records what is deployed.
+
+The implementation baseline for this comparison is `53eb78b`; subsequent documentation-only commits do not add functionality. Live alpha: [devnet.zft.foo](https://devnet.zft.foo/). Intended app domain: **zft.foo**. The apex root currently serves the design prototype. Do not promote it merely because this specification is complete.
+
+For product interactions and route spellings, this revision supersedes conflicting draft text in older documents. The frozen codec, deployed manifest, contract source, and current API schemas remain authoritative for existing files and transactions. [SPEC](SPEC.md), [CONTRACTS](CONTRACTS.md), [ARCHITECTURE](ARCHITECTURE.md), [PAGES-AND-SHARING](PAGES-AND-SHARING.md), and [MARKETPLACE](MARKETPLACE.md) supply the detailed protocol, infrastructure, sharing, and expansion designs. Proposed schema additions below require versioned implementation and review; they do not silently change the deployed protocol.
+
+## 1. Product and scope
+
+A collector creates or receives a picture containing a disposable ownership key. Claiming rotates the token to a fresh key on ZVM. Sending or downloading a file alone does not transfer ownership. All holders of the current file can race to claim; a successful rotation invalidates previous copies. Public art, proof downloads, and social previews never contain this capability.
+
+The reference uses Cashu/Pointcheval–Sanders credentials and describes private transfers. ZFT uses public ERC-721 ownership and signed possession statements. Reproduce the journeys and page composition while explaining the actual ZFT guarantees. Neither byte-hash uniqueness nor a valid mint signature proves copyright or authorship of the depicted work.
+
+| Scope | Included functionality | State at baseline |
+| --- | --- | --- |
+| Core devnet | Vault, recovery, mint, PNG file export, claim, cancellation, public item verification | Implemented; SDK/Worker canaries passed; real two-browser/phone acceptance pending |
+| Public website beta | Home, collection/NFT discovery, profiles, social relations, activity, proof dialogs, help, unique OG | Partly implemented; parity gaps specified here |
+| Extended collections | Independent avatar/cover uploads and curated collection pages | Planned |
+| Sharing/recovery expansion | Encrypted claim links, optional link password, encrypted remote backup | Separate protocol/service work; reference help describes these |
+| Trading expansion | Listings, offers, acceptance, cancellation, purchases, settlement history | Reference browsing inspected; ZFT settlement design and exchange compatibility still require review |
+| Mainnet/private protocol | Mainnet launch or private/unlinkable ownership | Outside this devnet release |
+
+## 2. Identities, sessions, and route contract
+
+The **profile identity** signs publication and social requests. An **item owner** is a separate disposable key. A **creator** is immutable mint provenance. A **collector** is an optional public profile bound to an ownership epoch. A **local collection** is the private vault's inventory. A **curated collection** groups public items and is not another ERC-721 deployment. Never infer a recipient's profile from an on-chain address alone.
+
+| Session | Available actions |
+| --- | --- |
+| Visitor | Browse, search, verify, copy public values, save public art/proofs, share public URLs, open onboarding/unlock |
+| Vault present but locked | Visitor actions plus unlock/recovery entry; no signing or bearer export |
+| Unlocked profile | Signed profile edits, follow/like toggles, publication management; ownership actions still require current item authority |
+| Current local item owner | Export, cancel exported copies, publish a possession statement, renew it, remove publication |
+| Historical collector | Inspect retained public proof/history; cannot export the old epoch as currently owned |
+| Wallet custody, future | Marketplace actions through reviewed wallet/exchange integration; wallet private keys never enter files |
+
+| Route | Required page/state | Implementation status |
+| --- | --- | --- |
+| `/` | Hero, onboarding/import/help, ranked collections, fresh mints, public activity, explanation, closing CTA | Basic real homepage; full composition pending |
+| `/explore` | Public collection directory; collection/NFT switch, search/sort/pagination | Currently artwork-led; directory pending |
+| `/explore/nfts` | NFT directory with title search, newest/oldest/A–Z | Planned explicit route; existing gallery pagination reusable |
+| `/activity` | Everyone/Following feeds with app links and pagination | Chain events exist; social/followed filters pending |
+| `/how-it-works` | Product basics | Existing short explanation; expanded content pending |
+| `/how-it-works?view=cryptography` | Technical explanation for ZFT | Planned; do not copy reference cryptography claims |
+| `/about` | Compatibility alias to help | Existing alias; preserve it |
+| `/p/:profileAddress` | Public collector profile, Collection default | Exists; currently defaults to Created |
+| `/p/:profileAddress?tab=sent` | Historical publications | Exists partially; history/proof semantics need correction |
+| `/p/:profileAddress?tab=activity` | Profile-related public events | Exists for limited chain history |
+| `/p/:profileAddress?tab=created` | Immutable mint provenance | Existing extra ZFT view; retain after Collection/Sent/Activity |
+| `/p/:profileAddress?nft=:tokenId` | Selected-artwork dialog over profile; retain current tab when supplied | Existing for eligible public contexts; historical context pending |
+| `/item/:tokenId` | Standalone public item, verification, sanitized downloads, share | Implemented; new proof-card composition pending |
+| `/collection` | Private local inventory, vault creation/unlock, item actions, backup status | Implemented |
+| `/mint` | Normalize, preview, describe, authorize mint | Implemented |
+| `/claim` | Local transferable-file import, validation, claim | Implemented; this is the current file-import URL |
+| `/recovery` | Save/import recovery snapshot and backup guidance | Implemented |
+| `/settings/profile` | Signed public name, bio, featured item; future media settings | Implemented subset |
+| `/c/:collectionId` | Curated public collection | Planned |
+| `/market`, `/market/:listingId` | Market directory and listing/offer detail | Prototype only; live UI must label availability honestly |
+| `/claim/:id#<secret>` | Encrypted-link claim | Deferred; must not be mistaken for current file import |
+
+Older proposed `/import` and `/settings/recovery` URLs may become redirects to `/claim` and `/recovery`; they are not existing implemented routes. Production routes use paths and queries, not prototype hashes. Validate addresses, decimal uint256 token IDs, tab names, and listing IDs. Unknown routes/IDs show a real not-found state, not a generic success gallery. Never treat a filename, secret fragment, or arbitrary supplied RPC URL as navigation authority.
+
+## 3. Shared navigation and feedback — NAV
+
+The brand links home. Desktop navigation and a compact menu expose Explore, Activity, How it works, and the available Market surface. Preserve My collection and Mint access in the ZFT app. Footer links and profile lookup remain available at narrow widths. A menu must replace hidden header links on mobile. Active navigation and keyboard focus are visible.
+
+Theme choices are System, Light, and Dark, with a selected indicator and persistence across reload. System follows OS changes. Zenon semantic tokens determine foreground, surfaces, borders, focus, success, warning, and error; status is never communicated by color alone. Share images use a fixed approved theme independent of visitor preference.
+
+Open by public identity opens a labeled dialog. Accept a ZFT profile address or an approved ZFT profile URL, trim whitespace, validate its host/path, then navigate. Reject invalid input inline without treating arbitrary links as redirects. The reference accepted its raw 64-character public key and its full profile URL; ZFT accepts its own 20-byte EVM address format.
+
+Copy buttons copy the full public value and announce success/failure without a secret-bearing toast. Share copies the canonical public URL; it excludes recovery data, fragments, tracking parameters, and private local state. A selected artwork must preserve the intended public profile/item context. Preserve the requested follow/like target through onboarding/unlock, then let the user complete that action without an unrelated navigation detour.
+
+Dialogs trap focus, have a title and close button, support Escape, restore focus to the origin, and fit the viewport with internal scrolling. Forms preserve safe input on recoverable failures. Busy controls prevent duplicate submission; pagination retries retain existing results. Loading, no data, no search results, unavailable, invalid, and unauthorized are different states.
+
+## 4. Homepage — HOME
+
+Follow the reference composition: split hero with illustrative stacked cards; primary collection creation action; secondary explanation and existing-collection import; popular collection rows; fresh art; recent public activity; brief mint/show/send/recovery explanations; final onboarding CTA. Preview illustrations must be labeled illustrative and must not show fake ownership or metrics as live data.
+
+Popular rows show rank where applicable, name, bounded public thumbnail, current public-item count, followers, and collection-like control. Row click opens that profile; clicking its heart must not also navigate. See all opens collection discovery. Fresh art opens the correct item context; Browse all opens NFT discovery. Activity actors link to profiles, titles/thumbnails to items, and All activity to the feed. Repeated onboarding/help CTAs invoke the same behavior.
+
+Use real indexed/publication data. Hide empty ranking sections or provide an honest start state. Do not synthesize volume, counts, “verified” badges, live ticker events, or scarcity. “Sponsored on ZVM devnet” must reflect availability; replace the reference's unconditional no-gas language with the actual sponsor policy. Image inputs are JPG/PNG; current transferable output is PNG.
+
+## 5. Public profiles and social graph — PROFILE
+
+Header: cover, avatar, name, bio when present, shortened/copyable identity, like count/action, follow toggle, share, and contextual unlock or edit. Use a deterministic avatar and public featured art when custom media is absent. Independent avatar/cover upload is planned: local preview/crop, sanitized bounded image upload, explicit save, revision conflict handling, reset-to-default, and no secret-file upload. Exact owner media controls on the reference have not been exercised.
+
+Summary counts mean: **Collected** = eligible current public possession statements; **Sent/history** = retained prior published epochs with an observed change; **Likes** = unique active profile likes; **Followers/Following** = active profile relations; **Created** = mint provenance, separate from ownership. Collected/Sent may select their tabs; Likes is informational unless a real liker directory is implemented. It must not link to Created. Counts and list filters must agree.
+
+Followers and Following open one Network dialog with both tabs, counts, paginated identities, empty/error/loading states, and profile navigation. A directory entry must never expose a private item key. Guest follow/like opens onboarding/unlock. Authenticated toggles are signed and idempotent; rapid repeated clicks or request retries cannot inflate counts. Show an actionable error and restore the last confirmed state on failure.
+
+Default tab is Collection. Sent retains prior-publication cards with honest historical labels. Activity displays the profile's public events; Created remains a supplementary ZFT tab. Preserve tab/scroll position when opening and closing art. Re-verify checks the displayed holdings in bounded batches and reports checking/current/changed/expired/unavailable independently. An RPC failure must not turn every card into “transferred.”
+
+The current alpha publishes mint provenance automatically in discovery. **Public holding/profile association remains opt-in.** Future discovery controls can hide a card from the application's directory, but cannot make minted on-chain metadata or already public art confidential. Unpublish removes the relevant public association and share mapping; explain external preview caches may retain old images. Do not equate local deletion, gallery removal, and token burning.
+
+## 6. Artwork dialog, proof, and ownership states — ITEM
+
+Use the user's supplied MK1 screenshot as the composition reference: dimmed profile background, large rounded dialog, clear close control; desktop left framed collectible card and Flip action, right status/title/date, three verification rows, copyable asset/collector identifiers, Save image and Public proof, and the non-transferable-download disclosure. Stack on mobile. Use Zenon typography, colors, borders, and focus treatment rather than copying the reference's palette. [Detailed screenshot requirements](PAGES-AND-SHARING.md#9-image-click-modal-screenshot-acceptance-reference).
+
+Opening a public card adds the selected-item query. Direct navigation and reload open the same item. Close/Escape remove only the selection, retain the profile/tab, and return focus. Back closes a selection when opened from that page; a direct shared link has a safe close destination. Standalone item pages reuse the same proof component without inventing a collector association.
+
+The card front shows image, title, shortened image hash, and state. Flip card/Show front switches to public technical details: network, contract, token/hash, metadata digest, observed epoch/block, and available public signatures. Both faces must remain keyboard/screen-reader usable without reading hidden duplicate content. Respect reduced motion and maintain focus through the flip.
+
+Three checks are independently evaluated:
+
+| Check | Success requires | Non-success cases |
+| --- | --- | --- |
+| Content integrity | Canonical public image digest matches token identity; metadata digest matches the pinned contract | Missing bytes, digest mismatch, unsupported format, unavailable media |
+| Public profile binding | A valid versioned item-owner possession signature binds this profile/token/epoch/deployment; distinguish any separately retained profile endorsement | Missing, malformed, wrong signer/domain, expired, or unavailable statement |
+| Current ownership | Fresh pinned-contract owner and nonce match that statement at an identified block | Changed owner/epoch, unknown chain state, deployment mismatch |
+
+The existing service authenticates publication with the profile's HTTP request signature and retains an item-owner possession signature. It does **not** currently export a standalone profile endorsement. Therefore do not label the second row “Signed by this collector” as a cryptographic claim about the profile key without retaining and verifying a separate versioned endorsement. Suitable initial copy is “Owner-authorized profile binding.” An authenticated server record alone is not a portable signature proof.
+
+| Item state | Display and enabled actions |
+| --- | --- |
+| Checking | Neutral progress; no premature green ownership result |
+| Current public holding | Three independently successful checks, observation block/time, public downloads/share |
+| Authentic historical publication | Integrity/signature may remain valid; old epoch clearly superseded; public historical downloads/share if publication retained |
+| Expired statement | Signature authenticity may pass, freshness does not; owner can renew from local collection |
+| Invalid evidence | Explain which check failed; do not call current ownership verified |
+| Service/RPC unavailable | Last observation labeled stale; retry; never infer a transfer |
+| Local exported copy | Still owned if live state agrees; export does not imply sent; cancellation remains possible |
+| Wallet-owned item | Public detail available; file export disabled without disposable local authority |
+
+A nonce change proves an ownership-epoch transition, not that another human received the item. Local cancel/self-rotation can produce the same chain event. Use “Ownership changed”/“Previous ownership epoch” unless public evidence supports a transfer label. Dates come from the recorded transition; do not substitute mint date. Keep creator, historical collector, current published collector (if any), and raw current owner distinct.
+
+The reference shows MK1 in MK Curator's Sent tab and in another collector's current collection with the **same image hash and different credential/item-view IDs**. In ZFT it remains one token with different publication epochs. Historical profile-selected requests need a validated retained publication and its own snapshot identity. Do not bypass the current `inProfile` guard to show arbitrary items. Unpublished or unrelated context must remain inaccessible through that profile's share route.
+
+Copy controls expose full image hash, collector address, token/owner where useful. Save image exports sanitized public PNG only. Public proof exports a versioned document containing deployment identity, canonicalization version, token and metadata/image digests, public metadata, available possession statement/signature and expiry, historical/current context, observed owner/epoch/block/hash/time, and verification instructions. Any profile endorsement is separately identified. Include no private key, raw transfer envelope, vault record, recovery bundle, or encrypted claim secret.
+
+The current `zft-public-observation` download contains a chain observation and metadata, **not** a cryptographic ownership certificate. Retain backward-readable versioning when adding evidence. A saved observation never promises perpetual current ownership. A download verification test must parse its schema, recompute public digests, check any signatures and expiry, and independently re-query the pinned contract for current status.
+
+## 7. Collection creation, unlock, and recovery — VAULT
+
+The reference's guest creation form exposes a locally generated key, Copy/Download controls, name, saved-key acknowledgment, and a gated create action. Its unlock form accepts an existing collection key. The final creation, edit, and recovery outcomes have not been exercised in the audit. Do not present those as verified implementation details.
+
+ZFT retains its implemented encrypted-vault model: create a local passphrase-protected vault; download the secret recovery snapshot; require acknowledgment before first mint/claim. Separate public profile naming/publication from generating a local vault. An existing unlocked vault must not be overwritten by repeated onboarding. Unlock from a profile preserves context and checks whether the recovered profile matches; a different profile can still browse but cannot edit the requested one.
+
+The browser passphrase protects IndexedDB at rest. The current downloaded recovery file is a **secret bearer snapshot**, not password-encrypted transport. It contains what is necessary to restore the included item keys; protect it accordingly. A profile key alone cannot regenerate independently random item keys. Wrong passphrase, malformed backup, unsupported version, wrong deployment, outdated snapshot, and an existing destination vault need specific outcomes. Restore into a clean vault without silently replacing an existing one.
+
+Backup state becomes outdated whenever a new ownership key is saved. Offer a fresh snapshot after mint/claim/cancel and on the recovery page. Explain that old backups do not contain later keys. Lock clears in-memory references on a best-effort basis and blocks signing/export; it does not delete local records or revoke already exported files. No server password-reset/admin-recovery promise is permitted.
+
+Encrypted remote backup, one-key cross-device recovery, and encrypted links are separate expansion work. Before enabling them specify encryption/KDF/AAD versions, storage/authentication, conflict/rollback handling, retention/deletion, size limits, and recovery tests. A future link secret stays in the fragment and client decryption path; the server receives ciphertext only. Link revocation and on-chain file cancellation are different actions and must be explained separately.
+
+## 8. Mint, send, claim, and cancellation — TRANSFER
+
+**Mint:** select or drop JPG/PNG locally; enforce 10 MiB/24 MP and frozen codec constraints; normalize/preview exact bytes; enter title (1–100 characters) and description (up to 1,000); show devnet/sponsor and public metadata implications; gate on recovery acknowledgment. Save the new item key and draft before upload/signing. Upload sanitized art/metadata, sign the creator authorization, submit once, and reconcile status. Duplicate image links to the existing token; upload success alone is not a mint. Success offers local collection, public item, transfer export, and backup update.
+
+Current codec is `zft-png/1`, with one `zfTA` envelope on transferable PNG output. Unsupported PNG variants, ICC/CMYK inputs, malformed dimensions, multiple envelopes, and unsafe decoded sizes fail with actionable conversion/original-file guidance. JPEG export is deferred. A plain downloaded public image is valid art but has no claim authority.
+
+**Send/export:** confirm live ownership/epoch and safe disposable-key custody; refuse while authority is uncertain or external approval/transaction history requires fresh-key rotation. Construct the file locally, download `.zft.png`, and explain attachment delivery without recompression. Mark exported locally; ownership has not changed. Repeated exports share the same authority until a rotation. Never upload the exported file to public R2.
+
+**Claim:** parse original file locally; check structure, image/metadata digests, key/address, deployment allowlist, and live epoch. Preview title and authority status before explicit claim. Create and persist a fresh recipient key/pending journal before signing. Resume the same saved request after refresh or timeout. Confirm only after the configured six-subsequent-block policy, labeled as an application confirmation policy. Preserve keys while an outcome is ambiguous. A stale file explains that it was claimed/canceled and does not generate a fake successful item.
+
+**Cancel exported copies:** explain that an on-chain rotation invalidates every copy from the old epoch if it succeeds first. Persist a fresh local key, sign the same rotation operation, and reconcile. A recipient may win the race; cancel is not guaranteed and is not a refund. After success, old copies fail and new export uses the new key. Do not call cancellation a gift in the public Sent view.
+
+**Pending/error states:** preparing, waiting to submit, submitted, included, confirmed, reconciling, reverted, expired, quota exhausted, sponsor unavailable, chain unavailable, deployment mismatch. No automatic switch to paid transactions. Retry preserves authorization/recipient identity until reconciliation establishes a new authorization is appropriate. Two racing claims must yield one valid epoch transition.
+
+## 9. Discovery and activity — DISCOVERY / ACTIVITY
+
+Collection directory: search by public name; Popular, Newest, Biggest; card profile links, public counts, and independent like controls. Define ranking explicitly in the API contract: proposed Popular = active likes descending, then followers descending, then stable address; Biggest = eligible public holdings descending, then stable address; Newest = profile creation timestamp descending, then stable address. These are ZFT choices, not reverse-engineered reference ranking formulas. Store `created_at` independently from profile edit time before shipping Newest.
+
+NFT directory: title search, Newest/Oldest by confirmed mint event position, A–Z by defined normalized title plus token ID. Filters apply across the dataset before pagination, not just currently loaded cards. Debounce and bound search; changing filter resets cursor; stale responses cannot overwrite newer results. Use opaque validated cursors, deterministic tie-breakers, a maximum page size, and no duplicate cards on Load more. End of results removes/disables pagination. Show a distinct no-results state with a clear-search action.
+
+Opening discovery art chooses its current eligible published collector context when one exists; otherwise use `/item/:tokenId`. Multiple simultaneous valid public bindings need a deterministic choice or a neutral item route; never pretend a raw address uniquely identifies a human collector. Creator attribution remains available separately.
+
+Activity: Everyone and Following, newest first, cursor pagination. Rows show event type, actor, target/title, optional public thumbnail, relative time with absolute accessible timestamp, and source/proof details. Actor and social target open profiles; NFT title/thumbnail opens item context; transaction links are secondary. Guest Following explains unlock/create/follow. An unlocked profile with zero follows receives a different empty state.
+
+Persist social/profile events separately from current relation state: collection creation, follows, likes, and relevant publication events need an append-only public event journal with idempotent request/event identities. Removing a relation updates current counts without inventing or losing history. Decide whether reversals are displayed explicitly; do not derive permanent event history from the current `relations` table alone. Suppress private publication content and respect unpublishing in event rendering. Chain events retain block/transaction identity and roll back on reorg. A bare address transition should not be labeled a known person's gift or sale.
+
+## 10. Help, onboarding explanations, and market — HELP / MARKET
+
+Help has Basics and Technical tabs, with the technical query reflected in URL/history and distinct metadata. Explain file versus public preview, first-claim-wins, cancellation race, public ZVM history, local keys, snapshot limitations, devnet resets, sponsored limits, and independent verification. Technical content describes SHA-256 canonical bytes, EIP-712, owner/epoch transitions, encrypted local vault, public possession statements, and Cloudflare's role. Onboarding CTAs return users to the intended task. Keep RPC/hash detail out of routine flows unless needed for a decision.
+
+Reference market browsing has title search, newest/price ordering, listing cards with amount and bids, listing detail, seller and bidder profiles, offer expiry, and a guest onboarding gate. The inspected listing advertised prepaid timed offers/refunds in sats. These labels do not establish ZVM settlement support.
+
+ZFT's planned market must specify its actual asset/units, network, price, fees, order expiration/status, seller, bidders, and current ownership. List/create/cancel, make/cancel offer, accept, buy, claim any refund, and completed/expired/invalidated states require verified exchange semantics and acceptance evidence. No automatic payment or approval follows account creation. Never copy sats/Cashu instructions into a ZNN flow.
+
+Use [MARKETPLACE.md](MARKETPLACE.md) as the custody/review gate: investigate Karum compatibility before proposing a new exchange. Old bearer keys must never receive sale proceeds. Move to non-exported wallet custody and bind payouts correctly. Listings/offers/payment/refunds have not been executed on the reference, and no live ZFT exchange is implemented. Do not expose an active purchase button until settlement is real.
+
+## 11. Unique page sharing and OG — SHARE
+
+Every public page family has intentional initial HTML metadata. Home/static pages use page-specific cards; profiles use name/avatar/counts/public art; selected artwork uses that exact item/context; standalone item and future curated collection/listing use their own identity. The audited reference emitted different 1200×630 profile and selected-artwork JPEG URLs. ZFT generates unique versioned PNGs.
+
+Required tags: title, description, canonical, OG type/site/title/description/url/image/width/height/type/alt, Twitter large-image fields. Return them in the first HTTP response for browsers and crawlers. Hash-router state and client effects do not satisfy this. Public share URLs use the configured environment origin, never untrusted Host values. Strip irrelevant query parameters while preserving token and, when needed, historical publication identity.
+
+Output is 1200×630 PNG, bounded to 1 MiB with a page-specific text fallback. Use pinned local fonts, sanitized R2 images, bounded text and image counts, no arbitrary remote media fetch. Revisions bind page kind/ID, template/theme version, public content, selected art and context, network, and displayed counts. Old versions remain immutable while eligible; unpublishing blocks context access. Existing external social caches cannot be recalled.
+
+Never include transfer credentials, recovery content, private inventory, encrypted-link fragments, or uncensored exception text. Private local routes get generic safe metadata. Historical shared art must not be labeled a current holding; cached art cards should avoid an enduring current-owner assertion. The detailed rendering/caching contract remains in [PAGES-AND-SHARING.md](PAGES-AND-SHARING.md).
+
+## 12. Services, data, and contracts
+
+One non-upgradeable ERC-721 is already deployed on chain `7340469` at `0x42666265e38f2d1b786e8af8e9576224a95b90ae`. Mint consent binds image/metadata hashes, initial owner, creator, creator nonce, deadline, chain, and contract. Ownership rotation binds token, fresh owner, old epoch, deadline, chain, and contract. Every transfer path advances the epoch; no owner override or admin recovery exists. **No additional contract is needed for the public-site parity work.** Trading/privacy require separate justified designs.
+
+Worker/API, R2 public art, D1 public records/events, sponsor Durable Object, indexer Durable Object, and scheduled ingestion already exist. The vault and all bearer files stay in the browser. D1 is a discovery projection; fresh contract reads resolve authority. Deployment/genesis mismatch stops signing. Keep the six-block app confirmation policy distinct from unverified protocol-finality semantics.
+
+| Current API surface | Purpose |
+| --- | --- |
+| `GET /api/config`, `/api/health`, `/api/index` | Public deployment/service/index status |
+| `POST /api/challenges`, `/api/uploads`, `/api/operations`; `GET /api/operations/:id` | Bounded signed admission and sponsored operation status |
+| `GET /api/gallery`, `/api/activity`, `/api/items/:tokenId` | Public index and item observation; optional validated profile context |
+| `GET /api/profiles/:address` and `/created`, `/collection`, `/sent`, `/activity`, `/followers`, `/following` | Profile and paginated public views |
+| `POST /api/profile`, `/api/social`, `/api/possessions`, `/api/unpublish` | Signed profile mutation, relations, holding publication/removal |
+| `GET /art/:hash.png`, `/metadata/:hash.json`, `/api/og/...` | Public immutable media and bounded page-image snapshots |
+
+The draft architecture's separate `/operations/mint`, PUT profile/follow routes, and curated-collection API are proposals, not current endpoints. Extend the actual shared schemas instead of shipping conflicting undocumented APIs.
+
+Required additions: public profile creation timestamp; directory/search/sort queries; retained and versioned historical publications with visibility; portable profile endorsement if that claim is shown; social/publication event journal; media references/revisions for independent avatar/cover; optional curated collection records; share revision identity including historical context. Specify migrations, backfill policy, retention, and bounded indexes before implementation. Old records lacking an endorsement/history timestamp stay explicitly incomplete; do not fabricate evidence.
+
+Current profile limits are name 1–64, bio up to 320, optional featured token and optimistic revision. Current possession statements bind deployment/profile/token/epoch/expiry, with a maximum 31-day lifetime. IDs/nonces/amounts use lossless decimal strings where necessary. Mutations use strict bounded schemas and single-use signatures bound to method/path/body; no secret is needed by the server. Replays, wrong origin, mismatched revision, invalid signature, expired statement, nonexistent target, and stale authority require distinct errors.
+
+## 13. Accessibility, resilience, and acceptance
+
+Use semantic links for navigation, buttons for actions, labeled inputs, useful image alt text, visible focus, polite status updates, and actionable errors. Target 44px touch controls, 360px mobile with 320px stress testing, 768px tablet, 1440px desktop, large text, and reduced motion. Artwork/proofs must remain inspectable with keyboard and screen reader. Do not depend on drag/drop, hover, color, or animation to reveal actions.
+
+RPC/index/media outages preserve known local data and expose freshness. Retry is bounded and idempotent. Untrusted names/descriptions render as text. Public image handling rejects envelopes and unsupported active content. Secret-handling routes contain no third-party analytics or external script dependencies. Logs exclude credentials, file/recovery data, and secret URL fragments. Sanitized downloads are checked as artifacts, not merely successful click events.
+
+| Acceptance ID | Required evidence before calling the feature complete |
+| --- | --- |
+| A-NAV | All header/menu/footer routes, raw-address/full-link lookup, invalid input, copy failure, three persistent themes, mobile menu |
+| A-HOME | Each CTA and independent card/heart interaction; real empty/populated data; correct profile/item destinations |
+| A-PROFILE | Guest and authenticated actions; like/follow retry/unlike/unfollow counts; Collection default; network tabs/pagination; edit conflict/media sanitation |
+| A-ITEM | Current, historical, expired, invalid, unavailable and self-rotation states; flip both ways; close/Escape/back/reload/focus; correct date/context |
+| A-PROOF | Decode saved image, confirm no envelope; parse proof; verify digest/signature/expiry/block; distinguish absent collector endorsement and current chain state |
+| A-DISCOVERY | Search/sort across pages, deterministic ties, no results, no duplicate Load more, stale response suppression, correct current/neutral item context |
+| A-ACTIVITY | Everyone/Following including both empty cases; actor/subject/thumbnail links; social event idempotency and reorg rollback |
+| A-TRANSFER | Actual two-browser mint→export→claim→re-export; stale-copy rejection; competing claims/cancel; refresh during pending; safe approval/custody gate |
+| A-RECOVERY | Clean-browser restore of current snapshot; outdated backup explanation; wrong passphrase/corrupt file; no existing-vault overwrite; backup reminder after each new key |
+| A-SHARE | Initial HTML without JavaScript for distinct profiles/items/historical context; valid distinct 1200×630 PNGs; cache isolation/revision/unpublish/error cases |
+| A-OPERATIONS | Sponsor crash/retry/nonce/reorg faults, index rewind/reset, quota/outage messaging, no secret upload/log; deployment identity stop |
+| A-MARKET | Separately approved exchange/custody/asset rules; list/cancel/offer/accept/buy/expiry/refund races and payout verification before enabling trading |
+
+The hosted SDK canaries and existing tests are evidence for their specific scope, not substitutes for browser/device, accessibility, social-platform, or independent cryptographic review. The reference action ledger is observation evidence, not ZFT test success.
+
+## 14. Implementation sequence and remaining decisions
+
+1. **Profile semantics and navigation:** Collection first; correct counts/links; contextual unlock and guest intent; Network dialog; mobile menu; persistent theme/lookup. Acceptance A-NAV, A-PROFILE.
+2. **Proof and historical detail:** two-face card, independent checks, safe downloads, retained public epochs, historical membership guard and unique share identity. Acceptance A-ITEM, A-PROOF, historical A-SHARE.
+3. **Discovery and activity:** directory/search/sorts/cursors, public event journal, followed feed, homepage sections, correct app navigation. Acceptance A-HOME, A-DISCOVERY, A-ACTIVITY.
+4. **Profile media and explanations:** sanitized cover/avatar, curated collections if included in beta, basics/technical help, remaining OG templates. Complete A-PROFILE/A-SHARE.
+5. **Beta qualification:** browser/phone/recovery/operational tests and review; then separately review apex routing promotion. Acceptance A-TRANSFER, A-RECOVERY, A-OPERATIONS.
+6. **Expansion:** encrypted links/remote backup and live marketplace only after their protocol/custody reviews; continue reference owner-flow audit with an authorized disposable test collection.
+
+Open decisions are the source license; exact historical-publication retention/removal policy; whether portable profile endorsements are mandatory for beta; curated-collection scope; remote-backup/link protocol; and marketplace integration/settlement asset. The visual direction, corrected domain, Cloudflare hosting, and real devnet implementation are already authorized. Do not reopen those merely because earlier draft documents call them proposals.

@@ -1,6 +1,6 @@
 # Cloudflare and application architecture
 
-Draft 0.1 · deployment design, not provisioned infrastructure.
+Architecture design, updated 2026-10-04. Workers/R2/D1 and sponsor/indexer Durable Objects are now provisioned for the hosted devnet alpha. [DEVNET-ALPHA.md](DEVNET-ALPHA.md) records exact deployed resources and behavior. The [complete functional specification](FUNCTIONAL-SPEC.md#12-services-data-and-contracts) lists current API routes and required parity additions. Proposed tables/routes below remain design targets where they differ from code or migrations; they must not be treated as existing endpoints.
 
 ## 1. Components and trust boundaries
 
@@ -33,7 +33,7 @@ Cloudflare does not execute the blockchain or keep ZVM consensus state. The RPC 
 
 D1 and Cloudflare are replaceable application services. The contract plus a valid item key suffices for an independently submitted ownership rotation. A compromised sponsor can spend its gas balance and censor sponsorship; it cannot choose a different recipient in a valid signed authorization. Malicious served JavaScript can steal unlocked browser keys, which is a separate application supply-chain risk addressed by dependency pinning, restricted CSP, and reviewed releases.
 
-## 2. Proposed repository layout after approval
+## 2. Repository layout and design target
 
 ```text
 apps/web/                   React frontend and vault integration
@@ -51,7 +51,7 @@ docs/                      project specifications (present now)
 research/                  source references and read-only probe evidence
 ```
 
-Use pnpm workspaces, pinned Node LTS, a committed lockfile, strict TypeScript, and Foundry pinned in CI. Select exact versions during the implementation scaffold; the prototype deliberately has no runtime dependencies.
+The workspace, pinned dependencies, strict TypeScript, and contract CI are implemented. Indexer code currently lives in `apps/api/indexer.ts`, not a separate `apps/indexer` package; vault, protocol, and codec packages are present. Use `package.json` and the lockfile for exact versions. The standalone prototype deliberately has no runtime dependencies.
 
 ## 3. Storage and data model
 
@@ -141,7 +141,7 @@ Use Workers Static Assets for the app, with Worker-first routing for APIs/media 
 
 Separate environments: local, devnet preview, devnet beta, then an independently approved mainnet configuration. Each uses isolated D1/R2/DO namespaces and sponsor keys. Preview builds must not use the public beta sponsor or buckets. Deploy from GitHub Actions with least-privilege Cloudflare API credentials in repository/environment secrets and scoped environment approvals for live resources.
 
-No Cloudflare resources or domain records are created as part of this proposal. During implementation, checked-in Wrangler config has non-secret binding names and explicit compatibility dates; real IDs come from provisioning. Secrets enter through Cloudflare’s secret management, never committed config.
+The deployed resources and non-secret IDs are in `wrangler.devnet.jsonc`; the legacy prototype uses the root Wrangler configuration. The real app is at `devnet.zft.foo`; the apex root remains the prototype, with real `/art/*` and `/metadata/*` routes. Apex promotion remains a separate routing/release step. Secrets use Cloudflare secret management, never committed config.
 
 ## 8. Operational controls and budgets
 

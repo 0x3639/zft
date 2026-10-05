@@ -2,6 +2,8 @@
 
 Draft 0.1 · required by the user on 2026-10-04. Match NonFungible Cash’s page composition and flows while applying the pinned Zenon theme. Public profile/social/OG features are included in the first beta; live trading is a separately reviewed expansion.
 
+Updated audit and route status: the [complete functional specification](FUNCTIONAL-SPEC.md) is the central website contract, and the [action ledger](REFERENCE-AUDIT.md) records the expanded click-through results, download inspection, and owner-only gaps. This document retains detailed OG/cache and screenshot requirements. Its requirements are not a claim of completed parity; [DEVNET-ALPHA.md](DEVNET-ALPHA.md) identifies the deployed subset.
+
 ## 1. Direct reference observations
 
 The supplied [MK Curator profile](https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5) has cover art, avatar, name, shortened/copyable public identity, collection like, follow, share, unlock, five counts, Collection/Sent/Activity tabs, a re-verification action, and artwork cards. Selecting artwork opens a detail dialog and adds `?nft=<id>` to the profile URL. The detail has artwork/proof views, asset hash, collector identity, ownership-check states, save-image and public-proof controls. Public image/proof downloads contain no transfer credential.
@@ -21,7 +23,7 @@ The observed images are 1200×630 and include `og:image:alt`, dimensions, and Tw
 | Reference surface | ZFT production route and behavior |
 | --- | --- |
 | Homepage | `/`: split hero, preview cards, collections, fresh mints, activity, explanations, CTA |
-| Explore | `/explore`: public collection/item discovery, bounded filters and pagination |
+| Explore | `/explore`: public collection discovery; `/explore/nfts`: artwork discovery; bounded filters and pagination |
 | Activity | `/activity`: actual indexed mint/transfers and signed social activity; filtering/pagination |
 | How it works | `/how-it-works`: product basics plus honest technical/protocol view |
 | Public profile / default collection | `/p/:profileAddress`: cover/avatar, identity, bio, counters, likes/follows/share, tabs |
@@ -30,12 +32,12 @@ The observed images are 1200×630 and include `og:image:alt`, dimensions, and Tw
 | Additional curated collection | `/c/:collectionId`: public collection name/cover/curator/item set; default profile is not another on-chain contract |
 | My local collection | `/collection`: local owned/exported/sent states and backup status; generic safe share metadata only |
 | Mint/create | `/mint`: local image normalization, metadata, publication choice, recovery gate, signed mint |
-| Import | `/import`: local file parse/verify/claim; no secrets in URL or server-rendered content |
-| Recovery/unlock | `/settings/recovery`: encrypted local vault, backup import/export, matching profile unlock |
+| Import | `/claim`: implemented local file parse/verify/claim; no secrets in URL or server-rendered content |
+| Recovery/unlock | `/recovery` and local collection unlock: encrypted local vault, backup import/export, matching profile unlock |
 | Market | `/market`: designed now; actual listing/offer/purchase integration ships after marketplace review |
 | Encrypted claim link | `/claim/:id#<key>`: later release, separately reviewed capability/link protocol |
 
-Prototype hash routes are a temporary navigation mechanism. They cannot provide real per-route crawler metadata because fragments are not transmitted in HTTP requests. Production uses path/query routes intercepted by the Worker. Profile IDs are the proposed EVM profile addresses rather than Cashu profile keys; token IDs are the deterministic image-hash integers rather than reference-specific opaque IDs.
+The table includes implemented and planned surfaces; see the functional specification's status column. Prototype hash routes are a temporary navigation mechanism. They cannot provide real per-route crawler metadata because fragments are not transmitted in HTTP requests. Production uses path/query routes intercepted by the Worker. Profile IDs are EVM profile addresses rather than Cashu profile keys; token IDs are deterministic image-hash integers rather than reference-specific opaque IDs. Earlier `/import` and `/settings/recovery` proposals may become compatibility redirects; they are not current implemented routes.
 
 ## 3. Profile and social requirements
 
@@ -45,7 +47,7 @@ Only a locally unlocked matching profile can edit its identity fields. A public 
 
 Artwork detail preserves the reference’s distinction between public art/proof and transferable files. `Save image` exports a sanitized preview only. `Public proof` exports the non-secret attestation, image/metadata digests, chain/deployment, observed owner/epoch/block, and verification instructions. It is evidence at a stated observation point, not a perpetual current-owner certificate. `Send collectible` is available only in the local owner context and contains secret authority.
 
-Prototype parity: profile cover/avatar/counts/tabs, local follow/like/share states, item details, recovery and the three OG template families are inspectable. Live follower directories, editable profile/upload forms, cryptographic public-proof download, pagination, and market settlement are specified for implementation, not faked as completed services.
+Implemented alpha parity includes signed profile text/featured-item editing, social relations, follower directories, paginated public lists, and unique profile/item/static PNG sharing. Independent cover/avatar uploads, full modal/network-dialog composition, portable cryptographic proof downloads, complete activity/discovery parity, and market settlement remain incomplete. Current public-proof JSON is a labeled chain observation. The standalone prototype's simulated actions must not be confused with these real services.
 
 ## 4. Unique Open Graph images
 
@@ -95,15 +97,15 @@ Primary technical references: [HTMLRewriter](https://developers.cloudflare.com/w
 
 ## 8. Action-by-action reference audit
 
-Inspected 2026-10-04 against ZFT implementation commit `53eb78b`. This is a public/visitor-session audit of the supplied [MK Curator profile](https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5), its collected and sent item dialogs, follower network, onboarding/unlock dialogs, and linked discovery, activity, market, homepage, and help pages. No collection was created, existing private key entered, follow/like submitted, or offer funded. Owner-only menus remain unverified; the help page provides separate evidence for some owner flows. Visible controls are not evidence that their eventual mutations succeeded.
+Inspected 2026-10-04 against ZFT implementation commit `53eb78b`. This is a public/visitor-session audit of the supplied [MK Curator profile](https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5), its collected and sent item dialogs, follower network, onboarding/unlock dialogs, and linked discovery, activity, market, homepage, and help pages. The follow-up pass exercised the guest like/follow gates, sorting/pagination, profile lookup, and actual image/proof downloads; details are in [REFERENCE-AUDIT.md](REFERENCE-AUDIT.md). No collection was created, existing private key entered, authenticated follow/like created, or offer funded. Owner-only menus remain unverified; the help page provides separate evidence for some owner flows. Visible controls are not evidence that their eventual mutations succeeded.
 
 ### Public profile
 
 | Action or state | Reference observation | ZFT at the audited commit | Required parity work |
 | --- | --- | --- | --- |
 | Copy public identity | Short identity button exposes the full public key as its copy target | Copyable profile address exists | Preserve feedback and accessible full address |
-| Like/unlike | Heart toggle with count; observed but not submitted | Signed reversible relation exists | Display the count with the action; preserve guest intent through unlock |
-| Follow/unfollow | Follow control; observed but not submitted | Signed reversible relation exists | Preserve target/action through unlock instead of sending visitors to a generic collection screen |
+| Like/unlike | Guest heart click opened onboarding; authenticated toggle not tested | Signed reversible relation exists | Display the count with the action; preserve guest intent through unlock |
+| Follow/unfollow | Guest follow click opened onboarding; authenticated toggle not tested | Signed reversible relation exists | Preserve target/action through unlock instead of sending visitors to a generic collection screen |
 | Share profile | Click produced profile-link-copied feedback | Copies profile URL | Existing behavior; retain profile-specific OG metadata |
 | Unlock | Dialog accepts an existing collection key and explains local storage | Unlock/recovery is on the local collection screen | Add a profile-context entry that checks the unlocked identity; adapt to ZFT vault/recovery semantics |
 | Collected / Sent / Likes counts | Three summary values; Followers and Following are separate buttons | Six counts including Created; all currently rendered as links, including Likes linking to Created | Distinguish informative counts from actionable controls; remove misleading Likes navigation |
@@ -125,7 +127,7 @@ Inspected 2026-10-04 against ZFT implementation commit `53eb78b`. This is a publ
 | Transferred status | Sent item retains valid historical proof and collector signature, but clearly says it is no longer held here | Generic detail shows current owner without the prior collector's context | Historical proof must remain labeled historical; a valid signature alone must never imply current ownership |
 | Copy asset / collector | Both values have copy controls | Public detail shows full hashes; creator is a navigation link | Add copy controls for asset digest, profile, owner, and token where appropriate |
 | Save image | Download action and explicit non-transferable disclosure | Sanitized public image download exists | Preserve disclosure; do not attach item secrets |
-| Public proof | Download action and explicit non-transferable disclosure; download contents not inspected in this audit | Downloads a JSON chain observation, not a cryptographic ownership certificate | Include the public signed possession attestation where available, verification instructions, expiry, and observed block; label absent attestation honestly |
+| Public proof | Downloaded JSON parsed: public showing, profile signature, status, asset/collector IDs, mint public verification material; reference cryptography not independently verified | Downloads a JSON chain observation, not a cryptographic ownership certificate | Include the public signed possession attestation where available, verification instructions, expiry, and observed block; label absent attestation honestly |
 | Selected-item sharing | Opening the modal changes the shareable URL; existing research verifies unique initial HTML/OG for that context | Unique selected-item OG and an additional Share button exist | Keep share context correct for current versus historical holdings |
 
 The inspected sent example was [MK1](https://nonfungible.cash/p/ebb88e60451df894c0510b1476d4f5ef367105ae7f5acad64ecb7a06fb6ccfa5?nft=a85ec604d7454d7cb3bca695936fbd85). Its retained proof is a product requirement we currently miss. Do not implement this by simply relaxing the current-membership guard: a historical page must validate its retained publication, clearly label the old epoch, respect unpublishing, and have a distinct sharing snapshot. Existing profile OG checks intentionally reject artwork removed from the profile context.

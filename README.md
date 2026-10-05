@@ -12,6 +12,8 @@ Repository: [0x3639/zft](https://github.com/0x3639/zft).
 
 ## Review the project
 
+Start with the [complete website functional specification](docs/FUNCTIONAL-SPEC.md) and [reference action audit](docs/REFERENCE-AUDIT.md). They cover routes, controls, dialogs, ownership states, downloads, recovery, discovery/social features, marketplace scope, OG sharing, and acceptance criteria. The audit distinguishes exercised public actions from owner/payment flows still unverified.
+
 1. [Product and protocol specification](docs/SPEC.md)
 2. [Contract design and invariants](docs/CONTRACTS.md), [proposed Solidity interface](contracts/interfaces/IZFT.sol)
 3. [Frontend design and flows](docs/FRONTEND.md)
@@ -24,7 +26,7 @@ Repository: [0x3639/zft](https://github.com/0x3639/zft).
 10. [Prototype verification and screenshots](docs/VALIDATION.md)
 11. [Cloudflare prototype deployment](docs/DEPLOYMENT.md)
 
-Start with [the implementation runbook](docs/DEVNET-ALPHA.md). The linked specifications remain the full release target. Additional curated collections, avatar/cover uploads, deeper operational fault tests, and actual two-browser/phone acceptance remain before beta. Private transfers, sales, and encrypted claim links remain separate work.
+For deployed behavior and operation, use [the implementation runbook](docs/DEVNET-ALPHA.md). The functional specification remains the full release target. Additional curated collections, avatar/cover uploads, deeper operational fault tests, and actual two-browser/phone acceptance remain before beta. Private transfers, sales, and encrypted claim links remain separate work.
 
 ## Run the real devnet app
 

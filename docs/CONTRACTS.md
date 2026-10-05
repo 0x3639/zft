@@ -1,6 +1,6 @@
 # Contract design
 
-Draft 0.1. This document and `contracts/interfaces/IZFT.sol` define the proposed API. They do not constitute deployed or audited Solidity.
+Contract design, updated 2026-10-04. The implementation in `contracts/src/ZFT.sol` is deployed on ZVM devnet; [DEVNET-ALPHA.md](DEVNET-ALPHA.md) records the manifest, bytecode comparison, tests, and remaining verification gates. This design is not an independent audit. The [complete functional specification](FUNCTIONAL-SPEC.md) maps the contract to all website flows; public-site parity needs no additional contract.
 
 ## 1. Required contract
 
@@ -41,7 +41,7 @@ Domain: `{ name: "ZFT", version: "1", chainId, verifyingContract }`.
 
 Use ECDSA low-s and valid-v checks from OpenZeppelin. V1 signed keys are EOAs; do not silently imply ERC-1271 smart-wallet authorization support. Fresh app-owned item recipients are EOAs. Use safe mint semantics for externally supplied contract recipients and specify the nonce as 0 before the receiver hook observes the token. A receiver hook must not violate epoch consistency. Guard signed entrypoints against reentrant authorization consumption and test receiver behavior.
 
-Creator consent binds the intended initial owner, so a front-runner can execute the same mint but cannot redirect it. A different person can permissionlessly mint a candidate image hash first; global byte-hash uniqueness cannot prove authorship or prevent that kind of squatting. The app should not expose unpublished uploads; this reduces premature exposure but does not solve provenance attribution. The default publish state is private in the gallery.
+Creator consent binds the intended initial owner, so a front-runner can execute the same mint but cannot redirect it. A different person can permissionlessly mint a candidate image hash first; global byte-hash uniqueness cannot prove authorship or prevent that kind of squatting. The app does not serve drafts through public media routes before mint; this reduces premature exposure but does not solve provenance attribution. Mint provenance is currently indexed publicly; profile holding association is opt-in.
 
 Cloudflare’s upload attestation and quotas are sponsorship policy, not contract privileges. Another relayer can submit any valid creator-signed mint. This allows independence from the hosted app and also permits unsponsored mint spam at the caller’s expense.
 
@@ -74,7 +74,7 @@ OwnershipRotated(tokenId indexed, previousOwner indexed, newOwner indexed, owner
 
 Emit `OwnershipRotated` for every ownership transfer, not just sponsored extension calls. Its nonce is the **new** nonce after the transition; the authorization carries the **old** nonce. Mint emits `Transfer(0, initialOwner, tokenId)` and `Minted`, with initial epoch 0 and no rotation event. Index by chain ID, contract, block hash, transaction hash, and log index. Track parent block hashes and rewind unfinalized effects on reorg.
 
-Only finalize indexed state when the configured ZVM finality signal covers the containing block; see architecture. RPC receipt success alone is inclusion, not finality.
+The deployed app confirms after six subsequent EVM blocks. A documented, independently validated ZVM finality signal remains a beta gate; RPC receipt success alone is inclusion, not finality. Do not label the application depth as a protocol guarantee.
 
 ## 6. Approvals and interoperability
 

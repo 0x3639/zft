@@ -4,6 +4,8 @@ Implementation authorized 2026-10-04. The first devnet slice now implements the 
 
 ## 1. Delivery order
 
+The [complete functional specification](FUNCTIONAL-SPEC.md#14-implementation-sequence-and-remaining-decisions) now defines the ordered parity backlog and traceable acceptance IDs. The [reference audit](REFERENCE-AUDIT.md) distinguishes observed public actions from owner flows still awaiting inspection. Use these alongside the broader milestones below.
+
 | Milestone | Deliverable | Acceptance gate |
 | --- | --- | --- |
 | M0 · Review | Scope, ownership model, recovery policy, frontend direction, host/domain, release boundary | Resolve blocking decisions; accepted spec revision |
@@ -59,6 +61,6 @@ The initial public beta remains clearly labeled ZVM devnet and collectible-only.
 
 ## 6. Repository and CI workflow
 
-The empty repository receives this proposal/prototype as its initial commit. Subsequent implementation should use focused pull requests for M1–M5. CI checks TypeScript/build, protocol vectors, meaningful service tests, contract suites, and end-to-end scenarios as they become applicable. Documentation/prototype changes need focused link/syntax/layout checks rather than pretending the future backend already exists.
+The proposal/prototype and hosted alpha now exist. Continue implementation with focused changes for M1–M5 and the functional-spec acceptance IDs. CI checks TypeScript/build, protocol vectors, meaningful service tests, contract suites, and end-to-end scenarios as they become applicable. Documentation/prototype changes need focused link/syntax/layout checks rather than transaction canaries for unchanged code.
 
 Cloudflare beta deployments use a scoped environment; PR previews have separate services and no beta sponsor authority. Production/mainnet deployment is not triggered merely by merging a UI change. Contract deployment requires explicit network/key configuration and verification of the approved source artifact.

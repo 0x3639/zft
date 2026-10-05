@@ -2,6 +2,8 @@
 
 2026-10-04. The real app is deployed at [devnet.zft.foo](https://devnet.zft.foo/), with real ZVM transactions. It is not the full public beta from the specifications.
 
+The [complete website functional specification](FUNCTIONAL-SPEC.md) covers the entire target product; the [reference action ledger](REFERENCE-AUDIT.md) records which NonFungible Cash controls were actually exercised and which owner/payment flows remain unverified. Those documents specify remaining work, not extra deployed features.
+
 ## Implemented
 
 - Non-upgradeable ERC-721 with EIP-712 mint and ownership rotation. Every ordinary, approved, operator, and self-transfer increments the ownership epoch. No administrator or seizure path.

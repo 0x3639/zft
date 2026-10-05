@@ -1,8 +1,8 @@
 # ZFT product and protocol specification
 
-Version: draft 0.1 · 2026-10-04 · review before implementation.
+Protocol design, updated 2026-10-04. Implementation is authorized and a hosted devnet alpha exists. The [complete website functional specification](FUNCTIONAL-SPEC.md) is the central product/interaction contract; the [reference action ledger](REFERENCE-AUDIT.md) records observed behavior and remaining audit gaps.
 
-Implementation note (2026-10-04): work is authorized and a first devnet slice is running. [DEVNET-ALPHA.md](DEVNET-ALPHA.md) is the authoritative implemented subset. Its frozen `zft-png/1` codec normalizes JPEG/PNG inputs to RGBA PNG and exports `zfTA` PNG envelopes. JPEG APP15 export, broader color-profile conversion, and the complete social/OG release remain planned below.
+Implementation note (2026-10-04): [DEVNET-ALPHA.md](DEVNET-ALPHA.md) is the authoritative implemented subset. Its frozen `zft-png/1` codec normalizes supported JPEG/PNG inputs to RGBA PNG and exports `zfTA` PNG envelopes. Signed profiles/social relations, public holding attestations, indexing, and unique OG images are implemented in part. Full website parity, JPEG APP15 export, and broader color-profile conversion remain planned. Aspirational fault/recovery requirements below are not claims that every beta acceptance gate has passed.
 
 ## 1. Product promise
 
@@ -31,7 +31,7 @@ The first implementation does not require BLS signatures, a bridge, a fungible t
 
 `imageHash = SHA-256(canonical image bytes)`; `tokenId = uint256(imageHash)`. The contract rejects a repeated hash in that deployment. Identical pixels encoded differently can produce different hashes. Cross-chain and cross-contract duplicates remain possible. Do not market this as global visual uniqueness.
 
-The v1 canonicalizer must be deterministic and versioned. It decodes with fixed limits, applies orientation, converts to the specified sRGB representation, removes private/ancillary metadata, and writes through a pinned JPEG/PNG codec. Preserve PNG transparency. Do not depend on browser canvas JPEG output for canonical consensus. Select the codec and exact encoder settings in the image-codec milestone; freeze golden vectors before issuing live files.
+The v1 canonicalizer is deterministic and versioned. The frozen `zft-png/1` implementation decodes supported inputs with fixed limits, applies orientation, removes private/ancillary metadata, and writes through a pinned PNG encoder, preserving transparency. It rejects embedded ICC profiles and CMYK JPEG; arbitrary color-profile conversion is not implemented. See the runbook for the exact input restrictions and pinned codec settings. Do not change canonical bytes through a browser canvas encoder or silently replace the codec for existing files.
 
 Incoming files: JPEG or PNG only, maximum 10 MiB and 24 megapixels. Reject animated PNG, malformed structure, unsupported bit depth, multiple ownership envelopes, and decompression bombs. Enforce decoded-memory and output-size limits before allocation. Accept the final normalized format only after local preview. Source photos may contain private metadata; normalization occurs locally before upload.
 
@@ -79,13 +79,13 @@ Onchain uniqueness decides a simultaneous duplicate-mint race. A duplicate respo
 
 ## 7. File envelope v1
 
-Use one JPEG APP15 segment beginning with `ZFT\0`, or one PNG private ancillary chunk `zfTA` (unsafe to copy after image editing). Payload is UTF-8 canonical JSON, maximum 16 KiB. Validate JPEG segment bounds and PNG chunk bounds/CRC. Unsupported versions fail closed.
+The implemented v1 uses one PNG private ancillary chunk `zfTA` (unsafe to copy after image editing). Payload is UTF-8 canonical JSON, maximum 16 KiB. Validate PNG chunk bounds/CRC; unsupported versions fail closed. JPEG APP15 export is a future format extension, not currently accepted as a ZFT transfer file.
 
 ```json
 {
   "format": "zft",
   "version": 1,
-  "canonicalizer": "zft-image/1",
+  "canonicalizer": "zft-png/1",
   "chainId": "7340469",
   "contract": "0x<approved-deployment>",
   "tokenId": "<uint256-decimal>",
@@ -104,7 +104,7 @@ This is a schema illustration, not a valid token. The client independently check
 
 ## 8. Public collection and availability
 
-Publishing a card or grouping it into a collection is optional. A profile operation must be signed by the profile key. Display current ownership only after live contract verification. A public card can show a fresh possession attestation signed by the item key and bound to profile ID, token ID, owner address, ownership nonce, and expiry. A copied or stale attestation cannot establish current control.
+Publishing a holding under a profile or grouping it into a collection is optional. The implemented index currently discovers all mint provenance automatically; a gallery-discovery opt-out is a future application feature and would not make on-chain metadata or public art confidential. A profile operation must be signed by the profile key. Display current ownership only after live contract verification. A public card can show a fresh possession attestation signed by the item key and bound to profile ID, token ID, owner address, ownership nonce, and expiry. A copied or stale attestation cannot establish current control.
 
 Replicate the reference public profile surface: cover/avatar, name/bio, shortened copyable identity, share control, collected/sent/likes/followers/following counts, and Collection/Sent/Activity tabs. Follows and collection/item likes are signed off-chain relations with unique actor-target pairs and idempotent add/remove; they do not change NFT ownership. Followers/following lists paginate and reflect actual relations. Profile unlock restores/unlocks only the local matching identity; there is no server-side password recovery. A profile’s sent history represents observed transfers and previous public possession, not current authority.
 
