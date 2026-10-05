@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import type { Metadata } from "../../../packages/protocol";
 import { digest } from "../../../packages/protocol";
 import type { Profile } from "../../../packages/protocol/public";
-import type { Vault } from "../../../packages/vault";
+import type { Identity } from "./identity";
 import manifest from "../../../packages/protocol/deployment.json";
 import { verifyPublicEvidence } from "../../../packages/protocol/public-proof";
 import { PublicDetail } from "./proof-card";
@@ -280,13 +280,13 @@ export function PublicProfile({
   path,
   nav,
   onError,
-  vault,
+  identity,
   viewer,
   onUnlock,
 }: {
   address: string;
   path: string;
-  vault?: Vault;
+  identity?: Identity;
   viewer: string;
   onUnlock: (returnTo: string) => void;
 } & Navigation) {
@@ -354,7 +354,7 @@ export function PublicProfile({
     nav(`${root}${q.size ? `?${q}` : ""}`);
   };
   async function social(kind: "follow" | "like", active: boolean) {
-    if (!vault?.unlocked) {
+    if (!identity) {
       setGuest(kind);
       return;
     }
@@ -363,7 +363,7 @@ export function PublicProfile({
       await signedRequest(
         "/api/social",
         { kind, target: address, active },
-        await vault.profile(),
+        identity!,
       );
       await load();
       setNotice(
@@ -487,9 +487,9 @@ export function PublicProfile({
             >
               Share
             </button>
-            {!vault?.unlocked && (
+            {!identity && (
               <button className={btn} onClick={() => setGuest("unlock")}>
-                Unlock
+                Connect profile
               </button>
             )}
           </div>
@@ -540,7 +540,7 @@ export function PublicProfile({
         <p role="status" className="profile-notice">
           {notice ||
             (query.get("intent")
-              ? "Your collection is unlocked. You can continue with the profile action above."
+              ? "Your profile is ready. You can continue with the action above."
               : "")}
         </p>
       </section>
@@ -640,16 +640,14 @@ export function PublicProfile({
       {guest && (
         <Modal
           title={
-            guest === "unlock"
-              ? "Unlock your collection"
-              : "Start with your collection"
+            guest === "unlock" ? "Choose your profile" : "Connect your profile"
           }
           onClose={() => setGuest("")}
         >
           <p>
             {guest === "unlock"
-              ? "Unlock this browser's vault or restore its recovery snapshot. Editing requires the matching profile identity."
-              : "Unlock or create a local collection to like and follow public profiles. You will return here to finish your action."}
+              ? "Connect your wallet or unlock your existing local profile. Editing requires the matching identity."
+              : "Use your connected wallet or an existing local profile to like and follow. You will return here to finish your action."}
           </p>
           <button
             className={btn}
@@ -658,7 +656,7 @@ export function PublicProfile({
               onUnlock(`${root}?intent=${guest}`);
             }}
           >
-            Unlock or create collection
+            Choose a profile
           </button>
           <RouteLink to="/recovery" nav={nav} className={btn}>
             Restore recovery file
@@ -669,10 +667,10 @@ export function PublicProfile({
   );
 }
 export function EditProfile({
-  vault,
+  identity,
   nav,
   onError,
-}: { vault: Vault } & Navigation) {
+}: { identity: Identity } & Navigation) {
   const [profile, setProfile] = useState<Profile>(),
     [name, setName] = useState(""),
     [bio, setBio] = useState(""),
@@ -684,7 +682,7 @@ export function EditProfile({
     let done = false;
     (async () => {
       try {
-        const account = await vault.profile();
+        const account = identity!;
         let data: ProfileData | undefined;
         try {
           data = await api<ProfileData>(`/api/profiles/${account.address}`);
@@ -731,7 +729,7 @@ export function EditProfile({
     return () => {
       done = true;
     };
-  }, [vault]);
+  }, [identity]);
   return (
     <section className="panel narrow">
       <p className="text-ledger">Your public identity</p>
@@ -753,7 +751,7 @@ export function EditProfile({
                 featured: featured || null,
                 revision: profile?.revision ?? 0,
               },
-              await vault.profile(),
+              identity!,
             );
             nav(`/p/${profile!.address}`);
           } catch (e) {

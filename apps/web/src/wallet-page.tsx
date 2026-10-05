@@ -1,16 +1,28 @@
 import React, { useEffect, useRef, useState } from "react";
 import { privateKeyToAccount } from "viem/accounts";
-import { type Deployment } from "../../../packages/protocol";
+import {
+  digest,
+  sameAddress,
+  type Deployment,
+} from "../../../packages/protocol";
 import { type Vault, type ItemRecord } from "../../../packages/vault";
 import { type WalletSession, isZVMChain } from "./wallet";
-import { api } from "./api";
+import { api, signedRequest } from "./api";
 import { type PublicItem, short } from "./public-pages";
 import { Modal } from "./site-controls";
 import * as walletFlows from "./wallet-flows";
 import { reconcile, submit } from "./flows";
+import { WalletPending } from "./wallet-pending";
+import type { WalletJournal } from "./wallet-journal";
+import { walletIdentity } from "./identity";
+import { checkDeployment, ownership } from "../../../packages/protocol/client";
+import { possessionText } from "../../../packages/protocol/public";
 const btn = "nom-btn nom-btn--outline nom-btn--default";
 export function WalletPage({
   session,
+  journal,
+  onConnect,
+  onWalletProfile,
   vault,
   deployment,
   items,
@@ -21,6 +33,9 @@ export function WalletPage({
   sponsor,
 }: {
   session?: WalletSession;
+  journal?: WalletJournal;
+  onConnect: () => void;
+  onWalletProfile: () => void;
   vault?: Vault;
   deployment: Deployment;
   items: ItemRecord[];
@@ -117,11 +132,27 @@ export function WalletPage({
       </div>
       {!session && (
         <div className="callout">
-          Connect MetaMask using Connect wallet in the header to see its ZFT
-          collectibles.
+          Connect MetaMask to mint, receive and manage collectibles. No separate
+          ZFT password.
+          <button className={btn} onClick={onConnect}>
+            Connect wallet
+          </button>
         </div>
       )}
       {session && <p className="mono wrap">Wallet: {session.account}</p>}
+      {session && (
+        <div className="actions">
+          <button className={btn} onClick={() => nav("/mint")}>
+            Mint to wallet
+          </button>
+          <button className={btn} onClick={() => nav("/claim")}>
+            Receive a file
+          </button>
+          <button className={btn} onClick={onWalletProfile}>
+            Edit wallet profile
+          </button>
+        </div>
+      )}
       {wrongNetwork && (
         <div className="callout">
           Open your wallet controls and switch to ZVM Devnet.
@@ -129,9 +160,10 @@ export function WalletPage({
       )}
       {locked && (
         <div className="callout">
-          Unlock your local collection before moving custody.{" "}
+          Making a transferable file needs a local file session and a saved
+          recovery file. Wallet minting and receiving work without it.{" "}
           <button className="text-button" onClick={() => nav("/collection")}>
-            Open local collection →
+            Set up file custody →
           </button>
         </div>
       )}
@@ -147,6 +179,17 @@ export function WalletPage({
         </p>
       )}
       <p role="status">{notice}</p>
+      {journal && session && (
+        <WalletPending
+          key={session.account}
+          journal={journal}
+          session={session}
+          deployment={deployment}
+          nav={nav}
+          onBusy={onBusy}
+          disabled={busy || !sponsor}
+        />
+      )}
       <h2>In your wallet</h2>
       <p>
         These are indexed holdings at this public address. Every move checks the
@@ -190,7 +233,63 @@ export function WalletPage({
                   })
                 }
               >
-                Prepare file custody
+                Make transferable file
+              </button>
+              <button
+                className={btn}
+                disabled={busy || !session || wrongNetwork}
+                onClick={() =>
+                  act(async () => {
+                    await checkDeployment(deployment);
+                    const state = await ownership(
+                      deployment.contract,
+                      i.tokenId,
+                    );
+                    if (
+                      !sameAddress(state.owner, session!.account) ||
+                      state.metadataHash !== digest(i.metadata)
+                    )
+                      throw new Error(
+                        "Wallet ownership changed. Refresh before publishing.",
+                      );
+                    const identity = walletIdentity(session!);
+                    const proof = {
+                      tokenId: i.tokenId,
+                      owner: session!.account,
+                      nonce: state.nonce,
+                      expires: Math.floor(Date.now() / 1000) + 30 * 86400,
+                    };
+                    const signature = await identity.signMessage({
+                      message: possessionText(identity.address, proof),
+                    });
+                    await signedRequest(
+                      "/api/possessions",
+                      { ...proof, signature },
+                      identity,
+                    );
+                    setNotice(
+                      "Published to your wallet profile for this ownership epoch, for up to 30 days.",
+                    );
+                  })
+                }
+              >
+                Publish to wallet profile
+              </button>
+              <button
+                className={btn}
+                disabled={busy || !session || wrongNetwork}
+                onClick={() =>
+                  act(async () => {
+                    await signedRequest(
+                      "/api/unpublish",
+                      { tokenId: i.tokenId },
+                      walletIdentity(session!),
+                    );
+                    setNotice("Removed this holding from your wallet profile.");
+                  })
+                }
+              >
+                Remove from wallet profile
               </button>
             </div>
           </article>
@@ -205,8 +304,11 @@ export function WalletPage({
         <>
           <h2>Saved custody moves</h2>
           <p>
-            Prepared keys survive reload and recovery. Resume the same
-            destination after a rejected prompt or interrupted request.
+            {vault?.persistent
+              ? "Prepared keys survive reload in encrypted storage."
+              : "Session-only keys need the downloaded recovery file after reload."}{" "}
+            Resume the same destination after a rejected prompt or interrupted
+            request.
           </p>
           <div className="collection-grid">
             {prepared.map((i) => (
@@ -243,7 +345,12 @@ export function WalletPage({
                                 session!,
                                 i,
                               )
-                            : await submit(vault!, deployment, i);
+                            : await submit(
+                                vault!,
+                                deployment,
+                                i,
+                                walletIdentity(session!),
+                              );
                         setNotice(
                           `Ownership move ${job.state}. Refresh its status until confirmed.`,
                         );

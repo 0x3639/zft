@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-10-05T03:12:03.041Z",
+  "workerVersion": "f0261da2-d978-4781-8e03-b72b2f6b77df",
+  "entry": "/assets/index-BO5GeFEc.js",
+  "routes": [
+    {
+      "path": "/mint",
+      "status": 200,
+      "entryMatches": true,
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/claim",
+      "status": 200,
+      "entryMatches": true,
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/wallet",
+      "status": 200,
+      "entryMatches": true,
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/recovery",
+      "status": 200,
+      "entryMatches": true,
+      "robots": "noindex,nofollow"
+    }
+  ],
+  "assetHash": "a7174f8e5f8e3baa51f75b51ab6e6d417ad61e74f0cf0d3464eb36144df1c15e",
+  "assetMatches": true,
+  "sourceCommit": "c79bcb3",
+  "screenshot": "wallet-first-hosted.jpg"
+}

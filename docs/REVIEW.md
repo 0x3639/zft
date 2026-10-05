@@ -7,7 +7,7 @@ Review agenda, updated 2026-10-04. The user authorized real devnet implementatio
 | Decision | Recommendation | Consequence |
 | --- | --- | --- |
 | First protocol | Public ERC-721 with disposable key rotation | File-transfer UX without private/unlinkable transfers |
-| Custody | Current alpha: encrypted local vault, fresh item keys and recovery snapshots. Confirmed next direction: MetaMask-first onboarding and optional password protection for remembered file keys | Existing vaults stay encrypted; wallet-backed profile authentication and password-optional file onboarding are tracked in R1.7/R1.8 |
+| Custody | MetaMask-first wallet mint/receive/profile auth; file keys in session memory or optional protected browser storage | R1.7/R1.8 implemented; legacy encrypted vaults and v1 recovery preserved; actual wallet/device acceptance remains R1.5/R1.6 |
 | External wallet · user direction | MetaMask on ZVM alongside disposable-key file custody | Wallet keys never enter files; connection/network/balance and both custody transitions implemented and deployed; actual MetaMask/phone acceptance remains open; trading planned |
 | Hosting | Cloudflare Workers Static Assets + API, R2, D1, sponsor/index DOs | One hosting provider; external ZVM RPC still required |
 | Domain · confirmed | **`zft.foo`**; user reports Cloudflare setup | Verify DNS/account configuration during provisioning; ignore earlier `zvm.foo` typo |

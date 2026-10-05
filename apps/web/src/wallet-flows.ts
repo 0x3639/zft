@@ -18,6 +18,7 @@ import { Vault, base64, type ItemRecord } from "../../../packages/vault";
 import { assertWallet, type WalletSession } from "./wallet";
 import { api, ApiError } from "./api";
 import { reconcile, submit, type Job } from "./flows";
+import { walletIdentity } from "./identity";
 
 async function currentRecord(vault: Vault, item: ItemRecord) {
   const saved = await vault.get(`item:${item.tokenId}`);
@@ -61,7 +62,6 @@ export async function prepareWalletFile(
   item: { tokenId: string; metadata: Metadata },
   image: Uint8Array,
 ) {
-  await vault.requireBackup();
   await assertWallet(session);
   await checkDeployment(d);
   const state = await ownership(d.contract, item.tokenId);
@@ -136,15 +136,9 @@ export async function authorizeWalletFile(
       BigInt(record.operation.authorization.deadline) >
         BigInt(Math.floor(Date.now() / 1000))
     )
-      return submit(vault, d, record);
+      return submit(vault, d, record, walletIdentity(session));
   }
-  if (!record.operation) {
-    const revisions = await vault.revisions();
-    if (revisions.backedUp !== revisions.current)
-      throw new Error(
-        "Save and confirm a recovery file containing this new file key before authorizing the transfer.",
-      );
-  }
+  if (!record.operation) await vault.requireItemBackup(record);
   const state = await ownership(d.contract, record.tokenId);
   if (
     !sameAddress(state.owner, session.account) ||
@@ -154,11 +148,15 @@ export async function authorizeWalletFile(
     throw new Error(
       "Ownership changed. Reconcile this saved key before continuing.",
     );
+  const deadline = Math.floor(Date.now() / 1000) + 900;
   const authorization = {
     tokenId: record.tokenId,
     newOwner: privateKeyToAccount(record.privateKey).address,
     ownershipNonce: state.nonce,
-    deadline: String(Math.floor(Date.now() / 1000) + 900),
+    deadline: String(
+      deadline -
+        (record.operation?.authorization.deadline === String(deadline) ? 1 : 0),
+    ),
   };
   await assertWallet(session);
   const signature = await session.provider.request({
@@ -211,7 +209,7 @@ export async function authorizeWalletFile(
   };
   delete next.txHash;
   await vault.saveItem(next, record);
-  return submit(vault, d, next);
+  return submit(vault, d, next, walletIdentity(session));
 }
 export async function moveFileToWallet(
   vault: Vault,
@@ -265,5 +263,5 @@ export async function moveFileToWallet(
   };
   delete next.txHash;
   await vault.saveItem(next, record);
-  return submit(vault, d, next);
+  return submit(vault, d, next, walletIdentity(session));
 }

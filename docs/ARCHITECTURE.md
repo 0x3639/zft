@@ -6,7 +6,7 @@ Architecture design, updated 2026-10-04. Workers/R2/D1 and sponsor/indexer Durab
 
 ```mermaid
 flowchart LR
-  U[Browser: encrypted vault, image codec, item signatures] -->|sanitized art and metadata| A[Cloudflare app/API Worker]
+  U[Browser: wallet adapter, optional file vault, image codec] -->|sanitized art and metadata| A[Cloudflare app/API Worker]
   U -->|signed authorizations, no private keys| A
   U -->|owner and nonce reads| N[ZVM JSON-RPC]
   A --> R[R2: sanitized art and metadata]
@@ -75,7 +75,7 @@ Unminted private uploads are served only via scoped, expiring admission tokens a
 
 ## 4. API contracts
 
-All state-changing requests have strict schemas, bounded bodies, same-origin checks, operation idempotency, and explicit error codes. A profile signs a short-lived, single-use challenge bound to HTTP method, path, and SHA-256 request-body digest; it is not a general login/session token. Store/consume challenge nonces atomically in a small auth Durable Object or an equivalent conditional D1 statement. Item signatures remain the contract’s separate EIP-712 authorizations.
+All state-changing requests have strict schemas, bounded bodies, same-origin checks, operation idempotency and explicit errors. The selected wallet or local profile signs a short-lived single-use challenge bound to origin, identity, method, path and body digest. Wallet auth uses `personal_sign`, validates the returned signature and aborts after account/network/identity changes; no delegated session key is retained. Item consent remains a separate EIP-712 authorization (`eth_signTypedData_v4` in MetaMask). Current atomic challenge consumption shares the Sponsor Durable Object; splitting slow RPC waits out of that boundary remains R7.5. Public wallet-operation journals contain no private keys. Local file sessions use memory or optionally protected IndexedDB; only encrypted persistence has a wrapped root.
 
 | Method / path | Input and behavior |
 | --- | --- |

@@ -67,11 +67,11 @@ async function checkpoint(phase: number) {
   });
 }
 async function persist(v: Vault, label: string) {
-  await writeFile(
-    `.local/${prefix}-${label}.zft-recovery`,
-    (await v.backup()).text,
-    { mode: 0o600 },
-  );
+  const snapshot = await v.backup();
+  await writeFile(`.local/${prefix}-${label}.zft-recovery`, snapshot.text, {
+    mode: 0o600,
+  });
+  await v.acknowledgeBackup(snapshot.revision);
 }
 async function open(label: string) {
   const v = await Vault.open(d, `${prefix}-${label}`);
@@ -89,8 +89,8 @@ async function open(label: string) {
     await persist(v, label);
   }
   const save = v.saveItem.bind(v);
-  v.saveItem = async (record) => {
-    await save(record);
+  v.saveItem = async (record, expected) => {
+    await save(record, expected);
     await persist(v, label);
   };
   return v;

@@ -43,23 +43,23 @@ Art and metadata are content-addressed R2 objects. Hosting availability remains 
 
 ## 4. Ownership and recovery
 
-Generate a fresh secp256k1 key for every newly minted or claimed item using browser cryptographic randomness. A key address holds one ZFT item in the supported app flow. Do not embed a connected wallet’s private key, the vault root, the creator identity key, or the sponsor key. File export embeds only that item’s disposable current key.
+Wallet custody uses the connected MetaMask address as owner and, for wallet minting, creator. A fresh secp256k1 key is generated with browser randomness only when minting/claiming into file custody or moving a wallet-owned item into a file. Each disposable key holds one ZFT item in the supported app flow. Never embed a wallet private key, vault root, profile key or sponsor key in a picture.
 
-A separate local profile key signs creator mints and profile operations. It is not the current owner of all items. Both profile and asset keys live in an encrypted IndexedDB vault. The vault has a random 256-bit root; derive its encryption key with domain-separated HKDF-SHA-256 and use AES-256-GCM with a fresh IV per record. Bind chain ID, contract address, record ID, and format version as authenticated data.
+A wallet identity signs its own profile operations with scoped `personal_sign`; wallet mints use EIP-712. File sessions retain a separate local profile key for legacy profiles and local mint provenance. Identity selection is explicit, with no automatic linking/merging. Local profile and item keys live either in session memory or optionally in encrypted IndexedDB. Both modes retain the v1 random 256-bit root, HKDF-SHA-256, AES-256-GCM with fresh record IVs, and deployment/record/version authenticated data.
 
-Persist the root locally only encrypted by a user-chosen unlock passphrase using PBKDF2-HMAC-SHA-256, random salt, 600,000 iterations, and AES-256-GCM. Measure this on supported phones and permit a versioned future KDF migration. The passphrase is never sent to Cloudflare. Close/lock clears in-memory key references on a best-effort basis; JavaScript memory cannot guarantee secure erasure.
+Only the optional protected-browser mode persists the root, wrapped by a user-chosen passphrase using PBKDF2-HMAC-SHA-256 (600,000 iterations), random salt and AES-256-GCM. Session mode persists no secret and ends on reload/tab close. Protected mode locks manually or after 15 minutes of inactivity, deferring while foreground operations run. Existing encrypted vaults require unlock; they are never silently downgraded or overwritten. A session can upgrade after current recovery acknowledgment. The passphrase never goes to Cloudflare; JavaScript memory cannot guarantee secure erasure.
 
-The recovery bundle contains the random root, profile key material encrypted under that root, and a snapshot of encrypted item records. It is a **secret bearer backup**, saved locally after explicit confirmation; explain that anyone with it can recover the vault. Version it and optionally offer password encryption in a later release. Require the first bundle download and acknowledgment before the first mint/claim. After every new ownership key is finalized, mark the bundle out of date and offer an updated export. A snapshot only restores keys it contains; the root alone does not recreate independently random keys acquired later.
+The v1 recovery bundle contains the random root and a snapshot of encrypted profile/item records. It is a **secret bearer backup**, not protected by the browser passphrase; anyone with it can restore included keys. Require download and acknowledgment **before submitting ownership to each new disposable key**, including mint, claim, cancel and wallet-to-file. Backup-key hashes remember which keys were acknowledged without storing them unwrapped. Status changes still mark record snapshots outdated; they do not invalidate already backed-up key coverage. A snapshot only restores its included keys; the root cannot recreate later independent keys. Wallet-only custody does not use this backup.
 
 Do not promise automatic recovery across devices in v1. Losing all current keys and backups loses control; there is no administrator recovery. Saving an exported item file is another backup, but anyone receiving it can race the owner to claim.
 
 ## 5. Mint
 
-1. Unlock or create the vault; confirm the recovery bundle.
+1. Connect MetaMask for default wallet custody. For explicit file custody, open a session or unlock protected storage and acknowledge recovery.
 2. Read the image locally, normalize it, and display the exact canonical result.
-3. Generate/persist the item key and draft metadata before sending a mint request.
+3. Persist a public wallet draft with the connected creator/owner, or prepare a fresh file key and acknowledge a snapshot containing it before sending a mint request.
 4. Upload sanitized canonical art and metadata. Backend verifies hashes and structure and issues a short-lived upload attestation for sponsorship policy.
-5. Sign a domain-bound `Mint` authorization with the profile key. It binds the image/metadata hashes, initial item owner, creator nonce, and deadline.
+5. Sign a domain-bound `Mint` authorization with MetaMask for wallet custody or the local profile key for file custody. It binds image/metadata hashes, initial owner, creator nonce and deadline; save exact consent before submission. The current wallet path prompts for this before upload.
 6. Sponsor simulates, signs, and submits the fixed contract call through ZVM’s relayed EVM path.
 7. Show submitted, included, and finalized states separately. If the transaction is lost or reorged, reconcile using token ID, mint signer nonce, and receipts before retrying.
 
@@ -69,7 +69,7 @@ Onchain uniqueness decides a simultaneous duplicate-mint race. A duplicate respo
 
 **Send:** Read current `ownerOf` and `ownershipNonce`, verify local authority, then construct an export file. Downloading does not submit a transaction. The exported envelope has the current nonce and key. Set local state to `Exported · still yours until claimed`; repeated exports share the same authority. An intentional public preview contains no envelope.
 
-**Claim:** Parse locally; validate file/hash/metadata; require an allowlisted network and contract deployment; verify the key derives to the current owner and the embedded nonce matches the chain. The browser creates a fresh recipient key and persists it as a pending record **before signing or submitting**. Sign a `RotateOwnership` message with the imported key, binding token ID, current epoch, fresh address, and expiry. Sponsor can forward but cannot change the recipient. Once finalized, the imported old key is stale and the fresh key is the recipient’s authority. Exporting again produces a new file.
+**Claim:** validate the local file, image/metadata, pinned deployment, current owner and epoch. Default the recipient to the connected wallet; authorize using the imported disposable key, store only its scoped rotation signature in the wallet journal, and authenticate sponsorship with the wallet. For explicit file custody, prepare a fresh independent key and require an acknowledged recovery snapshot before signing/submitting. The sponsor cannot change the recipient. Confirmation invalidates the old file authority.
 
 **Cancel:** The sender rotates the exported item to a freshly generated local key using the same on-chain operation. Previously sent files stop working after finality. Cancel and claim can race; whichever valid transition the chain orders first wins. No refund/reversal or guarantee of sender priority is implied.
 

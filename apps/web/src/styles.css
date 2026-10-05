@@ -650,7 +650,7 @@ label {
   font-weight: 500;
   margin-bottom: 22px;
 }
-input:not([type="checkbox"]),
+input:not([type="checkbox"]):not([type="radio"]),
 textarea {
   display: block;
   width: 100%;
@@ -684,6 +684,8 @@ input[type="file"] {
 }
 .check input {
   accent-color: var(--primary);
+  width: 1.1rem;
+  height: 1.1rem;
   margin-top: 6px;
   flex: none;
 }
@@ -1150,5 +1152,56 @@ select {
   .cover-word {
     font-size: 9px;
     right: 18px;
+  }
+}
+/* Wallet-first onboarding uses the same Zenon form and card language. */
+.identity-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.identity-bar label {
+  margin: 0;
+  min-width: 220px;
+}
+.identity-bar .muted {
+  flex-basis: 100%;
+  font-size: 0.85rem;
+}
+.custody-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  margin: 0 0 2rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.custody-choice legend {
+  font-weight: 600;
+  padding: 0 0.5rem;
+}
+.custody-choice label {
+  margin: 0;
+}
+.protection-panel,
+.wallet-pending {
+  margin-top: 2rem;
+}
+.wallet-pending {
+  margin-bottom: 2rem;
+}
+@media (max-width: 600px) {
+  .identity-bar label {
+    width: 100%;
+    min-width: 0;
+  }
+  .custody-choice {
+    flex-direction: column;
   }
 }

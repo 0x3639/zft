@@ -1,4 +1,5 @@
-import { sha256, stringToBytes, type PrivateKeyAccount } from "viem";
+import { sha256, stringToBytes } from "viem";
+import type { Identity } from "./identity";
 import { canonical } from "../../../packages/protocol";
 import { challengeText, type Challenge } from "../../../packages/protocol/auth";
 export class ApiError extends Error {
@@ -23,8 +24,9 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 export async function signedRequest<T>(
   path: string,
   data: unknown,
-  account: PrivateKeyAccount,
+  account: Identity,
 ): Promise<T> {
+  await account.assertCurrent?.();
   const body = canonical(data);
   const c = await api<Challenge>("/api/challenges", {
     method: "POST",
@@ -39,6 +41,7 @@ export async function signedRequest<T>(
   if (
     c.origin !== location.origin ||
     c.address !== account.address ||
+    c.method !== "POST" ||
     c.path !== path ||
     c.bodyHash !== sha256(stringToBytes(body)) ||
     c.expires < Date.now() / 1000 ||
@@ -46,6 +49,7 @@ export async function signedRequest<T>(
   )
     throw new Error("Unexpected request challenge.");
   const signature = await account.signMessage({ message: challengeText(c) });
+  await account.assertCurrent?.();
   return api<T>(path, {
     method: "POST",
     headers: {

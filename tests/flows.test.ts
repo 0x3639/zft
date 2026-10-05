@@ -1,6 +1,7 @@
+import "fake-indexeddb/auto";
 import { afterEach, beforeEach, it, expect, vi } from "vitest";
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
-import type { Vault, ItemRecord } from "../packages/vault";
+import { Vault, type ItemRecord } from "../packages/vault";
 import {
   type Deployment,
   type Operation,
@@ -25,7 +26,7 @@ vi.mock("../apps/web/src/api", async (original) => ({
   signedRequest: apiMocks.post,
 }));
 import { ApiError } from "../apps/web/src/api";
-import { submit, reconcile } from "../apps/web/src/flows";
+import { submit, reconcile, prepareRotation } from "../apps/web/src/flows";
 const d: Deployment = {
   contract,
   chainId: 7340469,
@@ -37,6 +38,35 @@ const d: Deployment = {
 };
 beforeEach(() => vi.resetAllMocks());
 afterEach(() => vi.useRealTimers());
+it("prepares a session-only claim and refuses submission until the new destination key is in acknowledged recovery", async () => {
+  const vault = await Vault.session(d);
+  try {
+    const initial = await vault.backup();
+    await vault.acknowledgeBackup(initial.revision);
+    const old = { ...pendingClaim(), privateKey: key, previousKeys: [] };
+    chainMocks.owner.mockResolvedValue({
+      owner: privateKeyToAccount(key).address,
+      nonce: "0",
+      metadataHash: digest(old.metadata),
+    });
+    const prepared = await prepareRotation(vault, d, old);
+    expect(prepared.privateKey).not.toBe(key);
+    expect(apiMocks.post).not.toHaveBeenCalled();
+    await expect(submit(vault, d, prepared)).rejects.toThrow("recovery file");
+    const recovery = await vault.backup();
+    await vault.acknowledgeBackup(recovery.revision);
+    apiMocks.get.mockRejectedValue(new ApiError(404, "Not submitted"));
+    apiMocks.post.mockResolvedValue({
+      operationId: prepared.operationId,
+      txHash: digest("tx"),
+      state: "submitted",
+    });
+    await submit(vault, d, prepared);
+    expect((await vault.items())[0].privateKey).toBe(prepared.privateKey);
+  } finally {
+    vault.close();
+  }
+});
 function pendingClaim(deadline = "1"): ItemRecord {
   const privateKey = generatePrivateKey();
   const operation: Operation = {
@@ -69,6 +99,7 @@ it.each(["absent", "failed"])(
     let saved = { ...original, status: "stale" as ItemRecord["status"] };
     const vault = {
       requireBackup: vi.fn(),
+      requireItemBackup: vi.fn(),
       profile: async () => privateKeyToAccount(key),
       saveItem: async (next: ItemRecord, expected: ItemRecord) => {
         expect(expected).toEqual(saved);
@@ -122,6 +153,7 @@ it("renews a failed job before expiry with a distinct digest inside the sponsor 
   const save = vi.fn();
   const vault = {
     requireBackup: vi.fn(),
+    requireItemBackup: vi.fn(),
     profile: async () => privateKeyToAccount(key),
     saveItem: save,
   } as unknown as Vault;
@@ -153,6 +185,7 @@ it.each(["submitted", "included", "confirmed"])(
       save = vi.fn();
     const vault = {
       requireBackup: vi.fn(),
+      requireItemBackup: vi.fn(),
       profile: async () => privateKeyToAccount(key),
       saveItem: save,
     } as unknown as Vault;
@@ -211,6 +244,7 @@ it("renews an expired unsent claim without replacing its durably saved recipient
   const saved: ItemRecord[] = [];
   const vault = {
     requireBackup: vi.fn(),
+    requireItemBackup: vi.fn(),
     profile: async () => privateKeyToAccount(generatePrivateKey()),
     saveItem: async (r: ItemRecord) => {
       saved.push(r);
@@ -254,6 +288,7 @@ it("does not renew or discard a pending request when job lookup is unavailable",
     };
   const vault = {
     requireBackup: vi.fn(),
+    requireItemBackup: vi.fn(),
     profile: async () => privateKeyToAccount(key),
     saveItem: save,
   } as unknown as Vault;

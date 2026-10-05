@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-04",
+  "origin": "http://localhost:5173",
+  "checks": [
+    "Mint defaults to wallet custody without password fields",
+    "Connect wallet opens no-provider guidance and returns focus when closed",
+    "Explicit file choice defaults to memory-only session; optional protection reveals passphrase/confirmation fields",
+    "Starting a session opens recovery; ending an unacknowledged session returns to recovery",
+    "Download action exposes acknowledgement checkbox; Confirm saved is disabled until checked",
+    "360px wallet and file onboarding have no horizontal overflow"
+  ],
+  "screenshots": [
+    "wallet-first-desktop.jpg",
+    "wallet-first-mobile.jpg",
+    "file-custody-mobile.jpg"
+  ],
+  "limitations": [
+    "No MetaMask extension in the test browser",
+    "Download-event automation timed out; a complete download/acknowledge/import UI round trip is not claimed",
+    "Protected password entry, actual extension/phone transactions and full responsive accessibility acceptance remain R1.6/R6"
+  ],
+  "automated_evidence": [
+    "tests/vault.test.ts",
+    "tests/wallet-direct.test.ts",
+    "tests/wallet-flows.test.ts",
+    "tests/identity-api.test.ts",
+    "tests/inactivity.test.ts",
+    "hosted-wallet-first.json"
+  ]
+}
