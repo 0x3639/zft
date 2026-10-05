@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-05T00:44:31.460Z",
+  "runtime": "local Cloudflare workerd",
+  "largeInput": {
+    "width": 6000,
+    "height": 4000,
+    "bytes": 3956484
+  },
+  "checks": [
+    {
+      "fixture": "0",
+      "bytes": 34566,
+      "width": 1200,
+      "height": 630,
+      "renderMs": 148,
+      "sha256": "2eecc0db0b80f24db68303386e3786f20705a46b8bef9b22fe9404e40cc62b9b"
+    },
+    {
+      "fixture": "1",
+      "bytes": 81799,
+      "width": 1200,
+      "height": 630,
+      "renderMs": 159,
+      "sha256": "318d83d7374e4974c583ef7e3c0145b6135ebab9d759987a3bc6219dad136c6b"
+    },
+    {
+      "fixture": "2",
+      "bytes": 85623,
+      "width": 1200,
+      "height": 630,
+      "renderMs": 203,
+      "sha256": "84692cd56e4983330b8168077669eb46bac4ce8f20ecf862c4a555dcaf045f3e"
+    },
+    {
+      "fixture": "3",
+      "bytes": 93422,
+      "width": 1200,
+      "height": 630,
+      "renderMs": 288,
+      "sha256": "53b03040bc0920b8189454204887887c33cefb135849b5892d241b37bcf76cc8"
+    },
+    {
+      "fixture": "large",
+      "bytes": 311895,
+      "width": 1200,
+      "height": 630,
+      "renderMs": 1510,
+      "sha256": "93a918d9d93275c5d8a05c41947ad5735ab297354ba4a7facf118645f033f56f"
+    },
+    {
+      "fixture": "missing",
+      "bytes": 37461,
+      "width": 1200,
+      "height": 630,
+      "renderMs": 61,
+      "sha256": "8a60db67dd5a2574a395ead0598e32292ac492a7b0546aed3055bf925c0abe0e"
+    }
+  ]
+}

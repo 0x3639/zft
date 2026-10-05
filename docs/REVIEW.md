@@ -1,13 +1,14 @@
 # Review agenda
 
-Draft 0.1. These recommendations make the whole proposal concrete; they are not yet approved product decisions.
+Review agenda, updated 2026-10-04. The user authorized real devnet implementation; the core public ERC-721/disposable-key/vault/Cloudflare architecture is implemented. Visual direction and `zft.foo` are confirmed. The table preserves the original recommendations; it is not a request to reapprove completed work. The [complete functional specification](FUNCTIONAL-SPEC.md) now records the website requirements and [remaining decisions](FUNCTIONAL-SPEC.md#14-implementation-sequence-and-remaining-decisions). License, marketplace/private-protocol expansions, and apex promotion remain separate decisions.
 
-## Decisions needed before implementation
+## Design decisions and recommendations
 
 | Decision | Recommendation | Consequence |
 | --- | --- | --- |
 | First protocol | Public ERC-721 with disposable key rotation | File-transfer UX without private/unlinkable transfers |
-| Custody | Local encrypted vault; fresh item keys; mandatory initial recovery snapshot | Simple wallet-free onboarding, with visible backup updates after new keys |
+| Custody | Current alpha: encrypted local vault, fresh item keys and recovery snapshots. Confirmed next direction: MetaMask-first onboarding and optional password protection for remembered file keys | Existing vaults stay encrypted; wallet-backed profile authentication and password-optional file onboarding are tracked in R1.7/R1.8 |
+| External wallet · user direction | MetaMask on ZVM alongside disposable-key file custody | Wallet keys never enter files; connection/network/balance and both custody transitions implemented and deployed; actual MetaMask/phone acceptance remains open; trading planned |
 | Hosting | Cloudflare Workers Static Assets + API, R2, D1, sponsor/index DOs | One hosting provider; external ZVM RPC still required |
 | Domain · confirmed | **`zft.foo`**; user reports Cloudflare setup | Verify DNS/account configuration during provisioning; ignore earlier `zvm.foo` typo |
 | Mint uniqueness | One token per canonical byte hash in one deployment | Does not establish copyright or prohibit alternate encodings |
@@ -42,4 +43,4 @@ All prototype ownership and operation states are labeled simulation. It does not
 
 ## Implementation entry point
 
-After review, revise this file to record accepted choices and start M1/M2: typed-data vectors, file codec, vault journal, and the contract implementation. Record changes to protocol semantics here before updating code. Cloudflare provisioning and devnet contract deployment follow their implementation gates.
+M1/M2 and the hosted alpha are implemented; see [the runbook](DEVNET-ALPHA.md). Next work follows the functional specification's profile/proof/discovery parity sequence, then actual browser/device and operational beta acceptance. Record changes to protocol semantics before updating code. New trading, remote recovery, and privacy protocols need their own concrete review.

@@ -1,0 +1,67 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zft-devnet",
+  "main": "apps/api/index.ts",
+  "compatibility_date": "2026-10-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "dist/web",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": true,
+  },
+  "vars": {
+    "PUBLIC_ORIGIN": "https://devnet.zft.foo",
+    "SPONSOR_ENABLED": "true",
+  },
+  "routes": [
+    { "pattern": "devnet.zft.foo", "custom_domain": true },
+    { "pattern": "zft.foo/art/*", "zone_name": "zft.foo" },
+    { "pattern": "zft.foo/metadata/*", "zone_name": "zft.foo" },
+  ],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "zft-devnet-public" }],
+  "durable_objects": {
+    "bindings": [
+      { "name": "SPONSOR", "class_name": "Sponsor" },
+      { "name": "INDEXER", "class_name": "Indexer" },
+    ],
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["Sponsor"] },
+    { "tag": "v2", "new_sqlite_classes": ["Indexer"] },
+  ],
+  "triggers": { "crons": ["* * * * *"] },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "zft-devnet-index",
+      "database_id": "ccdc0f96-e21c-4bf2-95a8-110d378caade",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "rules": [{ "type": "Data", "globs": ["**/*.woff"], "fallthrough": true }],
+  "observability": { "enabled": false },
+  "env": {
+    "local": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "zft-local-index",
+          "database_id": "local-index",
+          "migrations_dir": "migrations",
+        },
+      ],
+      "vars": {
+        "PUBLIC_ORIGIN": "http://localhost:5173",
+        "SPONSOR_ENABLED": "false",
+      },
+      "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "zft-local-public" }],
+      "durable_objects": {
+        "bindings": [
+          { "name": "SPONSOR", "class_name": "Sponsor" },
+          { "name": "INDEXER", "class_name": "Indexer" },
+        ],
+      },
+    },
+  },
+}

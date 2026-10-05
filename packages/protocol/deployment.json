@@ -1,0 +1,12 @@
+{
+  "chainId": 7340469,
+  "contract": "0x42666265e38f2d1b786e8af8e9576224a95b90ae",
+  "genesisHash": "0x2a55e0b69e552a105d559e99b12e0cae28d6e07a3c7a9f264a1543a040ef8ea4",
+  "codeHash": "0xf9249a9aec45fba4f14a4b17ed8ed4aabfb5b91a06e84875bc4190b273ba0cc9",
+  "deploymentBlock": "94013",
+  "metadataOrigin": "https://zft.foo",
+  "deploymentTransaction": "0x5e368a5357ef757d5bfd0090b73b9f3671f988a063c23023352a741f6e9aee0c",
+  "compiler": "0.8.30",
+  "evmVersion": "cancun",
+  "deploymentBlockHash": "0x699be5c30150c18ed27ec92e18559c742e01d96bc34a8f7f3cff9f8bcd8c0f34"
+}

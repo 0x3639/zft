@@ -1,0 +1,7 @@
+{
+  "name": "zft-sharing-test",
+  "main": "sharing-worker.ts",
+  "compatibility_date": "2026-10-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "rules": [{ "type": "Data", "globs": ["**/*.woff"], "fallthrough": true }],
+}

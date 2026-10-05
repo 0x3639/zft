@@ -1,6 +1,6 @@
 # Frontend design
 
-Draft 0.1. Open `design/index.html` through the local preview server to explore the proposed interface. It is a dependency-free design prototype with sample art and simulated actions, not a wallet or live app.
+Visual design guide, updated 2026-10-04. Open `design/index.html` through the local preview server for the dependency-free prototype with simulated actions. The real alpha is at [devnet.zft.foo](https://devnet.zft.foo/). Use the [complete functional specification](FUNCTIONAL-SPEC.md) for current route spellings, every page's behavior, ownership/proof states, and acceptance criteria; use the [action audit](REFERENCE-AUDIT.md) for reference evidence. Prototype descriptions below do not imply parity is already implemented.
 
 ## 1. Direction
 
@@ -14,19 +14,19 @@ The prototype uses authored SVG illustrations as sample artwork. They are visual
 
 | Screen | Main action and content |
 | --- | --- |
-| Explore `/` | Art grid, curated collections, concise explanation, `Mint a picture` / `Import a collectible` |
+| Home `/` and discovery `/explore`, `/explore/nfts` | Hero, art grid, public collections, explanation, mint/import actions; collection directory and full sorting remain planned |
 | My collection `/collection` | Local owned items; filters `Owned`, `Exported`, `Sent`; network/backup status |
 | Mint `/mint` | JPG/PNG dropzone, canonical preview, title/description, publish opt-in, mint summary |
 | Item `/item/:tokenId` | Large artwork, ownership state, creator, `Send this picture`, proof/details |
-| Import `/import` | Local file validation, recipient key preparation, explicit claim, outcome |
+| Import `/claim` | Local file validation, recipient key preparation, explicit claim, outcome |
 | Export item | File confirmation, download, “still yours until claimed,” cancel exported copies |
-| Recovery `/settings/recovery` | Unlock/backup status, latest snapshot export/import, lock collection |
+| Recovery `/recovery` | Unlock/backup status, latest snapshot export/import, lock collection |
 | How it works `/about` | File semantics, copy/claim behavior, public transfer history, recovery |
 | Public profile `/p/:profile` | Cover/avatar, identity, five counts, follow/like/share/unlock, Collection/Sent/Activity tabs |
 | Selected artwork `/p/:profile?nft=:id` | Deep-linked public artwork/proof dialog, sanitized public downloads, item-specific share card |
 | Marketplace `/market` | Sample listing grid and planned purchase custody/fee flow; settlement deferred |
 
-Production route spellings and OG behavior are frozen in `PAGES-AND-SHARING.md`; `/about` in the prototype maps to `/how-it-works` in production.
+The route/status table in `FUNCTIONAL-SPEC.md` distinguishes existing routes from additions. `/about` remains a compatibility help alias. Older `/import` and `/settings/recovery` proposals are not the current implemented routes.
 
 Prototype navigation uses hash routes; production uses real routes and deep-link fallback. Marketplace prices are explicitly labeled design samples. The prototype displays no live trading volume or purported market statistics.
 
@@ -41,7 +41,7 @@ Empty states are concrete: “Your collection starts with one picture” and “
 ## 4. Mint flow
 
 1. Choose a picture locally. Validate type/dimensions/size and show canonicalization progress in a worker.
-2. Preview the exact canonical image and fill title/description. Explain removed photo metadata. Default gallery publication **off**.
+2. Preview the exact canonical image and fill title/description. Explain removed photo metadata and public mint provenance. Default **profile holding association** off. The existing index discovers minted items; a future gallery visibility option does not make the underlying art or on-chain metadata private.
 3. If the vault does not exist, create it and set an unlock passphrase. Ask for a local recovery bundle download and acknowledgment before proceeding.
 4. Show `Sponsored on ZVM devnet`, expected confirmation policy, and sponsor availability. Never silently request wallet payment.
 5. Mint, then present progress, success, and `View in my collection`. Update the recovery reminder because a new random key was created.
@@ -64,7 +64,7 @@ Only current-authority items can be exported. The dialog shows art/title, suppor
 
 After download, show `Exported · still yours until claimed` and a `Cancel exported copies` action. Cancellation explains that all existing copies become stale if the sender’s key rotation succeeds first. When someone claims, move the item to sent history and disable export/cancel.
 
-Production generates a normal JPG/PNG with the v1 envelope. The prototype never exports a convincing fake credential: it downloads a `.txt` design sample that says it is not transferable. This distinction must remain prominent in review screenshots.
+The real alpha generates a PNG with the v1 `zfTA` envelope, even from a supported JPG input. JPEG export is deferred. The prototype downloads a `.txt` design sample that says it is not transferable. This distinction must remain prominent in review screenshots.
 
 ## 7. States and copy
 
@@ -75,7 +75,7 @@ Production generates a normal JPG/PNG with the v1 envelope. The prototype never 
 | Request accepted | Waiting to submit… |
 | Broadcast | Submitted to ZVM |
 | Successful receipt | Included · waiting for confirmation |
-| Finality reached | Collectible claimed / Mint complete |
+| Six subsequent EVM blocks under the app policy | Collectible claimed / Mint complete · confirmed under the app policy, not a protocol-finality guarantee |
 | Nonce stale | This copy has already been claimed or canceled |
 | RPC unavailable | Ownership could not be checked. Try again when the network responds |
 | Sponsor disabled | Free claims are temporarily unavailable |

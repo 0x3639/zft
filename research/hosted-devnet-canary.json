@@ -1,0 +1,37 @@
+{
+  "contract": "0x42666265e38f2d1b786e8af8e9576224a95b90ae",
+  "transactions": [
+    {
+      "action": "mint",
+      "hash": "0x94026bd776ea15cf9309a512c55bbe55d66299bfa5c40162b02e17a91312445b",
+      "block": "94503"
+    },
+    {
+      "action": "claim",
+      "hash": "0x2a4134bb2bcb14dd3ec2a7efa6fb4e4e2c057814899cc8666b58a4683be21f3a",
+      "block": "94510"
+    },
+    {
+      "action": "cancel",
+      "hash": "0x6afa1a819d4ca7cf0b04ac81119507ae17ef8899cbfc4a75deaf330b26a9e71b",
+      "block": "94517"
+    },
+    {
+      "action": "re-export and second claim",
+      "hash": "0x0c2cf5fb520d773e199b13d19eda48dbc5007ade5920c4363473b4a7605b8c64",
+      "block": "94527"
+    }
+  ],
+  "checks": [
+    "Duplicate mint submission recovers the same durable transaction hash",
+    "Original copy rejected after claim",
+    "Exported copy rejected after sender cancellation",
+    "Current recovery snapshot restores a valid transferable file",
+    "Recipient key and prior key persisted before every submission"
+  ],
+  "origin": "https://devnet.zft.foo",
+  "completedAt": "2026-10-04T23:32:58.362Z",
+  "tokenId": "62444596035203972831766767283005217709626379059279053359894493390561572500632",
+  "ownershipNonce": "3",
+  "confirmationPolicy": "6 subsequent EVM blocks"
+}

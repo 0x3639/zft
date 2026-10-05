@@ -1,0 +1,7 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "zft-preview",
+  "compatibility_date": "2026-10-04",
+  "assets": { "directory": "./design" },
+  "previews": {},
+}
