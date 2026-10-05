@@ -41,8 +41,8 @@ const staticPages: Record<string, [string, string]> = {
     "Discover freshly minted pictures on Zenon ZVM devnet.",
   ],
   "/activity": [
-    "Pictures on the move.",
-    "Confirmed mints and transfers from the ZFT contract on ZVM devnet.",
+    "Around the network.",
+    "Public profile actions and confirmed collectible activity on ZVM devnet.",
   ],
   "/about": [
     "Keep it. Pass it on.",

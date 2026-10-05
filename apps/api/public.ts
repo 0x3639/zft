@@ -312,23 +312,6 @@ export async function publicContext(
   }
   return p;
 }
-export async function activity(env: Env, url: URL, profile?: string) {
-  const [block, log] = cursor(url.searchParams.get("cursor"));
-  const rows = await env.DB.prepare(
-    `SELECT e.* FROM chain_events e WHERE kind='Transfer' ${profile ? "AND EXISTS(SELECT 1 FROM indexed_items i WHERE i.token_id=e.token_id AND i.creator=?)" : ""} AND (block_number<? OR (block_number=? AND log_index<?)) ORDER BY block_number DESC,log_index DESC LIMIT 25`,
-  )
-    .bind(...(profile ? [profile] : []), block, block, log)
-    .all();
-  const events = rows.results.slice(0, 24),
-    last = events.at(-1);
-  return {
-    events,
-    nextCursor:
-      rows.results.length > 24 && last
-        ? `${last.block_number}:${last.log_index}`
-        : null,
-  };
-}
 export async function directory(
   env: Env,
   address: string,

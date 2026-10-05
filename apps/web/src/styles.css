@@ -1588,3 +1588,71 @@ select {
   font-size: 11px;
   line-height: 1.8;
 }
+
+/* Activity uses independent profile, artwork and proof links. */
+.activity-explanation {
+  max-width: 72ch;
+  margin: 1.5rem 0 2rem;
+}
+.journal-list {
+  border-top: 1px solid var(--border);
+}
+.journal-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.journal-art,
+.journal-symbol {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--muted);
+}
+.journal-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.journal-symbol {
+  display: grid;
+  place-items: center;
+  font-size: 1.75rem;
+  color: var(--primary);
+}
+.journal-description {
+  min-width: 0;
+}
+.journal-description p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.journal-description a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.journal-description .journal-details {
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+}
+.activity-error {
+  margin: 1.5rem 0;
+}
+@media (max-width: 480px) {
+  .journal-row {
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+  .journal-art,
+  .journal-symbol {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+  }
+}

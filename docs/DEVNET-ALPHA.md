@@ -12,7 +12,8 @@ The [complete website functional specification](FUNCTIONAL-SPEC.md) covers the e
 - File custody uses independent keys in session memory or optional password-protected IndexedDB (PBKDF2/HKDF/AES-GCM). New destination keys require a downloaded, acknowledged v1 recovery snapshot before submission. Manual lock and 15-minute inactivity lock protect remembered keys; existing vaults and v1 recovery remain compatible.
 - Strict transferable PNG envelopes with hash/metadata checks, CRC validation, deployment allowlisting, large-number handling, and bounded decoding. Uploaded public art contains only PNG pixels.
 - Signed single-use API challenges, R2 media adapter, fixed-contract sponsor, per-profile/IP quotas, gas caps, explicitly serialized Durable Object delivery, durable signed-transaction journal, retries by authorization digest, receipt reconciliation, and a small confirmed-mint catalog.
-- Signed, versioned public profile editing; featured artwork; follow/unfollow and like/unlike; follower directories; opt-in item-owner possession proofs; collection/sent/creation activity tabs; profile-selected artwork dialogs; public image and observation downloads.
+- Signed, versioned public profile editing; featured artwork; follow/unfollow and like/unlike; follower directories; opt-in item-owner possession proofs; collection/sent/created tabs and public profile activity; profile-selected artwork dialogs; public image and observation downloads.
+- Everyone/Following activity, profile-action journal, explicit social reversals, retained-epoch publication visibility, profile/artwork links, and relative/absolute verified event times. Earlier social history is not invented.
 - D1 event journal indexed independently from sponsor submissions, cursor pagination, six-block confirmation policy, serialized scans and checkpoint rewind on fork detection. Cron and rate-limited public index reads wake ingestion.
 - Per-page initial HTML metadata and deterministic 1200×630 PNGs for static pages, profiles, selected artwork, and standalone items. Known revisions are stored in R2; arbitrary revision generation and unrelated profile/item contexts are rejected.
 - Invalid per-token metadata is omitted from public galleries and collection previews; valid peers remain visible. Missing/invalid deep links and share-storage outages still serve the app shell with noindex metadata and the corresponding 400/404/503 status, so client error/retry states can mount.
@@ -180,3 +181,23 @@ Scheduled index ingestion projects at most eight metadata records and eight prof
 Collection counts and profile Collection/Sent eligibility use the same valid-metadata projection. Home uses six ranked profiles, eight recent NFTs and six public chain events. Transfer rows use neutral wording and confirmed block numbers; full Everyone/Following activity and actual event timestamps remain R3. Shared home/discovery cards contain actual public NFT pixels with distinct immutable page revisions, including a neutral fallback when no artwork is available. Optional discovery query failures also use that fallback: these three static pages retain their titles, public OG metadata and HTTP 200. Discovery API errors and required profile/item context or snapshot-storage failures retain their error behavior.
 
 R2 adds 17 discovery regressions and six sharing fallback cases from PR #3 review; four wallet-profile authentication cases bring the complete suite to 122 TypeScript tests, plus typecheck/build/Worker dry run. The fallback cases failed before the fix and pass afterward under local outage/revision-conflict injection. The entry bundle is about 676 kB minified / 206 kB gzip; route splitting and large-dataset query/resource profiling remain R7.3. Actual MetaMask-signed browser social actions and full device acceptance remain R6. The contract, file codec, recovery format and apex routing are unchanged.
+
+
+## Public activity deployment (R3)
+
+Apply the additive migration before deploying the app. It preserves the preceding Worker's insert shapes and does not change contracts or custody formats:
+
+```sh
+pnpm exec wrangler d1 migrations apply DB --remote --config wrangler.devnet.jsonc --env=
+pnpm run deploy
+```
+
+`0003_activity.sql` records profile/social/publication transitions atomically via D1 triggers. Public action history starts when this migration is installed. Undoing a like/follow retains both events. Unpublishing hides the token association from future feed requests; retained internal journal data and third-party caches have separate retention concerns (R7.3). Re-publishing never restores the hidden generation.
+
+The indexer stores hash-verified event block times with new ranges and backfills at most eight existing event blocks per wake. An unavailable/mismatched time halts that batch without advancing its checkpoint. Until backfill succeeds, the feed says Time unavailable. Metadata projection and timestamp/visibility changes can invalidate a cursor with 409; Refresh obtains a new snapshot. `/api/index` reports the existing checkpoint/lag/error and wakes background work at most every 30 seconds. The existing scheduled alarm continues bounded backfill.
+
+Run `ZFT_TEST_ORIGIN=https://devnet.zft.foo node --import tsx scripts/check-activity.ts` after time/metadata backfill. This writes only to two isolated, labeled acceptance profiles (generated keys in ignored `.local/`), tests signed follow/like/reversal/idempotency, public Following and pagination, and verifies the deployed bundle. It sends no ownership transaction. Evidence goes to `research/hosted-activity.json`; omit the origin override for local acceptance. Reorg/unpublish/expiry/race tests use real local SQLite; actual MetaMask and phone acceptance remains R6.
+
+Rollback the Worker if required, retaining the additive tables/triggers and existing bindings/routes. Do not drop the journal or revert migrations to roll back UI code. The preceding Worker ignores activity tables and remains compatible; upgraded feed routes return only after the new Worker is restored.
+
+R3 deployed on 2026-10-05 as Worker **`f8bfcef9-5b1e-4fd9-813b-9395b60fb52a`** after migration `0003_activity.sql`. **139 TypeScript tests**, typecheck/build/Worker dry run passed. The [hosted canary](../research/hosted-activity.json) verifies the tested bundle, two signed fixture profiles, history/idempotency and 24 events across 12 pages. The indexer reported no error with six-block lag. [Browser evidence](../research/r3-ui.json) records responsive, guest, profile/item link and accessible-time checks. No contract or ownership transaction was required.

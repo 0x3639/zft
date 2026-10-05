@@ -1269,7 +1269,18 @@ function App() {
         sponsor={ready}
       />
     );
-  else if (routePath === "/activity") content = <Activity onError={setError} />;
+  else if (routePath === "/activity")
+    content = (
+      <Activity
+        path={path}
+        viewer={profile}
+        nav={nav}
+        onUnlock={(to) => {
+          setReturnTo(to);
+          nav("/settings/profile");
+        }}
+      />
+    );
   else if (path.startsWith("/item/"))
     content = (
       <PublicDetail

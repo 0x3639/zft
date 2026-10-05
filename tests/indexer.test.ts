@@ -49,6 +49,7 @@ function chain() {
     getBlockNumber: async () => BigInt(head),
     getBlock: async ({ blockNumber }: { blockNumber: bigint }) => ({
       hash: hash(Number(blockNumber)),
+      timestamp: 1791190000n + blockNumber,
     }),
     getLogs: async ({
       fromBlock,
@@ -113,4 +114,37 @@ it("retains the last checkpoint on RPC failure and stops ingestion on a deployme
   expect(
     sql.prepare("SELECT COUNT(*) n FROM chain_events").get(),
   ).toMatchObject({ n: 2 });
+});
+it("commits hash-verified event timestamps with the range and rejects a mismatched event block before checkpointing", async () => {
+  const { db, sql } = database(),
+    c = chain();
+  const revision = sql.prepare("SELECT revision FROM activity_state").get()!
+    .revision;
+  await scan(db, c.client);
+  expect(
+    sql
+      .prepare("SELECT timestamp FROM chain_event_times WHERE block_number=?")
+      .get(start),
+  ).toMatchObject({ timestamp: (1791190000 + start) * 1000 });
+  expect(
+    sql.prepare("SELECT revision FROM activity_state").get()!.revision,
+  ).toBe(revision);
+  const fresh = database(),
+    broken = {
+      ...c.client!,
+      getBlock: async ({ blockNumber }: { blockNumber: bigint }) => ({
+        hash:
+          blockNumber === BigInt(start)
+            ? "wrong-event-hash"
+            : `main-${blockNumber}`,
+        timestamp: 1791190000n + blockNumber,
+      }),
+    } as unknown as Parameters<typeof scan>[1];
+  await expect(scan(fresh.db, broken)).rejects.toThrow("Event block changed");
+  expect(
+    fresh.sql.prepare("SELECT COUNT(*) n FROM chain_events").get(),
+  ).toMatchObject({ n: 0 });
+  expect(
+    fresh.sql.prepare("SELECT COUNT(*) n FROM checkpoints").get(),
+  ).toMatchObject({ n: 0 });
 });
