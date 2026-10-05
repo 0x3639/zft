@@ -1,0 +1,59 @@
+{
+  "checkedAt": "2026-10-05T11:16:26.380114+00:00",
+  "reviewedHead": "6f50434df109219d89ceae0f62d2702305f9da52",
+  "pullRequest": "https://github.com/0x3639/zft/pull/4",
+  "workerVersion": "dcd1dd7d-f9e1-48fe-9f91-88f913380872",
+  "migration": {
+    "name": "0004_activity_invalidation.sql",
+    "local": "applied",
+    "remote": "applied",
+    "before": {
+      "events": 8,
+      "bindings": 0,
+      "revision": 17
+    },
+    "after": {
+      "events": 8,
+      "bindings": 0,
+      "revision": 18
+    }
+  },
+  "checks": {
+    "typescriptTests": 154,
+    "newTests": 15,
+    "typecheck": "pass",
+    "frontendBuild": "pass",
+    "workerDryRun": "pass",
+    "localCanary": {
+      "events": 20,
+      "pages": 10
+    },
+    "hostedCanary": {
+      "events": 32,
+      "pages": 16
+    },
+    "paginationCursorAdvanceAssertion": "pass"
+  },
+  "regressionEvidence": {
+    "before": "Five SQLite cases failed against the reviewed code; three wallet return cases failed against the extracted pre-fix return predicate.",
+    "after": "All eight pass. Additional cases preserve invalidation for shortened/reactivated proofs, ownership and metadata changes; migration retains existing journal/bindings."
+  },
+  "browser": {
+    "origin": "https://devnet.zft.foo",
+    "checks": [
+      "Guest Following opens wallet profile setup",
+      "Browser Back restores Following URL"
+    ],
+    "screenshot": "research/pr4-following-onboarding.png",
+    "limitation": "Connected-wallet return cases use unit tests; actual MetaMask/device acceptance remains R6."
+  },
+  "index": {
+    "block": 97391,
+    "head": 97397,
+    "syncedAt": 1791198929648,
+    "error": null,
+    "lag": 6,
+    "confirmations": 6
+  },
+  "deferred": "Activity query scale work is explicitly tracked in R7.3: time/epoch projections, sort indexes, per-source cursor limits, D1 query plans/rows-read/latency and ordering/visibility/reorg parity."
+}

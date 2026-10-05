@@ -115,6 +115,10 @@ do {
   const page = await feed(
     `limit=2${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`,
   );
+  assert(
+    page.nextCursor === null || page.nextCursor !== cursor,
+    "Pagination cursor did not advance",
+  );
   for (const e of page.events) {
     assert(!seen.has(e.id), "Duplicate page row");
     seen.add(e.id);

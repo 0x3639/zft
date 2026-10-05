@@ -1,12 +1,12 @@
 {
-  "checkedAt": "2026-10-05T10:54:12.276Z",
+  "checkedAt": "2026-10-05T11:14:58.305Z",
   "origin": "https://devnet.zft.foo",
   "profiles": {
     "a": "0x35442e57653d3e5DF9967Fd4bCfB8611c6D355e2",
     "b": "0x1eFD243c39871925224a089a34ffF94AA236f3bD"
   },
-  "events": 24,
-  "pages": 12,
+  "events": 32,
+  "pages": 16,
   "checks": [
     "Generated-wallet signed profile/social actions accepted",
     "Guest and zero-follow states differ",
@@ -20,15 +20,16 @@
     "SDK signer fixture, not an actual MetaMask extension",
     "Publication/unpublish and reorg races covered in local SQLite tests"
   ],
-  "entry": "/assets/index-CDNma6d-.js",
-  "assetSha256": "5014db303b5144da7d1183e022e74985e41f8622c8c07b1710fb770995197a7d",
-  "workerVersion": "f8bfcef9-5b1e-4fd9-813b-9395b60fb52a",
-  "tests": 139,
-  "index": {
-    "block": 97306,
-    "head": 97312,
+  "entry": "/assets/index-BTei8IsQ.js",
+  "assetSha256": "700a4ed93a27c90aa729e58eaaf766e8182ac6ef28f9add8818f7769d5745d49",
+  "workerVersion": "dcd1dd7d-f9e1-48fe-9f91-88f913380872",
+  "indexer": {
+    "block": 97391,
+    "head": 97397,
+    "syncedAt": 1791198929648,
+    "error": null,
     "lag": 6,
-    "confirmations": 6,
-    "error": null
-  }
+    "confirmations": 6
+  },
+  "typescriptTests": 154
 }

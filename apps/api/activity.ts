@@ -43,6 +43,9 @@ async function revision(env: Env) {
   ).first<{ revision: number; follow_revision: number }>())!;
 }
 const metadataJoin = `JOIN discovery_metadata d ON d.token_id=i.token_id AND d.metadata_hash=i.metadata_hash AND d.creator=i.creator AND d.version=1 AND d.valid=1`;
+const canonicalPublication = `EXISTS(SELECT 1 FROM chain_events m WHERE m.kind='Minted' AND m.token_id=e.token_id AND m.block_hash=e.mint_hash)
+  AND EXISTS(SELECT 1 FROM chain_events x WHERE x.kind='Transfer' AND x.token_id=e.token_id AND x.to_address=e.owner
+    AND (SELECT COUNT(*)-1 FROM chain_events y WHERE y.kind='Transfer' AND y.token_id=x.token_id AND (y.block_number<x.block_number OR (y.block_number=x.block_number AND y.log_index<=x.log_index)))=CAST(e.nonce AS INTEGER))`;
 
 /** A bounded snapshot of public actions and canonical chain history. New actions
  * cannot shift an existing page; visibility changes require an explicit refresh. */
@@ -103,23 +106,39 @@ export async function activity(
       .first())
   )
     return { events: [], nextCursor: null, state: "no-follows" };
-  const bounds = await env.DB.prepare(
-    `SELECT
-    COALESCE((SELECT MAX(id) FROM public_events),0) publicMax,
-    COALESCE((SELECT MAX(block_number) FROM chain_events),0) chainMax,
-    (SELECT MIN(expires)*1000 FROM possessions WHERE expires>?) expiry`,
-  )
-    .bind(Math.floor(now / 1000))
-    .first<{ publicMax: number; chainMax: number; expiry: number | null }>();
-  const publicMax = after?.publicMax ?? bounds!.publicMax,
-    chainMax = after?.chainMax ?? bounds!.chainMax;
-  const until =
-    after?.until ?? Math.min(now + 300_000, bounds!.expiry ?? Infinity);
   const actorFilter = profile
     ? "AND (e.actor=? OR e.target=?)"
     : view === "following"
       ? "AND EXISTS(SELECT 1 FROM relations r WHERE r.actor=? AND r.kind='follow' AND r.target=e.actor)"
       : "";
+  const actorArgs = profile
+    ? [profile.toLowerCase(), profile.toLowerCase()]
+    : view === "following"
+      ? [viewer]
+      : [];
+  const bounds =
+    after ??
+    (await env.DB.prepare(
+      `SELECT COALESCE((SELECT MAX(id) FROM public_events),0) publicMax,
+    COALESCE((SELECT MAX(block_number) FROM chain_events),0) chainMax`,
+    ).first<{ publicMax: number; chainMax: number }>())!;
+  const { publicMax, chainMax } = bounds;
+  let until = after?.until;
+  if (until === undefined) {
+    // Only visible publication generations in this snapshot can expire it.
+    // Legacy possessions and other profiles' statements are not feed entries.
+    const expiry = await env.DB.prepare(
+      `SELECT MIN(p.expires)*1000 expiry FROM public_events e
+      JOIN activity_publications b ON b.event_id=e.id
+      JOIN possessions p ON p.profile=b.profile AND p.token_id=b.token_id AND p.nonce=b.nonce
+      JOIN indexed_items i ON i.token_id=e.token_id ${metadataJoin}
+      WHERE e.kind='published' AND e.id<=? AND p.owner=e.owner AND p.expires>?
+      AND ${canonicalPublication} ${actorFilter}`,
+    )
+      .bind(publicMax, Math.floor(now / 1000), ...actorArgs)
+      .first<{ expiry: number | null }>();
+    until = Math.min(now + 300_000, expiry?.expiry ?? Infinity);
+  }
   // Unattributed transfers stay in Everyone. They are not actions by a creator,
   // recipient profile, gift or sale merely because an address happens to match.
   const chainFilter = profile
@@ -130,11 +149,7 @@ export async function activity(
   const args: unknown[] = [
     publicMax,
     Math.floor(now / 1000),
-    ...(profile
-      ? [profile.toLowerCase(), profile.toLowerCase()]
-      : view === "following"
-        ? [viewer]
-        : []),
+    ...actorArgs,
     chainMax,
     ...(profile
       ? [profile.toLowerCase()]
@@ -155,9 +170,7 @@ export async function activity(
     WHERE e.id<=? AND (e.kind<>'published' OR (
       d.valid=1 AND EXISTS(SELECT 1 FROM activity_publications b JOIN possessions p USING(profile,token_id,nonce)
         WHERE b.event_id=e.id AND p.owner=e.owner AND p.expires>?)
-      AND EXISTS(SELECT 1 FROM chain_events m WHERE m.kind='Minted' AND m.token_id=e.token_id AND m.block_hash=e.mint_hash)
-      AND EXISTS(SELECT 1 FROM chain_events x WHERE x.kind='Transfer' AND x.token_id=e.token_id AND x.to_address=e.owner
-        AND (SELECT COUNT(*)-1 FROM chain_events y WHERE y.kind='Transfer' AND y.token_id=x.token_id AND (y.block_number<x.block_number OR (y.block_number=x.block_number AND y.log_index<=x.log_index)))=CAST(e.nonce AS INTEGER))
+      AND ${canonicalPublication}
     )) ${actorFilter}
     UNION ALL
     SELECT CASE c.kind WHEN 'Minted' THEN 'minted' ELSE 'transferred' END,'chain',c.block_number,c.log_index,COALESCE(time.timestamp,0),

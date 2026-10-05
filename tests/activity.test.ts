@@ -103,7 +103,7 @@ function fixture() {
         Date.now(),
       );
   }
-  return { env, db, sql, profile, relation, mint, publish };
+  return { env, db, sql, objects, profile, relation, mint, publish };
 }
 afterEach(() => {
   vi.useRealTimers();
@@ -300,6 +300,113 @@ describe("Public activity journal", () => {
         .get(),
     ).toMatchObject({ n: 2 });
   });
+  it("keeps pagination valid across live proof renewals", async () => {
+    const f = fixture();
+    await f.profile(2);
+    await f.mint(1);
+    f.publish(1);
+    const first = await activity(f.env, url({ limit: "1" }));
+    expect(first.nextCursor).toBeTruthy();
+    f.sql.exec("UPDATE possessions SET signature='renewed',expires=expires+60");
+    const next = await activity(f.env, url({ cursor: first.nextCursor! }));
+    expect(next.events.some((e) => e.id === first.events[0].id)).toBe(false);
+    expect(next.events.length).toBeGreaterThan(0);
+  });
+  it("keeps pagination valid across unsuccessful metadata retries", async () => {
+    const f = fixture();
+    await f.profile(1);
+    await f.profile(2);
+    await f.mint(1);
+    f.objects.clear();
+    f.sql.exec("UPDATE discovery_metadata SET valid=0,retry_at=0");
+    await projectDiscovery(f.env); // First invalid result becomes the baseline.
+    const first = await activity(f.env, url({ limit: "1" }));
+    f.sql.exec("UPDATE discovery_metadata SET retry_at=0");
+    await projectDiscovery(f.env);
+    expect(
+      (await activity(f.env, url({ cursor: first.nextCursor! }))).events,
+    ).toHaveLength(1);
+  });
+  it.each([
+    "UPDATE possessions SET expires=expires-10",
+    "UPDATE possessions SET owner='" + addr(3) + "'",
+    "UPDATE discovery_metadata SET valid=0",
+    "UPDATE discovery_metadata SET version=2",
+    "UPDATE discovery_metadata SET metadata_json=json_set(metadata_json,'$.name','Changed')",
+  ])("still invalidates visibility-changing writes: %s", async (write) => {
+    const f = fixture();
+    await f.profile(2);
+    await f.mint(1);
+    f.publish(1);
+    const first = await activity(f.env, url({ limit: "1" }));
+    expect(first.nextCursor).toBeTruthy();
+    f.sql.exec(write);
+    await expect(
+      activity(f.env, url({ cursor: first.nextCursor! })),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+  it("invalidates when renewal makes an expired publication visible again", async () => {
+    const f = fixture();
+    await f.profile(2);
+    await f.mint(1);
+    f.publish(1);
+    f.sql.exec("UPDATE possessions SET expires=0");
+    const first = await activity(f.env, url({ limit: "1" }));
+    expect(first.nextCursor).toBeTruthy();
+    f.publish(1);
+    await expect(
+      activity(f.env, url({ cursor: first.nextCursor! })),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(
+      (await activity(f.env, url())).events.some((e) => e.kind === "published"),
+    ).toBe(true);
+  });
+  it.each(["profile", "following"])(
+    "ignores unrelated publication expiry in the %s feed",
+    async (scope) => {
+      const f = fixture();
+      await f.profile(1);
+      await f.profile(1, 1, "Edited");
+      await f.profile(2);
+      await f.profile(3);
+      await f.mint(1);
+      f.publish(1); // Profile 2's publication is outside both feeds.
+      await f.relation(3, 1);
+      const params: Record<string, string> =
+        scope === "following" ? { view: "following", viewer: addr(3) } : {};
+      const profile = scope === "profile" ? addr(1) : undefined;
+      const first = await activity(
+        f.env,
+        url({ ...params, limit: "1" }),
+        profile,
+      );
+      expect(first.nextCursor).toBeTruthy();
+      vi.spyOn(Date, "now").mockReturnValue(Date.now() + 61_000);
+      expect(
+        (
+          await activity(
+            f.env,
+            url({ ...params, cursor: first.nextCursor! }),
+            profile,
+          )
+        ).events.length,
+      ).toBeGreaterThan(0);
+    },
+  );
+  it("ignores expiry on legacy possessions without a publication event", async () => {
+    const f = fixture();
+    await f.profile(1);
+    await f.profile(2);
+    await f.mint(1);
+    // Simulate a possession retained from before the journal migration.
+    f.sql.exec("DROP TRIGGER activity_publication_insert");
+    f.publish(1);
+    const first = await activity(f.env, url({ limit: "1" }));
+    vi.spyOn(Date, "now").mockReturnValue(Date.now() + 61_000);
+    expect(
+      (await activity(f.env, url({ cursor: first.nextCursor! }))).events.length,
+    ).toBeGreaterThan(0);
+  });
   it("shows historical published epochs but suppresses expired, reverted and replacement-mint associations", async () => {
     const f = fixture();
     await f.profile(2);
@@ -467,5 +574,30 @@ describe("Public activity journal", () => {
     expect(sql.prepare("SELECT kind FROM public_events").get()).toMatchObject({
       kind: "profile_created",
     });
+    sql
+      .prepare("INSERT INTO possessions VALUES(?,?,?,?,?,?,?)")
+      .run(
+        addr(2),
+        "1",
+        addr(1),
+        "0",
+        "sig",
+        Math.floor(Date.now() / 1000) + 60,
+        Date.now(),
+      );
+    const tables = ["public_events", "activity_publications", "possessions"];
+    const before = tables.map((table) =>
+      sql.prepare(`SELECT * FROM ${table}`).all(),
+    );
+    sql.exec(readFileSync("migrations/0004_activity_invalidation.sql", "utf8"));
+    expect(
+      tables.map((table) => sql.prepare(`SELECT * FROM ${table}`).all()),
+    ).toEqual(before);
+    sql
+      .prepare("INSERT INTO profiles VALUES(?,?,?,NULL,1,?)")
+      .run(addr(3), "Still compatible", "", Date.now());
+    expect(
+      sql.prepare("SELECT COUNT(*) n FROM public_events").get(),
+    ).toMatchObject({ n: 3 });
   });
 });
