@@ -18,10 +18,13 @@ import {
   type Profile,
   type Publication,
 } from "../../packages/protocol/public";
+import { searchKey } from "../../packages/protocol/discovery";
 import manifest from "../../packages/protocol/deployment.json";
 import { checkDeployment, ownership } from "../../packages/protocol/client";
 import { HttpError, json } from "./http";
 import type { Env } from "./types";
+
+const projectedArtwork = `EXISTS(SELECT 1 FROM discovery_metadata d WHERE d.token_id=i.token_id AND d.metadata_hash=i.metadata_hash AND d.creator=i.creator AND d.version=1 AND d.valid=1)`;
 
 export type IndexedItem = {
   token_id: string;
@@ -111,6 +114,7 @@ export async function gallery(
     } else {
       filter = `EXISTS (SELECT 1 FROM possessions p WHERE p.token_id=i.token_id AND p.profile=? AND ${tab === "sent" ? "(p.owner<>i.owner OR CAST(p.nonce AS INTEGER)<>i.nonce)" : "p.owner=i.owner AND CAST(p.nonce AS INTEGER)=i.nonce AND p.expires>?"})`;
       values.push(profile);
+      filter += ` AND ${projectedArtwork}`;
       if (tab !== "sent") values.push(Math.floor(Date.now() / 1000));
     }
   }
@@ -165,12 +169,12 @@ export async function profileData(env: Env, address: string, viewer?: string) {
   const [collected, sent, followers, following, likes, viewerRows] =
     await Promise.all([
       count(
-        "SELECT COUNT(DISTINCT p.token_id) n FROM possessions p JOIN indexed_items i USING(token_id) WHERE p.profile=? AND p.owner=i.owner AND CAST(p.nonce AS INTEGER)=i.nonce AND p.expires>?",
+        `SELECT COUNT(DISTINCT p.token_id) n FROM possessions p JOIN indexed_items i USING(token_id) WHERE p.profile=? AND p.owner=i.owner AND CAST(p.nonce AS INTEGER)=i.nonce AND p.expires>? AND ${projectedArtwork}`,
         addr,
         now,
       ),
       count(
-        "SELECT COUNT(DISTINCT p.token_id) n FROM possessions p JOIN indexed_items i USING(token_id) WHERE p.profile=? AND (p.owner<>i.owner OR CAST(p.nonce AS INTEGER)<>i.nonce)",
+        `SELECT COUNT(DISTINCT p.token_id) n FROM possessions p JOIN indexed_items i USING(token_id) WHERE p.profile=? AND (p.owner<>i.owner OR CAST(p.nonce AS INTEGER)<>i.nonce) AND ${projectedArtwork}`,
         addr,
       ),
       count(
@@ -367,6 +371,11 @@ export async function publicMutation(
     // A nonexistent profile is revision 0; stale updates must never resurrect it.
     if (result.meta.changes === 0)
       throw new HttpError(409, "Profile changed. Reload before saving.");
+    await env.DB.prepare(
+      "UPDATE profile_discovery SET search_name=? WHERE address=? AND EXISTS(SELECT 1 FROM profiles p WHERE p.address=profile_discovery.address AND p.revision=?)",
+    )
+      .bind(searchKey(p.name), addr, p.revision + 1)
+      .run();
     return json(await profileData(env, addr, addr));
   }
   if (path === "/api/social") {

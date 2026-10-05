@@ -4,7 +4,7 @@
 
 ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for Cloudflare. A PNG carries a disposable ownership key. Claiming the file rotates ownership on-chain, invalidating previously exported copies. JPG and PNG inputs are normalized locally into canonical PNGs.
 
-**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). MetaMask-first minting, receiving and profile actions need no ZFT password. File custody offers session-only keys or optional encrypted browser storage, with recovery saved before moving ownership. The app also includes export/cancel/recovery, wallet/file custody transitions, signed profiles and social actions, opt-in collection proofs, a D1 chain index, and page-specific PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates, including actual MetaMask/phone acceptance.
+**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). MetaMask-first minting, receiving and profile actions need no ZFT password. File custody offers session-only keys or optional encrypted browser storage, with recovery saved before moving ownership. The app also includes export/cancel/recovery, wallet/file custody transitions, signed profiles and social actions, opt-in collection proofs, a D1 chain index, collection/NFT search and ranking, a homepage populated by real artwork, and page-specific PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates, including actual MetaMask/phone acceptance.
 
 [zft.foo](https://zft.foo/) still displays the design prototype at its root. Its `/art/*` and `/metadata/*` routes now serve the real contract's immutable public media. The review app has an isolated sponsor account and Cloudflare storage.
 
@@ -12,7 +12,7 @@ Repository: [0x3639/zft](https://github.com/0x3639/zft).
 
 ## Review the project
 
-Track delivery in the [implementation roadmap](docs/IMPLEMENTATION.md), including completed milestones, the current wallet-custody work and remaining acceptance gates. Start with the [complete website functional specification](docs/FUNCTIONAL-SPEC.md) and [reference action audit](docs/REFERENCE-AUDIT.md). They cover routes, controls, dialogs, ownership states, downloads, recovery, discovery/social features, marketplace scope, OG sharing, and acceptance criteria. The audit distinguishes exercised public actions from owner/payment flows still unverified.
+Track delivery in the [implementation roadmap](docs/IMPLEMENTATION.md), including completed milestones, discovery delivery, wallet/device work and remaining acceptance gates. Start with the [complete website functional specification](docs/FUNCTIONAL-SPEC.md) and [reference action audit](docs/REFERENCE-AUDIT.md). They cover routes, controls, dialogs, ownership states, downloads, recovery, discovery/social features, marketplace scope, OG sharing, and acceptance criteria. The audit distinguishes exercised public actions from owner/payment flows still unverified.
 
 1. [Product and protocol specification](docs/SPEC.md)
 2. [Contract design and invariants](docs/CONTRACTS.md), [proposed Solidity interface](contracts/interfaces/IZFT.sol)

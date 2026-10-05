@@ -37,6 +37,7 @@ export default {
                   revision: 1,
                   featured: null,
                 };
+              if (query.includes("discovery_state")) return { revision: 1 };
               if (query.includes("COUNT(*)")) return { n: 0 };
               if (
                 mode === "metadata-outage" &&

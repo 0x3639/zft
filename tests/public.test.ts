@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { projectDiscovery } from "../apps/api/discovery";
 import { database } from "./d1";
 import {
   publicMutation,
@@ -89,6 +90,7 @@ describe("Public identity and ownership projections", () => {
             id,
           );
       }
+      await projectDiscovery(env);
       const url = new URL("https://zft.foo/api/gallery");
       expect((await gallery(env, url)).items.map((i) => i.tokenId)).toEqual([
         "1",
@@ -191,6 +193,7 @@ describe("Public identity and ownership projections", () => {
         Math.floor(Date.now() / 1000) + 100,
         Date.now(),
       );
+    await projectDiscovery(env);
     expect(
       (await snapshot(env, new URL(`https://zft.foo/p/${alice}`))).art,
     ).toHaveLength(1);

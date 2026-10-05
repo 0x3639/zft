@@ -21,11 +21,7 @@ import "../../../design/vendor/zenon/components/components.css";
 import "./styles.css";
 import logo from "../../../design/vendor/zenon/assets/znn-logo.svg";
 import manifest from "../../../packages/protocol/deployment.json";
-import {
-  digest,
-  type Deployment,
-  type Metadata,
-} from "../../../packages/protocol";
+import { digest, type Deployment } from "../../../packages/protocol";
 import { Vault, base64, type ItemRecord } from "../../../packages/vault";
 import { MAX_IMAGE } from "../../../packages/file-codec";
 import { api, signedRequest } from "./api";
@@ -43,6 +39,7 @@ import { WalletPage } from "./wallet-page";
 import { isZVMChain, type WalletSession } from "./wallet";
 import { localIdentity, walletIdentity, type Identity } from "./identity";
 import { WalletJournal } from "./wallet-journal";
+import { Discovery, Home } from "./discovery-pages";
 import { inactivityLock } from "./inactivity";
 import {
   prepareWalletMint,
@@ -51,14 +48,6 @@ import {
 } from "./wallet-direct";
 
 type Config = { deployment: typeof manifest; sponsorEnabled: boolean };
-type PublicItem = {
-  tokenId: string;
-  metadata: Metadata;
-  metadataHash: Hex;
-  owner?: string;
-  nonce?: string;
-  blockNumber?: string;
-};
 type Normalized = {
   bytes: Uint8Array;
   width: number;
@@ -138,9 +127,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false),
     [returnTo, setReturnTo] = useState<string>();
   const [items, setItems] = useState<ItemRecord[]>([]),
-    [gallery, setGallery] = useState<PublicItem[]>([]),
     [localProfile, setLocalProfile] = useState("");
-  const [galleryCursor, setGalleryCursor] = useState<string | null>(null);
   const [index, setIndex] = useState<{
     block: number | null;
     lag: number | null;
@@ -258,14 +245,6 @@ function App() {
         if (!cancelled) setConfig(c);
       })
       .catch((e) => setError(e.message));
-    api<{ items: PublicItem[]; nextCursor: string | null }>("/api/gallery")
-      .then((r) => {
-        if (!cancelled) {
-          setGallery(r.items);
-          setGalleryCursor(r.nextCursor);
-        }
-      })
-      .catch(() => {});
     if (deployment)
       Vault.open(deployment).then(async (v) => {
         opened = v;
@@ -344,14 +323,33 @@ function App() {
     return () => window.removeEventListener("beforeunload", leaving);
   }, [unlocked, vault, revisions]);
   useEffect(() => {
-    if (
-      returnTo &&
-      ((returnTo.startsWith("/p/") && identity) ||
-        (unlocked && revisions.backedUp === revisions.current))
-    ) {
-      setReturnTo(undefined);
-      nav(returnTo);
-    }
+    if (!returnTo) return;
+    let cancelled = false;
+    const publicReturn =
+      returnTo === "/" ||
+      returnTo.startsWith("/explore") ||
+      returnTo.startsWith("/p/");
+    const resume = () => {
+      if (!cancelled) {
+        setReturnTo(undefined);
+        nav(returnTo);
+      }
+    };
+    if (publicReturn && identity) {
+      // New identities finish publishing their profile before returning to a
+      // social action. Existing identities can resume as soon as they connect.
+      api(`/api/profiles/${identity.address}`)
+        .then(resume)
+        .catch(() => {});
+    } else if (
+      !publicReturn &&
+      unlocked &&
+      revisions.backedUp === revisions.current
+    )
+      resume();
+    return () => {
+      cancelled = true;
+    };
   }, [returnTo, unlocked, revisions.backedUp, revisions.current, identity]);
   async function startSession(recovery?: string) {
     if (!deployment) throw new Error("Deployment unavailable.");
@@ -584,25 +582,6 @@ function App() {
       </label>
     </fieldset>
   );
-  function itemCard(item: PublicItem) {
-    return (
-      <Link
-        key={item.tokenId}
-        to={`/item/${item.tokenId}`}
-        className="art-card"
-      >
-        <img
-          src={new URL(item.metadata.image).pathname}
-          alt={item.metadata.name}
-        />
-        <div className="art-info">
-          <h3>{item.metadata.name}</h3>
-          <p className="mono">{short(item.metadata.creator)}</p>
-          <span className="text-ledger">ZVM devnet · public collectible</span>
-        </div>
-      </Link>
-    );
-  }
   let content: ReactNode;
   if (routePath === "/mint")
     content = (mintMode === "wallet" ? !walletSession : !unlocked) ? (
@@ -1268,7 +1247,11 @@ function App() {
       <EditProfile
         key={profile}
         identity={identity}
-        nav={nav}
+        nav={(to) => {
+          const destination = returnTo ?? to;
+          setReturnTo(undefined);
+          nav(destination);
+        }}
         onError={setError}
       />
     ) : (
@@ -1373,100 +1356,32 @@ function App() {
         </p>
       </section>
     );
-  else if (routePath === "/" || routePath === "/explore")
-    content = (
-      <>
-        {routePath === "/" && (
-          <section className="hero">
-            <div>
-              <p className="eyebrow">
-                <span className="live-dot" /> ZVM devnet · first implementation
-              </p>
-              <h1>
-                The collectible
-                <br />
-                is <span>the file.</span>
-              </h1>
-              <p>
-                Mint a picture. Keep it in your collection.
-                <br />
-                Pass the original file to someone else.
-              </p>
-              <div className="actions">
-                <Link
-                  className="nom-btn nom-btn--primary nom-btn--default"
-                  to="/mint"
-                >
-                  Mint a picture
-                </Link>
-                <Link
-                  className="nom-btn nom-btn--outline nom-btn--default"
-                  to="/claim"
-                >
-                  Receive a file
-                </Link>
-              </div>
-              <p className="hero-note text-ledger">
-                Your wallet · transferable files · sponsored devnet gas
-              </p>
-            </div>
-            <div className="hero-file">
-              <img src={logo} alt="Zenon" />
-              <span className="file-name mono">your-picture.zft.png</span>
-              <span className="text-ledger">
-                One image. A new way to pass it on.
-              </span>
-            </div>
-          </section>
-        )}
-        <div className="section-heading">
-          <div>
-            <p className="text-ledger">Discover</p>
-            {routePath === "/explore" ? (
-              <h1>Explore the network.</h1>
-            ) : (
-              <h2>Fresh from the network</h2>
-            )}
-          </div>
-          <span className="mono muted">{gallery.length} published</span>
-        </div>
-        <p className="index-status">
-          {index?.error ||
+  else if (["/", "/explore", "/explore/nfts"].includes(routePath)) {
+    const discoveryProps = {
+      path,
+      nav,
+      identity,
+      onUnlock: (to: string) => {
+        setReturnTo(to);
+        nav("/settings/profile");
+      },
+    };
+    content =
+      routePath === "/" ? (
+        <Home
+          {...discoveryProps}
+          sponsorEnabled={!!config?.sponsorEnabled}
+          indexMessage={
+            index?.error ||
             (index?.block
               ? `Indexed through block ${index.block.toLocaleString()} · ${index.lag} blocks behind head · six-block confirmation policy`
-              : "Waiting for the chain index.")}
-        </p>
-        {gallery.length ? (
-          <div className="gallery-grid">{gallery.map(itemCard)}</div>
-        ) : (
-          <div className="empty-state compact">
-            <h2>A collection begins with one picture.</h2>
-            <p>
-              Confirmed mints appear here. There are no sample tokens in this
-              app.
-            </p>
-          </div>
-        )}
-        {galleryCursor && (
-          <Button
-            disabled={!!busy}
-            onClick={() =>
-              act("Loading more collectibles", async () => {
-                const r = await api<{
-                  items: PublicItem[];
-                  nextCursor: string | null;
-                }>(`/api/gallery?cursor=${galleryCursor}`);
-                setGallery((old) => [...old, ...r.items]);
-                setGalleryCursor(r.nextCursor);
-              })
-            }
-          >
-            Load more
-          </Button>
-        )}
-      </>
-    );
-  else
+              : "Waiting for the chain index.")
+          }
+        />
+      ) : (
+        <Discovery {...discoveryProps} />
+      );
+  } else
     content = (
       <section className="empty-state">
         <h1>Page not found.</h1>

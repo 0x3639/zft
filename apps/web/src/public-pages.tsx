@@ -38,7 +38,7 @@ type Navigation = {
 };
 export const short = (s: string) => `${s.slice(0, 8)}…${s.slice(-6)}`;
 const btn = "nom-btn nom-btn--outline nom-btn--default";
-function RouteLink({
+export function RouteLink({
   to,
   nav,
   children,

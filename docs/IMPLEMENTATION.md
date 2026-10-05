@@ -4,11 +4,11 @@ This roadmap tracks delivered work and the balance of the ZFT specification. The
 
 ## Roadmap status
 
-This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Update it in the same change as implementation or acceptance evidence. Last reconciled: **2026-10-05**, merged baseline **`cb8e2b1`** ([PR 1](https://github.com/0x3639/zft/pull/1)); current increment `feat/wallet-first-onboarding`, implementation commit **`c79bcb3`**. Live Worker **`963d3892-b19a-4978-bb45-51a97dc32f2b`** ([PR #2 follow-up checks](../research/pr2-review-deployment.json)).
+This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Update it in the same change as implementation or acceptance evidence. Last reconciled: **2026-10-05**, merged baseline **`71e7817`** ([PR 2](https://github.com/0x3639/zft/pull/2)); current increment `feat/discovery-homepage`. Live Worker **`2ece7bbb-2268-41cc-9e5b-fc00ba3cb5c1`** ([R2 deployment checks](../research/r2-deployment.json)).
 
 Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
 
-Current focus: **R1.7/R1.8 wallet-first onboarding and optional file protection**, implemented with the existing contract/API. Wallet mint/receive and profile signatures no longer require local keys. File sessions use memory by default or optional encrypted browser persistence; every new file key is backed up before submission. Device acceptance remains R1.5/R1.6. **R2 discovery/homepage is the next implementation slice.**
+Current focus: **R2 discovery/homepage**, implemented with an additive D1 migration and the existing contract. Search/ranking pages, contextual NFT navigation, the live-data homepage and artwork-filled page OG images are delivered. **R3 public activity journal is the next implementation slice.** Actual MetaMask/phone and wider release acceptance remain R1.5/R1.6/R6/R7.
 
 | Work | Status | Completed baseline or remaining deliverable | Acceptance |
 | --- | --- | --- | --- |
@@ -16,7 +16,7 @@ Current focus: **R1.7/R1.8 wallet-first onboarding and optional file protection*
 | B2 Public proof and navigation | Complete for recorded scope | Collection-first profiles, Network dialogs, guest entry, proof card, historical epochs, safe proof download, theme/menu/lookup | [Browser evidence](../research/public-ui-acceptance.json); A-NAV/A-PROFILE/A-ITEM/A-PROOF subset |
 | B3 Page sharing | Complete for recorded scope | Initial HTML, current-holding collages, selected epochs, bounded thumbnail derivatives | [Hosted check](../research/public-canary.json), [renderer fixtures](../research/sharing-fixtures/results.json); remaining sharing checks in R5/R6 |
 | R1 Wallet custody | Pending acceptance | Custody transitions, wallet-first mint/receive/profile auth and optional file protection implemented; actual wallet/device acceptance remains | A-WALLET, A-TRANSFER, A-RECOVERY |
-| R2 Discovery and homepage | Next | Collection and NFT search/sorts/cursors; rankings, fresh art and homepage navigation | A-HOME, A-DISCOVERY |
+| R2 Discovery and homepage | Complete for recorded scope | Collection/NFT search, ranking, bounded cursors, live-data homepage and page-specific artwork sharing | A-HOME/A-DISCOVERY implementation and recorded browser checks; authenticated device acceptance remains R6 |
 | R3 Activity | Next after event schema | Public event journal, Everyone/Following, actor/item links, profile feed, honest times | A-ACTIVITY, A-PROFILE |
 | R4 Profile media | Next | Avatar/cover upload, local preview/crop/reset, signed save, sharing revisions | A-PROFILE, A-SHARE |
 | R5 Help and remaining sharing | Next | Basics/Technical views, task-aware CTAs, technical metadata and remaining image compositions | A-NAV, A-SHARE |
@@ -45,11 +45,11 @@ Current focus: **R1.7/R1.8 wallet-first onboarding and optional file protection*
 
 ### Discovery and homepage
 
-- [ ] R2.1 Versioned metadata/profile search projections and a real profile creation field; preserve unknown legacy creation times rather than inventing dates.
-- [ ] R2.2 Collection directory: name search, Popular/Newest/Biggest ranking, consistent counts and independent like actions.
-- [ ] R2.3 NFT directory: title search, Newest/Oldest/A–Z, deterministic bounded cursors and current collector context when unambiguous.
-- [ ] R2.4 Homepage ranked collections, fresh artwork, recent activity, explanation and onboarding/recovery CTAs using real data.
-- [ ] R2.5 Full-dataset filters before pagination; duplicate/tie/stale-response/empty-result checks; keyboard and mobile acceptance.
+- [x] R2.1 Versioned metadata/profile search projections and a real profile creation field; preserve unknown legacy creation times rather than inventing dates.
+- [x] R2.2 Collection directory: name search, Popular/Newest/Biggest ranking, consistent counts and independent like actions.
+- [x] R2.3 NFT directory: title search, Newest/Oldest/A–Z, deterministic bounded cursors and current collector context when unambiguous.
+- [x] R2.4 Homepage ranked collections, fresh artwork, recent activity, explanation and onboarding/recovery CTAs using real data.
+- [x] R2.5 Full-dataset filters before pagination; duplicate/tie/stale-response/empty-result checks; keyboard guest-modal/focus and 320/360/1440px layout inspection. Actual wallet-authenticated device acceptance remains R6.
 
 ### Activity
 
@@ -76,7 +76,7 @@ Current focus: **R1.7/R1.8 wallet-first onboarding and optional file protection*
 - [ ] R6.4 Verify target social-platform previews/recrawls and hosted large-art behavior; local workerd timing is not a hosted CPU guarantee.
 - [ ] R7.1 Sponsor crash before/after broadcast, retry/nonce gaps, fee replacement and ambiguous-state recovery.
 - [ ] R7.2 Controlled reorg/reset/deep rollback tests and independent ZVM/finality assumptions; preserve deployment mismatch stops.
-- [ ] R7.3 Storage/admission/journal retention, performance/limits and incident/rollback procedures with measured evidence. Current Vite entry bundle is about 664 kB minified / 202 kB gzip and triggers its size warning; evaluate route splitting during performance work.
+- [ ] R7.3 Storage/admission/journal retention, performance/limits and incident/rollback procedures with measured evidence. Current Vite entry bundle is about 676 kB minified / 206 kB gzip and triggers its size warning; evaluate route splitting during performance work.
 - [ ] R7.4 Release review, dependency/license inventory and source-license decision; approved explorer source publication remains separate.
 - [ ] R7.5 Remove sponsor RPC waits from authentication and status polling. CodeRabbit identified the shared serial queue in `apps/api/sponsor.ts`: a slow RPC blocks challenges/authentication and queues polling behind submissions. Preserve atomic one-time challenge consumption and quota counters through a separate auth service or atomic D1 transitions; retain serialization for sponsor nonces/broadcasts. Prove bounded auth/poll latency under a stalled RPC and concurrent submissions, and test challenge replay and quota races before changing this boundary.
 - [ ] R8.1 Review release artifact and apex/Git deployment configuration; preserve canonical art and metadata routes.
@@ -105,6 +105,10 @@ R1.7/R1.8 validation after the PR #2 follow-up: **95 TypeScript tests**; the unc
 | 2026-10-04 | R1.1–R1.4 implemented and deployed | `/wallet`, indexed wallet inventory, backed-up destination keys, typed authorization, resumable sponsor jobs, return-to-wallet and conditional vault writes; 42 TypeScript tests/typecheck/frontend build/Worker dry run passed. Actual MetaMask/phone acceptance and R1.7/R1.8 remain open. Version `a5a54d62-0d22-4fd4-9355-dc0c31470c52`; [hosted canary](../research/hosted-wallet-canary.json) passed at blocks 95002/95009/95016/95023. |
 | 2026-10-04 | PR #1 CodeRabbit follow-up · B2/B3, R1.5, R5.3 | Commit `7f65ba0` fixes four validated findings: isolate invalid token metadata; serve the app shell when share metadata/storage fails; preserve interrupted claim/cancel retries and renew reverted jobs without changing destination keys; correct custody documentation. Numeric validation rejects malformed selections before BigInt conversion. 67 tests pass, including 11 workerd HTML cases, plus typecheck/build/Worker dry run; GitHub CI and Cloudflare preview passed. Deployed version `b7464b4d-00d6-4271-bd01-85c86d74d789`; [six hosted route checks](../research/coderabbit-hosted-checks.json) pass and the browser renders the unindexed item's Retry action. Sponsor queue isolation remains open as R7.5. |
 | 2026-10-04 | R1.7/R1.8 implemented and deployed | Wallet-first identity/mint/receive; account-scoped public journals; optional protected storage and memory-only file sessions; pre-submission key backups. 93 TypeScript and 14 Foundry tests, typecheck/build/Worker dry run pass. [Three hosted transactions](../research/hosted-wallet-first.json), [UI checks](../research/wallet-first-ui.json), and [exact hosted bundle/private routes](../research/wallet-first-deployment.json) verified. Worker `f0261da2-d978-4781-8e03-b72b2f6b77df`. Actual extension/phone and full browser recovery acceptance remain open; R2 discovery/homepage is next. |
+
+R2 deployed on 2026-10-05 as Worker **`2ece7bbb-2268-41cc-9e5b-fc00ba3cb5c1`**, after additive migration `0002_discovery.sql`. [Hosted route/search/count/PNG checks](../research/r2-deployment.json) accompany the browser evidence. PR #2 is merged at `71e7817`; its final CodeRabbit pass generated no actionable comments.
+
+R2 validation: **112 TypeScript tests** (17 new discovery/projection/loading cases), typecheck, frontend build and Worker dry run pass. Real SQLite tests cover the additive migration, unknown legacy dates, whole-dataset search, deterministic tie pagination, cursor mismatch/expiry/revision changes, invalid/missing metadata, reorg joins, ambiguous collector context and distinct NFT-filled share snapshots. Browser checks exercise public search/sort/empty states, guest likes without row navigation, Escape/focus restoration, contextual NFT opening and 320/360/1440px layouts; [recorded evidence](../research/r2-ui.json). R3 remains responsible for the full social journal and honest activity timestamps.
 
 ### CodeRabbit review disposition
 

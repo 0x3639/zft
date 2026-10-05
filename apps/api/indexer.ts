@@ -1,5 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import type { Env } from "./types";
+import { projectDiscovery } from "./discovery";
 import { scan, indexStatus } from "./index-store";
 
 export class Indexer extends DurableObject<Env> {
@@ -13,7 +14,9 @@ export class Indexer extends DurableObject<Env> {
       }
       try {
         const more = await scan(this.env.DB);
-        if (more) await this.ctx.storage.setAlarm(Date.now() + 1_000);
+        const discoveryMore = await projectDiscovery(this.env);
+        if (more || discoveryMore)
+          await this.ctx.storage.setAlarm(Date.now() + 1_000);
       } catch {
         // Do not publish RPC response bodies or silently advance a failed range.
         await this.env.DB.prepare(

@@ -96,7 +96,7 @@ This mints a generated test artwork and exercises export → claim → cancel �
 
 ## Cloudflare deployment
 
-Current wallet-first release: Worker version `963d3892-b19a-4978-bb45-51a97dc32f2b`, including the PR #2 backup-gate fix. Already acknowledged item keys can be authorized after unrelated record changes; an unbacked key or legacy header without the key inventory is rejected before a wallet prompt. The hosted frontend bundle matches the tested build byte-for-byte, and `/mint`, `/claim`, `/wallet`, `/recovery` return the app with noindex metadata. [Follow-up deployment evidence](../research/pr2-review-deployment.json); [initial release evidence](../research/wallet-first-deployment.json).
+Current R2 release: Worker version `2ece7bbb-2268-41cc-9e5b-fc00ba3cb5c1`. Collection discovery, NFT title search/sorting, a live-data homepage, and separate artwork-filled home/directory OG images are deployed. The exact hosted bundle and route/search/count/PNG checks are in [R2 deployment evidence](../research/r2-deployment.json); [browser checks](../research/r2-ui.json). Earlier wallet-first and backup-gate evidence is retained in [the PR #2 follow-up](../research/pr2-review-deployment.json).
 
 - App: **https://devnet.zft.foo**, Worker **zft-devnet**.
 - Canonical public media: **https://zft.foo/art/** and **https://zft.foo/metadata/**, routed to that same Worker. The apex homepage remains the `zft-preview` design prototype.
@@ -159,3 +159,24 @@ Saved authorization and transaction status survive reload/recovery. Unknown job 
 Run the isolated generated-wallet SDK canary with `ZFT_TEST_ORIGIN=https://devnet.zft.foo node --import tsx scripts/check-wallet-custody.ts`. It uses only new test assets and sponsored devnet gas. Recovery files and its test wallet key remain in ignored `.local/`; retries resume the saved journal. It writes public evidence to `research/hosted-wallet-canary.json` only after the round trip, stale-file rejection and indexed wallet inventory pass. This signer fixture does not exercise a MetaMask extension.
 
 The hosted SDK custody canary passed four confirmed transactions at blocks 95002, 95009, 95016 and 95023, including wallet → file → wallet, stale-export rejection and indexed wallet holdings. Public evidence: [hosted-wallet-canary.json](../research/hosted-wallet-canary.json).
+
+
+## Discovery projection and deployment (R2)
+
+Apply the additive D1 migration before deploying this build:
+
+```sh
+pnpm exec wrangler d1 migrations apply DB --remote --config wrangler.devnet.jsonc --env=
+pnpm deploy
+node --import tsx scripts/check-discovery.ts
+```
+
+Use `--local --env local` for the test database. Migration `0002_discovery.sql` preserves existing chain events, profiles, relations and possession statements. It adds metadata validation/search records, a profile search/creation-time side table and revision triggers. The prior Worker can still read/write its original schema after migration; rolling back to `963d3892-b19a-4978-bb45-51a97dc32f2b` therefore does not need a destructive schema rollback. Do not remove these tables/triggers during routine rollback.
+
+Scheduled index ingestion projects at most eight metadata records and eight profile names per run, then continues with an alarm if needed. Invalid/missing metadata retries after five minutes; real R2 outages are not persisted as invalid metadata. API responses report `pending` while unseen rows are being processed. Wait for pending to reach zero before accepting the hosted canary. Existing/implicit profile creation dates remain unknown; new explicitly saved profiles get a server timestamp. Renaming a profile preserves its original timestamp.
+
+`/api/discovery/collections` and `/api/discovery/nfts` perform normalized literal substring search before bounded keyset pagination. Limits are 1–24. Cursors are tied to filter/sort and the data revision and expire after five minutes or the next ownership-statement expiry. A 409 means the view changed: refresh rather than append a different ranking snapshot. The frontend retains visible results on outages and blocks stale responses/duplicate loads. Current collector links require exactly one eligible published binding; unbound/ambiguous results open the neutral item page.
+
+Collection counts and profile Collection/Sent eligibility use the same valid-metadata projection. Home uses six ranked profiles, eight recent NFTs and six public chain events. Transfer rows use neutral wording and confirmed block numbers; full Everyone/Following activity and actual event timestamps remain R3. Shared home/discovery cards contain actual public NFT pixels with distinct immutable page revisions, including a neutral fallback when no artwork is available.
+
+R2 adds 17 regression cases; the complete suite passes 112 TypeScript tests, plus typecheck/build/Worker dry run. The entry bundle is about 676 kB minified / 206 kB gzip; route splitting and large-dataset query/resource profiling remain R7.3. Actual MetaMask-signed browser social actions and full device acceptance remain R6. The contract, file codec, recovery format and apex routing are unchanged.
