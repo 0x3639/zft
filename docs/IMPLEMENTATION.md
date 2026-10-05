@@ -4,7 +4,7 @@ This roadmap tracks delivered work and the balance of the ZFT specification. The
 
 ## Roadmap status
 
-This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Update it in the same change as implementation or acceptance evidence. Last reconciled: **2026-10-05**, merged baseline **`cb8e2b1`** ([PR 1](https://github.com/0x3639/zft/pull/1)); current increment `feat/wallet-first-onboarding`, implementation commit **`c79bcb3`**. Live Worker **`f0261da2-d978-4781-8e03-b72b2f6b77df`** ([deployment checks](../research/wallet-first-deployment.json)).
+This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Update it in the same change as implementation or acceptance evidence. Last reconciled: **2026-10-05**, merged baseline **`cb8e2b1`** ([PR 1](https://github.com/0x3639/zft/pull/1)); current increment `feat/wallet-first-onboarding`, implementation commit **`c79bcb3`**. Live Worker **`963d3892-b19a-4978-bb45-51a97dc32f2b`** ([PR #2 follow-up checks](../research/pr2-review-deployment.json)).
 
 Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
 
@@ -38,7 +38,7 @@ Current focus: **R1.7/R1.8 wallet-first onboarding and optional file protection*
 - [x] R1.2 Prepare a fresh disposable destination, persist it and require its recovery acknowledgment before wallet authorization.
 - [x] R1.3 Verify the exact wallet signer/domain/recipient/epoch, persist authorization, submit and reconcile without replacing a pending destination.
 - [x] R1.4 Return file custody to the selected wallet; invalidate old exports; distinguish wallet ownership from stale local records.
-- [ ] R1.5 Complete custody acceptance: 12 automated tests cover rejection, account/network/disconnect, invalid signature, unavailable sponsor/RPC, expiry/retry, recovery restore, competing edits and simulated round trip. The [hosted SDK round trip](../research/hosted-wallet-canary.json) also passed four confirmed transactions, stale-file rejection and indexed inventory; real browser restart and competing on-chain claim acceptance remain open.
+- [ ] R1.5 Complete custody acceptance: 14 automated tests cover rejection, account/network/disconnect, invalid signature, unavailable sponsor/RPC, expiry/retry, recovery restore, competing edits and simulated round trip. The [hosted SDK round trip](../research/hosted-wallet-canary.json) also passed four confirmed transactions, stale-file rejection and indexed inventory; real browser restart and competing on-chain claim acceptance remain open.
 - [ ] R1.6 Exercise an actual MetaMask extension and phone wallet. Mock-provider tests do not close this item.
 - [x] R1.7 MetaMask-first onboarding, direct wallet mint/receive, wallet-backed profile authentication without a ZFT password, and resumable public wallet-operation journals. Explicit identity selection preserves existing local profiles; no linking/merging or implicit publication. Tests cover rejection, changed account/network, signature mismatch, lost responses, nonce changes and competing journal writes; actual extension/mobile acceptance remains R1.6.
 - [x] R1.8 Optional “Protect this browser with a password” and default session-only file keys. Existing encrypted vaults and v1 recovery remain compatible; upgrade preserves keys/identity. New-key acknowledgment gates every file-custody submission. Manual lock/session end, 15-minute inactivity lock and unload guidance implemented. Automated memory-only persistence, backup gating, recovery, wrong-passphrase, overwrite refusal and upgrade tests pass; device acceptance remains R6. [Reference storage evidence](../research/reference-key-storage.json).
@@ -96,7 +96,7 @@ For each slice, record its IDs, code/schema changes, tests, remaining gaps, comm
 
 ### Delivery log
 
-R1.7/R1.8 validation: **93 TypeScript and 14 Foundry tests**, typecheck, frontend build and Worker dry run pass. The [hosted wallet-first canary](../research/hosted-wallet-first.json) confirmed direct mint, session-file custody, and direct receipt in a second wallet; scoped wallet profile authentication and stale-file rejection passed. [Browser inspection](../research/wallet-first-ui.json) covers desktop/360px onboarding and recovery gates. Actual MetaMask/phone and full recovery UI acceptance remain open; these items are not counted as completed by the SDK canary.
+R1.7/R1.8 validation after the PR #2 follow-up: **95 TypeScript tests**; the unchanged contract suite has **14 passing Foundry tests**, typecheck, frontend build and Worker dry run pass. The [hosted wallet-first canary](../research/hosted-wallet-first.json) confirmed direct mint, session-file custody, and direct receipt in a second wallet; scoped wallet profile authentication and stale-file rejection passed. [Browser inspection](../research/wallet-first-ui.json) covers desktop/360px onboarding and recovery gates. Actual MetaMask/phone and full recovery UI acceptance remain open; these items are not counted as completed by the SDK canary.
 
 | Date | Work | Evidence and remaining work |
 | --- | --- | --- |
@@ -107,6 +107,12 @@ R1.7/R1.8 validation: **93 TypeScript and 14 Foundry tests**, typecheck, fronten
 | 2026-10-04 | R1.7/R1.8 implemented and deployed | Wallet-first identity/mint/receive; account-scoped public journals; optional protected storage and memory-only file sessions; pre-submission key backups. 93 TypeScript and 14 Foundry tests, typecheck/build/Worker dry run pass. [Three hosted transactions](../research/hosted-wallet-first.json), [UI checks](../research/wallet-first-ui.json), and [exact hosted bundle/private routes](../research/wallet-first-deployment.json) verified. Worker `f0261da2-d978-4781-8e03-b72b2f6b77df`. Actual extension/phone and full browser recovery acceptance remain open; R2 discovery/homepage is next. |
 
 ### CodeRabbit review disposition
+
+[PR #2 review of `31200b8`](https://github.com/0x3639/zft/pull/2#pullrequestreview-5411909304), addressed 2026-10-05:
+
+- **Wallet-to-file backup gate:** confirmed and fixed. Before the first wallet authorization, check the item's acknowledged keys with `requireItemBackup`, matching submission. Unrelated vault revisions no longer force another download. Unbacked keys remain blocked, including legacy headers without a key inventory; that block occurs before a wallet prompt.
+- Two regressions failed on the reviewed code and pass after the fix. They exercise an unrelated new key while preserving the acknowledged recipient, rejection of the unrelated unbacked key, and legacy-header acknowledgment before signing. The full app suite passes 95 tests, plus typecheck/build/Worker dry run. [Hosted deployment and exact-bundle verification](../research/pr2-review-deployment.json): version `963d3892-b19a-4978-bb45-51a97dc32f2b`.
+- The generic 80% docstring advisory is not an enforced repository check; no blanket docstring expansion or review-setting change was made.
 
 Review on commit `6738866`, [PR #1](https://github.com/0x3639/zft/pull/1):
 

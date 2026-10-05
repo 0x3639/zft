@@ -96,7 +96,7 @@ This mints a generated test artwork and exercises export → claim → cancel �
 
 ## Cloudflare deployment
 
-Wallet-first release: Worker version `f0261da2-d978-4781-8e03-b72b2f6b77df`. The hosted frontend bundle matches the tested build byte-for-byte, and `/mint`, `/claim`, `/wallet`, `/recovery` return the new app with noindex metadata. [Deployment evidence](../research/wallet-first-deployment.json).
+Current wallet-first release: Worker version `963d3892-b19a-4978-bb45-51a97dc32f2b`, including the PR #2 backup-gate fix. Already acknowledged item keys can be authorized after unrelated record changes; an unbacked key or legacy header without the key inventory is rejected before a wallet prompt. The hosted frontend bundle matches the tested build byte-for-byte, and `/mint`, `/claim`, `/wallet`, `/recovery` return the app with noindex metadata. [Follow-up deployment evidence](../research/pr2-review-deployment.json); [initial release evidence](../research/wallet-first-deployment.json).
 
 - App: **https://devnet.zft.foo**, Worker **zft-devnet**.
 - Canonical public media: **https://zft.foo/art/** and **https://zft.foo/metadata/**, routed to that same Worker. The apex homepage remains the `zft-preview` design prototype.
@@ -154,7 +154,7 @@ Open `/wallet` from the wallet controls or compact menu. Its inventory lists ind
 
 Saved authorization and transaction status survive reload/recovery. Unknown job failures are not treated as permission to replace keys. Expired wallet authorizations must be renewed through Wallet using the original saved destination. The vault rejects stale conditional writes so a delayed prompt or response cannot overwrite a newer custody operation. A completed return is shown as `wallet`; prior exported files are rejected against live ownership.
 
-93 TypeScript tests pass, including 12 wallet/file-custody cases, 11 direct-wallet cases, 8 scoped challenge cases and memory/recovery/upgrade/inactivity checks. Typecheck, frontend build and Worker dry run pass. Local UI inspection confirms wallet-first/no-password onboarding, the optional protection checkbox, no-provider guidance and session recovery entry. Actual MetaMask extension, phone and full browser recovery acceptance remain open in R1.5/R1.6/R6. The recovery format and deployed contract/API remain unchanged.
+95 TypeScript tests pass, including 14 wallet/file-custody cases, 11 direct-wallet cases, 8 scoped challenge cases and memory/recovery/upgrade/inactivity checks. Typecheck, frontend build and Worker dry run pass. Local UI inspection confirms wallet-first/no-password onboarding, the optional protection checkbox, no-provider guidance and session recovery entry. Actual MetaMask extension, phone and full browser recovery acceptance remain open in R1.5/R1.6/R6. The recovery format and deployed contract/API remain unchanged.
 
 Run the isolated generated-wallet SDK canary with `ZFT_TEST_ORIGIN=https://devnet.zft.foo node --import tsx scripts/check-wallet-custody.ts`. It uses only new test assets and sponsored devnet gas. Recovery files and its test wallet key remain in ignored `.local/`; retries resume the saved journal. It writes public evidence to `research/hosted-wallet-canary.json` only after the round trip, stale-file rejection and indexed wallet inventory pass. This signer fixture does not exercise a MetaMask extension.
 

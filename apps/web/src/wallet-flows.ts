@@ -138,13 +138,7 @@ export async function authorizeWalletFile(
     )
       return submit(vault, d, record, walletIdentity(session));
   }
-  if (!record.operation) {
-    const revisions = await vault.revisions();
-    if (revisions.backedUp !== revisions.current)
-      throw new Error(
-        "Save and confirm a recovery file containing this new file key before authorizing the transfer.",
-      );
-  }
+  if (!record.operation) await vault.requireItemBackup(record);
   const state = await ownership(d.contract, record.tokenId);
   if (
     !sameAddress(state.owner, session.account) ||

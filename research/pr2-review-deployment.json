@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-10-05T08:45:57.913Z",
+  "review": "https://github.com/0x3639/zft/pull/2#pullrequestreview-5411909304",
+  "reviewedBaseCommit": "31200b89f6443943a0801a6ba4a02253c2d9f588",
+  "sourceFile": "apps/web/src/wallet-flows.ts",
+  "sourceSha256": "0878e92c88dd6dcc5ac0c3cb4ec8fba7e0a1f0d3c4097984129fdcc24bc3a342",
+  "workerVersion": "963d3892-b19a-4978-bb45-51a97dc32f2b",
+  "entry": "/assets/index-il9mWQ_Q.js",
+  "routes": [
+    {
+      "path": "/mint",
+      "status": 200,
+      "entryMatches": true,
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/claim",
+      "status": 200,
+      "entryMatches": true,
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/wallet",
+      "status": 200,
+      "entryMatches": true,
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/recovery",
+      "status": 200,
+      "entryMatches": true,
+      "robots": "noindex,nofollow"
+    }
+  ],
+  "regressions": {
+    "before": "Both new tests failed on the reviewed code: unrelated-key changes blocked backed-up transfers; legacy vaults reached the wallet prompt before the backup gate.",
+    "after": "95 app tests passed, including both regressions. Typecheck, frontend build and Worker dry run passed."
+  },
+  "assetHash": "2bcc10af2d86efbf5c5b6939bc3fd0a6e3d7c0c357e48358fe5831d6865a76ef",
+  "assetMatches": true
+}

@@ -1,5 +1,6 @@
 import "fake-indexeddb/auto";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { openDB } from "idb";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { verifyTypedData, zeroAddress, type Address } from "viem";
 import { Vault, type ItemRecord } from "../packages/vault";
@@ -62,7 +63,8 @@ async function backup(vault: Vault) {
   return bundle;
 }
 async function setup() {
-  const vault = await newVault();
+  const name = crypto.randomUUID(),
+    vault = await newVault(name);
   await vault.create(passphrase);
   await backup(vault);
   const walletKey = generatePrivateKey();
@@ -103,7 +105,8 @@ async function setup() {
   };
   const prepare = () =>
     prepareWalletFile(vault, deployment, session, fixture, image);
-  const saved = async () => (await vault.items())[0];
+  const saved = async () =>
+    (await vault.get(`item:${fixture.tokenId}`)) as ItemRecord;
   const jobs = new Map<string, Job>();
   mocks.get.mockImplementation(async (path: string) => {
     const job = jobs.get(path.split("/").at(-1)!);
@@ -122,6 +125,7 @@ async function setup() {
     return job;
   });
   return {
+    name,
     vault,
     wallet,
     walletKey,
@@ -170,6 +174,63 @@ it("requires the new file key in an acknowledged recovery and restores it withou
     newOwner: privateKeyToAccount(prepared.privateKey).address,
     ownershipNonce: "0",
   });
+});
+
+it("authorizes an acknowledged key after an unrelated new key changes the vault, while keeping the new key gated", async () => {
+  const s = await setup(),
+    prepared = await s.prepare();
+  const snapshot = await backup(s.vault);
+  const unrelated: ItemRecord = {
+    ...prepared,
+    tokenId: "1",
+    privateKey: generatePrivateKey(),
+  };
+  await s.vault.saveItem(unrelated, null);
+  expect(await s.vault.revisions()).toEqual({
+    current: snapshot.revision + 1,
+    backedUp: snapshot.revision,
+  });
+
+  await authorizeWalletFile(s.vault, deployment, s.session, prepared);
+  expect(s.sign).toHaveBeenCalledOnce();
+  expect(mocks.post).toHaveBeenCalledOnce();
+  const submitted = await s.saved();
+  expect(submitted.privateKey).toBe(prepared.privateKey);
+  expect(submitted.operation?.authorization).toMatchObject({
+    newOwner: privateKeyToAccount(prepared.privateKey).address,
+  });
+  await expect(
+    authorizeWalletFile(s.vault, deployment, s.session, unrelated),
+  ).rejects.toThrow("recovery file");
+  expect(s.sign).toHaveBeenCalledOnce();
+  expect(mocks.post).toHaveBeenCalledOnce();
+});
+
+it("requires legacy vaults without an acknowledged-key inventory to back up before prompting the wallet", async () => {
+  const s = await setup(),
+    prepared = await s.prepare();
+  await backup(s.vault);
+  const db = await openDB(`${s.name}:${s.vault.namespace}`);
+  try {
+    const header = await db.get("meta", "header");
+    delete header.backedUpKeys;
+    await db.put("meta", header, "header");
+  } finally {
+    db.close();
+  }
+  const revisions = await s.vault.revisions();
+  expect(revisions.backedUp).toBe(revisions.current);
+  await expect(
+    authorizeWalletFile(s.vault, deployment, s.session, prepared),
+  ).rejects.toThrow("recovery file");
+  expect(s.sign).not.toHaveBeenCalled();
+  expect(mocks.post).not.toHaveBeenCalled();
+  expect(await s.saved()).toEqual(prepared);
+
+  await backup(s.vault);
+  await authorizeWalletFile(s.vault, deployment, s.session, prepared);
+  expect(s.sign).toHaveBeenCalledOnce();
+  expect(mocks.post).toHaveBeenCalledOnce();
 });
 
 it.each(["reject", "account", "chain", "disconnect", "different recipient"])(
