@@ -1797,3 +1797,146 @@ select {
     height: 44px;
   }
 }
+.help-page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.help-hero {
+  padding: 48px 0 36px;
+  max-width: 840px;
+}
+.help-hero h1 {
+  font-size: clamp(40px, 6vw, 78px);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  margin: 16px 0 22px;
+}
+.help-intro {
+  font-size: clamp(18px, 2vw, 23px);
+  max-width: 640px;
+  color: var(--muted-foreground);
+}
+.help-tabs {
+  margin-top: 28px;
+  width: fit-content;
+}
+.help-tabs [aria-selected="true"] {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.help-steps {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.help-page .panel {
+  min-width: 0;
+  margin: 0;
+}
+.help-page h2 {
+  font-size: clamp(24px, 2.5vw, 34px);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  margin: 12px 0 18px;
+}
+.help-page h3 {
+  font-size: 20px;
+}
+.help-page p {
+  line-height: 1.7;
+}
+.help-page .text-ledger {
+  color: var(--primary);
+  font-size: 12px;
+}
+.help-page .help-section,
+.help-page .help-bottom {
+  margin: 22px 0;
+}
+.help-page article[id] {
+  scroll-margin-top: 30px;
+}
+.help-page details {
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+.help-page summary {
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+}
+.help-list {
+  padding-left: 24px;
+}
+.help-list li {
+  padding: 9px 0 9px 8px;
+  line-height: 1.7;
+}
+.help-network {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding: 24px 0;
+}
+.help-network > div {
+  min-width: 0;
+  flex: 1 1 300px;
+}
+.help-network p {
+  margin: 5px 0;
+}
+.help-details {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 12px;
+}
+.help-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.help-bottom {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.help-bottom h2 {
+  margin-bottom: 0;
+}
+.help-page code {
+  overflow-wrap: anywhere;
+}
+.copy-status:empty {
+  display: none;
+}
+.copy-status {
+  font-size: 12px;
+  color: var(--primary);
+}
+@media (max-width: 800px) {
+  .help-steps {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .help-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .help-hero {
+    padding-top: 24px;
+  }
+  .help-details {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .help-details dd {
+    margin-bottom: 12px;
+  }
+}

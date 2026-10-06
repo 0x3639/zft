@@ -7,6 +7,7 @@ import manifest from "../../../packages/protocol/deployment.json";
 import { verifyPublicEvidence } from "../../../packages/protocol/public-proof";
 import { PublicDetail } from "./proof-card";
 import { Modal } from "./site-controls";
+import { CopyPublic } from "./public-copy";
 import { api, ApiError, signedRequest } from "./api";
 import type { ActivityKind } from "../../../packages/protocol/activity";
 import { ActivityLoader, relativeActivityTime } from "./activity-loader";
@@ -675,17 +676,12 @@ export function PublicProfile({
                 </button>
               </>
             )}
-            <button
-              className={btn}
-              onClick={() =>
-                navigator.clipboard
-                  .writeText(`${location.origin}${root}`)
-                  .then(() => setNotice("Profile link copied"))
-                  .catch(() => onError("Could not copy the profile link."))
-              }
+            <CopyPublic
+              value={`${location.origin}${root}`}
+              label="Profile link"
             >
               Share
-            </button>
+            </CopyPublic>
             {!identity && (
               <button className={btn} onClick={() => setGuest("unlock")}>
                 Connect wallet
@@ -695,18 +691,13 @@ export function PublicProfile({
         </div>
         <p className="text-ledger">Public collection · ZVM devnet</p>
         <h1>{profile.name}</h1>
-        <button
+        <CopyPublic
           className="identity mono"
-          title={address}
-          onClick={() =>
-            navigator.clipboard
-              .writeText(address)
-              .then(() => setNotice("Public identity copied"))
-              .catch(() => onError("Could not copy the identity."))
-          }
+          value={address}
+          label="Public identity"
         >
           {short(address)} ⧉
-        </button>
+        </CopyPublic>
         <p className="profile-bio">{profile.bio}</p>
         <div className="profile-counts">
           {(

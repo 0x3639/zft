@@ -12,6 +12,7 @@ import {
 import { discoverNFTs, discoverCollections } from "./discovery";
 import { HttpError } from "./http";
 import type { Env } from "./types";
+import { helpPage } from "../../packages/protocol/help";
 
 export type Snapshot = {
   version: 1;
@@ -49,14 +50,6 @@ const staticPages: Record<string, [string, string]> = {
     "Around the network.",
     "Public profile actions and confirmed collectible activity on ZVM devnet.",
   ],
-  "/about": [
-    "Keep it. Pass it on.",
-    "Learn how pictures carry ownership, and why claiming makes old copies stale.",
-  ],
-  "/how-it-works": [
-    "Keep it. Pass it on.",
-    "Learn how pictures carry ownership, and why claiming makes old copies stale.",
-  ],
 };
 export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
   const path = url.pathname;
@@ -72,6 +65,8 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
     art: [] as Snapshot["art"],
     revisionData: null as unknown,
   };
+  const help = helpPage(url);
+  if (help) return { ...base, ...help, revisionData: [1, help.view] };
   if (staticPages[path]) {
     // Discovery artwork enriches static pages; its availability must not gate them.
     const artwork =
@@ -319,7 +314,7 @@ export async function shareHTML(request: Request, env: Env) {
 }
 export async function ogResponse(env: Env, url: URL) {
   if (
-    !/^\/api\/og\/(page\/(home|explore|explore-nfts|activity|about|how-it-works)|item\/\d{1,78}|p\/0x[\da-f]{40}(\/\d{1,78}(\/epoch\/\d{1,78})?)?)\.png$/.test(
+    !/^\/api\/og\/(page\/(home|explore|explore-nfts|activity|about|how-it-works|how-it-works-technical)|item\/\d{1,78}|p\/0x[\da-f]{40}(\/\d{1,78}(\/epoch\/\d{1,78})?)?)\.png$/.test(
       url.pathname,
     )
   )
