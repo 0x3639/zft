@@ -146,7 +146,7 @@ Browser acceptance includes current three-check proof, card flip, safe public JS
 
 - Curated-collection scope and full reference-page parity. Profile media, Everyone/Following activity and Basics/Technical help are implemented; actual wallet/device and social-platform acceptance remain open.
 - Independent ZVM/finality verification; controlled large/deep reorg and reset drills. SQLite regression tests cover index rollback, external transfers, and stopped ingestion on deployment mismatch.
-- Sponsor crash/restart/reorg/fee-replacement fault injection, bounded journal retention, stronger Sybil admission and storage cleanup. Ambiguous or conflicting nonce state deliberately stops the sponsor for operator reconciliation.
+- Local sponsor crash/restart, exact retry and nonce-refusal tests now pass; [recovery qualification and procedure](SPONSOR-OPERATIONS.md#crash-and-retry-qualification-r71) records their boundary. Controlled-chain/hosted recovery, automatic fee replacement, reorg drills, bounded journal retention, stronger Sybil admission and storage cleanup remain open. Ambiguous or conflicting nonce state deliberately stops new signing for reconciliation.
 - Actual browser-to-browser and phone transactions, large-collection recovery performance, expanded accessibility testing, release/security review, and target social-platform preview checks.
 - Reviewed apex homepage/Git-build promotion and approved public explorer source verification. Mainnet, monetary sales, and marketplaces remain out of scope.
 

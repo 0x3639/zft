@@ -1,0 +1,84 @@
+{
+  "recordedAt": "2026-10-06T13:17:49.239486+00:00",
+  "roadmap": "R7.1 (partial)",
+  "mergedBaseline": "1dedcf5bdf12e38462f017ecf1ed5067dacc4a02",
+  "runtimeChanged": false,
+  "devnetWorker": "4693920f-eeb2-427d-8b29-65f218e0d6e5",
+  "scope": "Local workerd with actual SIGKILL/restart and retained temporary SQLite storage. RPC acceptance, receipts, fees and nonce counts are simulated. No remote requests or transactions.",
+  "sourceSha256": {
+    "apps/api/sponsor.ts": "b566e28e3d9097c275e08467cfc8ce6870223170567bae9d6eca607f005165b1",
+    "tests/sponsor-recovery.test.ts": "cb03558b5186b3f9c3a8a2b2bf404dcdfe05e1e0ac7319704082ad6e29b47875",
+    "tests/fixtures/sponsor-worker.ts": "1d40f08b6781304a40e95b7197bc1fd3f8dc970323a21aed27e59641db79158a",
+    "tests/fixtures/sponsor-runtime.ts": "e90565e9c2543e0c2a4502ee71f5b73ffa9e51de169024bed8e09ae1a4369135"
+  },
+  "validation": {
+    "typecheck": "passed",
+    "diffCheck": "passed",
+    "suite": {
+      "command": "pnpm test",
+      "passed": 225,
+      "failed": 0,
+      "files": 25
+    },
+    "recoveryCases": [
+      {
+        "name": "can retry after a process kill before the outbox without consuming a transaction nonce or gas budget",
+        "status": "passed",
+        "durationMs": 8120.31725
+      },
+      {
+        "name": "recovers the exact durable transaction after a process kill at broadcast",
+        "status": "passed",
+        "durationMs": 2970.0396249999994
+      },
+      {
+        "name": "recovers the exact durable transaction after a process kill at broadcastResponse",
+        "status": "passed",
+        "durationMs": 3077.3601670000007
+      },
+      {
+        "name": "retains the outbox across ambiguous delivery and receipt outages without creating a fee replacement",
+        "status": "passed",
+        "durationMs": 1504.6456660000003
+      },
+      {
+        "name": "refuses signing and new gas reservations for 'untracked pending nonce'",
+        "status": "passed",
+        "durationMs": 1548.3134169999976
+      },
+      {
+        "name": "refuses signing and new gas reservations for 'node behind the journal'",
+        "status": "passed",
+        "durationMs": 1474.8252920000014
+      },
+      {
+        "name": "refuses signing and new gas reservations for 'external nonce advance'",
+        "status": "passed",
+        "durationMs": 1470.2650829999984
+      }
+    ]
+  },
+  "negativeControl": {
+    "mutation": "Move the durable outbox transaction and retry alarm after sendRawTransaction; restore production source afterward.",
+    "command": "pnpm exec vitest run tests/sponsor-recovery.test.ts -t \"recovers the exact durable transaction\"",
+    "expectedFailures": [
+      {
+        "name": "recovers the exact durable transaction after a process kill at broadcast",
+        "status": "failed",
+        "reason": "AssertionError: expected undefined to match object { \u2026(3) }"
+      },
+      {
+        "name": "recovers the exact durable transaction after a process kill at broadcastResponse",
+        "status": "failed",
+        "reason": "AssertionError: expected undefined to match object { \u2026(3) }"
+      }
+    ]
+  },
+  "remaining": [
+    "Automatic fee replacement and same-nonce lineage",
+    "Controlled-chain transaction/replacement execution and crash recovery",
+    "Cloudflare hosted failover",
+    "Reorg/reset/deep rollback and independent finality review",
+    "Actual MetaMask/phone and browser custody acceptance"
+  ]
+}
