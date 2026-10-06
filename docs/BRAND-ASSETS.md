@@ -2,7 +2,7 @@
 
 ## Delivery status
 
-The supplied logo is implemented on `feat/brand-assets`, rebased onto merged [PR #6](https://github.com/0x3639/zft/pull/6), baseline `9b4c74f`. The dedicated logo PR and devnet rollout are in progress. No schema or contract changes are required.
+The supplied logo is implemented on `feat/brand-assets`, rebased onto merged [PR #6](https://github.com/0x3639/zft/pull/6), baseline `9b4c74f`. [PR #7](https://github.com/0x3639/zft/pull/7) contains the branding change. Devnet is deployed as Worker `94d8571d-1c47-4617-b1ef-66b75649fad2`; [hosted acceptance](../research/brand-deployment.json) passes. CodeRabbit review is pending. No schema or contract changes are required.
 
 ## Preserved source and public files
 
@@ -45,6 +45,7 @@ The renderer acceptance run now covers 15 fixtures. The legacy empty-art fixture
 ## Acceptance evidence
 
 - **203 app tests**, typecheck, frontend production build and Worker dry run pass.
+- [Hosted deployment](../research/brand-deployment.json): 86 exact asset responses, three new OG images, byte-identical prior OG URLs, exact frontend bundle, semantic health and [browser screenshot](../research/brand-hosted.png).
 - [Asset response checks](../research/brand-assets.json): 54 byte-identical source files; 86 successful local workerd responses, with original/generated hashes and image/manifest MIME checks.
 - [OG fixture results](../research/sharing-fixtures/results.json): 15 bounded 1200 × 630 images, legacy pixel preservation and new-brand output.
 - [Browser checks](../research/brand-ui.json): light/dark header and footer, 320/360px layout without horizontal overflow, loaded logo images and public gallery.

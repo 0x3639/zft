@@ -4,7 +4,7 @@ This roadmap tracks delivered work and the balance of the ZFT specification. The
 
 ## Roadmap status
 
-This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Last reconciled: **2026-10-06**, merged baseline **`9b4c74f`** ([PR #6](https://github.com/0x3639/zft/pull/6)). Its final head `f023ae1` passed CodeRabbit review, both CI runs and the Cloudflare build with no outstanding actionable findings. The current increment is **`feat/brand-assets`**, the supplied logo and favicon rollout. R5 remains deployed as Worker **`0f53a02e-0450-4bec-ac0d-0475f3ecd728`** until the tested branding release is published.
+This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Last reconciled: **2026-10-06**, merged baseline **`9b4c74f`** ([PR #6](https://github.com/0x3639/zft/pull/6)). Its final head `f023ae1` passed CodeRabbit review, both CI runs and the Cloudflare build with no outstanding actionable findings. The current increment is **`feat/brand-assets`**, the supplied logo and favicon rollout. [PR #7](https://github.com/0x3639/zft/pull/7) is deployed to devnet as Worker **`94d8571d-1c47-4617-b1ef-66b75649fad2`**; its follow-up review is pending.
 
 Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
 
@@ -30,7 +30,7 @@ Current focus: **the supplied logo rollout**, followed by the remaining acceptan
 
 ## Supplied brand rollout
 
-The user-supplied ZFT logo is prepared on `feat/brand-assets` in a separate worktree. **Rebased onto merged PR #6; validation and devnet deployment in progress.** All 54 supplied files are preserved and served with a download gallery. Header/footer themes, favicon/touch/manifest icons and new OG snapshots use the supplied artwork. Existing immutable OG snapshots preserve their prior rendering. See [brand implementation and acceptance](BRAND-ASSETS.md): 203 app tests, 15 OG fixtures, 86 local Worker asset responses and mobile/theme checks pass. Hosted verification follows the approved devnet rollout. R6/R7 remain the next release gates.
+The user-supplied ZFT logo is prepared on `feat/brand-assets` in a separate worktree. **[PR #7](https://github.com/0x3639/zft/pull/7) is deployed on devnet; review pending.** All 54 supplied files are preserved and served with a download gallery. Header/footer themes, favicon/touch/manifest icons and new OG snapshots use the supplied artwork. Existing immutable OG snapshots preserve their prior rendering. See [brand implementation and acceptance](BRAND-ASSETS.md): 203 app tests, 15 OG fixtures, 86 local Worker asset responses and mobile/theme checks pass. Hosted checks pass for all 86 exact asset responses, three new sharing images, retained OG URL bytes, the frontend bundle and semantic health; [evidence](../research/brand-deployment.json). R6/R7 remain the next release gates.
 
 ## Remaining work checklist
 
