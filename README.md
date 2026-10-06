@@ -25,6 +25,7 @@ Track delivery in the [implementation roadmap](docs/IMPLEMENTATION.md), includin
 9. [Marketplace expansion design](docs/MARKETPLACE.md)
 10. [Prototype verification and screenshots](docs/VALIDATION.md)
 11. [Cloudflare prototype deployment](docs/DEPLOYMENT.md)
+12. [Supplied logo assets and branding rollout](docs/BRAND-ASSETS.md)
 
 For deployed behavior and operation, use [the implementation runbook](docs/DEVNET-ALPHA.md). The functional specification remains the full release target. Basics/Technical help and page-specific sharing are implemented. Curated-collection scope, social-platform preview acceptance, deeper operational fault tests, and actual two-browser/phone acceptance remain before beta. Private transfers, sales, and encrypted claim links remain separate work.
 

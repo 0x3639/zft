@@ -234,3 +234,8 @@ The fourteen real-workerd renderer fixtures in [results.json](../research/sharin
 `tests/sharing.test.ts` and `tests/help.test.ts` cover real initial HTML, help under database failure, aliases/invalid view values, exact page/revision lookup, noindex app-shell errors and existing context/unpublish guards. `scripts/check-help.ts` checks hosted HTML/canonical/image parity, distinct decoded help images, immutable repeat bytes, invalid-item shell, health and the deployed bundle hash. [Browser checks](../research/r5-ui.json) cover both views at 320/360/768/1440px, keyboard/history/task links and missing/denied/successful clipboard behavior using the real copy component in a disposable fixture.
 
 Public profile links, artwork links, identifiers and the help deployment address use the same copy control. If automatic copy fails, a dialog shows the exact public value, offers selection for manual copying and restores focus on Escape. The success status is tied to the copied value. Future marketplace/curated-collection templates, actual social-platform caches/recrawls, and full device acceptance remain their separate roadmap gates.
+
+
+## Supplied brand revision
+
+New snapshots include `branding: "zft-2026-10"` in the snapshot digest and render the supplied outlined logo. Empty-art cards use the supplied mark. Historical snapshots without the field retain their previous wordmark/fallback and immutable pixels. The new fifteenth renderer fixture pins the legacy output hash and requires a distinct new-brand image; all existing NFT and profile-media assertions remain. See [BRAND-ASSETS.md](BRAND-ASSETS.md) for preserved originals, font provenance, served paths, regeneration and rollout status.

@@ -19,7 +19,7 @@ import "../../../design/vendor/zenon/tokens/elevation.css";
 import "../../../design/vendor/zenon/tokens/utilities.css";
 import "../../../design/vendor/zenon/components/components.css";
 import "./styles.css";
-import logo from "../../../design/vendor/zenon/assets/znn-logo.svg";
+import { BrandLogo } from "./brand-logo";
 import manifest from "../../../packages/protocol/deployment.json";
 import { digest, type Deployment } from "../../../packages/protocol";
 import { Vault, base64, type ItemRecord } from "../../../packages/vault";
@@ -1356,8 +1356,7 @@ function App() {
       <header>
         <div className="header-inner">
           <Link to="/" className="wordmark">
-            <img src={logo} alt="" />
-            zft<span>.</span>
+            <BrandLogo />
           </Link>
           <nav aria-label="Main navigation">
             <Link to="/explore">Explore</Link>
@@ -1437,7 +1436,7 @@ function App() {
       </main>
       <footer>
         <Link to="/" className="wordmark">
-          zft<span>.</span>
+          <BrandLogo />
         </Link>
         <p>Pictures you can keep. Collectibles you can pass on.</p>
         <div className="actions">

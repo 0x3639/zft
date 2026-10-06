@@ -236,3 +236,10 @@ No migration or contract update is needed. Preserve migration 0007 and the journ
 
 
 PR #6 title follow-up deployed as Worker **`0f53a02e-0450-4bec-ac0d-0475f3ecd728`** on 2026-10-06. Leaving a directly loaded help page now resets the document title instead of restoring the help title supplied by initial HTML. [Hosted browser evidence](../research/pr6-title-review.json) records the reproduced bug and passing navigation/history/alias checks. **194 app tests**, typecheck/build/Worker dry run and [hosted help checks](../research/r5-deployment.json) pass. No contract, migration, binding or route changes.
+
+
+## Supplied branding (PR #7)
+
+Worker **`94d8571d-1c47-4617-b1ef-66b75649fad2`** serves the supplied ZFT logo in the app, SVG/ICO favicons, touch/app icons and a [public asset gallery](https://devnet.zft.foo/assets/brand/). All 54 supplied source files are preserved. New OG snapshots receive a branding revision; existing share URLs retain their prior pixels. No migration, contract or binding/route changes were made.
+
+**203 app tests**, typecheck/build/Worker dry run and 15 OG fixtures pass. The [hosted acceptance record](../research/brand-deployment.json) verifies 86 exact asset responses, three new OG images, unchanged prior image bytes, the deployed bundle and semantic health. [Brand documentation](BRAND-ASSETS.md) includes source/license provenance and regeneration instructions. PR #7 review remains pending; real-device and release gates remain R6/R7.

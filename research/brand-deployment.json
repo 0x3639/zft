@@ -1,0 +1,662 @@
+{
+  "checkedAt": "2026-10-06T09:33:22.617Z",
+  "origin": "https://devnet.zft.foo",
+  "assets": [
+    {
+      "path": "/assets/brand/original/README.txt",
+      "status": 200,
+      "mime": "text/plain",
+      "bytes": 680,
+      "sha256": "c538ea4d36a79d827f09279375128e0933d9b6d715af09dd1e526d728fd74c0d"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-dark-1024.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 44644,
+      "sha256": "b75edee186a19099f02b6c9feb7d23f9892d1e8f4f7828cd8e007ce04574485a"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-dark-180.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 9315,
+      "sha256": "3d1db0a4285780f3815e6b986475de2559b199a582dcfdacd574a12cfeb63edc"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-dark-512.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 19910,
+      "sha256": "524c40377630b36609c04bcd9317799f1672ccd30bd539df999053d8627c424e"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8143,
+      "sha256": "3cfeb1d29d7390bdd6c368a2ce8387791ec17eafc2191e360a60ad8956b93843"
+    },
+    {
+      "path": "/assets/brand/rendered/app-icon/zft-app-icon-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 370,
+      "sha256": "988a8ff65f7e9577e763367a2bd510e62aceb76cf4e5126b2064d96125a00441"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-green-1024.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 44851,
+      "sha256": "489932fb85bbc6582d0f76b17bf62cdaab4f383a6b922dc917bf6423e95129dd"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-green-180.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 9405,
+      "sha256": "38a9942a36f14345f4f799edc3caa85d86d864490fa25ea96a2de97eb120659a"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-green-512.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 20182,
+      "sha256": "d03372fc0e55762d5ff6a45f5aa695ee2fddc41f0ea95267fc7b85a3e5071f71"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-green.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8143,
+      "sha256": "2d952e3531229298c23d68055eb9e76a07b7a7ed45fdc8c41afe7531b4618480"
+    },
+    {
+      "path": "/assets/brand/rendered/app-icon/zft-app-icon-green.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 370,
+      "sha256": "1ce45e400090f91f40a9f8abe3a7423558fdf5072c57f0c1bf037a3b9a307d57"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-light-1024.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 44663,
+      "sha256": "f1e7f5aaaaa7a2ab74bec930ab76f1a161fd1c62016f861b41f624aa2b3f8ccc"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-light-180.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 9267,
+      "sha256": "67488804cc69f7989a2fa81829e0450e2044716a1d1e419138580272b738d154"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-light-512.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 20053,
+      "sha256": "4c32da4aea1bbc0e18c34a38ab526c1d932993acb1fca32ae98c638814148ff7"
+    },
+    {
+      "path": "/assets/brand/original/app-icon/zft-app-icon-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8143,
+      "sha256": "341c15d3833849724a816f36d70c0337bc699f9b845ab220c1d840764081c69d"
+    },
+    {
+      "path": "/assets/brand/rendered/app-icon/zft-app-icon-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 370,
+      "sha256": "4e23b858b2adec5d2d299425a5c29d9f98d77c24cd86895d40278947d5021537"
+    },
+    {
+      "path": "/assets/brand/original/avatar/zft-avatar-dark-256.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 14378,
+      "sha256": "d1ba2d4d46c5631e3a24c85e3c290fd90a30b742ba5f60799430ead3e5a2bbab"
+    },
+    {
+      "path": "/assets/brand/original/avatar/zft-avatar-dark-512.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 26752,
+      "sha256": "48c2fac2a38e4a60ab0a0df4e3352c5185f526a04bf10e7dbf2c937ac1a1f3e2"
+    },
+    {
+      "path": "/assets/brand/original/avatar/zft-avatar-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8128,
+      "sha256": "e0c840aae59d10b11a7bd998b3da87fd1ea00962339b3b28c7fa281b3f23ed2f"
+    },
+    {
+      "path": "/assets/brand/rendered/avatar/zft-avatar-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 355,
+      "sha256": "7783b0303a2e88fd6c1cf7e4e96a3ff98ca465f3b37809f9e1fd25c047de52b7"
+    },
+    {
+      "path": "/assets/brand/original/avatar/zft-avatar-light-256.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 13829,
+      "sha256": "8587b1a9dfc932723f16a3740d03c9e6a70b0d4d819b80bbf9c3558c7295d37a"
+    },
+    {
+      "path": "/assets/brand/original/avatar/zft-avatar-light-512.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 25216,
+      "sha256": "7a56bb3c6373b1c33dbe7e13bedb8a200fce809627f5b7564861891260144704"
+    },
+    {
+      "path": "/assets/brand/original/avatar/zft-avatar-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8128,
+      "sha256": "201d13d7419a5d4fb65a2b193c339f0f9411b382f1cd415ebcaae5fcdb46b53b"
+    },
+    {
+      "path": "/assets/brand/rendered/avatar/zft-avatar-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 355,
+      "sha256": "7f90496560348614dd0098ef2625680c53d8f17cdbbe7f0ad479b8414c442a94"
+    },
+    {
+      "path": "/assets/brand/original/favicon/android-chrome-512.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 17243,
+      "sha256": "80e293c81846cb36c938fb11fe7e5bc28e950c30e46db7a0f9cc5188ccd10a04"
+    },
+    {
+      "path": "/assets/brand/original/favicon/apple-touch-icon-180.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 8531,
+      "sha256": "5c5f766092ef067316e9edfbe09bcb5204335b7a056fd081360da7a5e16be8f3"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-outline-on-dark-32.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6321,
+      "sha256": "98d86443ab1127a2afc7e688ea9c0efe5817e379467cba1aeca821381cdeb890"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-outline-on-dark-48.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6607,
+      "sha256": "c0a7c8dce419ba71138cf3d0530f76871ff55f49ad5975fbb2b643291c400bff"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-outline-on-dark-64.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6797,
+      "sha256": "2b8a1cae619d2194e5219eec22b043e86e91ce15e45c54fe32e3390799eb8e6e"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-outline-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8064,
+      "sha256": "78830c267d0534797b41dafcd642ae97cdfa7ffd572bf249459e91bd068a961e"
+    },
+    {
+      "path": "/assets/brand/rendered/favicon/favicon-outline-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 291,
+      "sha256": "67f49dcdc2a49ff1e41b25849348ce5460f3f51967863c8899135636f21a56b7"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-outline-on-light-32.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6351,
+      "sha256": "221a086b60fa33b44d45a1d64141cda8cc35c5b838f5762a4ab6db90cc2682dd"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-outline-on-light-48.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6633,
+      "sha256": "ca7aa30f155c998ebfb21a4c69c2b09876a6112be6b142dcd986aa88fa35c1c0"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-outline-on-light-64.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6825,
+      "sha256": "4121cc72aab8cd56f4b041b86ab76b32d9ebd62be8fd329d39b3554adfe11db3"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-outline-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8064,
+      "sha256": "1697956d0c5a62b4b65c64014e6346690a49e8da55e88b9a2013ce95e65d0660"
+    },
+    {
+      "path": "/assets/brand/rendered/favicon/favicon-outline-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 291,
+      "sha256": "58e4c9b42241ba2c5aea505cff237f268ac6bfa5cd64e26c090f7f4b88b70ff7"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-tile-16.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6104,
+      "sha256": "4398afff615a8d460d51aa7c5cbf934e6dfc8a1222324d2d534491ffcece561d"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-tile-192.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 9747,
+      "sha256": "7b0502931649cfe451424e793e707b70044de3af23bac6511157475d80b5f050"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-tile-32.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6377,
+      "sha256": "f01952d2baa673a81eae466dce4d4529e80c6b2d29df7b05f14b0e479e4ae05b"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-tile-48.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6635,
+      "sha256": "09f55dfaf3cbafe2798e8b1a4d37f51a15ad926a2c30fdc6f6c9e71afeb8678c"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-tile-512.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 20777,
+      "sha256": "4633c651f770b6c9525def768f32137655412d40ca5ba105da75f173d60182dc"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-tile-64.png",
+      "status": 200,
+      "mime": "image/png",
+      "bytes": 6923,
+      "sha256": "f2ec2e99ea7aee5c215489c8ff689f7ca3224b2684478104676465b44f70d55c"
+    },
+    {
+      "path": "/assets/brand/original/favicon/favicon-tile.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 7975,
+      "sha256": "8e22378e8c0aae08e29d3befc1f38ad23f7eaa88d00dde958289cf78f8db1f80"
+    },
+    {
+      "path": "/assets/brand/rendered/favicon/favicon-tile.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 202,
+      "sha256": "3aba2d0f5dd6a41c5f45040e0168f59a08d25fcd31bd74f1e782d474b4c12b44"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-lockup-horizontal-mono-green-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8250,
+      "sha256": "a13f23e29d0fcb5fae339d8dc19c96de363d7629be4c72bad1a1fa5015664f0f"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-lockup-horizontal-mono-green-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1654,
+      "sha256": "9f1dd6ad0657e8797fce625a177012d837b3ddc07bb727be24cbb01beb306ba2"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-lockup-horizontal-mono-green-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8250,
+      "sha256": "dd2f7dd3f716e3256a2c67fae4f80757a1716962c7e2b1d3900e20a565b5fc10"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-lockup-horizontal-mono-green-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1654,
+      "sha256": "752fd26a3fe08586d6847cdeb8ef812c89ee565d258c0648871d85d33e528082"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-lockup-horizontal-mono-ink-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8250,
+      "sha256": "43bfb83533e3ab19f92be6cd8c77364af5733399f72942611fb281d1957fc8e2"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-lockup-horizontal-mono-ink-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1654,
+      "sha256": "55bf68016dd4689b915057095c13319c20fb69c73f608364b74623943969beaf"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-lockup-horizontal-mono-ink-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8250,
+      "sha256": "55cf0ddc7c0c1726ff24a950d7447cda3bad0f75b2ba413a77d20a458eb8c9a7"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-lockup-horizontal-mono-ink-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1654,
+      "sha256": "e5944c7f1c89f1e0f04baabacd0ace5bb385bfbc44301bb071aa3fff88a1a351"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-lockup-horizontal-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8250,
+      "sha256": "f135122286ace4d2ae81cc2a7a918a30c59968ab38b63a2ee3858cfc593f74c1"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-lockup-horizontal-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1654,
+      "sha256": "cbbf272da8075ba03e3572af3377de6e96fdafb7f169f9759b2e7a9100c52123"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-lockup-horizontal-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8250,
+      "sha256": "2582e635d03fe6cd61cf8a934d72d0ab63401b39fde847dc0291200706b36c20"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-lockup-horizontal-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1654,
+      "sha256": "34e8f97ebf2866a317b0c9170ae1711b8e6cf2e63d4ebe7b37c9918ab40c7191"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-lockup-stacked-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8256,
+      "sha256": "0569eab25e806ccecb7352428c0ca17c4132bda4f786b72db460d1b4d9c93eaa"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-lockup-stacked-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1585,
+      "sha256": "565a805bff0936c26b4f703c9e3ab19ee609d0c6f448436ab20ac5d9665c9c3a"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-lockup-stacked-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8256,
+      "sha256": "811f16c3f05534bc46a92365e1c5e0a2321d0f02c28bba02b91447600068dd4a"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-lockup-stacked-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1585,
+      "sha256": "0ccefb52bb1447ff0e56b95d7bb339b6315b6dff697dfb405b97f71aba5bb7ee"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-mark-mono-green-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8062,
+      "sha256": "9fec6ff8f5f6eab4c8d7f60bbadf971382fe1329bab79f73a4b4bdd938c70530"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-mark-mono-green-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 289,
+      "sha256": "513f54cb406d20161333b6353eb20618f39d44399cf6d397e96ed0562f4e3cc7"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-mark-mono-green-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8062,
+      "sha256": "d178ed02547998b2bafda21821f1e2e98d32099a3e6dd3bad51e5c7b08f92b11"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-mark-mono-green-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 289,
+      "sha256": "ff7fc9158d1568be5b6b227e8d343c41005000d006206e89f8b4a9b4572f8bf2"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-mark-mono-ink-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8062,
+      "sha256": "3a1a55b626ca51feb31b4c0dada32041906bec9dee4dc143fcea5d9a95e65b22"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-mark-mono-ink-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 289,
+      "sha256": "e799e6ee782ce9f3c9bbfb6845e44881614556d50501019e36abc29d061f2413"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-mark-mono-ink-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8062,
+      "sha256": "16771869e104a718b21d84cfbca25204430faf79ba114fcd675a98599fd6f10a"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-mark-mono-ink-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 289,
+      "sha256": "400ef36a7e2d9984dca5f51d2633b05c1a4f0d69b9c1be45f77e9134a456751b"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-mark-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8062,
+      "sha256": "b986fc5024c97ef2bbdfed3266053a40874caa2fbc6580120910dea44a20323f"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-mark-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 289,
+      "sha256": "f98461ffa138494f4e521f27d2a26500b6417b22a3b82220c6e0e30d657e53bd"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-mark-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8062,
+      "sha256": "175b4f29a96b94b6e662c14545232c86054a40fcd69c74ec26695308dd830489"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-mark-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 289,
+      "sha256": "3ec8271bdee7135c8462ebc845239a392b545869714d7f88ca8746f073833720"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-wordmark-mono-ink-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8050,
+      "sha256": "c2553f73c3fa695ecc83a9a783f09e19028a4a45a8cc2bfcad096b4945e17b82"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-wordmark-mono-ink-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1413,
+      "sha256": "8fc5de4928bbddcd46230ff3d9acbe56238521c2f7a96008e2815d5a5e9f2c7d"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-wordmark-mono-ink-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8050,
+      "sha256": "a3c422b57d4eef5248a96b76cd13e2409c04c6ebd5bca4f5aefc69093802ed4b"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-wordmark-mono-ink-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1413,
+      "sha256": "5c079fe17182216ed3e1779e537aac32c1c3f05c3fff2f92e6c35742fea72e8e"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-wordmark-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8050,
+      "sha256": "45d0f8150460903a19fc0bebec107fbbf727466b1ce1a1f2ffa08ca4eb822d53"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-wordmark-on-dark.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1413,
+      "sha256": "5162ebf2349b255b8b6dc8addbeb306bb36024fffda5701ddbb6fe4489d5d9f9"
+    },
+    {
+      "path": "/assets/brand/original/logo/zft-wordmark-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 8050,
+      "sha256": "9c0ef60262985c864875d1c439a343f7719b19c6cefab4b0ccd019574702e3c3"
+    },
+    {
+      "path": "/assets/brand/rendered/logo/zft-wordmark-on-light.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 1413,
+      "sha256": "2ee7fb996a0ce8270fc3538e305abab3f2fda74b661759645e63433e6bff0179"
+    },
+    {
+      "path": "/favicon.svg",
+      "status": 200,
+      "mime": "image/svg+xml",
+      "bytes": 202,
+      "sha256": "3aba2d0f5dd6a41c5f45040e0168f59a08d25fcd31bd74f1e782d474b4c12b44"
+    },
+    {
+      "path": "/favicon.ico",
+      "status": 200,
+      "mime": "image/vnd.microsoft.icon",
+      "bytes": 19170,
+      "sha256": "cc2b538e3fb1196f20a22052262102bed7e46b5827333c290cac3913c8abf502"
+    },
+    {
+      "path": "/assets/brand/site.webmanifest",
+      "status": 200,
+      "mime": "application/manifest+json",
+      "bytes": 481,
+      "sha256": "1dedd43f2c9da45ff17933074959d531fd0782d0ec70d72ea11e4ec3cc56a8fd"
+    },
+    {
+      "path": "/assets/brand/index.html",
+      "status": 200,
+      "mime": "text/html",
+      "bytes": 19799,
+      "sha256": "fe246bedcd082b3ce6625f2ce244ed9ba17bfea60000e2fa23ae89cabbb86979"
+    },
+    {
+      "path": "/assets/brand/gallery.css",
+      "status": 200,
+      "mime": "text/css",
+      "bytes": 834,
+      "sha256": "8536d59f0ad09dcda6d3ef16cbb8ba1d980e4380b0f253fc123a0bb5f1863b7b"
+    },
+    {
+      "path": "/licenses/IBM-Plex-Mono.txt",
+      "status": 200,
+      "mime": "text/plain",
+      "bytes": 4456,
+      "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da"
+    }
+  ],
+  "pages": [
+    {
+      "path": "/how-it-works",
+      "image": "https://devnet.zft.foo/api/og/page/how-it-works.png?v=4618a1571b60cca7103fe21c8364adafc37eb9f66760a771fb365b1fe8437daa",
+      "sha256": "0735c28841d4cd512449679a1a52e4bcfde13d8ca0b97c615f7d5c0fb38a0421",
+      "bytes": 40347,
+      "legacyImage": "https://devnet.zft.foo/api/og/page/how-it-works.png?v=ce08e579ef0a97cf5b4352bb5968b974f83ed5e10564c7d6bf203bf510816313",
+      "legacyPreserved": true
+    },
+    {
+      "path": "/how-it-works?view=cryptography",
+      "image": "https://devnet.zft.foo/api/og/page/how-it-works-technical.png?v=9c25964b8a6515f9844ca5eb31d400b96abef1283f87b894f9e522dd0b021e8d",
+      "sha256": "6ede0c47c624196c1fb08bc16f7afca42f5d82667574965ca328f5fd949a7ab7",
+      "bytes": 43401,
+      "legacyImage": "https://devnet.zft.foo/api/og/page/how-it-works-technical.png?v=5ae67a5f2ee5cd984850ca2db12142188322253d2b984e2799170a791f10fad7",
+      "legacyPreserved": true
+    },
+    {
+      "path": "/p/0x158dab978ae49716679b006e21a89811e01cbca0",
+      "image": "https://devnet.zft.foo/api/og/p/0x158dab978ae49716679b006e21a89811e01cbca0.png?v=5621c198414d160a2dad1fdcdd726f177a9b87c8f2393dcc9746ff422daa2939",
+      "sha256": "04289116fc4dc6f2a13f4b1657ff7b032bbe4b6dc8e973c46d7a2eb9c17c0a61",
+      "bytes": 147384,
+      "legacyImage": "https://devnet.zft.foo/api/og/p/0x158dab978ae49716679b006e21a89811e01cbca0.png?v=b703ebf2f51694b59065ce4d8f43e579d91495498d9da7a8965a54898918ad5d",
+      "legacyPreserved": true
+    }
+  ],
+  "bundle": {
+    "path": "/assets/index-BZMIXlVX.js",
+    "sha256": "a23af74a61d58e5bf32f57af9308525a7c88a54b17203dc4fd9eddf69afe921f"
+  },
+  "health": {
+    "ready": true,
+    "network": "ZVM devnet",
+    "sponsorEnabled": true,
+    "index": {
+      "block": 102873,
+      "head": 102879,
+      "syncedAt": 1791279180179,
+      "error": null,
+      "lag": 6,
+      "confirmations": 6
+    }
+  },
+  "workerVersion": "94d8571d-1c47-4617-b1ef-66b75649fad2",
+  "runtimeCommit": "6d2f0093b4cec40d5922d33f08a41b06ab1d575e",
+  "browser": {
+    "profile": "/p/0x158dab978ae49716679b006e21a89811e01cbca0",
+    "width": 633,
+    "logoImagesLoaded": 2,
+    "horizontalOverflow": false,
+    "favicon": "/favicon.svg?v=2026-10",
+    "galleryVisualAssets": 53,
+    "galleryLoaded": true
+  }
+}

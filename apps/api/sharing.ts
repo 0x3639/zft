@@ -1,3 +1,4 @@
+import { BRAND_REVISION } from "../../packages/protocol/brand";
 import { digest, addressSchema, uintSchema } from "../../packages/protocol";
 import { ZodError } from "zod";
 import manifest from "../../packages/protocol/deployment.json";
@@ -16,6 +17,7 @@ import { helpPage } from "../../packages/protocol/help";
 
 export type Snapshot = {
   version: 1;
+  branding?: typeof BRAND_REVISION;
   deployment: string;
   path: string;
   imagePath: string;
@@ -55,6 +57,7 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
   const path = url.pathname;
   const base = {
     version: 1 as const,
+    branding: BRAND_REVISION,
     deployment: manifest.contract,
     path,
     imagePath: "",

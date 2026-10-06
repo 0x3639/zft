@@ -4,11 +4,11 @@ This roadmap tracks delivered work and the balance of the ZFT specification. The
 
 ## Roadmap status
 
-This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Update it in the same change as implementation or acceptance evidence. Last reconciled: **2026-10-06**, merged baseline **`b417de3`** ([PR #5](https://github.com/0x3639/zft/pull/5)); current increment **`feat/help-sharing`**, R5 help and sharing acceptance. PR #5’s final head `a1fd076` passed CI and CodeRabbit review; its monitor is stopped. R5 is deployed as Worker **`0f53a02e-0450-4bec-ac0d-0475f3ecd728`**. [PR #6](https://github.com/0x3639/zft/pull/6) review found one title-cleanup issue, fixed and verified below; follow-up review is pending.
+This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Last reconciled: **2026-10-06**, merged baseline **`9b4c74f`** ([PR #6](https://github.com/0x3639/zft/pull/6)). Its final head `f023ae1` passed CodeRabbit review, both CI runs and the Cloudflare build with no outstanding actionable findings. The current increment is **`feat/brand-assets`**, the supplied logo and favicon rollout. [PR #7](https://github.com/0x3639/zft/pull/7) is deployed to devnet as Worker **`94d8571d-1c47-4617-b1ef-66b75649fad2`**; its follow-up review is pending.
 
 Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
 
-Current focus: **R5 help and remaining sharing**, implemented with the acceptance evidence below. **R6 browser/device acceptance and R7 operational qualification are next.** Actual MetaMask/phone and wider release acceptance remain R1.5/R1.6/R6/R7.
+Current focus: **the supplied logo rollout**, followed by the remaining acceptance work. **R6 browser/device acceptance and R7 operational qualification are next.** Actual MetaMask/phone and wider release acceptance remain R1.5/R1.6/R6/R7.
 
 | Work | Status | Completed baseline or remaining deliverable | Acceptance |
 | --- | --- | --- | --- |
@@ -27,6 +27,10 @@ Current focus: **R5 help and remaining sharing**, implemented with the acceptanc
 | E1 Encrypted sharing and remote backup | Deferred | Separate encryption/storage/recovery/retention protocol | New protocol review and recovery/race tests |
 | E2 Marketplace | Deferred | Verify Karum deployment/source/order types, payment asset, safe payouts; then listings/offers/settlement | A-MARKET; [exchange plan](MARKETPLACE.md) |
 | E3 Mainnet and private ownership | Outside devnet release | Mainnet launch and privacy research are separate projects | Independent design and launch review |
+
+## Supplied brand rollout
+
+The user-supplied ZFT logo is prepared on `feat/brand-assets` in a separate worktree. **[PR #7](https://github.com/0x3639/zft/pull/7) is deployed on devnet; review pending.** All 54 supplied files are preserved and served with a download gallery. Header/footer themes, favicon/touch/manifest icons and new OG snapshots use the supplied artwork. Existing immutable OG snapshots preserve their prior rendering. See [brand implementation and acceptance](BRAND-ASSETS.md): 203 app tests, 15 OG fixtures, 86 local Worker asset responses and mobile/theme checks pass. Hosted checks pass for all 86 exact asset responses, three new sharing images, retained OG URL bytes, the frontend bundle and semantic health; [evidence](../research/brand-deployment.json). R6/R7 remain the next release gates.
 
 ## Remaining work checklist
 

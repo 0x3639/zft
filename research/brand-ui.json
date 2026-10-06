@@ -1,0 +1,55 @@
+{
+  "checks": [
+    {
+      "logos": [
+        {
+          "loaded": true,
+          "src": "/assets/brand/rendered/logo/zft-lockup-horizontal-on-dark.svg",
+          "width": 120
+        },
+        {
+          "loaded": true,
+          "src": "/assets/brand/rendered/logo/zft-lockup-horizontal-on-dark.svg",
+          "width": 120
+        }
+      ],
+      "overflow": false,
+      "theme": "dark",
+      "width": 360
+    },
+    {
+      "overflow": false,
+      "width": 320
+    },
+    {
+      "logos": [
+        {
+          "loaded": true,
+          "src": "/assets/brand/rendered/logo/zft-lockup-horizontal-on-light.svg",
+          "width": 120
+        },
+        {
+          "loaded": true,
+          "src": "/assets/brand/rendered/logo/zft-lockup-horizontal-on-light.svg",
+          "width": 120
+        }
+      ],
+      "overflow": false,
+      "theme": "",
+      "width": 1280
+    }
+  ],
+  "footerVisuallyVerified": true,
+  "mobileScreenshot": "brand-mobile.png",
+  "desktopScreenshots": [
+    "brand-light.png",
+    "brand-dark.png"
+  ],
+  "gallery": {
+    "screenshot": "brand-gallery.png",
+    "visualAssets": 53,
+    "sourceReadme": true,
+    "mobileWidth": 360,
+    "horizontalOverflow": false
+  }
+}

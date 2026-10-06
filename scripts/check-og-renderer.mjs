@@ -115,6 +115,7 @@ try {
     "landscape",
     "help-basics",
     "help-technical",
+    "legacy",
   ]) {
     const res = await fetch(`http://localhost:8788/${fixture}`),
       bytes = new Uint8Array(await res.arrayBuffer());
@@ -200,6 +201,16 @@ try {
     "Fourth artwork must not change a capped collage",
   );
   assert.notEqual(hashFor("help-basics"), hashFor("help-technical"));
+  assert.equal(
+    hashFor("legacy"),
+    "2eecc0db0b80f24db68303386e3786f20705a46b8bef9b22fe9404e40cc62b9b",
+    "Old snapshot rendering must retain its original pixels",
+  );
+  assert.notEqual(
+    hashFor("0"),
+    hashFor("legacy"),
+    "New snapshots must render the supplied branding",
+  );
   await writeFile(
     `${output}/results.json`,
     JSON.stringify(
@@ -220,7 +231,7 @@ try {
     ) + "\n",
   );
   console.log(
-    "OG renderer passed: fourteen bounded 1200×630 fixtures with NFT/profile pixels, help views, long titles, crops and 24 MP / >1 MiB source. Inspect research/sharing-fixtures/*.png.",
+    "OG renderer passed: fifteen bounded 1200×630 fixtures with NFT/profile pixels, help views, long titles, crops and 24 MP / >1 MiB source. Inspect research/sharing-fixtures/*.png.",
   );
 } finally {
   child.kill("SIGTERM");

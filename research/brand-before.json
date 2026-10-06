@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-06T09:29:45.494Z",
+  "checks": [
+    {
+      "path": "/how-it-works",
+      "image": "https://devnet.zft.foo/api/og/page/how-it-works.png?v=ce08e579ef0a97cf5b4352bb5968b974f83ed5e10564c7d6bf203bf510816313",
+      "sha256": "950ffb31624e12e716fa31584c230488102cf72aed53eb87c75382fffd2bb2e7",
+      "bytes": 34842
+    },
+    {
+      "path": "/how-it-works?view=cryptography",
+      "image": "https://devnet.zft.foo/api/og/page/how-it-works-technical.png?v=5ae67a5f2ee5cd984850ca2db12142188322253d2b984e2799170a791f10fad7",
+      "sha256": "e66bc56df282da3d2bddb269a782e479d216baee6aca2da4d5249edc94c7d1ab",
+      "bytes": 37875
+    },
+    {
+      "path": "/p/0x158dab978ae49716679b006e21a89811e01cbca0",
+      "image": "https://devnet.zft.foo/api/og/p/0x158dab978ae49716679b006e21a89811e01cbca0.png?v=b703ebf2f51694b59065ce4d8f43e579d91495498d9da7a8965a54898918ad5d",
+      "sha256": "627eb87e47a7bc19aba5ab5ba0c27c21b0df964d28355609c884a7bf5ddb4880",
+      "bytes": 141396
+    }
+  ]
+}
