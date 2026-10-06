@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "./api";
+import { CopyPublic } from "./public-copy";
 import { download } from "./flows";
 import manifest from "../../../packages/protocol/deployment.json";
 import {
@@ -8,6 +9,7 @@ import {
   type CheckState,
 } from "../../../packages/protocol/public-proof";
 import { MAX_IMAGE } from "../../../packages/file-codec";
+import { addressSchema, uintSchema } from "../../../packages/protocol";
 
 const btn = "nom-btn nom-btn--outline nom-btn--default";
 const short = (s: string) => `${s.slice(0, 8)}…${s.slice(-6)}`;
@@ -32,7 +34,12 @@ export function PublicDetail({
     [flipped, setFlipped] = useState(false),
     [notice, setNotice] = useState("");
   const generation = useRef(0);
+  const validSelection =
+    uintSchema.safeParse(id).success &&
+    (context === undefined || addressSchema.safeParse(context).success) &&
+    (epoch === undefined || uintSchema.safeParse(epoch).success);
   async function refresh() {
+    if (!validSelection) return;
     const run = ++generation.current;
     setBusy(true);
     setChecks(undefined);
@@ -93,16 +100,18 @@ export function PublicDetail({
       generation.current++;
     };
   }, [id, context, epoch]);
-  async function copy(value: string, label: string) {
-    try {
-      await navigator.clipboard.writeText(value);
-      setNotice(`${label} copied`);
-    } catch {
-      onError(
-        "Clipboard unavailable. Select and copy the full value from the proof details.",
-      );
-    }
-  }
+  if (!validSelection)
+    return (
+      <section className="empty-state">
+        <h2>Invalid collectible link.</h2>
+        <p>
+          This link does not identify a valid collectible or ownership epoch.
+        </p>
+        <button className={btn} onClick={() => nav("/explore/nfts")}>
+          Explore collectibles
+        </button>
+      </section>
+    );
   if (!item)
     return (
       <section className="empty-state">
@@ -295,25 +304,23 @@ export function PublicDetail({
         <div className="proof-identities">
           <div>
             <label>Asset hash</label>
-            <button
+            <CopyPublic
               className="copy-pill mono"
-              title={item.metadata.imageHash}
-              onClick={() => copy(item.metadata.imageHash, "Asset hash")}
+              value={item.metadata.imageHash}
+              label="Asset hash"
             >
               {short(item.metadata.imageHash)} ⧉
-            </button>
+            </CopyPublic>
           </div>
           <div>
             <label>{context ? "Collector profile" : "Creator"}</label>
-            <button
+            <CopyPublic
               className="copy-pill mono"
-              title={context ?? item.metadata.creator}
-              onClick={() =>
-                copy(context ?? item.metadata.creator, "Public identity")
-              }
+              value={context ?? item.metadata.creator}
+              label="Public identity"
             >
               {short(context ?? item.metadata.creator)} ⧉
-            </button>
+            </CopyPublic>
           </div>
         </div>
         <div className="actions">
@@ -327,17 +334,12 @@ export function PublicDetail({
           <button className={btn} onClick={proof} disabled={busy}>
             Public proof
           </button>
-          <button
-            className={btn}
-            onClick={() =>
-              copy(
-                `${location.origin}${context ? `/p/${context}?nft=${id}${epoch === undefined ? "" : `&epoch=${epoch}`}` : `/item/${id}`}`,
-                "Artwork link",
-              )
-            }
+          <CopyPublic
+            value={`${location.origin}${context ? `/p/${context}?nft=${id}${epoch === undefined ? "" : `&epoch=${epoch}`}` : `/item/${id}`}`}
+            label="Artwork link"
           >
             Share
-          </button>
+          </CopyPublic>
         </div>
         <p className="public-note">
           Saved images and public proofs contain no transfer key.

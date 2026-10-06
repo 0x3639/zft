@@ -1,0 +1,152 @@
+{
+  "checkedAt": "2026-10-06T08:21:01.595Z",
+  "layouts": [
+    {
+      "scrollWidth": 320,
+      "view": "Technical",
+      "width": 320
+    },
+    {
+      "scrollWidth": 360,
+      "view": "Technical",
+      "width": 360
+    },
+    {
+      "scrollWidth": 768,
+      "view": "Technical",
+      "width": 768
+    },
+    {
+      "scrollWidth": 1440,
+      "view": "Technical",
+      "width": 1440
+    },
+    {
+      "scrollWidth": 320,
+      "view": "Basics",
+      "width": 320
+    },
+    {
+      "scrollWidth": 360,
+      "view": "Basics",
+      "width": 360
+    },
+    {
+      "scrollWidth": 768,
+      "view": "Basics",
+      "width": 768
+    },
+    {
+      "scrollWidth": 1440,
+      "view": "Basics",
+      "width": 1440
+    }
+  ],
+  "checks": [
+    {
+      "name": "Guest mint keeps intended route",
+      "url": "http://localhost:5173/mint",
+      "visible": "Start with MetaMask. guest panel observed"
+    },
+    {
+      "name": "Open my collection",
+      "url": "http://localhost:5173/wallet",
+      "page": [
+        "Your wallet. Your files.",
+        "In your wallet"
+      ]
+    },
+    {
+      "name": "Receive a file",
+      "url": "http://localhost:5173/claim",
+      "page": [
+        "Start with MetaMask."
+      ]
+    },
+    {
+      "name": "Save or restore recovery",
+      "url": "http://localhost:5173/recovery",
+      "page": [
+        "Keep a way back."
+      ]
+    },
+    {
+      "name": "Back restores Basics",
+      "selected": "true"
+    },
+    {
+      "name": "Forward restores Technical",
+      "selected": "true"
+    },
+    {
+      "name": "Clipboard missing fallback",
+      "selection": {
+        "end": 53,
+        "focused": true,
+        "start": 0,
+        "value": "https://devnet.zft.foo/how-it-works?view=cryptography"
+      }
+    },
+    {
+      "name": "Clipboard missing restores focus",
+      "focus": "Copy page link"
+    },
+    {
+      "name": "Clipboard denied fallback",
+      "selection": {
+        "end": 53,
+        "focused": true,
+        "start": 0,
+        "value": "https://devnet.zft.foo/how-it-works?view=cryptography"
+      }
+    },
+    {
+      "name": "Clipboard denied restores focus",
+      "focus": "Copy page link"
+    },
+    {
+      "name": "Clipboard success",
+      "status": [
+        "Page link copied",
+        "Written: https://devnet.zft.foo/how-it-works?view=cryptography"
+      ]
+    },
+    {
+      "name": "Direct compatibility alias and trust anchor",
+      "title": "The picture. The key. The proof. · ZFT",
+      "trustTop": 57.265625
+    },
+    {
+      "name": "Malformed item link",
+      "heading": [
+        "Invalid collectible link."
+      ]
+    },
+    {
+      "name": "Malformed link recovery",
+      "url": "http://localhost:5173/explore/nfts"
+    },
+    {
+      "name": "Missing item exposes retry",
+      "headings": [
+        "Collectible not indexed yet."
+      ]
+    },
+    {
+      "name": "Keyboard tabs",
+      "result": "ArrowRight/Home focus selected tabs; bottom view link focuses heading and scrolls to top."
+    }
+  ],
+  "scope": "Local production help routes and public-copy component; clipboard injection in ignored disposable fixture only. No wallet signatures or ownership transactions.",
+  "limitations": [
+    "Actual MetaMask, physical phone and screen-reader acceptance remain R6.",
+    "Social-platform previews/recrawls remain R6.4."
+  ],
+  "hosted": {
+    "url": "https://devnet.zft.foo/how-it-works?view=cryptography",
+    "screenshot": "r5-help-hosted.png",
+    "status": [
+      "Contract address copied"
+    ]
+  }
+}

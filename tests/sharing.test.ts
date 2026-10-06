@@ -105,3 +105,44 @@ it("preserves an unavailable asset shell status and HEAD semantics", async () =>
   expect(head.headers.get("content-type")).toContain("text/html");
   expect(await head.text()).toBe("");
 });
+
+it.each([
+  ["/how-it-works", "Keep it. Pass it on.", "/how-it-works", "how-it-works"],
+  [
+    "/about?view=cryptography&tracking=drop",
+    "The picture. The key. The proof.",
+    "/how-it-works?view=cryptography",
+    "how-it-works-technical",
+  ],
+  [
+    "/how-it-works?view=cryptography",
+    "The picture. The key. The proof.",
+    "/how-it-works?view=cryptography",
+    "how-it-works-technical",
+  ],
+  [
+    "/how-it-works?view=unknown",
+    "Keep it. Pass it on.",
+    "/how-it-works",
+    "how-it-works",
+  ],
+])(
+  "provides initial help HTML for %s without JavaScript or discovery storage",
+  async (path, title, canonical, image) => {
+    const response = await worker.fetch(path, {
+      headers: { "x-fixture": "database-outage" },
+    });
+    expect(response.status).toBe(200);
+    const html = await response.text();
+    expect(html).toContain(`<title>${title} · ZFT</title>`);
+    expect(html).toContain(
+      `rel="canonical" href="https://devnet.zft.foo${canonical}"`,
+    );
+    expect(html).toContain(
+      `property="og:image" content="https://devnet.zft.foo/api/og/page/${image}.png?v=`,
+    );
+    expect(html).not.toContain("tracking=");
+    expect(html).not.toContain("stale-image");
+    expect(html).not.toContain('name="robots"');
+  },
+);

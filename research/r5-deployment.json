@@ -1,0 +1,63 @@
+{
+  "checkedAt": "2026-10-06T09:13:45.630Z",
+  "origin": "https://devnet.zft.foo",
+  "routes": [
+    {
+      "path": "/how-it-works",
+      "status": 200,
+      "canonical": "https://devnet.zft.foo/how-it-works",
+      "image": "https://devnet.zft.foo/api/og/page/how-it-works.png?v=ce08e579ef0a97cf5b4352bb5968b974f83ed5e10564c7d6bf203bf510816313"
+    },
+    {
+      "path": "/how-it-works?view=cryptography",
+      "status": 200,
+      "canonical": "https://devnet.zft.foo/how-it-works?view=cryptography",
+      "image": "https://devnet.zft.foo/api/og/page/how-it-works-technical.png?v=5ae67a5f2ee5cd984850ca2db12142188322253d2b984e2799170a791f10fad7"
+    },
+    {
+      "path": "/about?view=cryptography&tracking=discard",
+      "status": 200,
+      "canonical": "https://devnet.zft.foo/how-it-works?view=cryptography",
+      "image": "https://devnet.zft.foo/api/og/page/how-it-works-technical.png?v=5ae67a5f2ee5cd984850ca2db12142188322253d2b984e2799170a791f10fad7"
+    },
+    {
+      "path": "/how-it-works?view=unknown",
+      "status": 200,
+      "canonical": "https://devnet.zft.foo/how-it-works",
+      "image": "https://devnet.zft.foo/api/og/page/how-it-works.png?v=ce08e579ef0a97cf5b4352bb5968b974f83ed5e10564c7d6bf203bf510816313"
+    }
+  ],
+  "images": {
+    "basics": {
+      "url": "https://devnet.zft.foo/api/og/page/how-it-works.png?v=ce08e579ef0a97cf5b4352bb5968b974f83ed5e10564c7d6bf203bf510816313",
+      "sha256": "950ffb31624e12e716fa31584c230488102cf72aed53eb87c75382fffd2bb2e7",
+      "bytes": 34842
+    },
+    "cryptography": {
+      "url": "https://devnet.zft.foo/api/og/page/how-it-works-technical.png?v=5ae67a5f2ee5cd984850ca2db12142188322253d2b984e2799170a791f10fad7",
+      "sha256": "e66bc56df282da3d2bddb269a782e479d216baee6aca2da4d5249edc94c7d1ab",
+      "bytes": 37875
+    }
+  },
+  "invalidItem": {
+    "status": 404,
+    "noindexShell": true
+  },
+  "bundle": {
+    "path": "/assets/index-IsV22Go6.js",
+    "sha256": "1b2bbae63280f7e5129cee8d085d8fa06cc4207e06dcbe5c4f71e4a0ff93799a"
+  },
+  "health": {
+    "ready": true,
+    "network": "ZVM devnet",
+    "sponsorEnabled": true,
+    "index": {
+      "block": 102790,
+      "head": 102796,
+      "syncedAt": 1791278002026,
+      "error": null,
+      "lag": 6,
+      "confirmations": 6
+    }
+  }
+}

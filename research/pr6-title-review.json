@@ -1,0 +1,42 @@
+{
+  "checkedAt": "2026-10-06T08:41:32.942Z",
+  "before": {
+    "initialTitle": "The picture. The key. The proof. · ZFT",
+    "destination": {
+      "url": "https://devnet.zft.foo/mint",
+      "title": "The picture. The key. The proof. · ZFT"
+    }
+  },
+  "after": [
+    {
+      "step": "Direct Technical",
+      "url": "https://devnet.zft.foo/how-it-works?view=cryptography",
+      "title": "The picture. The key. The proof. · ZFT"
+    },
+    {
+      "step": "Switch to Basics",
+      "title": "Keep it. Pass it on. · ZFT"
+    },
+    {
+      "step": "Navigate to Mint",
+      "url": "https://devnet.zft.foo/mint",
+      "title": "ZFT · The collectible is the file"
+    },
+    {
+      "step": "Back to Basics",
+      "title": "Keep it. Pass it on. · ZFT"
+    },
+    {
+      "step": "Forward to Mint",
+      "title": "ZFT · The collectible is the file"
+    },
+    {
+      "step": "Direct alias to recovery",
+      "url": "https://devnet.zft.foo/recovery",
+      "title": "ZFT · The collectible is the file"
+    }
+  ],
+  "completedAt": "2026-10-06T08:43:51.192Z",
+  "workerVersion": "0f53a02e-0450-4bec-ac0d-0475f3ecd728",
+  "comment": "https://github.com/0x3639/zft/pull/6#discussion_r4193200979"
+}

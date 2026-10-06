@@ -17,6 +17,7 @@ The [complete website functional specification](FUNCTIONAL-SPEC.md) covers the e
 - D1 event journal indexed independently from sponsor submissions, cursor pagination, six-block confirmation policy, serialized scans and checkpoint rewind on fork detection. Cron and rate-limited public index reads wake ingestion.
 - Per-page initial HTML metadata and deterministic 1200×630 PNGs for static pages, profiles, selected artwork, and standalone items. Known revisions are stored in R2; arbitrary revision generation and unrelated profile/item contexts are rejected.
 - Invalid per-token metadata is omitted from public galleries and collection previews; valid peers remain visible. Missing/invalid deep links and share-storage outages still serve the app shell with noindex metadata and the corresponding 400/404/503 status, so client error/retry states can mount.
+- Basics/Technical help at `/how-it-works` (and `/about`), URL/history-aware views, task links, distinct initial HTML/OG, and public-copy fallback dialogs.
 - Collection-first profile navigation; Network dialog; contextual guest unlock; mobile navigation and address/link lookup; persistent System/Light/Dark themes.
 - Two-face proof card with independent integrity, owner-authorized profile binding, and live ownership checks; retained historical epochs and sanitized JSON v2 proof downloads.
 - EIP-6963/MetaMask connection, pinned ZVM network add/switch, public address and devnet native-gas balance. Wallet/file custody transfers are implemented at `/wallet`; actual MetaMask/phone acceptance remains pending and trading is not implemented.
@@ -143,7 +144,7 @@ Browser acceptance includes current three-check proof, card flip, safe public JS
 
 ## Remaining beta gates
 
-- Additional curated collection pages, expanded help, and full reference-page parity. Profile media and Everyone/Following activity are implemented; actual wallet/device acceptance remains open.
+- Curated-collection scope and full reference-page parity. Profile media, Everyone/Following activity and Basics/Technical help are implemented; actual wallet/device and social-platform acceptance remain open.
 - Independent ZVM/finality verification; controlled large/deep reorg and reset drills. SQLite regression tests cover index rollback, external transfers, and stopped ingestion on deployment mismatch.
 - Sponsor crash/restart/reorg/fee-replacement fault injection, bounded journal retention, stronger Sybil admission and storage cleanup. Ambiguous or conflicting nonce state deliberately stops the sponsor for operator reconciliation.
 - Actual browser-to-browser and phone transactions, large-collection recovery performance, expanded accessibility testing, release/security review, and target social-platform preview checks.
@@ -223,3 +224,15 @@ Profile images are served by the existing devnet Worker at `/profile-media/:addr
 R4 deployed as Worker **`1f5abf97-d8ce-4db2-ae3f-1f0f604d5fc3`** on 2026-10-05 (America/Chicago). Migration counts remained seven profiles, 32 journal events and two possessions. **186 app tests**, typecheck, frontend build, Worker dry run and eight local OG fixtures pass. [Hosted evidence](../research/hosted-profile-media.json) confirms both images in one signed save, stale-save 409, omission preservation, immutable PNG bytes and distinct bounded 1200×630 OG images after reset. [UI evidence](../research/r4-ui.json) uses a generated signer fixture, not a real wallet extension.
 
 PR #5 review follow-up deployed as Worker **`5e7fdf99-4375-4657-aa77-76a5ae46f4de`** on 2026-10-05 (America/Chicago). The crop preview revokes replaced blob URLs. The signed hosted check now validates the actual post-reset PNG and byte-for-byte retention of the original OG image; matching-title renderer fixtures independently require avatar/cover pixels and run in CI. **186 app tests**, typecheck/build/Worker dry run and all eight fixtures pass. [Deployment and review evidence](../research/pr5-review.json) records the hosted bundle hash and checks. Existing migration 0007, data and routes remain unchanged.
+
+
+## Help and sharing (R5)
+
+Deployed 2026-10-06 as Worker **`0e513f21-a2c9-47c5-9ef0-3e6502473e9b`**. Basics and Technical help use a shared route/metadata resolver, with `/about` retained as an alias. Technical sharing has its own immutable PNG. Public copy controls provide manual selection after unavailable/rejected clipboard writes, and malformed collectible links return a clear error with an Explore action.
+
+**203 app tests** and typecheck pass after the release-health review fix; the unchanged runtime retains its passing build/Worker dry run and fourteen real-workerd OG fixtures. [Hosted acceptance](../research/r5-deployment.json) verifies canonical help HTML, distinct bounded 1200×630 PNGs, immutable repeat bytes, invalid-item app shell, semantic health (ready ZVM devnet, enabled sponsor, populated error-free index within its six-block confirmation window) and the deployed asset hash. [UI evidence](../research/r5-ui.json) covers responsive layouts, keyboard/history/task navigation and copy failures; the hosted guide also passed a native clipboard write. Reproduce read-only hosted checks with `node --import tsx scripts/check-help.ts`.
+
+No migration or contract update is needed. Preserve migration 0007 and the journal, bindings and existing routes. The preceding Worker `5e7fdf99-4375-4657-aa77-76a5ae46f4de` remains a schema-compatible rollback target. The apex prototype remains in place. Actual wallet/phone acceptance, social-platform recrawls and operational fault qualification remain R6/R7.
+
+
+PR #6 title follow-up deployed as Worker **`0f53a02e-0450-4bec-ac0d-0475f3ecd728`** on 2026-10-06. Leaving a directly loaded help page now resets the document title instead of restoring the help title supplied by initial HTML. [Hosted browser evidence](../research/pr6-title-review.json) records the reproduced bug and passing navigation/history/alias checks. **194 app tests**, typecheck/build/Worker dry run and [hosted help checks](../research/r5-deployment.json) pass. No contract, migration, binding or route changes.

@@ -42,6 +42,7 @@ import { WalletJournal } from "./wallet-journal";
 import { Discovery, Home } from "./discovery-pages";
 import { inactivityLock } from "./inactivity";
 import { canResumeOnboarding } from "./onboarding";
+import { HelpPage } from "./help-page";
 import {
   prepareWalletMint,
   prepareWalletClaim,
@@ -1300,53 +1301,7 @@ function App() {
       />
     );
   else if (routePath === "/about" || routePath === "/how-it-works")
-    content = (
-      <section className="panel narrow">
-        <p className="text-ledger">A picture with a transferable key</p>
-        <h1>The collectible is the file.</h1>
-        <ol className="steps">
-          <li>
-            <h2>Mint a picture</h2>
-            <p>
-              Connect MetaMask and mint into your wallet. Your wallet signs the
-              authorization and a sponsor submits it to ZVM. No separate ZFT
-              password is needed.
-            </p>
-          </li>
-          <li>
-            <h2>Pass on the original file</h2>
-            <p>
-              Choose Make transferable file to move an item to a fresh file key.
-              Save its recovery file before authorizing the move. The downloaded
-              PNG carries that item’s key. Send it as an attachment. Screenshots
-              and social media recompression remove transferability.
-            </p>
-          </li>
-          <li>
-            <h2>Receive into your wallet or a new file</h2>
-            <p>
-              The recipient rotates ownership on-chain. Earlier copies become
-              stale. The sender can cancel by winning the same race.
-            </p>
-          </li>
-        </ol>
-        <p>
-          File keys can stay in memory for this session, backed up in a
-          downloaded recovery file. Optionally protect them with a password to
-          remember them in this browser. Protected storage locks after 15
-          minutes of inactivity. A downloaded recovery file is a secret backup;
-          the browser password does not encrypt that download.
-        </p>
-        <p>
-          Ownership history is public. This alpha runs on ZVM devnet, which can
-          reset. No marketplace, payments, or mainnet assets are enabled.
-        </p>
-        <p>
-          Confirmation means six subsequent EVM blocks under this app’s policy.
-          Keep both old and new keys in recovery snapshots.
-        </p>
-      </section>
-    );
+    content = <HelpPage path={path} nav={nav} />;
   else if (["/", "/explore", "/explore/nfts"].includes(routePath)) {
     const discoveryProps = {
       path,
@@ -1407,7 +1362,7 @@ function App() {
           <nav aria-label="Main navigation">
             <Link to="/explore">Explore</Link>
             <Link to="/activity">Activity</Link>
-            <Link to="/about">How it works</Link>
+            <Link to="/how-it-works">How it works</Link>
           </nav>
           <div className="actions">
             <ThemeControl />
@@ -1489,7 +1444,7 @@ function App() {
           <ProfileLookup nav={nav} />
           <Link to="/recovery">Recovery</Link>
           <Link to="/activity">Activity</Link>
-          <Link to="/about">How it works</Link>
+          <Link to="/how-it-works">How it works</Link>
           <a
             href="https://devnet.zenon.foo/explorer/"
             target="_blank"
