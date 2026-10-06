@@ -1,0 +1,62 @@
+{
+  "checkedAt": "2026-10-06T13:31:02.620Z",
+  "origin": "https://devnet.zft.foo",
+  "health": {
+    "ready": true,
+    "network": "ZVM devnet",
+    "sponsorEnabled": true,
+    "index": {
+      "block": 103918,
+      "head": 103924,
+      "syncedAt": 1791293459886,
+      "error": null,
+      "lag": 6,
+      "confirmations": 6
+    }
+  },
+  "config": {
+    "deployment": {
+      "chainId": 7340469,
+      "contract": "0x42666265e38f2d1b786e8af8e9576224a95b90ae",
+      "genesisHash": "0x2a55e0b69e552a105d559e99b12e0cae28d6e07a3c7a9f264a1543a040ef8ea4",
+      "codeHash": "0xf9249a9aec45fba4f14a4b17ed8ed4aabfb5b91a06e84875bc4190b273ba0cc9",
+      "deploymentBlock": "94013",
+      "metadataOrigin": "https://zft.foo",
+      "deploymentTransaction": "0x5e368a5357ef757d5bfd0090b73b9f3671f988a063c23023352a741f6e9aee0c",
+      "compiler": "0.8.30",
+      "evmVersion": "cancun",
+      "deploymentBlockHash": "0x699be5c30150c18ed27ec92e18559c742e01d96bc34a8f7f3cff9f8bcd8c0f34"
+    },
+    "sponsorEnabled": true
+  },
+  "observations": [
+    {
+      "operationId": "0xa2a312f640a42d9b2c64065cb03e506622f491568adfa0ad1d4688840c3d91e1",
+      "txHash": "0xc041c43c3877a8897879a4ffc333e59a708d242788ce661e719ab53d828951c1",
+      "state": "confirmed",
+      "blockNumber": "95382",
+      "confirmationPolicy": "6 EVM blocks; application policy, not a protocol-finality guarantee",
+      "elapsedMs": 839
+    },
+    {
+      "operationId": "0x790d8cf93e8d27630cf37730463e174ba7003c1d27f13339859509f683cc9639",
+      "txHash": "0x6b5b3dee2912168b2e30cc436b8ca54b01dfe8b48743c6be7f6953ec135b493e",
+      "state": "confirmed",
+      "blockNumber": "95400",
+      "confirmationPolicy": "6 EVM blocks; application policy, not a protocol-finality guarantee",
+      "elapsedMs": 271
+    }
+  ],
+  "unknownOperation": 404,
+  "auth": {
+    "admittedToValidation": 400,
+    "replayRejected": 401,
+    "elapsedMs": 393
+  },
+  "bundle": {
+    "path": "/assets/index-BZMIXlVX.js",
+    "sha256": "a23af74a61d58e5bf32f57af9308525a7c88a54b17203dc4fd9eddf69afe921f"
+  },
+  "scope": "Healthy hosted smoke after the reverted-receipt confirmation fix. Revert/reorg faults are exercised only in local workerd with simulated chain responses.",
+  "workerVersion": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092"
+}

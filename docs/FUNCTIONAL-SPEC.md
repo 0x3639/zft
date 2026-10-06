@@ -187,7 +187,7 @@ Wallet draft storage is a separate deployment/account-scoped IndexedDB journal c
 
 **Pending/error states:** preparing, waiting to submit, submitted, included, confirmed, reconciling, reverted, expired, quota exhausted, sponsor unavailable, chain unavailable, deployment mismatch. No automatic switch to paid transactions. Retry preserves authorization/recipient identity until reconciliation establishes a new authorization is appropriate. Two racing claims must yield one valid epoch transition.
 
-An absent or reverted claim/cancel job remains pending when a saved prior key still owns the collectible; refreshing must preserve its resume action, destination key and expected nonce. A known reverted job may be reauthorized before expiry with a distinct request digest; an unknown job outcome must not trigger replacement. Wallet-controlled signatures are renewed through Wallet.
+An absent or reverted claim/cancel job remains pending when a saved prior key still owns the collectible; refreshing must preserve its resume action, destination key and expected nonce. A reverted receipt remains `included` until six subsequent canonical EVM blocks have passed, just like a successful receipt. Only then can it be reported as `failed` and its nonce reservation released by serialized reconciliation. A known confirmed-reverted job may be reauthorized before expiry with a distinct request digest; an unknown job outcome must not trigger replacement. Wallet-controlled signatures are renewed through Wallet.
 
 ## 9. Discovery and activity — DISCOVERY / ACTIVITY
 

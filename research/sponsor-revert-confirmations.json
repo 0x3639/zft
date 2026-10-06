@@ -1,0 +1,65 @@
+{
+  "recordedAt": "2026-10-06T13:31:03.649303+00:00",
+  "mergedBaseline": "1dedcf5bdf12e38462f017ecf1ed5067dacc4a02",
+  "roadmap": "R7.1/R7.2 partial",
+  "sourceSha256": {
+    "apps/api/sponsor.ts": "dc048fb817cda5d78a11b4c33860d0949f74f25bc9f8e5138dd3ed0f85d0f1d9",
+    "tests/sponsor.test.ts": "68885d9a3f4779637bfd232f5d859914fcb14caffe646bf3a23c8f1d1a4946d0",
+    "tests/fixtures/sponsor-worker.ts": "fd5ea512727a6a1a594dd3a1fae57256b9f219f26c070f99e87960a8bd4ced09"
+  },
+  "before": [
+    {
+      "name": "keeps a reverted receipt pending at head 100 until six subsequent blocks",
+      "status": "failed",
+      "reason": "AssertionError: expected { \u2026(5) } to match object { state: 'included', \u2026(1) }"
+    },
+    {
+      "name": "keeps a reverted receipt pending at head 105 until six subsequent blocks",
+      "status": "failed",
+      "reason": "AssertionError: expected { \u2026(5) } to match object { state: 'included', \u2026(1) }"
+    },
+    {
+      "name": "retains the same job and reservation when an unconfirmed revert is reorged out and later succeeds",
+      "status": "failed",
+      "reason": "AssertionError: expected undefined to be '0x00000000000000000000000000000000000\u2026' // Object.is equality"
+    },
+    {
+      "name": "rechecks a legacy failed job against current confirmation depth without overwriting another active job",
+      "status": "failed",
+      "reason": "AssertionError: expected { \u2026(5) } to match object { state: 'included' }"
+    }
+  ],
+  "after": [
+    {
+      "name": "keeps a reverted receipt pending at head 100 until six subsequent blocks",
+      "status": "passed",
+      "durationMs": 38.822000000000116
+    },
+    {
+      "name": "keeps a reverted receipt pending at head 105 until six subsequent blocks",
+      "status": "passed",
+      "durationMs": 34.53216699999939
+    },
+    {
+      "name": "retains the same job and reservation when an unconfirmed revert is reorged out and later succeeds",
+      "status": "passed",
+      "durationMs": 39.38841700000012
+    },
+    {
+      "name": "rechecks a legacy failed job against current confirmation depth without overwriting another active job",
+      "status": "passed",
+      "durationMs": 21.370624999999563
+    }
+  ],
+  "suite": {
+    "passed": 222,
+    "failed": 0,
+    "testFiles": 24
+  },
+  "checks": {
+    "typecheck": "passed",
+    "build": "passed",
+    "workerDryRun": "passed"
+  },
+  "scope": "Local workerd regression with simulated receipts and reorgs. Four regressions fail on merged baseline and pass with equal confirmation depth for successful and reverted receipts. PR 9 crash tests are separate; this does not establish controlled-chain, hosted-fault or wallet/device acceptance."
+}

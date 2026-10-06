@@ -50,3 +50,17 @@ Rollback uses the previous Worker version with the same bindings and storage. No
 ## Still open
 
 This closes R7.5's queue-isolation acceptance, not R7 as a whole. Process-kill/restart drills, ambiguous broadcasts, fee replacement, nonce gaps, controlled reorg/reset/deep rollback, hosted load/CPU limits and independent finality review remain R7.1–R7.4. The hosted smoke uses a healthy real RPC; artificial stalls stay local. MetaMask/phone, browser-restart/recovery and competing real claims remain R1.5/R1.6/R6. No new wallet signature or custody acceptance is claimed by these service tests.
+
+
+## Reverted-receipt confirmation window
+
+The next recovery check found that `observe()` classified any reverted receipt as `failed` immediately. Serialized reconciliation consequently released `active`, while client code allowed renewed authorization, before six subsequent blocks. A reorg could still remove that revert.
+
+Both successful and reverted receipts now remain `included` until the same six-subsequent-block application window has elapsed. After that, a successful receipt becomes `confirmed` and a reverted receipt becomes `failed`. Receipt-block hash checks still precede classification; a missing receipt returns to `submitted` with its original transaction bytes and nonce. Only serialized alarm/submission reconciliation can release the active reservation. A read-only poll can report a terminal observation without updating the journal.
+
+Four workerd regressions fail on merged baseline `1dedcf5` and pass with the fix: reverted inclusion at zero and five subsequent blocks, a removed revert followed by successful re-inclusion, and a legacy failed job rechecked against current depth while another job holds the active reservation. The full suite for this branch is **222 app tests**, including fourteen sponsor cases; typecheck, build and Worker dry run pass. This branch is independent of PR #9's seven additional crash tests.
+
+No schema or job-format migration is needed. Existing jobs are re-observed rather than trusting their saved state. The fix cannot undo a retry or nonce release performed by the prior Worker, and deliberately does not overwrite a different active job. Rollback to Worker `4693920f-eeb2-427d-8b29-65f218e0d6e5` preserves data but restores premature revert classification. Controlled-chain reorgs, finality assumptions and real-wallet recovery acceptance remain open.
+
+
+Deployed to devnet as Worker **`129889f1-0cb8-49d4-9c1d-8f1ff5c1d092`**, preserving all bindings, routes and data. [Before/after local regression evidence](../research/sponsor-revert-confirmations.json) and [hosted smoke](../research/sponsor-revert-deployment.json) record the validation. The hosted check exercises healthy retained operations, configuration, one-use authentication, unknown-job handling and exact frontend bytes; it does not manufacture a hosted revert/reorg.
