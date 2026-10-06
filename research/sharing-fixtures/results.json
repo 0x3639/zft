@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-06T00:52:47.166Z",
+  "at": "2026-10-06T01:10:57.800Z",
   "runtime": "local Cloudflare workerd",
   "largeInput": {
     "width": 6000,
@@ -12,7 +12,7 @@
       "bytes": 34566,
       "width": 1200,
       "height": 630,
-      "renderMs": 144,
+      "renderMs": 160,
       "sha256": "2eecc0db0b80f24db68303386e3786f20705a46b8bef9b22fe9404e40cc62b9b"
     },
     {
@@ -20,7 +20,7 @@
       "bytes": 81799,
       "width": 1200,
       "height": 630,
-      "renderMs": 157,
+      "renderMs": 156,
       "sha256": "318d83d7374e4974c583ef7e3c0145b6135ebab9d759987a3bc6219dad136c6b"
     },
     {
@@ -28,7 +28,7 @@
       "bytes": 85623,
       "width": 1200,
       "height": 630,
-      "renderMs": 202,
+      "renderMs": 205,
       "sha256": "84692cd56e4983330b8168077669eb46bac4ce8f20ecf862c4a555dcaf045f3e"
     },
     {
@@ -36,7 +36,7 @@
       "bytes": 93422,
       "width": 1200,
       "height": 630,
-      "renderMs": 272,
+      "renderMs": 282,
       "sha256": "53b03040bc0920b8189454204887887c33cefb135849b5892d241b37bcf76cc8"
     },
     {
@@ -44,7 +44,7 @@
       "bytes": 311895,
       "width": 1200,
       "height": 630,
-      "renderMs": 1511,
+      "renderMs": 1926,
       "sha256": "93a918d9d93275c5d8a05c41947ad5735ab297354ba4a7facf118645f033f56f"
     },
     {
@@ -52,24 +52,34 @@
       "bytes": 37461,
       "width": 1200,
       "height": 630,
-      "renderMs": 62,
+      "renderMs": 84,
       "sha256": "8a60db67dd5a2574a395ead0598e32292ac492a7b0546aed3055bf925c0abe0e"
     },
     {
       "fixture": "profile",
-      "bytes": 166478,
+      "bytes": 166252,
       "width": 1200,
       "height": 630,
-      "renderMs": 794,
-      "sha256": "fcc88d2e413f291d6a7e646b666cc22573e33ac42e98015b3c68e33f7106cd0a"
+      "renderMs": 969,
+      "sha256": "8735936e091275ae0088d223ad92740a2703b6dc6d71bbc72ba74e5b3fb6c7d1"
     },
     {
       "fixture": "profile-missing",
-      "bytes": 98651,
+      "bytes": 95245,
       "width": 1200,
       "height": 630,
-      "renderMs": 255,
-      "sha256": "626535cfa10c06eacbd0c8896a4ac47f9a328b0f5278d661a6d423deb9636ffd"
+      "renderMs": 460,
+      "sha256": "052c16b7d6479baf8f61dd83e43eb9ab6c0ac7c4f274ab805400bafdd03d9a35"
     }
-  ]
+  ],
+  "profilePixels": {
+    "profile": {
+      "avatar": 1693,
+      "cover": 2322
+    },
+    "profile-missing": {
+      "avatar": 0,
+      "cover": 0
+    }
+  }
 }

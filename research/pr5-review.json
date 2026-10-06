@@ -1,0 +1,73 @@
+{
+  "checkedAt": "2026-10-06T01:13:08.569Z",
+  "reviewedHead": "44ebe88a381ddda8973d3406f0451e9b3cc2e011",
+  "findingSource": "CodeRabbit PR #5 review 5422648468; inline 4190522976 and two summary nitpicks",
+  "workerVersion": "5e7fdf99-4375-4657-aa77-76a5ae46f4de",
+  "entry": "/assets/index-BZaIGY-L.js",
+  "assetSha256": "d56dc5a77533f747ab2240a69e2744bb34babc0053f43bb5a4f403bca288655e",
+  "routes": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/settings/profile",
+      "status": 200
+    },
+    {
+      "path": "/p/0x158dab978ae49716679b006e21a89811e01cbca0",
+      "status": 200
+    }
+  ],
+  "index": {
+    "block": 100814,
+    "head": 100820,
+    "syncedAt": 1791249158973,
+    "error": null,
+    "lag": 6,
+    "confirmations": 6
+  },
+  "checks": {
+    "typescriptTests": 186,
+    "typecheck": "pass",
+    "frontendBuild": "pass",
+    "workerDryRun": "pass",
+    "rendererFixtures": 8,
+    "profilePixels": {
+      "profile": {
+        "avatar": 1693,
+        "cover": 2322
+      },
+      "profile-missing": {
+        "avatar": 0,
+        "cover": 0
+      }
+    },
+    "hostedOG": {
+      "before": "https://devnet.zft.foo/api/og/p/0x158dab978ae49716679b006e21a89811e01cbca0.png?v=380f174ca6d2401e3e34153cb0bb791e158328b52a7434b4cbe9c7d114f37e57",
+      "afterReset": "https://devnet.zft.foo/api/og/p/0x158dab978ae49716679b006e21a89811e01cbca0.png?v=5e33e17e8100473e6e288bb2cf7048bcfdf82d6d7ab6cbb3e0a7bea996b5da3a",
+      "bytes": 141396,
+      "width": 1200,
+      "height": 630,
+      "sha256": "0x627eb87e47a7bc19aba5ab5ba0c27c21b0df964d28355609c884a7bf5ddb4880",
+      "reset": {
+        "bytes": 36071,
+        "width": 1200,
+        "height": 630,
+        "sha256": "0x2a6024b0c12dc051e081c4a54b2331500c23d2f875a68874a778f470fa567071",
+        "pixelsChanged": true
+      },
+      "retainedSha256": "0x627eb87e47a7bc19aba5ab5ba0c27c21b0df964d28355609c884a7bf5ddb4880"
+    }
+  },
+  "changes": [
+    "Validate post-reset OG response, dimensions, byte limit and changed pixels",
+    "Verify old OG URL retains identical bytes",
+    "Assert independent avatar and cover pixels using same-title renderer fixtures; run fixtures in CI",
+    "Revoke a preceding crop preview blob URL before replacing it"
+  ],
+  "limitations": [
+    "Actual MetaMask and physical-device acceptance remain R6",
+    "No additional migration, contract or route changes"
+  ]
+}

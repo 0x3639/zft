@@ -3,6 +3,7 @@ import { encode, decode } from "fast-png";
 import { mkdir, readFile, writeFile, stat } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
+import assert from "node:assert/strict";
 const root = new URL("../", import.meta.url);
 process.chdir(root.pathname);
 const dir = ".local/og-fixtures",
@@ -94,6 +95,7 @@ try {
     });
   });
   const checks = [];
+  const profilePixels = {};
   for (const fixture of [
     "0",
     "1",
@@ -110,6 +112,30 @@ try {
     const image = decode(bytes);
     if (image.width !== 1200 || image.height !== 630 || bytes.length > 1048576)
       throw new Error("Invalid OG dimensions/size");
+    if (fixture.startsWith("profile")) {
+      // These regions exclude the title and NFT collage. The first covers the
+      // avatar; the second is bare background where only the cover can paint.
+      const count = (x0, y0, width, height, match) => {
+        let total = 0;
+        for (let y = y0; y < y0 + height; y++)
+          for (let x = x0; x < x0 + width; x++) {
+            const i = (y * image.width + x) * image.channels;
+            if (match(image.data[i], image.data[i + 1], image.data[i + 2]))
+              total++;
+          }
+        return total;
+      };
+      profilePixels[fixture] = {
+        avatar: count(
+          65,
+          65,
+          50,
+          50,
+          (r, g, b) => r < 10 && g > 200 && b > 135 && b < 160,
+        ),
+        cover: count(10, 180, 30, 100, (r, g, b) => r < 20 && g > 20 && b > 30),
+      };
+    }
     await writeFile(`${output}/${fixture}.png`, bytes);
     checks.push({
       fixture,
@@ -120,6 +146,10 @@ try {
       sha256: createHash("sha256").update(bytes).digest("hex"),
     });
   }
+  assert(profilePixels.profile.avatar > 1000, "Profile avatar pixels missing");
+  assert(profilePixels.profile.cover > 1500, "Profile cover pixels missing");
+  assert.equal(profilePixels["profile-missing"].avatar, 0);
+  assert.equal(profilePixels["profile-missing"].cover, 0);
   await writeFile(
     `${output}/results.json`,
     JSON.stringify(
@@ -132,6 +162,7 @@ try {
           bytes: (await stat(`${dir}/large.png`)).size,
         },
         checks,
+        profilePixels,
       },
       null,
       2,

@@ -72,6 +72,7 @@ function CropDialog({
         applying.current = false;
       }
       if (data.loaded) {
+        if (url) URL.revokeObjectURL(url);
         url = URL.createObjectURL(
           new Blob([data.loaded.bytes], { type: "image/png" }),
         );

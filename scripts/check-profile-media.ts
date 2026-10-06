@@ -136,13 +136,18 @@ if (prefix === "hosted") {
       .replaceAll("&amp;", "&");
   };
   const before = await ogURL();
-  const response = await fetch(before);
-  assert.equal(response.status, 200);
-  const bytes = new Uint8Array(await response.arrayBuffer()),
-    image = decode(bytes);
-  assert.equal(image.width, 1200);
-  assert.equal(image.height, 630);
-  assert(bytes.length <= 1_048_576);
+  const fetchOG = async (url: string) => {
+    const response = await fetch(url);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "image/png");
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    assert(bytes.length > 0 && bytes.length <= 1_048_576);
+    const image = decode(bytes);
+    assert.equal(image.width, 1200);
+    assert.equal(image.height, 630);
+    return { bytes, image };
+  };
+  const { bytes, image } = await fetchOG(before);
   await writeFile("research/r4-profile-og.png", bytes);
   const reset = await save({ avatar: null, cover: null });
   revision = reset.profile.revision;
@@ -150,7 +155,10 @@ if (prefix === "hosted") {
   assert.equal(reset.profile.cover, null);
   const after = await ogURL();
   assert.notEqual(after, before);
-  assert.equal((await fetch(before)).status, 200); // Previously shared public pixels remain readable.
+  const resetImage = await fetchOG(after);
+  assert.notDeepEqual(resetImage.image.data, image.data);
+  const retainedImage = await fetchOG(before);
+  assert.deepEqual(retainedImage.bytes, bytes);
   const restored = await save({
     avatar: { image: base64(images.avatar) },
     cover: { image: base64(images.cover) },
@@ -162,6 +170,15 @@ if (prefix === "hosted") {
     bytes: bytes.length,
     width: image.width,
     height: image.height,
+    sha256: sha256(bytes),
+    reset: {
+      bytes: resetImage.bytes.length,
+      width: resetImage.image.width,
+      height: resetImage.image.height,
+      sha256: sha256(resetImage.bytes),
+      pixelsChanged: true,
+    },
+    retainedSha256: sha256(retainedImage.bytes),
   };
 }
 await writeFile(
