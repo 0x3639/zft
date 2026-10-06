@@ -17,6 +17,11 @@ export class TestSponsor extends Sponsor {
   private head = 106n;
   private mismatch = false;
   private nonce = 0;
+  private pendingNonce?: number;
+  private price = 1_000_000_000n;
+  private broadcastError = false;
+  private receiptError = false;
+  private broadcasts: Hex[] = [];
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     // Patch only this test isolate's imported client and deployment object.
@@ -64,6 +69,7 @@ export class TestSponsor extends Sponsor {
         // Capture the response before stalling to exercise a genuinely stale read.
         const receipt = this.receipts.get(hash);
         await step(`receipt:${hash}`);
+        if (this.receiptError) throw new Error("Receipt RPC unavailable");
         if (!receipt) {
           const error = new Error("No receipt");
           error.name = "TransactionReceiptNotFoundError";
@@ -81,6 +87,9 @@ export class TestSponsor extends Sponsor {
         serializedTransaction: Hex;
       }) => {
         await step("broadcast");
+        this.broadcasts.push(serializedTransaction);
+        await step("broadcastResponse");
+        if (this.broadcastError) throw new Error("Ambiguous RPC delivery");
         return keccak256(serializedTransaction);
       },
       readContract: async () => privateKeyToAccount(key).address,
@@ -88,8 +97,9 @@ export class TestSponsor extends Sponsor {
         await step("estimate");
         return 50_000n;
       },
-      getGasPrice: async () => 1_000_000_000n,
-      getTransactionCount: async () => this.nonce,
+      getGasPrice: async () => this.price,
+      getTransactionCount: async ({ blockTag }: { blockTag: string }) =>
+        blockTag === "pending" ? (this.pendingNonce ?? this.nonce) : this.nonce,
     });
   }
   override async fetch(request: Request) {
@@ -106,6 +116,10 @@ export class TestSponsor extends Sponsor {
         head?: string;
         mismatch?: boolean;
         nonce?: number;
+        pendingNonce?: number;
+        price?: string;
+        broadcastError?: boolean;
+        receiptError?: boolean;
       };
       if (data.reset) {
         // A failed assertion may skip the test's release. Unblock all RPCs and
@@ -122,6 +136,11 @@ export class TestSponsor extends Sponsor {
         this.mismatch = false;
         this.head = 106n;
         this.nonce = 0;
+        this.pendingNonce = undefined;
+        this.price = 1_000_000_000n;
+        this.broadcastError = false;
+        this.receiptError = false;
+        this.broadcasts = [];
       }
       if (data.put) await this.ctx.storage.put(data.put);
       for (const name of data.hold ?? []) this.held.add(name);
@@ -136,14 +155,23 @@ export class TestSponsor extends Sponsor {
         this.receipts.set(hash, receipt);
       if (data.head) this.head = BigInt(data.head);
       if (data.nonce !== undefined) this.nonce = data.nonce;
+      if (data.pendingNonce !== undefined)
+        this.pendingNonce = data.pendingNonce;
+      if (data.price !== undefined) this.price = BigInt(data.price);
+      if (data.broadcastError !== undefined)
+        this.broadcastError = data.broadcastError;
+      if (data.receiptError !== undefined)
+        this.receiptError = data.receiptError;
       if (data.mismatch !== undefined) this.mismatch = data.mismatch;
       return json({ ok: true });
     }
     if (path === "/__state")
       return json({
         calls: this.calls,
+        broadcasts: this.broadcasts,
         waiting: [...this.releases.keys()],
         storage: Object.fromEntries(await this.ctx.storage.list()),
+        alarm: await this.ctx.storage.getAlarm(),
       });
     if (path === "/__alarm") {
       await this.alarm();
