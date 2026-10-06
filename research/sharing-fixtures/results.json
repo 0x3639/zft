@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-06T09:03:11.519Z",
+  "at": "2026-10-06T09:29:44.852Z",
   "runtime": "local Cloudflare workerd",
   "largeInput": {
     "width": 6000,
@@ -12,7 +12,7 @@
       "bytes": 40105,
       "width": 1200,
       "height": 630,
-      "renderMs": 175,
+      "renderMs": 178,
       "sha256": "c97666cf8f68fa24bae463c221e1d839b225a27e41c849a7fbe3d76a6e6ce2c8"
     },
     {
@@ -20,7 +20,7 @@
       "bytes": 82680,
       "width": 1200,
       "height": 630,
-      "renderMs": 154,
+      "renderMs": 173,
       "sha256": "9b2eb4f898f28e4ab2b955f9bfe218c12c139602e944fc91bf58345994ec52f7"
     },
     {
@@ -28,7 +28,7 @@
       "bytes": 86469,
       "width": 1200,
       "height": 630,
-      "renderMs": 221,
+      "renderMs": 201,
       "sha256": "5cb747a861ebd03258541c051fd4a2c453011c0f030157f9999f57e9ca063608"
     },
     {
@@ -36,7 +36,7 @@
       "bytes": 94276,
       "width": 1200,
       "height": 630,
-      "renderMs": 272,
+      "renderMs": 296,
       "sha256": "64f31049f32af80974959638c2d0f94ebdb3c505998a433e0aa970f58281a5a9"
     },
     {
@@ -44,7 +44,7 @@
       "bytes": 94276,
       "width": 1200,
       "height": 630,
-      "renderMs": 268,
+      "renderMs": 302,
       "sha256": "64f31049f32af80974959638c2d0f94ebdb3c505998a433e0aa970f58281a5a9"
     },
     {
@@ -52,7 +52,7 @@
       "bytes": 312976,
       "width": 1200,
       "height": 630,
-      "renderMs": 1682,
+      "renderMs": 1391,
       "sha256": "5ed2fb0290a149a5402af81e86a430af897ae677d05d6e22916a632afcd258bc"
     },
     {
@@ -60,7 +60,7 @@
       "bytes": 43012,
       "width": 1200,
       "height": 630,
-      "renderMs": 71,
+      "renderMs": 72,
       "sha256": "4f1f138fea5e0a90b89f875b74be12f25e770826a2af3f410e6b7f98d828ae67"
     },
     {
@@ -68,7 +68,7 @@
       "bytes": 167542,
       "width": 1200,
       "height": 630,
-      "renderMs": 717,
+      "renderMs": 699,
       "sha256": "8517525fcd94e3fbfb02fa6159f1917ee7d14f5c1941733d4eb6ad197183071e"
     },
     {
@@ -76,7 +76,7 @@
       "bytes": 96118,
       "width": 1200,
       "height": 630,
-      "renderMs": 280,
+      "renderMs": 260,
       "sha256": "90f717552923359f17c45c342babb851d60fc5a6182e4ae6974648f16f758964"
     },
     {
@@ -84,7 +84,7 @@
       "bytes": 110519,
       "width": 1200,
       "height": 630,
-      "renderMs": 289,
+      "renderMs": 259,
       "sha256": "8e6ee2166534eefd1560ef1f5229e8ed866e0cf829dff862f13ae6deb1699123"
     },
     {
@@ -92,7 +92,7 @@
       "bytes": 98645,
       "width": 1200,
       "height": 630,
-      "renderMs": 208,
+      "renderMs": 274,
       "sha256": "fbc41860ac9416d8ddfcbfb6c5905fc859cd3d5b694c9d4fe99927fbf9cf6a96"
     },
     {
@@ -100,7 +100,7 @@
       "bytes": 100939,
       "width": 1200,
       "height": 630,
-      "renderMs": 255,
+      "renderMs": 242,
       "sha256": "6c7d5a22fc0c7bd324918aa92794fd92174a09ec287821c314cb19d8d01458e0"
     },
     {
@@ -108,7 +108,7 @@
       "bytes": 40347,
       "width": 1200,
       "height": 630,
-      "renderMs": 67,
+      "renderMs": 68,
       "sha256": "0735c28841d4cd512449679a1a52e4bcfde13d8ca0b97c615f7d5c0fb38a0421"
     },
     {
@@ -116,7 +116,7 @@
       "bytes": 43401,
       "width": 1200,
       "height": 630,
-      "renderMs": 71,
+      "renderMs": 72,
       "sha256": "6ede0c47c624196c1fb08bc16f7afca42f5d82667574965ca328f5fd949a7ab7"
     },
     {
@@ -124,7 +124,7 @@
       "bytes": 34566,
       "width": 1200,
       "height": 630,
-      "renderMs": 63,
+      "renderMs": 59,
       "sha256": "2eecc0db0b80f24db68303386e3786f20705a46b8bef9b22fe9404e40cc62b9b"
     }
   ],

@@ -2,7 +2,7 @@
 
 ## Delivery status
 
-The supplied logo is implemented on `feat/brand-assets`, isolated from [PR #6](https://github.com/0x3639/zft/pull/6). PR creation is held until #6 is approved. This increment has not been deployed; devnet continues to serve the reviewed R5 build. Reconcile the branch with #6 before opening the next PR.
+The supplied logo is implemented on `feat/brand-assets`, rebased onto merged [PR #6](https://github.com/0x3639/zft/pull/6), baseline `9b4c74f`. The dedicated logo PR and devnet rollout are in progress. No schema or contract changes are required.
 
 ## Preserved source and public files
 
@@ -44,10 +44,10 @@ The renderer acceptance run now covers 15 fixtures. The legacy empty-art fixture
 
 ## Acceptance evidence
 
-- **194 app tests**, typecheck, frontend production build and Worker dry run pass.
+- **203 app tests**, typecheck, frontend production build and Worker dry run pass.
 - [Asset response checks](../research/brand-assets.json): 54 byte-identical source files; 86 successful local workerd responses, with original/generated hashes and image/manifest MIME checks.
 - [OG fixture results](../research/sharing-fixtures/results.json): 15 bounded 1200 × 630 images, legacy pixel preservation and new-brand output.
 - [Browser checks](../research/brand-ui.json): light/dark header and footer, 320/360px layout without horizontal overflow, loaded logo images and public gallery.
 - Screenshots: [dark](../research/brand-dark.png), [light](../research/brand-light.png), [mobile](../research/brand-mobile.png), [gallery](../research/brand-gallery.png).
 
-Hosted asset checks remain for the approved devnet deployment. Physical-device home-screen icon selection and external social-cache refresh are part of R6 acceptance.
+Run `pnpm exec tsx scripts/check-brand.ts` after deployment to verify exact served assets, the frontend bundle, semantic health, new OG revisions and preservation of the recorded pre-brand URLs in `research/brand-before.json`. Physical-device home-screen icon selection and external social-cache refresh are part of R6 acceptance.

@@ -236,6 +236,6 @@ The fourteen real-workerd renderer fixtures in [results.json](../research/sharin
 Public profile links, artwork links, identifiers and the help deployment address use the same copy control. If automatic copy fails, a dialog shows the exact public value, offers selection for manual copying and restores focus on Escape. The success status is tied to the copied value. Future marketplace/curated-collection templates, actual social-platform caches/recrawls, and full device acceptance remain their separate roadmap gates.
 
 
-## Supplied brand revision (queued after PR #6)
+## Supplied brand revision
 
 New snapshots include `branding: "zft-2026-10"` in the snapshot digest and render the supplied outlined logo. Empty-art cards use the supplied mark. Historical snapshots without the field retain their previous wordmark/fallback and immutable pixels. The new fifteenth renderer fixture pins the legacy output hash and requires a distinct new-brand image; all existing NFT and profile-media assertions remain. See [BRAND-ASSETS.md](BRAND-ASSETS.md) for preserved originals, font provenance, served paths, regeneration and rollout status.
