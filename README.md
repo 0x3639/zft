@@ -4,7 +4,7 @@
 
 ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for Cloudflare. A PNG carries a disposable ownership key. Claiming the file rotates ownership on-chain, invalidating previously exported copies. JPG and PNG inputs are normalized locally into canonical PNGs.
 
-**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). A connected wallet is the public profile identity and is required for new minting and profile actions, with no ZFT password or local-profile selector. File custody offers session-only keys or optional encrypted browser storage, with recovery saved before moving ownership. The app also includes export/cancel/recovery, wallet/file custody transitions, signed profiles and social actions, opt-in collection proofs, a D1 chain index, collection/NFT search and ranking, a homepage populated by real artwork, Everyone/Following and profile activity with verified timestamps, and page-specific PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates, including actual MetaMask/phone acceptance.
+**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). A connected wallet is the public profile identity and is required for new minting and profile actions, with no ZFT password or local-profile selector. File custody offers session-only keys or optional encrypted browser storage, with recovery saved before moving ownership. The app also includes export/cancel/recovery, wallet/file custody transitions, signed profiles with cropped avatars and covers, social actions, opt-in collection proofs, a D1 chain index, collection/NFT search and ranking, a homepage populated by real artwork, Everyone/Following and profile activity with verified timestamps, and page-specific PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates, including actual MetaMask/phone acceptance.
 
 [zft.foo](https://zft.foo/) still displays the design prototype at its root. Its `/art/*` and `/metadata/*` routes now serve the real contract's immutable public media. The review app has an isolated sponsor account and Cloudflare storage.
 
@@ -26,7 +26,7 @@ Track delivery in the [implementation roadmap](docs/IMPLEMENTATION.md), includin
 10. [Prototype verification and screenshots](docs/VALIDATION.md)
 11. [Cloudflare prototype deployment](docs/DEPLOYMENT.md)
 
-For deployed behavior and operation, use [the implementation runbook](docs/DEVNET-ALPHA.md). The functional specification remains the full release target. Additional curated collections, avatar/cover uploads, deeper operational fault tests, and actual two-browser/phone acceptance remain before beta. Private transfers, sales, and encrypted claim links remain separate work.
+For deployed behavior and operation, use [the implementation runbook](docs/DEVNET-ALPHA.md). The functional specification remains the full release target. Additional curated collections, expanded help and remaining sharing checks, deeper operational fault tests, and actual two-browser/phone acceptance remain before beta. Private transfers, sales, and encrypted claim links remain separate work.
 
 ## Run the real devnet app
 

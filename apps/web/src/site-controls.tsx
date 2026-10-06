@@ -38,6 +38,7 @@ export function Modal({
       <div className="dialog-bar">
         <h2 id={titleId}>{title}</h2>
         <button
+          type="button"
           className={btn}
           onClick={() => close.current()}
           aria-label="Close dialog"

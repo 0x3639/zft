@@ -23,6 +23,11 @@ export type Snapshot = {
   label: string;
   subtitle: string;
   art: { hash: string; width: number; height: number; title?: string }[];
+  profileMedia?: {
+    address: string;
+    avatar: string | null;
+    cover: string | null;
+  };
   publication?: { profile: string; tokenId: string; nonce: string };
   revisionData: unknown;
   private?: boolean;
@@ -118,6 +123,11 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
   if (profile) {
     const address = addressSchema.parse(profile[1]).toLowerCase();
     const p = await profileData(env, address);
+    const profileMedia = {
+      address,
+      avatar: p.profile.avatar ?? null,
+      cover: p.profile.cover ?? null,
+    };
     const selected = url.searchParams.get("nft");
     if (selected) {
       uintSchema.parse(selected);
@@ -137,6 +147,7 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
           i.metadata.description ||
           `A collectible shared by ${p.profile.name}.`,
         label: p.profile.name,
+        profileMedia,
         subtitle: historical
           ? "PREVIOUS OWNERSHIP EPOCH"
           : "ONE PICTURE / ONE COLLECTIBLE",
@@ -183,6 +194,7 @@ export async function snapshot(env: Env, url: URL): Promise<Snapshot> {
       title: p.profile.name,
       description: p.profile.bio || "A public ZFT collection on ZVM devnet.",
       label: "Public collection",
+      profileMedia,
       subtitle: `${p.counts.collected} COLLECTED / ${p.counts.followers} FOLLOWERS / ${p.counts.likes} LIKES`,
       art: pieces.map((i) => ({
         hash: i.metadata.imageHash,

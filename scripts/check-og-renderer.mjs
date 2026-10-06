@@ -14,6 +14,8 @@ for (const [label, w, h, color] of [
   ["blue", 320, 320, [25, 119, 240]],
   ["yellow", 320, 320, [250, 199, 29]],
   ["large", 6000, 4000, [0, 0, 0]],
+  ["avatar", 256, 256, [0, 217, 148]],
+  ["cover", 1280, 480, [24, 88, 138]],
 ]) {
   const data = new Uint8Array(w * h * 4);
   for (let y = 0; y < h; y++)
@@ -92,7 +94,16 @@ try {
     });
   });
   const checks = [];
-  for (const fixture of ["0", "1", "2", "3", "large", "missing"]) {
+  for (const fixture of [
+    "0",
+    "1",
+    "2",
+    "3",
+    "large",
+    "missing",
+    "profile",
+    "profile-missing",
+  ]) {
     const res = await fetch(`http://localhost:8788/${fixture}`),
       bytes = new Uint8Array(await res.arrayBuffer());
     if (!res.ok) throw new Error(new TextDecoder().decode(bytes));
@@ -127,7 +138,7 @@ try {
     ) + "\n",
   );
   console.log(
-    "OG renderer passed: six bounded 1200×630 fixtures including 24 MP / >1 MiB source. Inspect research/sharing-fixtures/*.png.",
+    "OG renderer passed: eight bounded 1200×630 fixtures including profile media and 24 MP / >1 MiB source. Inspect research/sharing-fixtures/*.png.",
   );
 } finally {
   child.kill("SIGTERM");

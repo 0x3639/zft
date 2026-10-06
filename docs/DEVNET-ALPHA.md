@@ -143,7 +143,7 @@ Browser acceptance includes current three-check proof, card flip, safe public JS
 
 ## Remaining beta gates
 
-- Additional curated collection pages, independent avatar/cover uploads, richer activity/social filtering, and full reference-page parity. The current cover uses a featured public collectible and the avatar uses an initial.
+- Additional curated collection pages, expanded help, and full reference-page parity. Profile media and Everyone/Following activity are implemented; actual wallet/device acceptance remains open.
 - Independent ZVM/finality verification; controlled large/deep reorg and reset drills. SQLite regression tests cover index rollback, external transfers, and stopped ingestion on deployment mismatch.
 - Sponsor crash/restart/reorg/fee-replacement fault injection, bounded journal retention, stronger Sybil admission and storage cleanup. Ambiguous or conflicting nonce state deliberately stops the sponsor for operator reconciliation.
 - Actual browser-to-browser and phone transactions, large-collection recovery performance, expanded accessibility testing, release/security review, and target social-platform preview checks.
@@ -211,3 +211,13 @@ This follow-up deployed as Worker **`4f7d76fc-b8a4-41a3-9c83-0a083b998391`** on 
 The publication-scope follow-up uses additive migration `0006_activity_publication_scope.sql` before Worker deployment. Each changed publication generation receives a revision keyed by its immutable journal event ID. Withdrawal records the revision before removing the visibility binding; re-publication gets a new journal ID. Version-3 cursors compare only generations within their scope and pinned public-ID range, before and after reading the page. Unrelated and later publications no longer interrupt pagination. Version-1/2 cursors request refresh with 409. Existing journal/possession/binding rows remain intact, and old Workers retain their global invalidation behavior. Keep the added clocks/projections installed on rollback.
 
 This publication follow-up deployed as Worker **`abc2243f-b377-486c-8692-4ecf6c8c752e`** on 2026-10-05 (America/Chicago). **172 app tests**, typecheck/build/Worker dry run pass. The [hosted checks](../research/pr4-publication-review.json) confirm unchanged migration counts (24 journal rows, zero bindings, two possessions), version-3 continuation, version-1/2 refresh, healthy six-block index lag and the signed canary across 48 events / 24 pages. Frontend assets are unchanged.
+
+## Profile media (R4)
+
+Apply additive migration `0007_profile_media.sql` before deploying the R4 Worker. It adds a side table without changing existing profile columns or journal rows. Older clients that omit images keep their references; a previous Worker can still write its original profile shape. Keep the table and immutable media objects when rolling back.
+
+Uploads use the existing wallet-authenticated profile request. Browser normalization/cropping produces bounded 256×256 avatar and 1280×480 cover PNGs; server validation rejects envelopes and noncanonical/invalid pixels. Profile, references and journal changes use one D1 transaction with a compare-and-swap revision. R2 uploads occur first, so a failed transaction can leave an unreferenced public object. Reset only clears current references. Permanent media cleanup/retention is an R7.3 operation and must account for immutable OG snapshots.
+
+Profile images are served by the existing devnet Worker at `/profile-media/:address/:hash.png`; no contract, binding or apex routing change is required. Reproduce the signed SDK checks with `ZFT_TEST_ORIGIN=https://devnet.zft.foo node --import tsx scripts/check-profile-media.ts`. Generated fixture keys remain in ignored `.local/`; no ownership transactions are sent. `node scripts/check-og-renderer.mjs` covers eight bounded sharing-image fixtures including profile media and missing-image fallback. Real extension/device acceptance remains R6.
+
+R4 deployed as Worker **`1f5abf97-d8ce-4db2-ae3f-1f0f604d5fc3`** on 2026-10-05 (America/Chicago). Migration counts remained seven profiles, 32 journal events and two possessions. **186 app tests**, typecheck, frontend build, Worker dry run and eight local OG fixtures pass. [Hosted evidence](../research/hosted-profile-media.json) confirms both images in one signed save, stale-save 409, omission preservation, immutable PNG bytes and distinct bounded 1200×630 OG images after reset. [UI evidence](../research/r4-ui.json) uses a generated signer fixture, not a real wallet extension.

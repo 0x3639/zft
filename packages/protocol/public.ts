@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { addressSchema, uintSchema, signatureSchema, CHAIN_ID } from "./index";
 import manifest from "./deployment.json";
+import { mediaUpload } from "./profile-media";
 
 export const profileInput = z
   .object({
@@ -8,6 +9,8 @@ export const profileInput = z
     bio: z.string().trim().max(320),
     featured: uintSchema.nullable(),
     revision: z.number().int().min(0).max(2_000_000_000),
+    avatar: mediaUpload("avatar"),
+    cover: mediaUpload("cover"),
   })
   .strict();
 export const socialInput = z
@@ -44,4 +47,6 @@ export type Profile = {
   featured: string | null;
   revision: number;
   updated_at: number;
+  avatar?: string | null;
+  cover?: string | null;
 };

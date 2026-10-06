@@ -983,6 +983,147 @@ textarea:focus-visible {
   object-fit: cover;
   opacity: 0.55;
 }
+.rich-cover.custom-cover img {
+  opacity: 1;
+}
+.avatar,
+.mini-avatar {
+  overflow: hidden;
+}
+.avatar img,
+.mini-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile-media-editors {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 24px;
+  margin: 26px 0 18px;
+}
+.media-label {
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.media-preview {
+  width: 100%;
+  aspect-ratio: 8 / 3;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(120deg, #112c25, #122229 60%, #213421);
+  color: #c5e9d6;
+  font: 10px var(--font-mono);
+}
+.media-avatar .media-preview {
+  width: 108px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-size: 28px;
+}
+.media-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-file-label {
+  font-size: 13px;
+  display: grid;
+  gap: 7px;
+  margin-top: 15px;
+}
+.media-file-label input {
+  font-size: 11px;
+  min-width: 0;
+  width: 100%;
+  padding: 6px;
+}
+.media-editor .actions {
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.media-editor .text-button {
+  font-size: 12px;
+  padding: 0;
+}
+.crop-preview {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  background: var(--muted);
+  border-radius: 16px;
+  margin: 20px auto;
+}
+.crop-avatar {
+  max-width: 256px;
+  border-radius: 50%;
+}
+.crop-control {
+  display: grid;
+  grid-template-columns: 145px minmax(0, 1fr) 54px;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+.crop-control input {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--primary);
+}
+.crop-control output {
+  font: 12px var(--font-mono);
+  text-align: right;
+}
+.collection-identity {
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+}
+.collection-avatar {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  bottom: -5px;
+  right: -5px;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--card);
+  color: var(--primary);
+}
+.collection-entry-link .collection-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+@media (max-width: 540px) {
+  .profile-media-editors {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .media-avatar .media-preview {
+    width: 96px;
+  }
+  .crop-control {
+    grid-template-columns: 1fr 54px;
+    gap: 6px;
+  }
+  .crop-control input {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .crop-control output {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
 .cover-word {
   position: absolute;
   right: 30px;

@@ -217,3 +217,7 @@ Implementation update: profile images use eligible current holdings, with an eli
 ### Additional acceptance evidence
 
 Render fixtures with 0, 1, 2 and 4 distinct eligible NFTs and visually confirm exactly the intended images/counts. Use contrasting fixture artwork so omission, duplication, ordering and an incorrect collector are apparent. Test one item across standalone, current profile, historical profile and listing contexts. Inspect initial HTML and actual decoded image pixels, not only URL uniqueness or PNG dimensions. Test a valid >2 MP/1 MiB NFT through thumbnail generation, corrupt/missing art fallback, profile updates, unpublishing, membership changes, revision isolation, long titles and image crops. A selected NFT must never inherit another item's cached pixels.
+
+## Profile media revisions (R4)
+
+Profile and selected-artwork snapshots include optional `profileMedia` with the wallet address and immutable avatar/cover hashes. The full snapshot digest includes these references, so media changes create a new OG URL while existing public snapshots retain their old pixels. The renderer loads only the bounded admitted R2 namespace, verifies source hashes and caches 480px derivatives. Missing images fall back independently. The avatar appears beside the brand and the cover becomes a subdued background; NFT artwork remains the foreground collage. Reset does not revoke already-shared images or external social caches. Standalone item and static-page snapshots retain their prior behavior.

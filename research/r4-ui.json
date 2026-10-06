@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-10-06T00:58:30.909286+00:00",
+  "scope": "Local browser UI fixture using production EditProfile/PublicProfile components with an isolated generated SDK signer; no real extension",
+  "checks": [
+    "Avatar and cover selection open separate crop dialogs",
+    "Keyboard position and zoom controls update the local preview",
+    "Use image commits only the local draft",
+    "Close dialog returns focus to the file input without submitting the profile",
+    "Signed save returns to a profile with both images loaded",
+    "Reset clears the preview and Undo restores it",
+    "Profile and editor have no horizontal overflow at 320px; crop dialog has no overflow at 360px",
+    "Desktop 1440px preview and saved profile render without horizontal overflow",
+    "Hosted production profile displays both admitted images at their expected intrinsic dimensions"
+  ],
+  "screenshots": [
+    "r4-editor-desktop.png",
+    "r4-editor-mobile.png",
+    "r4-crop-mobile.png",
+    "r4-profile-local.png",
+    "r4-profile-mobile.png",
+    "r4-profile-hosted.png"
+  ],
+  "limitations": [
+    "Actual MetaMask extension and physical phone acceptance remain R6",
+    "Isolated UI fixture lives in ignored apps/web/.local and is excluded from the production entry point"
+  ],
+  "hostedProfile": "https://devnet.zft.foo/p/0x158dab978ae49716679b006e21a89811e01cbca0"
+}

@@ -23,6 +23,8 @@ import manifest from "../../packages/protocol/deployment.json";
 import { checkDeployment, ownership } from "../../packages/protocol/client";
 import { HttpError, json } from "./http";
 import type { Env } from "./types";
+import { admittedProfileImage } from "./profile-media";
+import type { MediaKind } from "../../packages/protocol/profile-media";
 
 const projectedArtwork = `EXISTS(SELECT 1 FROM discovery_metadata d WHERE d.token_id=i.token_id AND d.metadata_hash=i.metadata_hash AND d.creator=i.creator AND d.version=1 AND d.valid=1)`;
 
@@ -149,7 +151,9 @@ export async function gallery(
 }
 export async function profileData(env: Env, address: string, viewer?: string) {
   const addr = addressSchema.parse(address).toLowerCase();
-  const p = await env.DB.prepare("SELECT * FROM profiles WHERE address=?")
+  const p = await env.DB.prepare(
+    "SELECT p.*,m.avatar,m.cover FROM profiles p LEFT JOIN profile_media m USING(address) WHERE p.address=?",
+  )
     .bind(addr)
     .first<Profile>();
   const created = await env.DB.prepare(
@@ -325,10 +329,15 @@ export async function directory(
   const field = kind === "following" ? "target" : "actor",
     match = kind === "following" ? "actor" : "target";
   const rows = await env.DB.prepare(
-    `SELECT r.${field} address,p.name,p.bio FROM relations r LEFT JOIN profiles p ON p.address=r.${field} WHERE kind='follow' AND r.${match}=? AND r.${field}>? ORDER BY r.${field} LIMIT 25`,
+    `SELECT r.${field} address,p.name,p.bio,m.avatar FROM relations r LEFT JOIN profiles p ON p.address=r.${field} LEFT JOIN profile_media m ON m.address=r.${field} WHERE kind='follow' AND r.${match}=? AND r.${field}>? ORDER BY r.${field} LIMIT 25`,
   )
     .bind(address, after)
-    .all<{ address: string; name: string | null; bio: string | null }>();
+    .all<{
+      address: string;
+      name: string | null;
+      bio: string | null;
+      avatar: string | null;
+    }>();
   return {
     profiles: rows.results.slice(0, 24),
     nextCursor: rows.results.length > 24 ? rows.results[23].address : null,
@@ -344,13 +353,82 @@ export async function publicMutation(
     now = Date.now();
   if (path === "/api/profile") {
     const p = profileInput.parse(input);
+    const previous = await env.DB.prepare(
+      "SELECT p.*,m.avatar,m.cover FROM profiles p LEFT JOIN profile_media m USING(address) WHERE p.address=?",
+    )
+      .bind(addr)
+      .first<Profile>();
+    if ((previous?.revision ?? 0) !== p.revision)
+      throw new HttpError(409, "Profile changed. Reload before saving.");
     if (p.featured && !(await inProfile(env, addr, p.featured)))
       throw new HttpError(400, "Feature one of your public collectibles.");
-    const result = await env.DB.prepare(
-      `INSERT INTO profiles SELECT ?,?,?,?,1,? WHERE ?=0 OR EXISTS(SELECT 1 FROM profiles WHERE address=?) ON CONFLICT(address) DO UPDATE SET name=excluded.name,bio=excluded.bio,featured=excluded.featured,revision=profiles.revision+1,updated_at=excluded.updated_at WHERE profiles.revision=?`,
-    )
-      .bind(addr, p.name, p.bio, p.featured, now, p.revision, addr, p.revision)
-      .run();
+    const media: Record<MediaKind, string | null> = {
+      avatar: previous?.avatar ?? null,
+      cover: previous?.cover ?? null,
+    };
+    const uploads = [];
+    for (const kind of ["avatar", "cover"] as const) {
+      if (p[kind] === null) media[kind] = null;
+      else if (p[kind]) {
+        const image = await admittedProfileImage(kind, p[kind].image);
+        media[kind] = image.hash;
+        uploads.push(image);
+      }
+    }
+    // Validate every image before any write. Unreferenced objects after a failed
+    // save are public pixels only; the profile and journal commit atomically.
+    for (const image of uploads)
+      await env.MEDIA.put(
+        `profile-media/${addr}/${image.hash.slice(2)}.png`,
+        image.bytes,
+        { httpMetadata: { contentType: "image/png" } },
+      );
+    const statements = [
+      env.DB.prepare(
+        `INSERT INTO profiles SELECT ?,?,?,?,1,? WHERE ?=0 OR EXISTS(SELECT 1 FROM profiles WHERE address=?) ON CONFLICT(address) DO UPDATE SET name=excluded.name,bio=excluded.bio,featured=excluded.featured,revision=profiles.revision+1,updated_at=excluded.updated_at WHERE profiles.revision=?`,
+      ).bind(
+        addr,
+        p.name,
+        p.bio,
+        p.featured,
+        now,
+        p.revision,
+        addr,
+        p.revision,
+      ),
+    ];
+    if (p.avatar !== undefined || p.cover !== undefined) {
+      // changes() belongs to the immediately preceding CAS statement. A losing
+      // concurrent request must not overwrite the winner's media references.
+      statements.push(
+        env.DB.prepare(
+          `INSERT INTO profile_media SELECT ?,?,? WHERE changes()<>0
+        ON CONFLICT(address) DO UPDATE SET avatar=excluded.avatar,cover=excluded.cover
+        WHERE profile_media.avatar IS NOT excluded.avatar OR profile_media.cover IS NOT excluded.cover`,
+        ).bind(addr, media.avatar, media.cover),
+      );
+      const mediaOnly =
+        !!previous &&
+        previous.name === p.name &&
+        previous.bio === p.bio &&
+        previous.featured === p.featured;
+      // Text edits/new profiles already have a journal entry from their trigger.
+      statements.push(
+        env.DB.prepare(
+          `INSERT INTO public_events(kind,actor,occurred_at)
+        SELECT 'profile_updated',?,? WHERE changes()<>0 AND ?=1`,
+        ).bind(
+          addr,
+          now,
+          mediaOnly &&
+            (media.avatar !== (previous?.avatar ?? null) ||
+              media.cover !== (previous?.cover ?? null))
+            ? 1
+            : 0,
+        ),
+      );
+    }
+    const [result] = await env.DB.batch(statements);
     // A nonexistent profile is revision 0; stale updates must never resurrect it.
     if (result.meta.changes === 0)
       throw new HttpError(409, "Profile changed. Reload before saving.");
