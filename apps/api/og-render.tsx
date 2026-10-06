@@ -1,3 +1,8 @@
+import {
+  BRAND_REVISION,
+  BRAND_LOCKUP_DARK,
+  BRAND_MARK_DARK,
+} from "../../packages/protocol/brand";
 import React from "react";
 import satori, { init } from "satori/standalone";
 import yoga from "satori/yoga.wasm";
@@ -73,6 +78,9 @@ export async function renderOG(page: Snapshot, env: Env) {
       images.push(null);
     }
   }
+  const branded = page.branding === BRAND_REVISION;
+  const brandImage = (svg: string) =>
+    `data:image/svg+xml;base64,${base64(new TextEncoder().encode(svg))}`;
   const title = Array.from(
     page.title.replace(/[^\u0020-\u024f\u2000-\u206f]/gu, "·"),
   )
@@ -133,9 +141,13 @@ export async function renderOG(page: Snapshot, env: Env) {
               style={{ borderRadius: 32, objectFit: "cover" }}
             />
           )}
-          <span style={{ fontSize: 50, letterSpacing: -3 }}>
-            zft<span style={{ color: "#00d994" }}>.</span>
-          </span>
+          {branded ? (
+            <img src={brandImage(BRAND_LOCKUP_DARK)} width={160} height={48} />
+          ) : (
+            <span style={{ fontSize: 50, letterSpacing: -3 }}>
+              zft<span style={{ color: "#00d994" }}>.</span>
+            </span>
+          )}
           <span style={{ fontFamily: "Mono", fontSize: 16, color: "#00d994" }}>
             ZVM DEVNET
           </span>
@@ -247,7 +259,11 @@ export async function renderOG(page: Snapshot, env: Env) {
               fontSize: 180,
             }}
           >
-            Z
+            {branded ? (
+              <img src={brandImage(BRAND_MARK_DARK)} width={180} height={180} />
+            ) : (
+              "Z"
+            )}
           </div>
         )}
       </div>

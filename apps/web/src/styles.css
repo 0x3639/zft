@@ -441,21 +441,24 @@ header {
   padding: 22px 40px;
 }
 .wordmark {
-  font-size: 30px;
-  letter-spacing: -2px;
-  font-weight: 700;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 9px;
+  flex-shrink: 0;
 }
 .wordmark img {
-  width: 29px;
-  height: 29px;
+  width: 120px;
+  height: 36px;
 }
-.wordmark span {
-  color: var(--primary);
-  margin-left: -8px;
+.wordmark .brand-on-dark {
+  display: none;
 }
+.dark .wordmark .brand-on-dark {
+  display: block;
+}
+.dark .wordmark .brand-on-light {
+  display: none;
+}
+
 nav {
   display: flex;
   gap: 25px;
@@ -896,12 +899,6 @@ textarea:focus-visible {
     font-size: 11px;
     padding: 8px;
     min-height: 36px;
-  }
-  .wordmark {
-    font-size: 27px;
-  }
-  .wordmark img {
-    width: 24px;
   }
   .network-bar {
     gap: 5px;

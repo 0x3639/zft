@@ -28,6 +28,10 @@ Current focus: **R5 help and remaining sharing**, implemented with the acceptanc
 | E2 Marketplace | Deferred | Verify Karum deployment/source/order types, payment asset, safe payouts; then listings/offers/settlement | A-MARKET; [exchange plan](MARKETPLACE.md) |
 | E3 Mainnet and private ownership | Outside devnet release | Mainnet launch and privacy research are separate projects | Independent design and launch review |
 
+## Queued brand update after PR #6
+
+The user-supplied ZFT logo is prepared on `feat/brand-assets` in a separate worktree. **PR creation waits for #6 approval; no deployment yet.** All 54 supplied files are preserved and served with a download gallery. Header/footer themes, favicon/touch/manifest icons and new OG snapshots use the supplied artwork. Existing immutable OG snapshots preserve their prior rendering. See [brand implementation and acceptance](BRAND-ASSETS.md): 194 app tests, 15 OG fixtures, 86 local Worker asset responses and mobile/theme checks pass. Hosted verification follows the approved devnet rollout. R6/R7 remain the next release gates.
+
 ## Remaining work checklist
 
 ### Wallet custody

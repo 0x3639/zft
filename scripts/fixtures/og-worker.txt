@@ -1,3 +1,4 @@
+import { BRAND_REVISION } from "../../packages/protocol/brand";
 import { renderOG } from "../../apps/api/og-render";
 import { HELP_VIEWS } from "../../packages/protocol/help";
 import { sha256 } from "viem";
@@ -74,16 +75,20 @@ export default {
     const image = await renderOG(
       {
         version: 1,
+        ...(key === "legacy" ? {} : { branding: BRAND_REVISION }),
         deployment: "fixture",
         path: "/",
         imagePath: "",
-        title: key.startsWith("profile")
-          ? "Profile artwork fixture"
-          : key === "long-title"
-            ? "A very long collectible title with <markup> & symbols, emoji 🎨 and enough words to fill all the available space"
-            : key === "4"
-              ? "3 artwork fixture"
-              : `${key} artwork fixture`,
+        title:
+          key === "legacy"
+            ? "0 artwork fixture"
+            : key.startsWith("profile")
+              ? "Profile artwork fixture"
+              : key === "long-title"
+                ? "A very long collectible title with <markup> & symbols, emoji 🎨 and enough words to fill all the available space"
+                : key === "4"
+                  ? "3 artwork fixture"
+                  : `${key} artwork fixture`,
         description: "",
         label: "Renderer acceptance fixture",
         subtitle: "PUBLIC TEST PIXELS",
