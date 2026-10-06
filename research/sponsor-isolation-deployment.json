@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-10-06T10:29:33.215Z",
+  "origin": "https://devnet.zft.foo",
+  "health": {
+    "ready": true,
+    "network": "ZVM devnet",
+    "sponsorEnabled": true,
+    "index": {
+      "block": 103125,
+      "head": 103131,
+      "syncedAt": 1791282562051,
+      "error": null,
+      "lag": 6,
+      "confirmations": 6
+    }
+  },
+  "observations": [
+    {
+      "operationId": "0xa2a312f640a42d9b2c64065cb03e506622f491568adfa0ad1d4688840c3d91e1",
+      "txHash": "0xc041c43c3877a8897879a4ffc333e59a708d242788ce661e719ab53d828951c1",
+      "state": "confirmed",
+      "blockNumber": "95382",
+      "confirmationPolicy": "6 EVM blocks; application policy, not a protocol-finality guarantee",
+      "elapsedMs": 672
+    },
+    {
+      "operationId": "0x790d8cf93e8d27630cf37730463e174ba7003c1d27f13339859509f683cc9639",
+      "txHash": "0x6b5b3dee2912168b2e30cc436b8ca54b01dfe8b48743c6be7f6953ec135b493e",
+      "state": "confirmed",
+      "blockNumber": "95400",
+      "confirmationPolicy": "6 EVM blocks; application policy, not a protocol-finality guarantee",
+      "elapsedMs": 260
+    }
+  ],
+  "unknownOperation": 404,
+  "auth": {
+    "admittedToValidation": 400,
+    "replayRejected": 401,
+    "elapsedMs": 203
+  },
+  "bundle": {
+    "path": "/assets/index-BZMIXlVX.js",
+    "sha256": "a23af74a61d58e5bf32f57af9308525a7c88a54b17203dc4fd9eddf69afe921f"
+  },
+  "scope": "Healthy hosted smoke; stalled RPC and concurrency faults are exercised only in local workerd."
+}
