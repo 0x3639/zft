@@ -317,6 +317,116 @@ describe("Public activity journal", () => {
     expect(next.events.some((e) => e.id === first.events[0].id)).toBe(false);
     expect(next.events.length).toBeGreaterThan(0);
   });
+  it.each(["profile", "following"])(
+    "ignores unrelated publication changes in a %s snapshot",
+    async (scope) => {
+      const f = fixture();
+      for (let n = 1; n <= 3; n++) await f.profile(n);
+      await f.profile(1, 1, "Edited");
+      await f.relation(3, 1);
+      await f.mint(1);
+      await f.mint(2);
+      f.publish(1); // Profile 2's existing publication is inside publicMax.
+      const params: Record<string, string> =
+        scope === "following" ? { view: "following", viewer: addr(3) } : {};
+      const profile = scope === "profile" ? addr(1) : undefined;
+      const first = await activity(
+        f.env,
+        url({ ...params, limit: "1" }),
+        profile,
+      );
+      expect(first.nextCursor).toBeTruthy();
+      const oldRevision = Number(
+        f.sql.prepare("SELECT revision FROM activity_state").get()!.revision,
+      );
+      const continuation = () =>
+        activity(f.env, url({ ...params, cursor: first.nextCursor! }), profile);
+      const expected = await continuation();
+      f.sql.exec("UPDATE possessions SET expires=expires-10");
+      expect(await continuation()).toEqual(expected);
+      f.sql.exec("DELETE FROM possessions");
+      expect(await continuation()).toEqual(expected);
+      f.publish(1); // A replacement generation must not revive the old event.
+      f.publish(2);
+      expect(await continuation()).toEqual(expected);
+      expect(
+        f.sql.prepare("SELECT revision FROM activity_state").get()!.revision,
+      ).toBeGreaterThan(oldRevision); // Preserve preceding-Worker invalidation.
+    },
+  );
+  it.each(["everyone", "profile", "following"])(
+    "ignores publications added after the %s snapshot's public-ID bound",
+    async (scope) => {
+      const f = fixture();
+      await f.profile(2);
+      await f.profile(2, 1, "Edited");
+      await f.profile(3);
+      await f.relation(3, 2);
+      await f.mint(1);
+      const params: Record<string, string> =
+        scope === "following" ? { view: "following", viewer: addr(3) } : {};
+      const profile = scope === "profile" ? addr(2) : undefined;
+      const first = await activity(
+        f.env,
+        url({ ...params, limit: "1" }),
+        profile,
+      );
+      expect(first.nextCursor).toBeTruthy();
+      const continuation = () =>
+        activity(f.env, url({ ...params, cursor: first.nextCursor! }), profile);
+      const expected = await continuation();
+      f.publish(1);
+      expect(await continuation()).toEqual(expected);
+      expect(
+        (await activity(f.env, url(params), profile)).events.some(
+          (e) => e.kind === "published",
+        ),
+      ).toBe(true);
+      f.sql.exec("UPDATE possessions SET owner='" + addr(3) + "'");
+      expect(await continuation()).toEqual(expected);
+      f.sql.exec("DELETE FROM possessions");
+      expect(await continuation()).toEqual(expected);
+    },
+  );
+  it.each(["everyone", "profile", "following"])(
+    "refreshes %s when a bound publication changes or is withdrawn",
+    async (scope) => {
+      const f = fixture();
+      await f.profile(2);
+      await f.profile(2, 1, "Edited");
+      await f.profile(3);
+      await f.relation(3, 2);
+      await f.mint(1);
+      f.publish(1);
+      const params: Record<string, string> =
+        scope === "following" ? { view: "following", viewer: addr(3) } : {};
+      const profile = scope === "profile" ? addr(2) : undefined;
+      for (const write of [
+        "UPDATE possessions SET expires=expires-10",
+        "DELETE FROM possessions",
+      ]) {
+        const first = await activity(
+          f.env,
+          url({ ...params, limit: "1" }),
+          profile,
+        );
+        expect(first.nextCursor).toBeTruthy();
+        f.sql.exec(write);
+        await expect(
+          activity(
+            f.env,
+            url({ ...params, cursor: first.nextCursor! }),
+            profile,
+          ),
+        ).rejects.toMatchObject({ status: 409 });
+      }
+      expect(
+        (await activity(f.env, url(params), profile)).events.some(
+          (e) => e.kind === "published",
+        ),
+      ).toBe(false);
+    },
+  );
   it("keeps pagination valid across unsuccessful metadata retries", async () => {
     const f = fixture();
     await f.profile(1);
@@ -426,22 +536,26 @@ describe("Public activity journal", () => {
       ).rejects.toMatchObject({ status: 409 });
     },
   );
-  it("offers a refresh for legacy cursors after the metadata-scope upgrade", async () => {
-    const f = fixture();
-    await f.profile(1);
-    await f.profile(2);
-    const first = await activity(f.env, url({ limit: "1" }));
-    const decoded = JSON.parse(
-      Buffer.from(first.nextCursor!, "base64url").toString(),
-    );
-    expect(decoded.v).toBe(2);
-    delete decoded.metadataRevision;
-    decoded.v = 1;
-    const legacy = Buffer.from(JSON.stringify(decoded)).toString("base64url");
-    await expect(
-      activity(f.env, url({ cursor: legacy })),
-    ).rejects.toMatchObject({ status: 409 });
-  });
+  it.each([1, 2])(
+    "offers a refresh for version-%i cursors after the publication-scope upgrade",
+    async (version) => {
+      const f = fixture();
+      await f.profile(1);
+      await f.profile(2);
+      const first = await activity(f.env, url({ limit: "1" }));
+      const decoded = JSON.parse(
+        Buffer.from(first.nextCursor!, "base64url").toString(),
+      );
+      expect(decoded.v).toBe(3);
+      delete decoded.publicationRevision;
+      if (version === 1) delete decoded.metadataRevision;
+      decoded.v = version;
+      const legacy = Buffer.from(JSON.stringify(decoded)).toString("base64url");
+      await expect(
+        activity(f.env, url({ cursor: legacy })),
+      ).rejects.toMatchObject({ status: 409 });
+    },
+  );
   it.each([
     "UPDATE possessions SET expires=expires-10",
     "UPDATE possessions SET owner='" + addr(3) + "'",
@@ -646,12 +760,13 @@ describe("Public activity journal", () => {
       clock.mockRestore();
     }
   });
-  it.each(["visibility", "metadata"])(
+  it.each(["visibility", "metadata", "publication"])(
     "rejects results if %s changes while a page is being read",
     async (change) => {
       const f = fixture();
       await f.profile(1);
       await f.mint(1);
+      f.publish(1);
       const original = f.db.prepare.bind(f.db);
       vi.spyOn(f.db, "prepare").mockImplementation((query: string) => {
         const statement = original(query);
@@ -665,7 +780,9 @@ describe("Public activity journal", () => {
               f.sql.exec(
                 change === "metadata"
                   ? "UPDATE discovery_metadata SET valid=0"
-                  : "UPDATE activity_state SET revision=revision+1",
+                  : change === "publication"
+                    ? "DELETE FROM possessions"
+                    : "UPDATE activity_state SET revision=revision+1",
               );
               return result;
             };
@@ -717,6 +834,9 @@ describe("Public activity journal", () => {
     sql.exec(readFileSync("migrations/0004_activity_invalidation.sql", "utf8"));
     sql.exec(
       readFileSync("migrations/0005_activity_metadata_scope.sql", "utf8"),
+    );
+    sql.exec(
+      readFileSync("migrations/0006_activity_publication_scope.sql", "utf8"),
     );
     expect(
       tables.map((table) => sql.prepare(`SELECT * FROM ${table}`).all()),

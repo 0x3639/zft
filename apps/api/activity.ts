@@ -23,6 +23,14 @@ const cursorSchema = z.discriminatedUnion("v", [
   z
     .object({ ...cursorFields, v: z.literal(2), metadataRevision: number })
     .strict(),
+  z
+    .object({
+      ...cursorFields,
+      v: z.literal(3),
+      metadataRevision: number,
+      publicationRevision: number,
+    })
+    .strict(),
 ]);
 type Row = {
   kind: ActivityEvent["kind"];
@@ -42,8 +50,9 @@ type Row = {
 };
 async function revision(env: Env) {
   return (await env.DB.prepare(
-    `SELECT s.revision-m.revision revision,s.follow_revision
-    FROM activity_state s JOIN activity_metadata_clock m USING(id) WHERE s.id=1`,
+    `SELECT s.revision-m.revision-p.revision revision,s.follow_revision
+    FROM activity_state s JOIN activity_metadata_clock m USING(id)
+    JOIN activity_publication_clock p USING(id) WHERE s.id=1`,
   ).first<{ revision: number; follow_revision: number }>())!;
 }
 const metadataJoin = `JOIN discovery_metadata d ON d.token_id=i.token_id AND d.metadata_hash=i.metadata_hash AND d.creator=i.creator AND d.version=1 AND d.valid=1`;
@@ -76,7 +85,7 @@ export async function activity(
   const limit = Number(limitText),
     now = Date.now(),
     rev = await revision(env);
-  let after: Extract<z.infer<typeof cursorSchema>, { v: 2 }> | undefined;
+  let after: Extract<z.infer<typeof cursorSchema>, { v: 3 }> | undefined;
   const raw = url.searchParams.get("cursor");
   if (raw) {
     let decoded: z.infer<typeof cursorSchema>;
@@ -88,7 +97,7 @@ export async function activity(
     } catch {
       throw new HttpError(400, "Invalid activity cursor.");
     }
-    if (decoded.v === 1)
+    if (decoded.v !== 3)
       throw new HttpError(409, "Activity changed. Refresh to continue.");
     after = decoded;
     if (
@@ -143,6 +152,18 @@ export async function activity(
     COALESCE((SELECT MAX(block_number) FROM chain_events),0) chainMax`,
     ).first<{ publicMax: number; chainMax: number }>())!;
   const { publicMax, chainMax } = bounds;
+  // Use journal identities, including withdrawn generations whose binding has
+  // been removed. Later publications cannot change an already-bounded snapshot.
+  const publicationRevision = async () =>
+    (await env.DB.prepare(
+      `SELECT COALESCE(MAX(v.revision),0) revision FROM activity_publication_revisions v
+      JOIN public_events e ON e.id=v.event_id WHERE e.kind='published' AND e.id<=? ${actorFilter}`,
+    )
+      .bind(publicMax, ...actorArgs)
+      .first<{ revision: number }>())!.revision;
+  const publicationRev = await publicationRevision();
+  if (after && after.publicationRevision !== publicationRev)
+    throw new HttpError(409, "Activity changed. Refresh to continue.");
   // Include candidate items even when their metadata is absent/invalid, so a
   // backfill that makes an older event visible also invalidates its snapshot.
   // Retain deletion marks; removing metadata must not erase the invalidation.
@@ -212,6 +233,7 @@ export async function activity(
   const end = await revision(env);
   if (
     end.revision !== rev.revision ||
+    (await publicationRevision()) !== publicationRev ||
     (await metadataRevision()) !== metadataRev ||
     (view === "following" && end.follow_revision !== rev.follow_revision) ||
     Date.now() >= until
@@ -261,11 +283,12 @@ export async function activity(
       rows.results.length > limit && last
         ? btoa(
             JSON.stringify({
-              v: 2,
+              v: 3,
               scope,
               viewer: view === "following" ? viewer : "",
               revision: rev.revision,
               metadataRevision: metadataRev,
+              publicationRevision: publicationRev,
               follows: rev.follow_revision,
               publicMax,
               chainMax,

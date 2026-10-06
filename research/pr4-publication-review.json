@@ -1,0 +1,59 @@
+{
+  "checkedAt": "2026-10-06T00:23:24.593Z",
+  "cursorVersion": 3,
+  "continuationStatus": 200,
+  "legacyRefreshStatuses": {
+    "1": 409,
+    "2": 409
+  },
+  "index": {
+    "block": 100615,
+    "head": 100621,
+    "syncedAt": 1791246196534,
+    "error": null,
+    "lag": 6,
+    "confirmations": 6
+  },
+  "workerVersion": "abc2243f-b377-486c-8692-4ecf6c8c752e",
+  "reviewedHead": "e94fc153fb29167a22c23701323024b688f126e9",
+  "findingSource": "CodeRabbit PR #4 summary, updated 2026-10-06T00:18:52Z: unrelated publications can reset Following/profile pagination",
+  "migration": {
+    "name": "0006_activity_publication_scope.sql",
+    "local": "applied",
+    "remote": "applied",
+    "before": {
+      "events": 24,
+      "bindings": 0,
+      "possessions": 2
+    },
+    "after": {
+      "events": 24,
+      "bindings": 0,
+      "possessions": 2
+    },
+    "countsUnchanged": true
+  },
+  "checks": {
+    "typescriptTests": 172,
+    "newRegressionTests": 10,
+    "typecheck": "pass",
+    "frontendBuild": "pass",
+    "workerDryRun": "pass",
+    "localCanary": {
+      "events": 36,
+      "pages": 18
+    },
+    "hostedCanary": {
+      "events": 48,
+      "pages": 24
+    }
+  },
+  "before": "Five cases reproduced resets from unrelated publication changes in Profile/Following and post-snapshot publications in Everyone/Profile/Following.",
+  "after": "All five pass. Protection cases retain relevant update/withdrawal invalidation across all three scopes and mid-read withdrawal detection; both legacy cursor versions request refresh. Migration tests retain existing journal, possession and binding rows.",
+  "compatibility": "Publication writes still increment the original global counter. New readers subtract the publication clock and compare per-generation revision marks against journal IDs in scope and within publicMax. Withdrawal marks survive binding deletion; re-publication creates a new event.",
+  "limitations": [
+    "Actual MetaMask/device acceptance remains R6.",
+    "Large-journal query cost remains R7.3.",
+    "Time projection/reorg/follow invalidation remains conservative; this change scopes publication invalidation."
+  ]
+}

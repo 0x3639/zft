@@ -1,12 +1,12 @@
 {
-  "checkedAt": "2026-10-06T00:08:08.292Z",
+  "checkedAt": "2026-10-06T00:22:03.473Z",
   "origin": "http://localhost:5173",
   "profiles": {
     "a": "0xBB65c5Be49560af2BEed73C3e3f75e8a34533B9b",
     "b": "0x23985EE6e8063b91a0C2D8e110394501da4e34E8"
   },
-  "events": 28,
-  "pages": 14,
+  "events": 36,
+  "pages": 18,
   "checks": [
     "Generated-wallet signed profile/social actions accepted",
     "Guest and zero-follow states differ",
