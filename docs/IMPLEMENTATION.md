@@ -4,7 +4,7 @@ This roadmap tracks delivered work and the balance of the ZFT specification. The
 
 ## Roadmap status
 
-This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Update it in the same change as implementation or acceptance evidence. Last reconciled: **2026-10-06**, merged baseline **`b417de3`** ([PR #5](https://github.com/0x3639/zft/pull/5)); current increment **`feat/help-sharing`**, R5 help and sharing acceptance. PR #5’s final head `a1fd076` passed CI and CodeRabbit review; its monitor is stopped. R5 is deployed as Worker **`0e513f21-a2c9-47c5-9ef0-3e6502473e9b`**; PR review is pending.
+This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Update it in the same change as implementation or acceptance evidence. Last reconciled: **2026-10-06**, merged baseline **`b417de3`** ([PR #5](https://github.com/0x3639/zft/pull/5)); current increment **`feat/help-sharing`**, R5 help and sharing acceptance. PR #5’s final head `a1fd076` passed CI and CodeRabbit review; its monitor is stopped. R5 is deployed as Worker **`0f53a02e-0450-4bec-ac0d-0475f3ecd728`**. [PR #6](https://github.com/0x3639/zft/pull/6) review found one title-cleanup issue, fixed and verified below; follow-up review is pending.
 
 Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
 
@@ -193,3 +193,10 @@ Cloudflare beta deployments use a scoped environment; PR previews have separate 
 - Blob URL nitpick: the normal worker sends one load, but the handler now also revokes a preceding URL on replacement, retaining its existing unmount cleanup.
 - The generic 80% docstring suggestion is not a required CI check or a correctness issue; no blanket comments were added to self-explanatory functions.
 - **186 app tests**, typecheck/build/Worker dry run and the stronger hosted canary pass. Deployed Worker **`5e7fdf99-4375-4657-aa77-76a5ae46f4de`** has the verified frontend bundle and healthy index; [evidence](../research/pr5-review.json). No migration, contract or route changes. Follow-up review and CI for the new commit remain pending; real extension/device acceptance stays R6.
+
+
+[PR #6](https://github.com/0x3639/zft/pull/6) review of `51666f3`, addressed 2026-10-06:
+
+- [Help title cleanup](https://github.com/0x3639/zft/pull/6#discussion_r4193200979): reproduced on hosted direct-load Technical → Basics → Mint. The component captured the already-rewritten initial HTML title, then restored it on exit. Cleanup now sets the neutral app title. Hosted checks verify the same route, Back/Forward and direct `/about?view=cryptography` → Recovery; [before/after evidence](../research/pr6-title-review.json).
+- **194 app tests**, typecheck/build/Worker dry run and the read-only hosted help/bundle/PNG check pass. Worker **`0f53a02e-0450-4bec-ac0d-0475f3ecd728`** preserves the existing routes, schema and data. The OG renderer is unchanged; the fourteen-fixture run remains valid.
+- The generic docstring percentage warning is not required CI or a correctness defect; no blanket comments were added. Follow-up CodeRabbit review and CI remain pending.

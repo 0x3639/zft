@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-06T08:27:44.313Z",
+  "checkedAt": "2026-10-06T08:43:23.041Z",
   "origin": "https://devnet.zft.foo",
   "routes": [
     {
@@ -44,16 +44,16 @@
     "noindexShell": true
   },
   "bundle": {
-    "path": "/assets/index-Zb3emgw_.js",
-    "sha256": "23e58a0f4e7cd4d4b232f292395c5d69c9dfe89c6e5e8e3059ee8252b0445104"
+    "path": "/assets/index-IsV22Go6.js",
+    "sha256": "1b2bbae63280f7e5129cee8d085d8fa06cc4207e06dcbe5c4f71e4a0ff93799a"
   },
   "health": {
     "ready": true,
     "network": "ZVM devnet",
     "index": {
-      "block": 102599,
-      "head": 102605,
-      "syncedAt": 1791275264200,
+      "block": 102664,
+      "head": 102670,
+      "syncedAt": 1791276200358,
       "error": null,
       "lag": 6,
       "confirmations": 6

@@ -17,14 +17,14 @@ export function HelpPage({
   const tabs = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
-    const previousTitle = document.title;
     document.title = `${page.title} · ZFT`;
     const anchor = location.hash.slice(1);
     if (["files", "recovery", "verification", "trust"].includes(anchor))
       document.getElementById(anchor)?.scrollIntoView();
     else window.scrollTo(0, 0);
     return () => {
-      document.title = previousTitle;
+      // Direct loads already have the help title from the Worker HTML.
+      document.title = "ZFT · The collectible is the file";
     };
   }, [page.view]);
   function link(to: string, text: string, primary = false) {
