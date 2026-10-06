@@ -1,4 +1,16 @@
 import { z } from "zod";
+import manifest from "../packages/protocol/deployment.json";
+
+// Match the frontend's deployment comparison as well as its sponsorship gate.
+export const releaseConfig = z.object({
+  deployment: z
+    .unknown()
+    .refine(
+      (value) => JSON.stringify(value) === JSON.stringify(manifest),
+      "Frontend deployment must match the pinned manifest",
+    ),
+  sponsorEnabled: z.literal(true),
+});
 
 // Hosted help acceptance expects the configured devnet sponsor and a caught-up index.
 export const releaseHealth = z.object({

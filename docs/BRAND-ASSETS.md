@@ -2,7 +2,7 @@
 
 ## Delivery status
 
-The supplied logo is implemented on `feat/brand-assets`, rebased onto merged [PR #6](https://github.com/0x3639/zft/pull/6), baseline `9b4c74f`. [PR #7](https://github.com/0x3639/zft/pull/7) contains the branding change. Devnet is deployed as Worker `94d8571d-1c47-4617-b1ef-66b75649fad2`; [hosted acceptance](../research/brand-deployment.json) passes. CodeRabbit review is pending. No schema or contract changes are required.
+The supplied logo shipped in [PR #7](https://github.com/0x3639/zft/pull/7), merged at `20c2c40` on 2026-10-06. Final head `f6e31f6` passed CodeRabbit review, both CI runs and the Cloudflare preview. Its original devnet deployment was Worker `94d8571d-1c47-4617-b1ef-66b75649fad2`; [hosted acceptance](../research/brand-deployment.json) passes. Later operational deployments retain these assets; see the [roadmap](IMPLEMENTATION.md) for current work. No schema or contract changes were required.
 
 ## Preserved source and public files
 

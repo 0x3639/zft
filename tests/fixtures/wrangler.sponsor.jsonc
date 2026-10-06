@@ -1,0 +1,15 @@
+{
+  "name": "zft-sponsor-test",
+  "main": "sponsor-worker.ts",
+  "compatibility_date": "2026-10-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "SPONSOR", "class_name": "TestSponsor" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["TestSponsor"] }],
+  "vars": {
+    "PUBLIC_ORIGIN": "https://fixture.invalid",
+    "SPONSOR_ENABLED": "true",
+    "SPONSOR_PRIVATE_KEY": "0x0000000000000000000000000000000000000000000000000000000000000001",
+  },
+}

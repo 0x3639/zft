@@ -49,30 +49,40 @@ export type Job = {
 };
 import { HttpError, json } from "./http";
 export { HttpError, json } from "./http";
-// One global devnet sponsor. Explicit serialization covers awaits in both fetch and alarm.
+// Nonce/outbox mutations share one queue. Authentication has its own queue, and
+// status observations never mutate the journal or wait for transaction delivery.
 export class Sponsor extends DurableObject<Env> {
   private tail: Promise<unknown> = Promise.resolve();
+  private authTail: Promise<unknown> = Promise.resolve();
+  private observations = new Map<string, Promise<Job>>();
   private serial<T>(fn: () => Promise<T>): Promise<T> {
     const task = this.tail.then(fn);
     this.tail = task.catch(() => {});
     return task;
   }
-  fetch(request: Request) {
-    return this.serial(async () => {
-      try {
-        return await this.route(request);
-      } catch (error) {
-        return json(
-          {
-            error:
-              error instanceof HttpError
-                ? error.message
-                : "Operation unavailable. Your saved keys remain in your vault.",
-          },
-          error instanceof HttpError ? error.status : 503,
-        );
+  async fetch(request: Request) {
+    try {
+      const path = new URL(request.url).pathname;
+      if (path === "/challenge" || path === "/authenticate") {
+        // Keep challenge consumption and every authentication quota update in
+        // the same critical section, including signature verification awaits.
+        const task = this.authTail.then(() => this.route(request));
+        this.authTail = task.catch(() => {});
+        return await task;
       }
-    });
+      if (path.startsWith("/operation/")) return await this.route(request);
+      return await this.serial(() => this.route(request));
+    } catch (error) {
+      return json(
+        {
+          error:
+            error instanceof HttpError
+              ? error.message
+              : "Operation unavailable. Your saved keys remain in your vault.",
+        },
+        error instanceof HttpError ? error.status : 503,
+      );
+    }
   }
   alarm() {
     return this.serial(async () => {
@@ -189,7 +199,7 @@ export class Sponsor extends DurableObject<Env> {
       const id = path.slice("/operation/".length);
       const job = await this.ctx.storage.get<Job>(`job:${id}`);
       if (!job) throw new HttpError(404, "Operation not found.");
-      return json(this.publicJob(await this.reconcile(job, false)));
+      return json(this.publicJob(await this.status(job)));
     }
     if (path === "/submit") {
       if (this.env.SPONSOR_ENABLED !== "true" || !this.env.SPONSOR_PRIVATE_KEY)
@@ -368,7 +378,43 @@ export class Sponsor extends DurableObject<Env> {
         "6 EVM blocks; application policy, not a protocol-finality guarantee",
     };
   }
-  private async reconcile(job: Job, broadcast: boolean) {
+  private async status(job: Job) {
+    let observation = this.observations.get(job.id);
+    if (!observation) {
+      // Coalesce repeated polls and bound outstanding RPC work across job IDs.
+      // Keep the slot until the underlying RPC settles, even after a timeout.
+      if (this.observations.size >= 16)
+        throw new HttpError(503, "Status checks are busy. Retry shortly.");
+      observation = this.observe(job);
+      this.observations.set(job.id, observation);
+      const cleanup = () => this.observations.delete(job.id);
+      void observation.then(cleanup, cleanup);
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([
+        observation,
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () =>
+              reject(
+                new HttpError(
+                  503,
+                  "Chain status is unavailable. Keep your saved operation and retry shortly.",
+                ),
+              ),
+            5000,
+          );
+        }),
+      ]);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  private async observe(saved: Job): Promise<Job> {
+    // A poll can finish after an alarm or submission. Never write its potentially
+    // older observation over the serialized durable journal.
+    const job = { ...saved };
     const d = this.deployment();
     await checkDeployment(d);
     let receipt;
@@ -379,15 +425,6 @@ export class Sponsor extends DurableObject<Env> {
       job.state = "submitted";
       delete job.block;
       delete job.blockHash;
-      await this.ctx.storage.put(`job:${job.id}`, job);
-      if (broadcast)
-        try {
-          await publicClient.sendRawTransaction({
-            serializedTransaction: job.raw,
-          });
-        } catch {
-          /* Retry retains the durable nonce reservation. */
-        }
       return job;
     }
     const current = await publicClient.getBlock({
@@ -404,7 +441,19 @@ export class Sponsor extends DurableObject<Env> {
           : "included";
     job.block = receipt.blockNumber.toString();
     job.blockHash = receipt.blockHash;
+    return job;
+  }
+  private async reconcile(saved: Job, broadcast: boolean) {
+    const job = await this.observe(saved);
     await this.ctx.storage.put(`job:${job.id}`, job);
+    if (job.state === "submitted" && broadcast)
+      try {
+        await publicClient.sendRawTransaction({
+          serializedTransaction: job.raw,
+        });
+      } catch {
+        /* Retry retains the durable nonce reservation. */
+      }
     // Keep the one-flight queue reserved through the confirmation window.
     if (job.state === "confirmed" || job.state === "failed") {
       if ((await this.ctx.storage.get("active")) === job.id)

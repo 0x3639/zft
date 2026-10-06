@@ -261,6 +261,8 @@ One non-upgradeable ERC-721 is already deployed on chain `7340469` at `0x4266626
 
 Worker/API, R2 public art, D1 public records/events, sponsor Durable Object, indexer Durable Object, and scheduled ingestion already exist. The vault and all bearer files stay in the browser. D1 is a discovery projection; fresh contract reads resolve authority. Deployment/genesis mismatch stops signing. Keep the six-block app confirmation policy distinct from unverified protocol-finality semantics.
 
+Sponsor authentication must remain responsive while a transaction RPC is stalled. Challenge creation, one-time consumption and admission quotas share an authentication critical section independent of transaction submission and alarm reconciliation. Only the transaction queue writes nonce/outbox state. Operation status reads verify the deployment and receipt against the current chain without changing the durable journal; repeated polls share one observation per job, with at most 16 outstanding job observations. A status observation that does not finish within five seconds returns a retryable 503, never a cached confirmation. Unknown jobs return 404 without RPC. Polling alone does not release the sponsor's active nonce reservation; serialized alarms or a submission retry reconcile that reservation. These limits bound application waits and RPC admission, not Cloudflare or network availability. See [operational qualification](SPONSOR-OPERATIONS.md).
+
 | Current API surface | Purpose |
 | --- | --- |
 | `GET /api/config`, `/api/health`, `/api/index` | Public deployment/service/index status |
