@@ -18,7 +18,7 @@ This design follows Cloudflare's distinction between [storage input gates and ex
 
 Run `pnpm exec vitest run tests/sponsor.test.ts`. The fixture executes the production Sponsor in real workerd with SQLite Durable Object storage. Its RPC methods are replaced in that isolated test bundle; its published fixture key is a known test key and never reaches the real network.
 
-Nine cases verify:
+Ten cases verify:
 
 1. During a stalled broadcast, challenge creation and authentication complete within a two-second test bound; competing uses of the same proof yield exactly one 200 and one 401. A status read can observe a fresh confirmed receipt while delivery remains stalled.
 2. Stalled status reads return 503 at five seconds, share one underlying RPC observation and leave authentication responsive.
@@ -29,14 +29,17 @@ Nine cases verify:
 7. Concurrent valid proofs cannot exceed the IP request quota; replay is rejected after denial too.
 8. Concurrent valid proofs cannot exceed the profile/path quota.
 9. Duplicate and competing submissions remain serialized while gas estimation/broadcast is stalled. The durable job, active reservation and nonce exist before broadcast completes; duplicate submission returns the same operation, a competing operation waits, and errors leave both queues usable.
+10. A fixture reset releases a leaked RPC wait, drains serialized delivery and clears the alarm before erasing storage. Teardown runs after failed assertions too, so a failing stall test cannot leave the next test queued behind it.
 
-Full validation: **212 app tests**, TypeScript, frontend build and Worker dry run pass. The frontend bundle is unchanged; the existing bundle-size warning remains tracked under R7.3. Contract code and OG rendering are unchanged.
+Full validation after PR #8 review: **218 app tests** and TypeScript pass. Runtime code is unchanged from the passing frontend build and Worker dry run. The frontend bundle is unchanged; the existing bundle-size warning remains tracked under R7.3. Contract code and OG rendering are unchanged.
 
 ## Hosted verification and recovery
 
-Deployed to devnet as Worker **`4693920f-eeb2-427d-8b29-65f218e0d6e5`** on 2026-10-06. [Hosted evidence](../research/sponsor-isolation-deployment.json) passes: retained mint and claim observations took 672 ms and 260 ms, and challenge/authentication/replay took 203 ms total. These are point-in-time measurements, not a latency guarantee. The exact frontend bundle and healthy six-block index are preserved.
+Deployed to devnet as Worker **`4693920f-eeb2-427d-8b29-65f218e0d6e5`** on 2026-10-06. [Hosted evidence](../research/sponsor-isolation-deployment.json) records passing retained-operation, authentication/replay and frontend-configuration checks with point-in-time timings, not a latency guarantee. The exact frontend bundle and healthy six-block index are preserved.
 
-After the existing devnet deployment command, run `pnpm exec tsx scripts/check-sponsor.ts`. It checks semantic health, two retained SDK-canary operations, unknown-job behavior and the exact frontend bundle. One generated, unfunded identity signs an intentionally malformed operation request: reaching schema validation (400) proves authentication succeeded, and replay (401) proves consumption. It creates no profile, upload, NFT or chain transaction. Only challenge/admission counters change. Public results go to `research/sponsor-isolation-deployment.json`; the ephemeral key and proof are not saved.
+After the existing devnet deployment command, run `pnpm exec tsx scripts/check-sponsor.ts`. It checks semantic health, frontend deployment configuration and enabled sponsorship, two retained SDK-canary operations, unknown-job behavior and the exact frontend bundle. The configuration comparison matches the frontend's pinned-manifest check. Unlike the health flag alone, `/api/config` also requires the sponsor key to be configured. One generated, unfunded identity signs an intentionally malformed operation request: reaching schema validation (400) proves authentication succeeded, and replay (401) proves consumption. It creates no profile, upload, NFT or chain transaction. Only challenge/admission counters change. Public results go to `research/sponsor-isolation-deployment.json`; the ephemeral key and proof are not saved.
+
+PR #8 review of `89b44c8` confirmed two verification gaps. The fixture-cleanup regression fails on that reviewed fixture and passes with reset/teardown cleanup. Five frontend-configuration cases accept the pinned manifest and reject missing deployment, changed contract/genesis and disabled sponsorship. The strengthened hosted smoke passes against the existing Worker; these verification-only changes require no redeployment.
 
 If status checks report 503, keep saved operation/destination keys and retry. Do not clear `active`, `lastNonce`, gas reservations or jobs to unstick a sponsor. Polls intentionally cannot repair or overwrite that state. Allow alarms to reconcile, or retry the exact saved operation once RPC recovers. Diagnose persistent nonce mismatches against pending/latest RPC counts and the durable outbox before any operator repair.
 

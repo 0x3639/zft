@@ -11,7 +11,7 @@ import { key } from "../fixtures";
 export class TestSponsor extends Sponsor {
   private calls: string[] = [];
   private held = new Set<string>();
-  private releases = new Map<string, () => void>();
+  private releases = new Map<string, Set<() => void>>();
   private receipts = new Map<string, { state: string; block: string }>();
   private head = 106n;
   private mismatch = false;
@@ -23,7 +23,11 @@ export class TestSponsor extends Sponsor {
     const step = async (name: string) => {
       this.calls.push(name);
       if (this.held.has(name))
-        await new Promise<void>((resolve) => this.releases.set(name, resolve));
+        await new Promise<void>((resolve) => {
+          const waiters = this.releases.get(name) ?? new Set();
+          waiters.add(resolve);
+          this.releases.set(name, waiters);
+        });
     };
     Object.assign(publicClient, {
       getChainId: async () => manifest.chainId,
@@ -86,6 +90,14 @@ export class TestSponsor extends Sponsor {
         nonce?: number;
       };
       if (data.reset) {
+        // A failed assertion may skip the test's release. Unblock all RPCs and
+        // drain serialized delivery before erasing storage for the next test.
+        this.held.clear();
+        for (const waiters of this.releases.values())
+          for (const release of waiters) release();
+        this.releases.clear();
+        await super.fetch(new Request("https://fixture.invalid/gallery"));
+        await this.ctx.storage.deleteAlarm();
         await this.ctx.storage.deleteAll();
         this.calls = [];
         this.receipts.clear();
@@ -98,7 +110,7 @@ export class TestSponsor extends Sponsor {
       for (const name of data.unhold ?? []) this.held.delete(name);
       for (const name of data.release ?? []) {
         this.held.delete(name);
-        this.releases.get(name)?.();
+        for (const release of this.releases.get(name) ?? []) release();
         this.releases.delete(name);
       }
       for (const [hash, receipt] of data.receipts ?? [])

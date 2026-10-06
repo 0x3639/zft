@@ -1,18 +1,33 @@
 {
-  "checkedAt": "2026-10-06T10:29:33.215Z",
+  "checkedAt": "2026-10-06T12:41:41.026Z",
   "origin": "https://devnet.zft.foo",
   "health": {
     "ready": true,
     "network": "ZVM devnet",
     "sponsorEnabled": true,
     "index": {
-      "block": 103125,
-      "head": 103131,
-      "syncedAt": 1791282562051,
+      "block": 103695,
+      "head": 103701,
+      "syncedAt": 1791290463547,
       "error": null,
       "lag": 6,
       "confirmations": 6
     }
+  },
+  "config": {
+    "deployment": {
+      "chainId": 7340469,
+      "contract": "0x42666265e38f2d1b786e8af8e9576224a95b90ae",
+      "genesisHash": "0x2a55e0b69e552a105d559e99b12e0cae28d6e07a3c7a9f264a1543a040ef8ea4",
+      "codeHash": "0xf9249a9aec45fba4f14a4b17ed8ed4aabfb5b91a06e84875bc4190b273ba0cc9",
+      "deploymentBlock": "94013",
+      "metadataOrigin": "https://zft.foo",
+      "deploymentTransaction": "0x5e368a5357ef757d5bfd0090b73b9f3671f988a063c23023352a741f6e9aee0c",
+      "compiler": "0.8.30",
+      "evmVersion": "cancun",
+      "deploymentBlockHash": "0x699be5c30150c18ed27ec92e18559c742e01d96bc34a8f7f3cff9f8bcd8c0f34"
+    },
+    "sponsorEnabled": true
   },
   "observations": [
     {
@@ -21,7 +36,7 @@
       "state": "confirmed",
       "blockNumber": "95382",
       "confirmationPolicy": "6 EVM blocks; application policy, not a protocol-finality guarantee",
-      "elapsedMs": 672
+      "elapsedMs": 845
     },
     {
       "operationId": "0x790d8cf93e8d27630cf37730463e174ba7003c1d27f13339859509f683cc9639",
@@ -29,14 +44,14 @@
       "state": "confirmed",
       "blockNumber": "95400",
       "confirmationPolicy": "6 EVM blocks; application policy, not a protocol-finality guarantee",
-      "elapsedMs": 260
+      "elapsedMs": 245
     }
   ],
   "unknownOperation": 404,
   "auth": {
     "admittedToValidation": 400,
     "replayRejected": 401,
-    "elapsedMs": 203
+    "elapsedMs": 320
   },
   "bundle": {
     "path": "/assets/index-BZMIXlVX.js",

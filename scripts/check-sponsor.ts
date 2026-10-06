@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { sha256 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { challengeText, type Challenge } from "../packages/protocol/auth";
-import { releaseHealth } from "./release-health";
+import { releaseConfig, releaseHealth } from "./release-health";
 
 const origin = "https://devnet.zft.foo";
 const hash = (bytes: Uint8Array) =>
@@ -20,6 +20,7 @@ assert.equal(healthResponse.status, 200);
 const health = releaseHealth.parse(await healthResponse.json());
 const configResponse = await request("/api/config");
 assert.equal(configResponse.status, 200);
+const config = releaseConfig.parse(await configResponse.json());
 const historical = [
   {
     id: "0xa2a312f640a42d9b2c64065cb03e506622f491568adfa0ad1d4688840c3d91e1",
@@ -109,6 +110,7 @@ await writeFile(
       checkedAt: new Date().toISOString(),
       origin,
       health,
+      config,
       observations,
       unknownOperation: 404,
       auth,

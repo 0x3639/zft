@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from "vitest";
 import { unstable_dev, type Unstable_DevWorker } from "wrangler";
 import { privateKeyToAccount } from "viem/accounts";
 import { type Hex } from "viem";
@@ -110,6 +110,9 @@ afterAll(async () => {
 beforeEach(async () => {
   await fixture({ reset: true });
 });
+afterEach(async () => {
+  await bounded(fixture({ reset: true }));
+});
 
 it("serves challenges, one-use authentication and fresh status during a stalled broadcast", async () => {
   const j = job();
@@ -118,8 +121,8 @@ it("serves challenges, one-use authentication and fresh status during a stalled 
     hold: ["broadcast"],
   });
   const alarm = worker.fetch("/__alarm");
-  await entered("broadcast");
   try {
+    await entered("broadcast");
     const proof = await bounded(challenge());
     const replies = await bounded(
       Promise.all([post("/authenticate", proof), post("/authenticate", proof)]),
@@ -154,8 +157,8 @@ it("bounds stalled status reads, coalesces polls, and keeps authentication respo
     worker.fetch(`/operation/${j.id}`),
     worker.fetch(`/operation/${j.id}`),
   ];
-  await entered(wait);
   try {
+    await entered(wait);
     expect(
       (await bounded(post("/authenticate", await challenge()))).status,
     ).toBe(200);
@@ -173,8 +176,8 @@ it("a delayed older poll cannot overwrite reconciliation or release its nonce re
     wait = `receipt:${j.hash}`;
   await fixture({ put: { [`job:${j.id}`]: j, active: j.id }, hold: [wait] });
   const poll = worker.fetch(`/operation/${j.id}`);
-  await entered(wait);
   try {
+    await entered(wait);
     // Only the first observation is stalled; the alarm sees a newer chain view.
     await fixture({
       unhold: [wait],
@@ -239,6 +242,30 @@ it("caps outstanding status RPC work and releases capacity only when it settles"
   }
 });
 
+it("reset releases a leaked RPC wait and drains delivery before clearing the fixture", async () => {
+  const j = job();
+  await fixture({
+    put: { [`job:${j.id}`]: j, active: j.id },
+    hold: ["broadcast"],
+  });
+  const alarm = worker.fetch("/__alarm");
+  try {
+    await entered("broadcast");
+    // Emulate an early assertion failure that never ran the test's own release.
+    await bounded(fixture({ reset: true }));
+    await bounded(alarm);
+    const clean = await state();
+    expect(clean.waiting).toEqual([]);
+    expect(clean.storage).toEqual({});
+    expect(
+      (await bounded(post("/authenticate", await challenge()))).status,
+    ).toBe(200);
+  } finally {
+    await fixture({ release: ["broadcast"] });
+    await bounded(alarm);
+  }
+});
+
 it.each(["challenge", "request", "profile"])(
   "enforces the final %s quota slot under concurrent requests",
   async (kind) => {
@@ -295,24 +322,27 @@ it("keeps concurrent submissions serialized through the durable outbox and recov
   };
   await fixture({ hold: ["estimate", "broadcast"] });
   const first = post("/submit", { operation, profile: account.address });
-  await entered("estimate");
-  const second = post("/submit", { operation, profile: account.address });
-  const nextAuthorization = { ...authorization, tokenId: "2" };
-  const competingOperation = {
-    ...operation,
-    authorization: nextAuthorization,
-    signature: await account.signTypedData({
-      domain: domain(manifest.contract as Hex),
-      types: rotationTypes,
-      primaryType: "RotateOwnership",
-      message: rotationMessage(nextAuthorization),
-    }),
-  };
-  const competing = post("/submit", {
-    operation: competingOperation,
-    profile: account.address,
-  });
+  const submissions = [first];
   try {
+    await entered("estimate");
+    submissions.push(post("/submit", { operation, profile: account.address }));
+    const nextAuthorization = { ...authorization, tokenId: "2" };
+    const competingOperation = {
+      ...operation,
+      authorization: nextAuthorization,
+      signature: await account.signTypedData({
+        domain: domain(manifest.contract as Hex),
+        types: rotationTypes,
+        primaryType: "RotateOwnership",
+        message: rotationMessage(nextAuthorization),
+      }),
+    };
+    submissions.push(
+      post("/submit", {
+        operation: competingOperation,
+        profile: account.address,
+      }),
+    );
     expect(
       (await bounded(post("/authenticate", await challenge()))).status,
     ).toBe(200);
@@ -328,11 +358,11 @@ it("keeps concurrent submissions serialized through the durable outbox and recov
     );
   } finally {
     await fixture({ release: ["estimate", "broadcast"] });
+    await bounded(Promise.allSettled(submissions), 5000);
   }
-  const replies = await Promise.all([first, second]);
-  expect(replies.map((r) => r.status)).toEqual([202, 202]);
+  const replies = await Promise.all(submissions);
+  expect(replies.map((r) => r.status)).toEqual([202, 202, 503]);
   expect(await replies[0].json()).toEqual(await replies[1].json());
-  expect((await competing).status).toBe(503);
   expect((await state()).calls.filter((c) => c === "estimate")).toHaveLength(1);
   expect((await post("/submit", {})).status).toBe(503);
   expect((await post("/authenticate", await challenge())).status).toBe(200);

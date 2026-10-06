@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { releaseHealth } from "../scripts/release-health";
+import { releaseConfig, releaseHealth } from "../scripts/release-health";
+import manifest from "../packages/protocol/deployment.json";
 
 const healthy = {
   ready: true,
@@ -43,5 +44,35 @@ describe("hosted release health gate", () => {
     ["disabled sponsor", { ...healthy, sponsorEnabled: false }],
   ])("rejects HTTP-200 health data with %s", (_label, body) => {
     expect(() => releaseHealth.parse(body)).toThrow();
+  });
+});
+
+describe("hosted frontend configuration gate", () => {
+  it("accepts the pinned deployment with sponsorship enabled", () => {
+    const config = { deployment: manifest, sponsorEnabled: true };
+    expect(releaseConfig.parse(config)).toEqual(config);
+  });
+  it.each([
+    ["missing deployment", { sponsorEnabled: true }],
+    [
+      "different contract",
+      {
+        deployment: {
+          ...manifest,
+          contract: "0x1111111111111111111111111111111111111111",
+        },
+        sponsorEnabled: true,
+      },
+    ],
+    [
+      "changed genesis",
+      {
+        deployment: { ...manifest, genesisHash: "0x" + "0".repeat(64) },
+        sponsorEnabled: true,
+      },
+    ],
+    ["disabled sponsorship", { deployment: manifest, sponsorEnabled: false }],
+  ])("rejects HTTP-200 configuration with %s", (_label, config) => {
+    expect(() => releaseConfig.parse(config)).toThrow();
   });
 });
