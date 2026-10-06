@@ -41,6 +41,7 @@ import { walletIdentity, type Identity } from "./identity";
 import { WalletJournal } from "./wallet-journal";
 import { Discovery, Home } from "./discovery-pages";
 import { inactivityLock } from "./inactivity";
+import { canResumeOnboarding } from "./onboarding";
 import {
   prepareWalletMint,
   prepareWalletClaim,
@@ -314,28 +315,20 @@ function App() {
   useEffect(() => {
     if (!returnTo) return;
     let cancelled = false;
-    const publicReturn =
-      returnTo === "/" ||
-      returnTo.startsWith("/explore") ||
-      returnTo.startsWith("/p/");
-    const resume = () => {
-      if (!cancelled) {
+    void canResumeOnboarding(
+      returnTo,
+      {
+        profile: identity?.address,
+        unlocked,
+        backedUp: revisions.backedUp === revisions.current,
+      },
+      (address) => api(`/api/profiles/${address}`),
+    ).then((ready) => {
+      if (ready && !cancelled) {
         setReturnTo(undefined);
         nav(returnTo);
       }
-    };
-    if (publicReturn && identity) {
-      // New identities finish publishing their profile before returning to a
-      // social action. Existing identities can resume as soon as they connect.
-      api(`/api/profiles/${identity.address}`)
-        .then(resume)
-        .catch(() => {});
-    } else if (
-      !publicReturn &&
-      unlocked &&
-      revisions.backedUp === revisions.current
-    )
-      resume();
+    });
     return () => {
       cancelled = true;
     };
@@ -1269,7 +1262,18 @@ function App() {
         sponsor={ready}
       />
     );
-  else if (routePath === "/activity") content = <Activity onError={setError} />;
+  else if (routePath === "/activity")
+    content = (
+      <Activity
+        path={path}
+        viewer={profile}
+        nav={nav}
+        onUnlock={(to) => {
+          setReturnTo(to);
+          nav("/settings/profile");
+        }}
+      />
+    );
   else if (path.startsWith("/item/"))
     content = (
       <PublicDetail

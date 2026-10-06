@@ -95,6 +95,30 @@ export async function scan(db: D1Database, client = publicClient) {
     toBlock: BigInt(end),
     strict: true,
   });
+  // Timestamp new event blocks before committing the range. New rows therefore
+  // arrive with their real time without invalidating existing feed snapshots.
+  const timeStatements: D1PreparedStatement[] = [];
+  const eventBlocks = new Map(
+    logs.map((log) => [log.blockNumber, log.blockHash]),
+  );
+  for (const [blockNumber, blockHash] of eventBlocks) {
+    const block =
+      blockNumber === BigInt(end)
+        ? before
+        : await client.getBlock({ blockNumber });
+    const timestamp = Number(block.timestamp) * 1000;
+    if (
+      block.hash !== blockHash ||
+      !Number.isSafeInteger(timestamp) ||
+      timestamp <= 0
+    )
+      throw new Error("Event block changed or timestamp is unavailable");
+    timeStatements.push(
+      db
+        .prepare("INSERT OR IGNORE INTO chain_event_times VALUES(?,?,?)")
+        .bind(Number(blockNumber), blockHash, timestamp),
+    );
+  }
   const after = await client.getBlock({ blockNumber: BigInt(end) });
   if (
     before.hash !== after.hash ||
@@ -103,7 +127,7 @@ export async function scan(db: D1Database, client = publicClient) {
         .hash !== last.block_hash)
   )
     throw new Error("Chain changed during index scan");
-  const statements: D1PreparedStatement[] = [];
+  const statements: D1PreparedStatement[] = [...timeStatements];
   for (const log of logs) {
     if (log.removed) throw new Error("Removed event in canonical range");
     const a = log.args as {
@@ -138,4 +162,46 @@ export async function scan(db: D1Database, client = publicClient) {
   );
   await db.batch(statements);
   return end < target;
+}
+
+// Fetch at most eight distinct event blocks per wake. Legacy timestamps stay
+// unknown until RPC provides the hash-matching block; indexing time is not time
+// of occurrence. A reorg removes these side-table rows with its event journal.
+export async function projectEventTimes(db: D1Database, client = publicClient) {
+  const rows = await db
+    .prepare(
+      `SELECT DISTINCT e.block_number,e.block_hash FROM chain_events e
+    LEFT JOIN chain_event_times t ON t.block_number=e.block_number AND t.block_hash=e.block_hash
+    WHERE t.timestamp IS NULL ORDER BY e.block_number DESC LIMIT 8`,
+    )
+    .all<Checkpoint>();
+  const statements: D1PreparedStatement[] = [];
+  for (const row of rows.results) {
+    const block = await client.getBlock({
+      blockNumber: BigInt(row.block_number),
+    });
+    const timestamp = Number(block.timestamp) * 1000;
+    if (
+      block.hash !== row.block_hash ||
+      !Number.isSafeInteger(timestamp) ||
+      timestamp <= 0
+    )
+      throw new Error("Event block changed or timestamp is unavailable");
+    statements.push(
+      db
+        .prepare(
+          `INSERT OR IGNORE INTO chain_event_times
+      SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM chain_events WHERE block_number=? AND block_hash=?)`,
+        )
+        .bind(
+          row.block_number,
+          row.block_hash,
+          timestamp,
+          row.block_number,
+          row.block_hash,
+        ),
+    );
+  }
+  if (statements.length) await db.batch(statements);
+  return rows.results.length === 8;
 }

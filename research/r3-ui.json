@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-10-05T10:56:36.776411+00:00",
+  "localOrigin": "http://localhost:5173",
+  "hostedOrigin": "https://devnet.zft.foo",
+  "workerVersion": "f8bfcef9-5b1e-4fd9-813b-9395b60fb52a",
+  "localLayouts": [
+    {
+      "width": 320,
+      "scrollWidth": 320
+    },
+    {
+      "width": 360,
+      "scrollWidth": 360
+    },
+    {
+      "width": 768,
+      "scrollWidth": 768
+    },
+    {
+      "width": 1440,
+      "scrollWidth": 1440
+    }
+  ],
+  "hostedLayout": {
+    "width": 826,
+    "scrollWidth": 826,
+    "events": 24,
+    "accessibleTimes": 24,
+    "moreButton": false
+  },
+  "checks": [
+    "Everyone/Following changes URL and selected accessible navigation state",
+    "Keyboard Enter switches to Following; visible focus retained",
+    "Guest Following shows a wallet connection CTA and routes to profile onboarding",
+    "Actor/target links open their public profiles",
+    "Profile Activity includes its own actions and incoming social actions",
+    "Artwork opens the neutral item proof page with image integrity and live chain observation",
+    "Each time has an ISO datetime plus absolute accessible label",
+    "No horizontal overflow at the recorded local widths; overrides reset",
+    "Hosted feed renders 24 rows and hides pagination at the end",
+    "No hosted browser console errors or warnings observed"
+  ],
+  "screenshots": [
+    "r3-activity-hosted.png",
+    "r3-activity-mobile.png",
+    "r3-following-guest.png"
+  ],
+  "limitations": [
+    "Authenticated Following/empty states tested with signed SDK and API fixtures; actual wallet extension/mobile acceptance remains R6",
+    "Local SQLite tests cover unpublish/reorg/expiry and visibility-race behavior; no forced reorg on public devnet"
+  ]
+}

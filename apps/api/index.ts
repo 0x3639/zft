@@ -21,7 +21,6 @@ import { HttpError, json } from "./http";
 import {
   gallery,
   profileData,
-  activity,
   directory,
   publicMutation,
   publicContext,
@@ -32,6 +31,7 @@ import {
   discoverNFTs,
   recentDiscoveryActivity,
 } from "./discovery";
+import { activity } from "./activity";
 import { indexStatus } from "./index-store";
 import { shareHTML, ogResponse } from "./sharing";
 import type { Env } from "./types";

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { Metadata } from "../../../packages/protocol";
 import { digest } from "../../../packages/protocol";
 import type { Profile } from "../../../packages/protocol/public";
@@ -8,6 +8,8 @@ import { verifyPublicEvidence } from "../../../packages/protocol/public-proof";
 import { PublicDetail } from "./proof-card";
 import { Modal } from "./site-controls";
 import { api, ApiError, signedRequest } from "./api";
+import type { ActivityKind } from "../../../packages/protocol/activity";
+import { ActivityLoader, relativeActivityTime } from "./activity-loader";
 
 export type PublicItem = {
   tokenId: string;
@@ -43,16 +45,19 @@ export function RouteLink({
   nav,
   children,
   className,
+  current,
 }: {
   to: string;
   nav: Navigation["nav"];
   children: React.ReactNode;
   className?: string;
+  current?: boolean;
 }) {
   return (
     <a
       href={to}
       className={className}
+      aria-current={current ? "page" : undefined}
       onClick={(e) => {
         if (!e.metaKey && !e.ctrlKey && e.button === 0) {
           e.preventDefault();
@@ -93,81 +98,251 @@ export function PublicCard({
   );
 }
 export { PublicDetail } from "./proof-card";
+const activityVerbs: Record<ActivityKind, string> = {
+  profile_created: "started a collection",
+  profile_updated: "updated their profile",
+  follow: "followed",
+  unfollow: "unfollowed",
+  like: "liked",
+  unlike: "removed their like from",
+  published: "published",
+  minted: "minted",
+  transferred: "Ownership changed",
+};
 export function Activity({
   profile,
-  onError,
+  path = "/activity",
+  viewer = "",
+  nav,
+  onUnlock,
 }: {
   profile?: string;
-  onError: Navigation["onError"];
+  path?: string;
+  viewer?: string;
+  nav: Navigation["nav"];
+  onUnlock: (returnTo: string) => void;
 }) {
-  const [events, setEvents] = useState<Record<string, string | number>[]>([]),
-    [cursor, setCursor] = useState<string | null>(),
-    [busy, setBusy] = useState(false);
-  async function load(more = false) {
-    setBusy(true);
-    try {
-      const data = await api<{
-        events: Record<string, string | number>[];
-        nextCursor: string | null;
-      }>(
-        `${profile ? `/api/profiles/${profile}/activity` : "/api/activity"}${more && cursor ? `?cursor=${cursor}` : ""}`,
-      );
-      setEvents((old) => (more ? [...old, ...data.events] : data.events));
-      setCursor(data.nextCursor);
-    } catch (e) {
-      onError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
+  const following =
+    !profile &&
+    new URLSearchParams(path.split("?")[1] ?? "").get("view") === "following";
+  const query = new URLSearchParams({
+    view: following ? "following" : "everyone",
+    ...(viewer ? { viewer } : {}),
+  });
+  const endpoint = `${profile ? `/api/profiles/${profile}/activity` : "/api/activity"}?${query}`;
+  const [, render] = useState(0),
+    [now, setNow] = useState(Date.now());
+  const loader = useMemo(
+    () => new ActivityLoader(() => render((n) => n + 1)),
+    [],
+  );
+  const state = loader.state;
+  const Heading = profile ? "h2" : "h1";
   useEffect(() => {
-    void load();
-  }, [profile]);
+    void loader.reset(endpoint);
+    return () => loader.stop();
+  }, [endpoint, loader]);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60000);
+    return () => window.clearInterval(timer);
+  }, []);
   return (
-    <>
+    <section aria-label={profile ? "Profile activity" : "Public activity"}>
       <div className="section-heading">
         <div>
-          <p className="text-ledger">Confirmed on ZVM</p>
-          <h2>{profile ? "Creation activity" : "Pictures on the move."}</h2>
+          <p className="text-ledger">Public activity · ZVM devnet</p>
+          <Heading>
+            {profile ? "Collection activity" : "Around the network."}
+          </Heading>
         </div>
-        <button className={btn} disabled={busy} onClick={() => load()}>
+        <button
+          className={btn}
+          disabled={state.busy}
+          onClick={() => void loader.reset(endpoint)}
+        >
           Refresh
         </button>
       </div>
-      <div className="activity-list">
-        {events.map((e) => (
-          <a
-            className="activity-row"
-            key={`${e.block_number}:${e.log_index}`}
-            href={`https://devnet.zenon.foo/explorer/tx/${e.tx_hash}`}
-            target="_blank"
-            rel="noreferrer"
+      {!profile && (
+        <nav className="discovery-tabs" aria-label="Activity view">
+          <RouteLink
+            to="/activity"
+            nav={nav}
+            className={!following ? "selected" : ""}
+            current={!following}
           >
-            <span className="activity-symbol">
-              {String(e.from_address) === "0x" + "0".repeat(40) ? "+" : "↗"}
-            </span>
-            <span>
-              <strong>
-                {String(e.from_address) === "0x" + "0".repeat(40)
-                  ? "Minted"
-                  : "Transferred"}
-              </strong>
-              <span className="mono">Token {short(String(e.token_id))}</span>
-            </span>
-            <span className="mono">
-              {short(String(e.to_address))}
-              <span>Block {e.block_number} ↗</span>
-            </span>
-          </a>
+            Everyone
+          </RouteLink>
+          <RouteLink
+            to="/activity?view=following"
+            nav={nav}
+            className={following ? "selected" : ""}
+            current={following}
+          >
+            Following
+          </RouteLink>
+        </nav>
+      )}
+      <p className="muted activity-explanation">
+        Public profile actions and confirmed ownership changes. Likes and
+        follows stay in history after you undo them. Older profile actions are
+        unavailable.
+      </p>
+      <div className="journal-list" aria-busy={state.busy}>
+        {state.events.map((e) => (
+          <article className="journal-row" key={e.id}>
+            {e.item ? (
+              <RouteLink to={e.item.href} nav={nav} className="journal-art">
+                <img
+                  src={`/art/${e.item.imageHash.slice(2)}.png`}
+                  alt={e.item.title}
+                  loading="lazy"
+                />
+              </RouteLink>
+            ) : (
+              <span className="journal-symbol" aria-hidden="true">
+                {e.kind.includes("like")
+                  ? "♡"
+                  : e.kind.includes("follow")
+                    ? "↗"
+                    : "+"}
+              </span>
+            )}
+            <div className="journal-description">
+              <p>
+                {e.actor && (
+                  <>
+                    <RouteLink to={`/p/${e.actor.address}`} nav={nav}>
+                      {e.actor.name.startsWith("0x")
+                        ? short(e.actor.name)
+                        : e.actor.name}
+                    </RouteLink>{" "}
+                  </>
+                )}
+                {activityVerbs[e.kind]}
+                {e.target && (
+                  <>
+                    {" "}
+                    <RouteLink to={`/p/${e.target.address}`} nav={nav}>
+                      {e.target.name.startsWith("0x")
+                        ? short(e.target.name)
+                        : e.target.name}
+                    </RouteLink>
+                  </>
+                )}
+                {e.item && (
+                  <>
+                    {e.kind === "transferred" ? " for " : " "}
+                    <RouteLink to={e.item.href} nav={nav}>
+                      {e.item.title}
+                    </RouteLink>
+                  </>
+                )}
+                .
+              </p>
+              <p className="journal-details">
+                {e.occurredAt ? (
+                  <time
+                    dateTime={new Date(e.occurredAt).toISOString()}
+                    title={new Date(e.occurredAt).toLocaleString()}
+                    aria-label={new Date(e.occurredAt).toLocaleString()}
+                  >
+                    {relativeActivityTime(e.occurredAt, now)}
+                  </time>
+                ) : (
+                  <span>Time unavailable</span>
+                )}
+                {" · "}
+                {e.chain ? (
+                  <>
+                    <span>Confirmed block {e.chain.block}</span>
+                    {" · "}
+                    <a
+                      href={`https://devnet.zenon.foo/explorer/tx/${e.chain.transaction}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Transaction ↗
+                    </a>
+                  </>
+                ) : (
+                  <span>Public profile action</span>
+                )}
+              </p>
+            </div>
+          </article>
         ))}
       </div>
-      {!busy && !events.length && <p>No indexed activity yet.</p>}
-      {cursor && (
-        <button className={btn} disabled={busy} onClick={() => load(true)}>
+      {state.busy && <p role="status">Loading activity…</p>}
+      {state.error && (
+        <div className="activity-error" role="alert">
+          <p>{state.error}</p>
+          <button
+            className={btn}
+            disabled={state.busy}
+            onClick={() =>
+              void (state.stale
+                ? loader.reset(endpoint)
+                : loader.load(!!state.nextCursor))
+            }
+          >
+            {state.stale ? "Refresh activity" : "Retry activity"}
+          </button>
+        </div>
+      )}
+      {!state.busy && !state.error && !state.events.length && (
+        <div className="empty-state">
+          {state.state === "guest" ? (
+            <>
+              <h3>Follow your people.</h3>
+              <p>
+                Connect your wallet to see public activity from the profiles you
+                follow.
+              </p>
+              <button
+                className={btn}
+                onClick={() => onUnlock("/activity?view=following")}
+              >
+                Connect wallet
+              </button>
+            </>
+          ) : state.state === "no-follows" ? (
+            <>
+              <h3>Your Following feed starts here.</h3>
+              <p>
+                You are not following anyone yet. Find a collection and choose
+                Follow.
+              </p>
+              <RouteLink to="/explore" nav={nav} className={btn}>
+                Explore collections
+              </RouteLink>
+            </>
+          ) : (
+            <>
+              <h3>
+                {following
+                  ? "No activity from your follows yet."
+                  : "No public activity yet."}
+              </h3>
+              <p>
+                {following
+                  ? "New public actions from the people you follow will appear here."
+                  : "Published profile actions and confirmed collectibles will appear here."}
+              </p>
+            </>
+          )}
+        </div>
+      )}
+      {state.nextCursor && !state.stale && (
+        <button
+          className={btn}
+          disabled={state.busy}
+          onClick={() => void loader.load(true)}
+        >
           More activity
         </button>
       )}
-    </>
+    </section>
   );
 }
 function NetworkDialog({
@@ -572,7 +747,12 @@ export function PublicProfile({
       </nav>
       {error && <p role="alert">{error}</p>}
       {tab === "activity" ? (
-        <Activity profile={address} onError={onError} />
+        <Activity
+          profile={address}
+          nav={nav}
+          onUnlock={onUnlock}
+          viewer={viewer}
+        />
       ) : (
         <>
           <p className="muted">

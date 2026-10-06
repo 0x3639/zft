@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-06T00:22:03.473Z",
+  "origin": "http://localhost:5173",
+  "profiles": {
+    "a": "0xBB65c5Be49560af2BEed73C3e3f75e8a34533B9b",
+    "b": "0x23985EE6e8063b91a0C2D8e110394501da4e34E8"
+  },
+  "events": 36,
+  "pages": 18,
+  "checks": [
+    "Generated-wallet signed profile/social actions accepted",
+    "Guest and zero-follow states differ",
+    "Repeated follow/like requests append exactly one event",
+    "Reversals stay in the journal",
+    "Following includes only followed actors",
+    "Deterministic pagination returns no duplicate IDs",
+    "Chain events have real timestamps; transfers claim no human actor"
+  ],
+  "limitations": [
+    "SDK signer fixture, not an actual MetaMask extension",
+    "Publication/unpublish and reorg races covered in local SQLite tests"
+  ]
+}
