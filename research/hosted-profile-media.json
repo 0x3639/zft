@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-10-06T01:12:19.963Z",
+  "origin": "https://devnet.zft.foo",
+  "address": "0x158DAb978aE49716679b006e21a89811E01CbcA0",
+  "profile": {
+    "address": "0x158dab978ae49716679b006e21a89811e01cbca0",
+    "name": "Profile media fixture",
+    "bio": "Generated devnet acceptance profile. Public test pixels only.",
+    "featured": null,
+    "revision": 10,
+    "updated_at": 1791249144084,
+    "avatar": "0x1e6881cd535f7ddc913c8458952c094dc66cbf86163daf95e292377dc71d8413",
+    "cover": "0xdd2ccd8395f330b59bba113e144f6285085faac2949d32baca3e3be246710d9a"
+  },
+  "checks": [
+    "Single signed request saves both images",
+    "Immutable public PNG bytes match admitted hashes",
+    "Stale save returns 409",
+    "Older-client omission preserves both references"
+  ],
+  "limitations": [
+    "Generated SDK signer, not an actual MetaMask extension",
+    "No ownership transactions"
+  ],
+  "og": {
+    "before": "https://devnet.zft.foo/api/og/p/0x158dab978ae49716679b006e21a89811e01cbca0.png?v=380f174ca6d2401e3e34153cb0bb791e158328b52a7434b4cbe9c7d114f37e57",
+    "afterReset": "https://devnet.zft.foo/api/og/p/0x158dab978ae49716679b006e21a89811e01cbca0.png?v=5e33e17e8100473e6e288bb2cf7048bcfdf82d6d7ab6cbb3e0a7bea996b5da3a",
+    "bytes": 141396,
+    "width": 1200,
+    "height": 630,
+    "sha256": "0x627eb87e47a7bc19aba5ab5ba0c27c21b0df964d28355609c884a7bf5ddb4880",
+    "reset": {
+      "bytes": 36071,
+      "width": 1200,
+      "height": 630,
+      "sha256": "0x2a6024b0c12dc051e081c4a54b2331500c23d2f875a68874a778f470fa567071",
+      "pixelsChanged": true
+    },
+    "retainedSha256": "0x627eb87e47a7bc19aba5ab5ba0c27c21b0df964d28355609c884a7bf5ddb4880"
+  }
+}

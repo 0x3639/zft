@@ -1,6 +1,6 @@
 # ZFT complete website functional specification
 
-Revision 10 · 2026-10-05 · reference audit, implementation, and remaining work.
+Revision 11 · 2026-10-05 · reference audit, implementation, and remaining work.
 
 This is the central specification for reproducing NonFungible Cash's website functionality with the Zenon design system and ZVM ownership. It covers the full intended product, including deferred features. It is **not a declaration that every feature is implemented or every reference operation has been tested**. The [reference action ledger](REFERENCE-AUDIT.md) records actual clicks, results, and unverified flows. The [hosted alpha runbook](DEVNET-ALPHA.md) records what is deployed.
 
@@ -18,7 +18,7 @@ The reference uses Cashu/Pointcheval–Sanders credentials and describes private
 | --- | --- | --- |
 | Core devnet | Vault, recovery, mint, PNG file export, claim, cancellation, public item verification | Implemented; SDK/Worker canaries passed; real two-browser/phone acceptance pending |
 | Public website beta | Home, collection/NFT discovery, profiles, social relations, activity, proof dialogs, help, unique OG | Partly implemented; parity gaps specified here |
-| Extended collections | Independent avatar/cover uploads and curated collection pages | Planned |
+| Extended collections | Independent avatar/cover uploads; curated collection pages | Profile media implemented; curated collections remain planned |
 | Sharing/recovery expansion | Encrypted claim links, optional link password, encrypted remote backup | Separate protocol/service work; reference help describes these |
 | Trading expansion | Listings, offers, acceptance, cancellation, purchases, settlement history | Reference browsing inspected; ZFT settlement design and exchange compatibility still require review |
 | Mainnet/private protocol | Mainnet launch or private/unlinkable ownership | Outside this devnet release |
@@ -71,7 +71,7 @@ The implemented custody flow saves the destination before prompting for `eth_sig
 | `/mint` | Normalize, preview, describe, authorize mint | Implemented |
 | `/claim` | Local transferable-file import, validation, claim | Implemented; this is the current file-import URL |
 | `/recovery` | Save/import recovery snapshot and backup guidance | Implemented |
-| `/settings/profile` | Signed public name, bio, featured item; future media settings | Implemented subset |
+| `/settings/profile` | Signed public name, bio, featured item, avatar and cover | Implemented; actual wallet/device acceptance remains R6 |
 | `/c/:collectionId` | Curated public collection | Planned |
 | `/market`, `/market/:listingId` | Market directory and listing/offer detail | Prototype only; live UI must label availability honestly |
 | `/claim/:id#<secret>` | Encrypted-link claim | Deferred; must not be mistaken for current file import |
@@ -102,7 +102,17 @@ Use real indexed/publication data. Hide empty ranking sections or provide an hon
 
 ## 5. Public profiles and social graph — PROFILE
 
-Header: cover, avatar, name, bio when present, shortened/copyable identity, like count/action, follow toggle, share, and contextual unlock or edit. Use a deterministic avatar and public featured art when custom media is absent. Independent avatar/cover upload is planned: local preview/crop, sanitized bounded image upload, explicit save, revision conflict handling, reset-to-default, and no secret-file upload. Exact owner media controls on the reference have not been exercised.
+Header: cover, avatar, name, bio when present, shortened/copyable identity, like count/action, follow toggle, share, and contextual unlock or edit. Use a deterministic avatar and public featured art when custom media is absent. Independent avatar/cover uploads are implemented with local preview/crop, explicit save, revision conflict handling and reset-to-default. Exact owner media controls on the reference have not been exercised.
+
+### Implemented profile media contract (R4)
+
+The editor accepts JPG/PNG inputs up to 10 MiB under the existing 24 MP codec policy. A browser worker rejects transferable PNG envelopes, normalizes pixels and applies a keyboard-operable crop with horizontal/vertical position and 1–3× zoom. Outputs are canonical RGBA PNG: avatar 256×256 (up to 300,000 bytes), cover 1280×480 (up to 2,600,000 bytes). Preview, Use image, Reset to default and Undo change remain local until Publish profile. Closing or cancelling the crop never submits the form.
+
+One wallet-signed `POST /api/profile` carries the text fields, expected revision and optional `avatar`/`cover`. Omission preserves the saved image, `null` resets it, and `{image: base64}` replaces it. The full JSON body is bounded to 4,000,000 bytes; no client-supplied address, URL or pre-existing hash reference is accepted. The API checks encoding, bytes, exact dimensions, PNG structure/chunks and decoded pixels before any upload. SVG, active content, transferable envelopes, malformed pixels and optional PNG metadata are rejected. The signature covers the entire request body and selected wallet.
+
+Images are immutable public objects at `/profile-media/:walletAddress/:sha256.png`. Additive migration `0007_profile_media.sql` keeps references in a side table and preserves the preceding Worker’s six-column profile insert shape. A D1 transaction commits the profile compare-and-swap, image references and meaningful profile activity together. Only a successful preceding CAS can write references; a losing concurrent request returns 409 without replacing the winner. Identical pixels create no extra activity; combined text/media edits create one event. Older clients preserve media by omission. A conflict offers an explicit reload that replaces unsaved edits.
+
+Profiles, Network dialogs and collection/home entries display saved media with initials/artwork fallbacks. Profile and selected-artwork sharing snapshots include immutable media references; renders show the avatar and a subdued cover while retaining NFT art. Media changes produce new OG revisions. Reset removes the current reference, not old public objects or external social caches. An upload that loses its later revision race may leave unreferenced public pixels; retention/garbage collection remains R7.3. Actual MetaMask/phone signing acceptance remains R6.
 
 Summary counts mean: **Collected** = eligible current public possession statements; **Sent/history** = retained prior published epochs with an observed change; **Likes** = unique active profile likes; **Followers/Following** = active profile relations; **Created** = mint provenance, separate from ownership. Collected/Sent may select their tabs; Likes is informational unless a real liker directory is implemented. It must not link to Created. Counts and list filters must agree.
 
@@ -261,7 +271,7 @@ Worker/API, R2 public art, D1 public records/events, sponsor Durable Object, ind
 
 The draft architecture's separate `/operations/mint`, PUT profile/follow routes, and curated-collection API are proposals, not current endpoints. Extend the actual shared schemas instead of shipping conflicting undocumented APIs.
 
-Implemented history uses retained `possessions` rows keyed by profile/token/nonce; unpublishing removes all epochs for that profile/item. R2 adds profile creation timestamps and directory/search/sort queries. Remaining additions: broader history retention policy; portable profile endorsement if that claim is shown; social/publication event journal; media references/revisions for independent avatar/cover; optional curated collection records; share revision identity including historical context. Specify migrations, backfill policy, retention, and bounded indexes before implementation. Old records lacking an endorsement/history timestamp stay explicitly incomplete; do not fabricate evidence.
+Implemented history uses retained `possessions` rows keyed by profile/token/nonce; unpublishing removes all epochs for that profile/item. R2 adds profile creation timestamps and directory/search/sort queries. R3 adds the social/publication journal and R4 adds independent media references/revisions. Remaining additions: broader history retention policy; portable profile endorsement if that claim is shown; optional curated collection records. Specify migrations, backfill policy, retention, and bounded indexes before implementation. Old records lacking an endorsement/history timestamp stay explicitly incomplete; do not fabricate evidence.
 
 Current profile limits are name 1–64, bio up to 320, optional featured token and optimistic revision. Current possession statements bind deployment/profile/token/epoch/expiry, with a maximum 31-day lifetime. IDs/nonces/amounts use lossless decimal strings where necessary. Mutations use strict bounded schemas and single-use signatures bound to method/path/body; no secret is needed by the server. Replays, wrong origin, mismatched revision, invalid signature, expired statement, nonexistent target, and stale authority require distinct errors.
 
@@ -308,6 +318,6 @@ Implemented on 2026-10-04: Collection-first profiles and informative Likes count
 
 Verification: 31 TypeScript tests, type checking, production frontend build and Worker bundling; local/hosted public canary; six local workerd OG fixtures including 0/1/2/3 artworks, missing art and a 6000×4000 (24 MP), 3.96 MB original. Browser checks cover current proof, front/reverse, public JSON download, Network navigation, Escape/focus return, guest onboarding, theme persistence, lookup, mobile layout and wallet-unavailable state. Full wallet-extension/device transactions and target social-platform recrawls remain acceptance gates. Reproducible renderer fixtures: `node scripts/check-og-renderer.mjs`.
 
-The public proof verifies the **item owner's signature binding the profile**. It does not claim an independently portable profile-key endorsement; JSON explicitly records `profileEndorsement: null`. A live observation comes from the app's pinned RPC and is not an EVM state proof. The current Sent view groups by item and opens the latest retained prior epoch. Current/Sent gallery pagination still uses mint position; richer event chronology, profile media, discovery search/sorts, Everyone/Following social feeds, and expanded help remain the next public-site work.
+The public proof verifies the **item owner's signature binding the profile**. It does not claim an independently portable profile-key endorsement; JSON explicitly records `profileEndorsement: null`. A live observation comes from the app's pinned RPC and is not an EVM state proof. The current Sent view groups by item and opens the latest retained prior epoch. Current/Sent gallery pagination still uses mint position; R2 discovery, R3 Everyone/Following social feeds and R4 profile media are implemented. Expanded help and the remaining sharing acceptance checks are next.
 
 Wallet custody update: R1.1–R1.4 implemented with no contract or D1 migration. `tests/wallet-flows.test.ts` exercises real typed-data cryptography and encrypted IndexedDB with mocked chain/provider responses; 42 total TypeScript tests pass. These tests do not establish extension/mobile behavior or protocol finality. Current deployment/evidence is recorded in the roadmap and runbook.

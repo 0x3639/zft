@@ -1,0 +1,61 @@
+{
+  "checkedAt": "2026-10-06T00:57:57.201Z",
+  "workerVersion": "1f5abf97-d8ce-4db2-ae3f-1f0f604d5fc3",
+  "migration": {
+    "name": "0007_profile_media.sql",
+    "local": "applied",
+    "remote": "applied",
+    "before": {
+      "profiles": 7,
+      "events": 32,
+      "possessions": 2
+    },
+    "after": {
+      "profiles": 7,
+      "events": 32,
+      "possessions": 2
+    }
+  },
+  "typescriptTests": 186,
+  "checks": {
+    "typecheck": "pass",
+    "frontendBuild": "pass",
+    "workerDryRun": "pass",
+    "rendererFixtures": 8,
+    "localCanary": "pass",
+    "hostedCanary": "pass"
+  },
+  "entry": "/assets/index-B7uwlnr7.js",
+  "assetSha256": "7a1531bca674f91bfb4d10d0d2243f2499087d4fa4b5b375035360f995b0204c",
+  "routes": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/explore",
+      "status": 200
+    },
+    {
+      "path": "/settings/profile",
+      "status": 200
+    },
+    {
+      "path": "/p/0x158DAb978aE49716679b006e21a89811E01CbcA0",
+      "status": 200
+    }
+  ],
+  "index": {
+    "block": 100754,
+    "head": 100760,
+    "syncedAt": 1791248277076,
+    "error": null,
+    "lag": 6,
+    "confirmations": 6
+  },
+  "limitations": [
+    "Actual MetaMask/phone acceptance remains R6",
+    "Public image retention and orphan cleanup remain R7.3",
+    "No contract or apex routing changes"
+  ]
+}

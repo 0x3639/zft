@@ -35,6 +35,8 @@ import { activity } from "./activity";
 import { indexStatus } from "./index-store";
 import { shareHTML, ogResponse } from "./sharing";
 import type { Env } from "./types";
+import { PROFILE_BODY_LIMIT } from "../../packages/protocol/profile-media";
+import { profileMediaResponse } from "./profile-media";
 export { Sponsor } from "./sponsor";
 export { Indexer } from "./indexer";
 
@@ -231,7 +233,10 @@ async function route(request: Request, env: Env) {
     ].includes(path) &&
     request.method === "POST"
   ) {
-    const body = await boundedBody(request, 4096),
+    const body = await boundedBody(
+        request,
+        path === "/api/profile" ? PROFILE_BODY_LIMIT : 4096,
+      ),
       actor = await authenticated(request, env, body, ip);
     return publicMutation(
       env,
@@ -242,6 +247,10 @@ async function route(request: Request, env: Env) {
   }
   if (path.startsWith("/api/og/") && request.method === "GET")
     return ogResponse(env, url);
+  const profileImage =
+    /^\/profile-media\/(0x[\da-f]{40})\/([\da-f]{64})\.png$/.exec(path);
+  if (profileImage && ["GET", "HEAD"].includes(request.method))
+    return profileMediaResponse(env, profileImage[1], profileImage[2]);
   if (/^\/api\/items\/\d{1,78}$/.test(path) && request.method === "GET") {
     if (!manifest.contract) throw new HttpError(503, "Contract not deployed.");
     const tokenId = path.split("/").at(-1)!;

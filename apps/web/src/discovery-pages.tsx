@@ -10,6 +10,8 @@ import { PublicCard, RouteLink, short } from "./public-pages";
 import { Modal } from "./site-controls";
 import { DiscoveryLoader, type Results } from "./discovery-loader";
 import logo from "../../../design/vendor/zenon/assets/znn-logo.svg";
+import { ProfileImage } from "./profile-media";
+import { profileMediaURL } from "../../../packages/protocol/profile-media";
 const btn = "nom-btn nom-btn--outline nom-btn--default";
 const primary = "nom-btn nom-btn--primary nom-btn--default";
 type Props = {
@@ -114,17 +116,29 @@ function CollectionRow({
             {String(rank).padStart(2, "0")}
           </span>
         )}
-        {entry.preview ? (
-          <img
-            src={`/art/${entry.preview.metadata.imageHash.slice(2)}.png`}
-            alt=""
-            loading="lazy"
+        <span className="collection-identity" aria-hidden="true">
+          <ProfileImage
+            src={
+              profileMediaURL(entry.address, entry.cover) ??
+              (entry.preview
+                ? `/art/${entry.preview.metadata.imageHash.slice(2)}.png`
+                : null)
+            }
+            fallback={
+              <span className="collection-placeholder">
+                {entry.address.slice(2, 4).toUpperCase()}
+              </span>
+            }
           />
-        ) : (
-          <span className="collection-placeholder" aria-hidden="true">
-            {entry.address.slice(2, 4).toUpperCase()}
-          </span>
-        )}
+          {entry.avatar && (
+            <span className="collection-avatar">
+              <ProfileImage
+                src={profileMediaURL(entry.address, entry.avatar)}
+                fallback={entry.name.slice(0, 1).toUpperCase()}
+              />
+            </span>
+          )}
+        </span>
         <span className="collection-description">
           <strong>{entry.name}</strong>
           <span>

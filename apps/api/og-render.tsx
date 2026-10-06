@@ -18,6 +18,32 @@ let initialized: Promise<unknown> | undefined;
 export async function renderOG(page: Snapshot, env: Env) {
   initialized ??= Promise.all([init(yoga), initWasm(resvg)]);
   await initialized;
+  const profileImage = async (hash?: string | null) => {
+    if (!hash || !page.profileMedia) return null;
+    try {
+      const key = `profile-media/${page.profileMedia.address}/${hash.slice(2)}`;
+      let object = await env.MEDIA.get(`${key}/${THUMBNAIL_VERSION}.png`);
+      let bytes: Uint8Array;
+      if (object) bytes = new Uint8Array(await object.arrayBuffer());
+      else {
+        object = await env.MEDIA.get(`${key}.png`);
+        if (!object || object.size > 2_600_000) return null;
+        const original = new Uint8Array(await object.arrayBuffer());
+        if (sha256(original) !== hash) return null;
+        bytes = await thumbnail(original);
+        await env.MEDIA.put(`${key}/${THUMBNAIL_VERSION}.png`, bytes, {
+          httpMetadata: { contentType: "image/png" },
+        });
+      }
+      return bytes.length <= 1_048_576
+        ? `data:image/png;base64,${base64(bytes)}`
+        : null;
+    } catch {
+      return null;
+    }
+  };
+  const avatar = await profileImage(page.profileMedia?.avatar);
+  const cover = await profileImage(page.profileMedia?.cover);
   // Only admitted, immutable R2 art; never URLs supplied by metadata or requests.
   const images: (string | null)[] = [];
   for (const art of page.art.slice(0, 3)) {
@@ -66,6 +92,20 @@ export async function renderOG(page: Snapshot, env: Env) {
         overflow: "hidden",
       }}
     >
+      {cover && (
+        <img
+          src={cover}
+          width={1200}
+          height={630}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            objectFit: "cover",
+            opacity: 0.16,
+          }}
+        />
+      )}
       <div
         style={{
           position: "absolute",
@@ -85,6 +125,14 @@ export async function renderOG(page: Snapshot, env: Env) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          {avatar && (
+            <img
+              src={avatar}
+              width={64}
+              height={64}
+              style={{ borderRadius: 32, objectFit: "cover" }}
+            />
+          )}
           <span style={{ fontSize: 50, letterSpacing: -3 }}>
             zft<span style={{ color: "#00d994" }}>.</span>
           </span>

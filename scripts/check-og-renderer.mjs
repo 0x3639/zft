@@ -3,6 +3,7 @@ import { encode, decode } from "fast-png";
 import { mkdir, readFile, writeFile, stat } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
+import assert from "node:assert/strict";
 const root = new URL("../", import.meta.url);
 process.chdir(root.pathname);
 const dir = ".local/og-fixtures",
@@ -14,6 +15,8 @@ for (const [label, w, h, color] of [
   ["blue", 320, 320, [25, 119, 240]],
   ["yellow", 320, 320, [250, 199, 29]],
   ["large", 6000, 4000, [0, 0, 0]],
+  ["avatar", 256, 256, [0, 217, 148]],
+  ["cover", 1280, 480, [24, 88, 138]],
 ]) {
   const data = new Uint8Array(w * h * 4);
   for (let y = 0; y < h; y++)
@@ -92,13 +95,47 @@ try {
     });
   });
   const checks = [];
-  for (const fixture of ["0", "1", "2", "3", "large", "missing"]) {
+  const profilePixels = {};
+  for (const fixture of [
+    "0",
+    "1",
+    "2",
+    "3",
+    "large",
+    "missing",
+    "profile",
+    "profile-missing",
+  ]) {
     const res = await fetch(`http://localhost:8788/${fixture}`),
       bytes = new Uint8Array(await res.arrayBuffer());
     if (!res.ok) throw new Error(new TextDecoder().decode(bytes));
     const image = decode(bytes);
     if (image.width !== 1200 || image.height !== 630 || bytes.length > 1048576)
       throw new Error("Invalid OG dimensions/size");
+    if (fixture.startsWith("profile")) {
+      // These regions exclude the title and NFT collage. The first covers the
+      // avatar; the second is bare background where only the cover can paint.
+      const count = (x0, y0, width, height, match) => {
+        let total = 0;
+        for (let y = y0; y < y0 + height; y++)
+          for (let x = x0; x < x0 + width; x++) {
+            const i = (y * image.width + x) * image.channels;
+            if (match(image.data[i], image.data[i + 1], image.data[i + 2]))
+              total++;
+          }
+        return total;
+      };
+      profilePixels[fixture] = {
+        avatar: count(
+          65,
+          65,
+          50,
+          50,
+          (r, g, b) => r < 10 && g > 200 && b > 135 && b < 160,
+        ),
+        cover: count(10, 180, 30, 100, (r, g, b) => r < 20 && g > 20 && b > 30),
+      };
+    }
     await writeFile(`${output}/${fixture}.png`, bytes);
     checks.push({
       fixture,
@@ -109,6 +146,10 @@ try {
       sha256: createHash("sha256").update(bytes).digest("hex"),
     });
   }
+  assert(profilePixels.profile.avatar > 1000, "Profile avatar pixels missing");
+  assert(profilePixels.profile.cover > 1500, "Profile cover pixels missing");
+  assert.equal(profilePixels["profile-missing"].avatar, 0);
+  assert.equal(profilePixels["profile-missing"].cover, 0);
   await writeFile(
     `${output}/results.json`,
     JSON.stringify(
@@ -121,13 +162,14 @@ try {
           bytes: (await stat(`${dir}/large.png`)).size,
         },
         checks,
+        profilePixels,
       },
       null,
       2,
     ) + "\n",
   );
   console.log(
-    "OG renderer passed: six bounded 1200×630 fixtures including 24 MP / >1 MiB source. Inspect research/sharing-fixtures/*.png.",
+    "OG renderer passed: eight bounded 1200×630 fixtures including profile media and 24 MP / >1 MiB source. Inspect research/sharing-fixtures/*.png.",
   );
 } finally {
   child.kill("SIGTERM");

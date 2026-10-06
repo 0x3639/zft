@@ -21,3 +21,4 @@ jobs:
       - run: pnpm contracts:test
       - run: pnpm build
       - run: pnpm worker:check
+      - run: node scripts/check-og-renderer.mjs

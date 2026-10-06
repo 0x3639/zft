@@ -10,6 +10,12 @@ import { Modal } from "./site-controls";
 import { api, ApiError, signedRequest } from "./api";
 import type { ActivityKind } from "../../../packages/protocol/activity";
 import { ActivityLoader, relativeActivityTime } from "./activity-loader";
+import { profileMediaURL } from "../../../packages/protocol/profile-media";
+import {
+  ProfileImage,
+  ProfileMediaEditor,
+  type MediaDraft,
+} from "./profile-media";
 
 export type PublicItem = {
   tokenId: string;
@@ -357,9 +363,9 @@ function NetworkDialog({
   nav: Navigation["nav"];
 }) {
   const [tab, setTab] = useState(kind),
-    [people, setPeople] = useState<{ address: string; name: string | null }[]>(
-      [],
-    ),
+    [people, setPeople] = useState<
+      { address: string; name: string | null; avatar?: string | null }[]
+    >([]),
     [cursor, setCursor] = useState<string | null>(),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -421,7 +427,12 @@ function NetworkDialog({
               nav(to);
             }}
           >
-            <span className="mini-avatar">{(p.name || "Z").slice(0, 1)}</span>
+            <span className="mini-avatar">
+              <ProfileImage
+                src={profileMediaURL(p.address, p.avatar)}
+                fallback={(p.name || "Z").slice(0, 1)}
+              />
+            </span>
             <span>
               {p.name || short(p.address)}
               <small className="mono">{short(p.address)}</small>
@@ -614,18 +625,31 @@ export function PublicProfile({
   const { profile, counts } = data;
   return (
     <>
-      <div className="profile-cover rich-cover">
-        {data.featuredItem && (
-          <img
-            src={`/art/${data.featuredItem.metadata.imageHash.slice(2)}.png`}
-            alt=""
-          />
+      <div
+        className={`profile-cover rich-cover ${profile.cover ? "custom-cover" : ""}`}
+      >
+        <ProfileImage
+          src={profileMediaURL(profile.address, profile.cover)}
+          fallback={
+            data.featuredItem && (
+              <ProfileImage
+                src={`/art/${data.featuredItem.metadata.imageHash.slice(2)}.png`}
+              />
+            )
+          }
+        />
+        {!profile.cover && (
+          <span className="cover-word">KEEP IT. PASS IT ON.</span>
         )}
-        <span className="cover-word">KEEP IT. PASS IT ON.</span>
       </div>
       <section className="profile-heading">
         <div className="profile-top">
-          <div className="avatar">{profile.name.slice(0, 1).toUpperCase()}</div>
+          <div className="avatar">
+            <ProfileImage
+              src={profileMediaURL(profile.address, profile.avatar)}
+              fallback={profile.name.slice(0, 1).toUpperCase()}
+            />
+          </div>
           <div className="actions">
             {owner ? (
               <RouteLink to="/settings/profile" nav={nav} className={btn}>
@@ -849,9 +873,20 @@ export function EditProfile({
     [featured, setFeatured] = useState(""),
     [pieces, setPieces] = useState<PublicItem[]>([]),
     [busy, setBusy] = useState(false),
-    [ready, setReady] = useState(false);
+    [ready, setReady] = useState(false),
+    [avatar, setAvatar] = useState<MediaDraft>(),
+    [cover, setCover] = useState<MediaDraft>(),
+    [conflict, setConflict] = useState(false),
+    [reload, setReload] = useState(0);
+  const generation = useRef(0),
+    submitting = useRef(false);
   useEffect(() => {
     let done = false;
+    generation.current++;
+    setReady(false);
+    setConflict(false);
+    setAvatar(undefined);
+    setCover(undefined);
     (async () => {
       try {
         const account = identity!;
@@ -874,46 +909,51 @@ export function EditProfile({
         setName(p.name);
         setBio(p.bio);
         setFeatured(p.featured ?? "");
+        let created: PublicItem[] = [];
         if (data)
-          setPieces(
-            (
-              await api<{ items: PublicItem[] }>(
-                `/api/profiles/${account.address}/created`,
-              )
-            ).items,
-          );
+          created = (
+            await api<{ items: PublicItem[] }>(
+              `/api/profiles/${account.address}/created`,
+            )
+          ).items;
         if (data) {
           const held = await api<{ items: PublicItem[] }>(
             `/api/profiles/${account.address}/collection`,
           );
-          setPieces((old) => [
-            ...old,
+          if (done) return;
+          setPieces([
+            ...created,
             ...held.items.filter(
-              (i) => !old.some((o) => o.tokenId === i.tokenId),
+              (i) => !created.some((o) => o.tokenId === i.tokenId),
             ),
           ]);
         }
+        if (done) return;
         setReady(true);
       } catch (e) {
-        onError((e as Error).message);
+        if (!done) onError((e as Error).message);
       }
     })();
     return () => {
       done = true;
+      generation.current++;
     };
-  }, [identity]);
+  }, [identity.address, reload]);
   return (
     <section className="panel narrow">
       <p className="text-ledger">Your public identity</p>
       <h1>Make it yours.</h1>
       <p className="mono wrap">{identity.address}</p>
       <p>
-        Your name and bio will be public. Imported collectibles stay private
-        until you publish each one from your local collection.
+        Your name, bio and profile images will be public. Imported collectibles
+        stay private until you publish each one from your local collection.
       </p>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
+          if (submitting.current || !ready || conflict) return;
+          submitting.current = true;
+          const run = generation.current;
           setBusy(true);
           try {
             await signedRequest(
@@ -923,17 +963,45 @@ export function EditProfile({
                 bio,
                 featured: featured || null,
                 revision: profile?.revision ?? 0,
+                ...(avatar !== undefined ? { avatar } : {}),
+                ...(cover !== undefined ? { cover } : {}),
               },
               identity!,
             );
-            nav(`/p/${profile!.address}`);
+            if (run === generation.current) nav(`/p/${profile!.address}`);
           } catch (e) {
-            onError((e as Error).message);
+            if (run === generation.current) {
+              if (e instanceof ApiError && e.status === 409) setConflict(true);
+              onError((e as Error).message);
+            }
           } finally {
-            setBusy(false);
+            submitting.current = false;
+            if (run === generation.current) setBusy(false);
           }
         }}
       >
+        <div className="profile-media-editors">
+          <ProfileMediaEditor
+            kind="avatar"
+            address={identity.address}
+            saved={profile?.avatar}
+            value={avatar}
+            onChange={setAvatar}
+            disabled={!ready || busy || conflict}
+          />
+          <ProfileMediaEditor
+            kind="cover"
+            address={identity.address}
+            saved={profile?.cover}
+            value={cover}
+            onChange={setCover}
+            disabled={!ready || busy || conflict}
+          />
+        </div>
+        <p className="muted">
+          Choose a JPG or PNG up to 10 MiB. Crop and preview here, then save
+          everything with one wallet signature.
+        </p>
         <label>
           Display name
           <input
@@ -960,7 +1028,7 @@ export function EditProfile({
             onChange={(e) => setFeatured(e.target.value)}
             disabled={!ready || busy}
           >
-            <option value="">Automatic cover</option>
+            <option value="">No featured artwork</option>
             {pieces.map((i) => (
               <option key={i.tokenId} value={i.tokenId}>
                 {i.metadata.name}
@@ -969,12 +1037,31 @@ export function EditProfile({
           </select>
         </label>
         <p className="muted">
+          Featured artwork appears on your profile when no custom cover is set.
+        </p>
+        <p className="muted">
           Shared previews may be retained by social platforms after an edit.
         </p>
+        {conflict && (
+          <div role="alert">
+            <p>
+              Your profile changed in another session. Reload the saved profile
+              before editing again. This replaces your unsaved changes.
+            </p>
+            <button
+              type="button"
+              className={btn}
+              disabled={busy}
+              onClick={() => setReload((n) => n + 1)}
+            >
+              Reload saved profile
+            </button>
+          </div>
+        )}
         <button
           className="nom-btn nom-btn--primary nom-btn--default"
           type="submit"
-          disabled={!ready || busy}
+          disabled={!ready || busy || conflict}
         >
           {busy ? "Saving…" : "Publish profile"}
         </button>

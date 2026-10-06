@@ -234,16 +234,18 @@ export async function discoverCollections(env: Env, url: URL) {
   // Explicit profiles plus immutable creator identities. A creator's mint date
   // is not a profile creation date. Legacy/implicit dates sort last.
   const cte = `WITH addresses AS (SELECT address FROM profiles UNION SELECT creator address FROM indexed_items), directory AS (
-    SELECT a.address,COALESCE(p.name,substr(a.address,1,8)||'…'||substr(a.address,-6)) name,s.created_at,
+    SELECT a.address,COALESCE(p.name,substr(a.address,1,8)||'…'||substr(a.address,-6)) name,s.created_at,m.avatar,m.cover,
     COALESCE(s.search_name,substr(a.address,1,8)||'…'||substr(a.address,-6)) search_name,
     (SELECT COUNT(*) FROM indexed_items i ${joinMetadata} WHERE EXISTS(SELECT 1 FROM possessions p WHERE p.token_id=i.token_id AND p.profile=a.address AND ${eligible})) collected,
     (SELECT COUNT(*) FROM relations WHERE target=a.address AND kind='follow') followers,
     (SELECT COUNT(*) FROM relations WHERE target=a.address AND kind='like') likes,
     EXISTS(SELECT 1 FROM relations WHERE target=a.address AND kind='like' AND actor=?) liked
-    FROM addresses a LEFT JOIN profiles p USING(address) LEFT JOIN profile_discovery s USING(address) WHERE p.address IS NULL OR s.search_name IS NOT NULL
+    FROM addresses a LEFT JOIN profiles p USING(address) LEFT JOIN profile_discovery s USING(address) LEFT JOIN profile_media m USING(address) WHERE p.address IS NULL OR s.search_name IS NOT NULL
   ), ranked AS (SELECT *,${p.sort === "popular" ? "likes" : p.sort === "biggest" ? "collected" : "COALESCE(created_at,-1)"} a,${p.sort === "popular" ? "followers" : "0"} b,address c FROM directory WHERE instr(search_name,?)>0)`;
   const args = [p.now, viewer?.toLowerCase() ?? "", p.q];
   type CollectionRow = {
+    avatar: string | null;
+    cover: string | null;
     address: string;
     name: string;
     created_at: number | null;
@@ -287,6 +289,8 @@ export async function discoverCollections(env: Env, url: URL) {
         .first<Row>();
       return {
         address: row.address,
+        avatar: row.avatar,
+        cover: row.cover,
         name: row.name,
         createdAt: row.created_at,
         collected: row.collected,

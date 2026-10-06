@@ -13,6 +13,7 @@ export default defineConfig({
       "/api": "http://127.0.0.1:8787",
       "/art": "http://127.0.0.1:8787",
       "/metadata": "http://127.0.0.1:8787",
+      "/profile-media": "http://127.0.0.1:8787",
     },
   },
 });

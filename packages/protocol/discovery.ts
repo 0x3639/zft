@@ -11,6 +11,8 @@ export type DiscoveredItem = {
   href: string;
 };
 export type CollectionEntry = {
+  avatar?: string | null;
+  cover?: string | null;
   address: string;
   name: string;
   createdAt: number | null;
