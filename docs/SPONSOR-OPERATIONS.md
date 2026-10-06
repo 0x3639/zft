@@ -16,7 +16,7 @@ This design follows Cloudflare's distinction between [storage input gates and ex
 
 ## Reproducible local evidence
 
-Run `pnpm exec vitest run tests/sponsor.test.ts`. The fixture executes the production Sponsor in real workerd with SQLite Durable Object storage. Its RPC methods are replaced in that isolated test bundle; its published fixture key is a known test key and never reaches the real network.
+Run `pnpm exec vitest run tests/sponsor.test.ts`. The fixture executes the production Sponsor in real workerd with SQLite Durable Object storage. Its public-client RPC methods are replaced in that isolated test bundle. viem's separate wallet client also performs a chain-ID read before local signing: the fixture now responds locally to that method and rejects any other outbound fetch. The published fixture key is a known test key; no transaction is sent to the real network.
 
 Ten cases verify:
 
@@ -40,6 +40,8 @@ Deployed to devnet as Worker **`4693920f-eeb2-427d-8b29-65f218e0d6e5`** on 2026-
 After the existing devnet deployment command, run `pnpm exec tsx scripts/check-sponsor.ts`. It checks semantic health, frontend deployment configuration and enabled sponsorship, two retained SDK-canary operations, unknown-job behavior and the exact frontend bundle. The configuration comparison matches the frontend's pinned-manifest check. Unlike the health flag alone, `/api/config` also requires the sponsor key to be configured. One generated, unfunded identity signs an intentionally malformed operation request: reaching schema validation (400) proves authentication succeeded, and replay (401) proves consumption. It creates no profile, upload, NFT or chain transaction. Only challenge/admission counters change. Public results go to `research/sponsor-isolation-deployment.json`; the ephemeral key and proof are not saved.
 
 PR #8 review of `89b44c8` confirmed two verification gaps. The fixture-cleanup regression fails on that reviewed fixture and passes with reset/teardown cleanup. Five frontend-configuration cases accept the pinned manifest and reject missing deployment, changed contract/genesis and disabled sponsorship. The strengthened hosted smoke passes against the existing Worker; these verification-only changes require no redeployment.
+
+CI on follow-up `8a5a3ca` exposed the wallet client's previously unstubbed chain-ID read: one runner timed out waiting for broadcast while another passed. The transport guard removes that live-network dependency, and the submission test verifies that exactly one local chain-ID request occurs before the held broadcast. Application timing limits were not increased.
 
 If status checks report 503, keep saved operation/destination keys and retry. Do not clear `active`, `lastNonce`, gas reservations or jobs to unstick a sponsor. Polls intentionally cannot repair or overwrite that state. Allow alarms to reconcile, or retry the exact saved operation once RPC recovers. Diagnose persistent nonce mismatches against pending/latest RPC counts and the durable outbox before any operator repair.
 

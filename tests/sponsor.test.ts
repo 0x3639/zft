@@ -356,6 +356,9 @@ it("keeps concurrent submissions serialized through the durable outbox and recov
     expect((await state()).calls.filter((c) => c === "estimate")).toHaveLength(
       1,
     );
+    expect(
+      (await state()).calls.filter((c) => c === "wallet:eth_chainId"),
+    ).toHaveLength(1);
   } finally {
     await fixture({ release: ["estimate", "broadcast"] });
     await bounded(Promise.allSettled(submissions), 5000);

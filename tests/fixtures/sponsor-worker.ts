@@ -6,6 +6,7 @@ import { json } from "../../apps/api/http";
 import type { Env } from "../../apps/api/types";
 import { publicClient } from "../../packages/protocol/client";
 import manifest from "../../packages/protocol/deployment.json";
+import { chain } from "../../packages/protocol";
 import { key } from "../fixtures";
 
 export class TestSponsor extends Sponsor {
@@ -20,6 +21,22 @@ export class TestSponsor extends Sponsor {
     super(ctx, env);
     // Patch only this test isolate's imported client and deployment object.
     manifest.codeHash = keccak256("0x6000");
+    // viem's separate wallet client checks eth_chainId even when signing with a
+    // local account. Handle that read locally and deny every other outbound call.
+    globalThis.fetch = async (input, init) => {
+      const request = new Request(input, init);
+      if (request.url !== chain.rpcUrls.default.http[0])
+        throw new Error("Unexpected fixture network destination");
+      const rpc = (await request.json()) as { id: number; method: string };
+      this.calls.push(`wallet:${rpc.method}`);
+      if (rpc.method !== "eth_chainId")
+        throw new Error("Unexpected fixture RPC method");
+      return Response.json({
+        jsonrpc: "2.0",
+        id: rpc.id,
+        result: `0x${manifest.chainId.toString(16)}`,
+      });
+    };
     const step = async (name: string) => {
       this.calls.push(name);
       if (this.held.has(name))
