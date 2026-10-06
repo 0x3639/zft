@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { decode } from "fast-png";
 import { HELP_VIEWS } from "../packages/protocol/help";
+import { releaseHealth } from "./release-health";
 
 const origin = "https://devnet.zft.foo";
 const hash = (bytes: Uint8Array) =>
@@ -82,6 +83,7 @@ const publicBytes = new Uint8Array(await publicBundle.arrayBuffer());
 assert.equal(hash(publicBytes), hash(await readFile(`dist/web${bundle}`)));
 const health = await fetch(origin + "/api/health");
 assert.equal(health.status, 200);
+const healthy = releaseHealth.parse(await health.json());
 const evidence = {
   checkedAt: new Date().toISOString(),
   origin,
@@ -89,7 +91,7 @@ const evidence = {
   images: Object.fromEntries(images),
   invalidItem: { status: missing.status, noindexShell: true },
   bundle: { path: bundle, sha256: hash(publicBytes) },
-  health: await health.json(),
+  health: healthy,
 };
 await writeFile(
   "research/r5-deployment.json",

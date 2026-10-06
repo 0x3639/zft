@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-06T08:43:23.041Z",
+  "checkedAt": "2026-10-06T09:13:45.630Z",
   "origin": "https://devnet.zft.foo",
   "routes": [
     {
@@ -50,14 +50,14 @@
   "health": {
     "ready": true,
     "network": "ZVM devnet",
+    "sponsorEnabled": true,
     "index": {
-      "block": 102664,
-      "head": 102670,
-      "syncedAt": 1791276200358,
+      "block": 102790,
+      "head": 102796,
+      "syncedAt": 1791278002026,
       "error": null,
       "lag": 6,
       "confirmations": 6
-    },
-    "sponsorEnabled": true
+    }
   }
 }

@@ -200,3 +200,9 @@ Cloudflare beta deployments use a scoped environment; PR previews have separate 
 - [Help title cleanup](https://github.com/0x3639/zft/pull/6#discussion_r4193200979): reproduced on hosted direct-load Technical → Basics → Mint. The component captured the already-rewritten initial HTML title, then restored it on exit. Cleanup now sets the neutral app title. Hosted checks verify the same route, Back/Forward and direct `/about?view=cryptography` → Recovery; [before/after evidence](../research/pr6-title-review.json).
 - **194 app tests**, typecheck/build/Worker dry run and the read-only hosted help/bundle/PNG check pass. Worker **`0f53a02e-0450-4bec-ac0d-0475f3ecd728`** preserves the existing routes, schema and data. The OG renderer is unchanged; the fourteen-fixture run remains valid.
 - The generic docstring percentage warning is not required CI or a correctness defect; no blanket comments were added. Follow-up CodeRabbit review and CI remain pending.
+
+
+PR #6 follow-up review of `0111421`, addressed 2026-10-06:
+
+- [Semantic release health](https://github.com/0x3639/zft/pull/6#pullrequestreview-5426174056): confirmed. The hosted canary previously accepted any HTTP-200 health body. It now requires readiness, the expected devnet network, enabled sponsorship, a populated error-free index and a coherent lag within the six-block confirmation window before writing release evidence. This is a point-in-time reported-state check, not proof of future availability.
+- Nine focused acceptance-gate cases cover the healthy response and rejection of unready, absent/error/uninitialized/lagging/inconsistent index, wrong-network and disabled-sponsor bodies. **203 app tests**, typecheck and the strengthened read-only hosted canary pass. Runtime code is unchanged; Worker `0f53a02e-0450-4bec-ac0d-0475f3ecd728` remains the tested deployment. Follow-up review is pending.
