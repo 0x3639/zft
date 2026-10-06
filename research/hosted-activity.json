@@ -1,12 +1,12 @@
 {
-  "checkedAt": "2026-10-05T11:14:58.305Z",
+  "checkedAt": "2026-10-06T00:10:03.160Z",
   "origin": "https://devnet.zft.foo",
   "profiles": {
     "a": "0x35442e57653d3e5DF9967Fd4bCfB8611c6D355e2",
     "b": "0x1eFD243c39871925224a089a34ffF94AA236f3bD"
   },
-  "events": 32,
-  "pages": 16,
+  "events": 40,
+  "pages": 20,
   "checks": [
     "Generated-wallet signed profile/social actions accepted",
     "Guest and zero-follow states differ",
@@ -22,14 +22,14 @@
   ],
   "entry": "/assets/index-BTei8IsQ.js",
   "assetSha256": "700a4ed93a27c90aa729e58eaaf766e8182ac6ef28f9add8818f7769d5745d49",
-  "workerVersion": "dcd1dd7d-f9e1-48fe-9f91-88f913380872",
+  "workerVersion": "4f7d76fc-b8a4-41a3-9c83-0a083b998391",
   "indexer": {
-    "block": 97391,
-    "head": 97397,
-    "syncedAt": 1791198929648,
+    "block": 100559,
+    "head": 100565,
+    "syncedAt": 1791245362841,
     "error": null,
     "lag": 6,
     "confirmations": 6
   },
-  "typescriptTests": 154
+  "typescriptTests": 162
 }

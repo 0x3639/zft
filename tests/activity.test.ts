@@ -44,12 +44,17 @@ function fixture() {
       active,
     });
   }
-  async function mint(id: number, owner = addr(1), hash = `block${id}`) {
+  async function mint(
+    id: number,
+    owner = addr(1),
+    hash = `block${id}`,
+    creator = addr(1),
+  ) {
     const imageHash = `0x${id.toString(16).padStart(64, "0")}` as `0x${string}`;
     const m: Metadata = {
       name: `Art ${id}`,
       description: "",
-      creator: addr(1),
+      creator,
       image: `https://zft.foo/art/${imageHash.slice(2)}.png`,
       imageHash,
       canonicalizer: "zft-png/1",
@@ -70,7 +75,7 @@ function fixture() {
         String(id),
         null,
         null,
-        addr(1),
+        creator,
         metadataHash,
       );
     sql
@@ -327,6 +332,116 @@ describe("Public activity journal", () => {
       (await activity(f.env, url({ cursor: first.nextCursor! }))).events,
     ).toHaveLength(1);
   });
+  it("keeps an Everyone snapshot when newly minted artwork is indexed beyond its bounds", async () => {
+    const f = fixture();
+    await f.profile(1);
+    await f.profile(2);
+    const first = await activity(f.env, url({ limit: "1" }));
+    const oldRevision = Number(
+      f.sql.prepare("SELECT revision FROM activity_state").get()!.revision,
+    );
+    await f.mint(1);
+    // The preceding Worker still gets its conservative invalidation on rollback.
+    expect(
+      f.sql.prepare("SELECT revision FROM activity_state").get()!.revision,
+    ).toBeGreaterThan(oldRevision);
+    const next = await activity(f.env, url({ cursor: first.nextCursor! }));
+    expect(next.events).toHaveLength(1);
+    expect(next.events[0].source).toBe("public");
+    expect(next.events[0].id).not.toBe(first.events[0].id);
+    expect(next.nextCursor).toBeNull();
+    expect(
+      (await activity(f.env, url())).events.some((e) => e.kind === "minted"),
+    ).toBe(true);
+  });
+  it.each(["profile", "following"])(
+    "ignores other creators' metadata backfill in %s activity",
+    async (scope) => {
+      const f = fixture();
+      for (let n = 1; n <= 3; n++) await f.profile(n);
+      await f.relation(3, 1);
+      await f.mint(1, addr(2), "block1", addr(2));
+      await f.mint(10); // Both tokens are within the pinned block range.
+      f.sql.exec("DELETE FROM discovery_metadata WHERE token_id='1'");
+      const params: Record<string, string> =
+        scope === "following" ? { view: "following", viewer: addr(3) } : {};
+      const profile = scope === "profile" ? addr(1) : undefined;
+      const first = await activity(
+        f.env,
+        url({ ...params, limit: "1" }),
+        profile,
+      );
+      expect(first.nextCursor).toBeTruthy();
+      await projectDiscovery(f.env);
+      const next = await activity(
+        f.env,
+        url({ ...params, cursor: first.nextCursor! }),
+        profile,
+      );
+      expect(next.events.length).toBeGreaterThan(0);
+      expect(next.events.every((e) => e.item?.tokenId !== "1")).toBe(true);
+    },
+  );
+  it.each(["everyone", "profile", "following"])(
+    "refreshes %s when metadata reveals or removes a publication in its snapshot",
+    async (scope) => {
+      const f = fixture();
+      await f.profile(2);
+      await f.profile(2, 1, "Edited");
+      await f.profile(3);
+      await f.relation(3, 2);
+      await f.mint(1); // Creator 1 is outside profile 2 / Following scope.
+      f.publish(1); // Profile 2's publication still makes its metadata relevant.
+      f.sql.exec("DELETE FROM discovery_metadata");
+      const params: Record<string, string> =
+        scope === "following" ? { view: "following", viewer: addr(3) } : {};
+      const profile = scope === "profile" ? addr(2) : undefined;
+      const missing = await activity(
+        f.env,
+        url({ ...params, limit: "1" }),
+        profile,
+      );
+      expect(missing.nextCursor).toBeTruthy();
+      await projectDiscovery(f.env);
+      await expect(
+        activity(
+          f.env,
+          url({ ...params, cursor: missing.nextCursor! }),
+          profile,
+        ),
+      ).rejects.toMatchObject({ status: 409 });
+      const visible = await activity(
+        f.env,
+        url({ ...params, limit: "1" }),
+        profile,
+      );
+      expect(visible.nextCursor).toBeTruthy();
+      f.sql.exec("DELETE FROM discovery_metadata");
+      await expect(
+        activity(
+          f.env,
+          url({ ...params, cursor: visible.nextCursor! }),
+          profile,
+        ),
+      ).rejects.toMatchObject({ status: 409 });
+    },
+  );
+  it("offers a refresh for legacy cursors after the metadata-scope upgrade", async () => {
+    const f = fixture();
+    await f.profile(1);
+    await f.profile(2);
+    const first = await activity(f.env, url({ limit: "1" }));
+    const decoded = JSON.parse(
+      Buffer.from(first.nextCursor!, "base64url").toString(),
+    );
+    expect(decoded.v).toBe(2);
+    delete decoded.metadataRevision;
+    decoded.v = 1;
+    const legacy = Buffer.from(JSON.stringify(decoded)).toString("base64url");
+    await expect(
+      activity(f.env, url({ cursor: legacy })),
+    ).rejects.toMatchObject({ status: 409 });
+  });
   it.each([
     "UPDATE possessions SET expires=expires-10",
     "UPDATE possessions SET owner='" + addr(3) + "'",
@@ -531,29 +646,39 @@ describe("Public activity journal", () => {
       clock.mockRestore();
     }
   });
-  it("rejects results if visibility changes while a page is being read", async () => {
-    const f = fixture();
-    await f.profile(1);
-    const original = f.db.prepare.bind(f.db);
-    vi.spyOn(f.db, "prepare").mockImplementation((query: string) => {
-      const statement = original(query);
-      if (query.startsWith("WITH feed")) {
-        const bind = statement.bind.bind(statement);
-        statement.bind = (...values: unknown[]) => {
-          const bound = bind(...values),
-            all = bound.all.bind(bound);
-          bound.all = async <T = Record<string, unknown>>() => {
-            const result = await all<T>();
-            f.sql.exec("UPDATE activity_state SET revision=revision+1");
-            return result;
+  it.each(["visibility", "metadata"])(
+    "rejects results if %s changes while a page is being read",
+    async (change) => {
+      const f = fixture();
+      await f.profile(1);
+      await f.mint(1);
+      const original = f.db.prepare.bind(f.db);
+      vi.spyOn(f.db, "prepare").mockImplementation((query: string) => {
+        const statement = original(query);
+        if (query.startsWith("WITH feed")) {
+          const bind = statement.bind.bind(statement);
+          statement.bind = (...values: unknown[]) => {
+            const bound = bind(...values),
+              all = bound.all.bind(bound);
+            bound.all = async <T = Record<string, unknown>>() => {
+              const result = await all<T>();
+              f.sql.exec(
+                change === "metadata"
+                  ? "UPDATE discovery_metadata SET valid=0"
+                  : "UPDATE activity_state SET revision=revision+1",
+              );
+              return result;
+            };
+            return bound;
           };
-          return bound;
-        };
-      }
-      return statement;
-    });
-    await expect(activity(f.env, url())).rejects.toMatchObject({ status: 409 });
-  });
+        }
+        return statement;
+      });
+      await expect(activity(f.env, url())).rejects.toMatchObject({
+        status: 409,
+      });
+    },
+  );
   it("does not backfill fictional social history and permits the preceding Worker insert shape", () => {
     const sql = new DatabaseSync(":memory:");
     for (const migration of ["0001_public.sql", "0002_discovery.sql"])
@@ -590,6 +715,9 @@ describe("Public activity journal", () => {
       sql.prepare(`SELECT * FROM ${table}`).all(),
     );
     sql.exec(readFileSync("migrations/0004_activity_invalidation.sql", "utf8"));
+    sql.exec(
+      readFileSync("migrations/0005_activity_metadata_scope.sql", "utf8"),
+    );
     expect(
       tables.map((table) => sql.prepare(`SELECT * FROM ${table}`).all()),
     ).toEqual(before);

@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-10-06T00:09:52.233Z",
+  "cursorVersion": 2,
+  "continuationStatus": 200,
+  "legacyRefreshStatus": 409,
+  "index": {
+    "block": 100559,
+    "head": 100565,
+    "syncedAt": 1791245362841,
+    "error": null,
+    "lag": 6,
+    "confirmations": 6
+  },
+  "workerVersion": "4f7d76fc-b8a4-41a3-9c83-0a083b998391",
+  "reviewedHead": "64cab18dfdbb9812ff103a3726eeaa9bca8f1c21",
+  "findingSource": "CodeRabbit PR #4 summary, updated 2026-10-05T11:37:23Z: unrelated activity metadata can reset pagination",
+  "migration": {
+    "name": "0005_activity_metadata_scope.sql",
+    "local": "applied",
+    "remote": "applied",
+    "after": {
+      "events": 16,
+      "bindings": 0,
+      "revision": 19,
+      "metadata_revision": 0
+    },
+    "note": "The pre-migration count query returned a transient Cloudflare 7403 error. Migration and post-migration reads succeeded. Journal preservation is covered by real SQLite migration tests; no remote before/after count equality is claimed."
+  },
+  "checks": {
+    "typescriptTests": 162,
+    "newRegressionTests": 8,
+    "typecheck": "pass",
+    "frontendBuild": "pass",
+    "workerDryRun": "pass",
+    "localCanary": {
+      "events": 28,
+      "pages": 14
+    },
+    "hostedCanary": {
+      "events": 40,
+      "pages": 20
+    }
+  },
+  "before": "Three tests reproduced resets from a later mint in Everyone and unrelated creator backfill in Profile/Following before the fix.",
+  "after": "All three pass. Added tests preserve relevant publication backfill/deletion invalidation across scopes, detect mid-read metadata changes, and refresh legacy cursors.",
+  "compatibility": "Metadata writes still advance the original global counter for older Workers. The new API subtracts the metadata clock and checks per-token revisions within scope and upper bounds.",
+  "limitations": [
+    "Real MetaMask/device acceptance remains R6.",
+    "Large-journal query cost remains R7.3.",
+    "Publication/time/reorg/follow invalidations remain conservative; this fix scopes metadata changes."
+  ]
+}

@@ -8,19 +8,22 @@ import { HttpError } from "./http";
 import type { Env } from "./types";
 
 const number = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
-const cursorSchema = z
-  .object({
-    v: z.literal(1),
-    scope: z.string().max(100),
-    viewer: z.string().max(42),
-    revision: number,
-    follows: number,
-    publicMax: number,
-    chainMax: number,
-    until: number,
-    key: z.tuple([number, z.enum(["public", "chain"]), number, number]),
-  })
-  .strict();
+const cursorFields = {
+  scope: z.string().max(100),
+  viewer: z.string().max(42),
+  revision: number,
+  follows: number,
+  publicMax: number,
+  chainMax: number,
+  until: number,
+  key: z.tuple([number, z.enum(["public", "chain"]), number, number]),
+};
+const cursorSchema = z.discriminatedUnion("v", [
+  z.object({ ...cursorFields, v: z.literal(1) }).strict(),
+  z
+    .object({ ...cursorFields, v: z.literal(2), metadataRevision: number })
+    .strict(),
+]);
 type Row = {
   kind: ActivityEvent["kind"];
   source: "public" | "chain";
@@ -39,7 +42,8 @@ type Row = {
 };
 async function revision(env: Env) {
   return (await env.DB.prepare(
-    "SELECT revision,follow_revision FROM activity_state WHERE id=1",
+    `SELECT s.revision-m.revision revision,s.follow_revision
+    FROM activity_state s JOIN activity_metadata_clock m USING(id) WHERE s.id=1`,
   ).first<{ revision: number; follow_revision: number }>())!;
 }
 const metadataJoin = `JOIN discovery_metadata d ON d.token_id=i.token_id AND d.metadata_hash=i.metadata_hash AND d.creator=i.creator AND d.version=1 AND d.valid=1`;
@@ -72,17 +76,21 @@ export async function activity(
   const limit = Number(limitText),
     now = Date.now(),
     rev = await revision(env);
-  let after: z.infer<typeof cursorSchema> | undefined;
+  let after: Extract<z.infer<typeof cursorSchema>, { v: 2 }> | undefined;
   const raw = url.searchParams.get("cursor");
   if (raw) {
+    let decoded: z.infer<typeof cursorSchema>;
     try {
       if (raw.length > 2048) throw new Error();
-      after = cursorSchema.parse(
+      decoded = cursorSchema.parse(
         JSON.parse(atob(raw.replace(/-/g, "+").replace(/_/g, "/"))),
       );
     } catch {
       throw new HttpError(400, "Invalid activity cursor.");
     }
+    if (decoded.v === 1)
+      throw new HttpError(409, "Activity changed. Refresh to continue.");
+    after = decoded;
     if (
       after.scope !== scope ||
       after.viewer !== (view === "following" ? viewer : "")
@@ -116,6 +124,18 @@ export async function activity(
     : view === "following"
       ? [viewer]
       : [];
+  // Unattributed transfers stay in Everyone. They are not actions by a creator,
+  // recipient profile, gift or sale merely because an address happens to match.
+  const chainFilter = profile
+    ? "AND c.kind='Minted' AND c.creator=?"
+    : view === "following"
+      ? "AND c.kind='Minted' AND EXISTS(SELECT 1 FROM relations r WHERE r.actor=? AND r.kind='follow' AND r.target=c.creator)"
+      : "";
+  const chainArgs = profile
+    ? [profile.toLowerCase()]
+    : view === "following"
+      ? [viewer]
+      : [];
   const bounds =
     after ??
     (await env.DB.prepare(
@@ -123,6 +143,22 @@ export async function activity(
     COALESCE((SELECT MAX(block_number) FROM chain_events),0) chainMax`,
     ).first<{ publicMax: number; chainMax: number }>())!;
   const { publicMax, chainMax } = bounds;
+  // Include candidate items even when their metadata is absent/invalid, so a
+  // backfill that makes an older event visible also invalidates its snapshot.
+  // Retain deletion marks; removing metadata must not erase the invalidation.
+  const metadataRevision = async () =>
+    (await env.DB.prepare(
+      `SELECT COALESCE(MAX(v.revision),0) revision FROM activity_metadata_revisions v
+    WHERE EXISTS(SELECT 1 FROM chain_events c WHERE c.token_id=v.token_id AND c.block_number<=?
+      AND (c.kind='Minted' OR (c.kind='Transfer' AND c.from_address<>'0x0000000000000000000000000000000000000000')) ${chainFilter})
+    OR EXISTS(SELECT 1 FROM public_events e JOIN activity_publications b ON b.event_id=e.id
+      WHERE e.token_id=v.token_id AND e.kind='published' AND e.id<=? ${actorFilter})`,
+    )
+      .bind(chainMax, ...chainArgs, publicMax, ...actorArgs)
+      .first<{ revision: number }>())!.revision;
+  const metadataRev = await metadataRevision();
+  if (after && after.metadataRevision !== metadataRev)
+    throw new HttpError(409, "Activity changed. Refresh to continue.");
   let until = after?.until;
   if (until === undefined) {
     // Only visible publication generations in this snapshot can expire it.
@@ -139,23 +175,12 @@ export async function activity(
       .first<{ expiry: number | null }>();
     until = Math.min(now + 300_000, expiry?.expiry ?? Infinity);
   }
-  // Unattributed transfers stay in Everyone. They are not actions by a creator,
-  // recipient profile, gift or sale merely because an address happens to match.
-  const chainFilter = profile
-    ? "AND c.kind='Minted' AND c.creator=?"
-    : view === "following"
-      ? "AND c.kind='Minted' AND EXISTS(SELECT 1 FROM relations r WHERE r.actor=? AND r.kind='follow' AND r.target=c.creator)"
-      : "";
   const args: unknown[] = [
     publicMax,
     Math.floor(now / 1000),
     ...actorArgs,
     chainMax,
-    ...(profile
-      ? [profile.toLowerCase()]
-      : view === "following"
-        ? [viewer]
-        : []),
+    ...chainArgs,
   ];
   const key = after?.key;
   if (key) args.push(...key);
@@ -187,6 +212,7 @@ export async function activity(
   const end = await revision(env);
   if (
     end.revision !== rev.revision ||
+    (await metadataRevision()) !== metadataRev ||
     (view === "following" && end.follow_revision !== rev.follow_revision) ||
     Date.now() >= until
   )
@@ -235,10 +261,11 @@ export async function activity(
       rows.results.length > limit && last
         ? btoa(
             JSON.stringify({
-              v: 1,
+              v: 2,
               scope,
               viewer: view === "following" ? viewer : "",
               revision: rev.revision,
+              metadataRevision: metadataRev,
               follows: rev.follow_revision,
               publicMax,
               chainMax,
