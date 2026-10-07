@@ -159,6 +159,7 @@ export class Issuer {
           "INSERT INTO operations (digest,session,recovery_hash,response) VALUES (?,?,?,?)",
         )
         .run(digest, r.session, r.recovery_hash, response);
+      this.boundary("after-response-insert");
       return this.db
         .prepare("SELECT response FROM operations WHERE digest=?")
         .get(digest).response;

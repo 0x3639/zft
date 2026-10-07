@@ -124,9 +124,11 @@ export class Client {
     });
     this.validateSnapshot(snapshot);
     const digest = hash(wire);
+    this.boundary("before-pending-save");
     this.db
       .prepare("INSERT INTO pending (digest,snapshot) VALUES (?,?)")
       .run(digest, snapshot);
+    this.boundary("after-pending-save");
     return digest;
   }
   prepareIssue(s, asset) {
@@ -156,9 +158,11 @@ export class Client {
       snapshotHash,
       "exact recovery snapshot acknowledgment",
     );
+    this.boundary("before-acknowledge");
     this.db
       .prepare("UPDATE pending SET acknowledged=1 WHERE digest=?")
       .run(digest);
+    this.boundary("after-acknowledge");
   }
   restore(snapshot) {
     const v = this.validateSnapshot(snapshot),
@@ -179,7 +183,9 @@ export class Client {
             "INSERT INTO pending (digest,snapshot,acknowledged) VALUES (?,?,1)",
           )
           .run(digest, snapshot);
+      this.boundary("before-restore-commit");
     });
+    this.boundary("after-restore-commit");
     return digest;
   }
   submit(digest, issuer) {
@@ -220,14 +226,18 @@ export class Client {
         this.db
           .prepare("INSERT INTO credentials (id,envelope) VALUES (?,?)")
           .run(id, envelope);
+      this.boundary("after-credential-insert");
       if (v.source)
         this.db
           .prepare("UPDATE credentials SET spent=1 WHERE id=?")
           .run(encodedPoint(mul(GN, scalar(v.source.s, true))));
+      this.boundary("after-source-spent");
       this.db
         .prepare("UPDATE pending SET response=?,credential_id=? WHERE digest=?")
         .run(response, id, digest);
+      this.boundary("before-client-commit");
     });
+    this.boundary("after-client-commit");
     return id;
   }
   export(id) {

@@ -64,6 +64,54 @@ const controls = [
       ],
     ],
   },
+  {
+    name: "partially committed client replacement",
+    file: "client.mjs",
+    suite: "recovery.test.mjs",
+    test: "SIGKILL after-credential-insert keeps client replacement atomic",
+    edits: [
+      [
+        '      this.boundary("after-credential-insert");',
+        '      this.db.exec("COMMIT; BEGIN IMMEDIATE");\n      this.boundary("after-credential-insert");',
+      ],
+    ],
+  },
+  {
+    name: "pending snapshot acknowledged before backup",
+    file: "client.mjs",
+    suite: "recovery.test.mjs",
+    test: "SIGKILL after-pending-save never submits an unacknowledged request",
+    edits: [
+      [
+        "acknowledged INTEGER NOT NULL DEFAULT 0",
+        "acknowledged INTEGER NOT NULL DEFAULT 1",
+      ],
+    ],
+  },
+  {
+    name: "client source spend survives failed completion",
+    file: "client.mjs",
+    suite: "recovery.test.mjs",
+    test: "SQLITE_FULL at client completion rolls back credential and source writes",
+    edits: [
+      [
+        '      this.boundary("after-source-spent");',
+        '      this.db.exec("COMMIT; BEGIN IMMEDIATE");\n      this.boundary("after-source-spent");',
+      ],
+    ],
+  },
+  {
+    name: "completed recovery revives a spent credential",
+    file: "client.mjs",
+    suite: "recovery.test.mjs",
+    test: "replaying completed recovery cannot revive a subsequently spent credential",
+    edits: [
+      [
+        '      if (old) assert.equal(old.envelope, envelope, "conflicting credential");',
+        '      if (old) { assert.equal(old.envelope, envelope, "conflicting credential"); this.db.prepare("UPDATE credentials SET spent=0 WHERE id=?").run(id); }',
+      ],
+    ],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));
@@ -92,7 +140,7 @@ for (const control of controls) {
         "--test",
         "--test-reporter=tap",
         "--test-name-pattern=^" + control.test + "$",
-        join(dir, "local/engine.test.mjs"),
+        join(dir, "local", control.suite ?? "engine.test.mjs"),
       ],
       { env, encoding: "utf8", timeout: 45000, maxBuffer: 2 * 1024 * 1024 },
     );
