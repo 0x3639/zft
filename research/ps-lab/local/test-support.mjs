@@ -54,7 +54,20 @@ export function fixture(t, options = {}) {
     acknowledge(a, d);
     return a.submit(d, issuer);
   };
-  return { dir, issuer, a, b, client, openIssuer, acknowledge, mint };
+  return {
+    dir,
+    issuer,
+    a,
+    b,
+    client,
+    openIssuer,
+    acknowledge,
+    mint,
+    track(instance) {
+      opened.push(instance);
+      return instance;
+    },
+  };
 }
 export function pending(c, d) {
   return p.parse(c.backup(d), 300000);
