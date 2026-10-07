@@ -18,8 +18,21 @@ process.once("message", (job) => {
   process.once("message", () => {
     try {
       let value;
-      if (job.observer) value = instance.accept(job.challenge, job.receipt);
-      else if (!job.client) value = instance.submit(job.wire, job.capability);
+      if (job.observer) {
+        switch (job.action ?? "accept") {
+          case "prepare":
+            value = instance.prepare(job.wallet, job.h, job.audience);
+            break;
+          case "request":
+            value = instance.request(job.challenge, job.showing);
+            break;
+          case "accept":
+            value = instance.accept(job.challenge, job.receipt);
+            break;
+          default:
+            throw new Error("unknown observer test action");
+        }
+      } else if (!job.client) value = instance.submit(job.wire, job.capability);
       else
         switch (job.action ?? "accept") {
           case "prepare":

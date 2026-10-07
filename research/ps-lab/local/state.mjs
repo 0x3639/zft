@@ -236,7 +236,7 @@ export class StateObserver {
     bytes(wallet, 20);
     scalar(h);
     bytes(audience, 32);
-    return transaction(this.db, () => {
+    const prepared = transaction(this.db, () => {
       const created_at = this.time(),
         clock = this.clock();
       const active = this.db
@@ -268,11 +268,14 @@ export class StateObserver {
       this.db
         .prepare("INSERT INTO challenges (id,context,expires) VALUES (?,?,?)")
         .run(c.challenge, canonical(c), c.expires_at);
+      this.boundary("after-state-challenge-insert");
       this.db
         .prepare("UPDATE observation_clock SET time=? WHERE id=1")
         .run(created_at);
       return Object.freeze(c);
     });
+    this.boundary("after-state-challenge-commit");
+    return prepared;
   }
   request(challenge, showing) {
     parse(showing, STATE_LIMIT); // Bound the public API input before reserializing it.
@@ -280,7 +283,7 @@ export class StateObserver {
       c = context(parse(row.context), this.pinned);
     const wire = canonical({ ...c, showing });
     checkedRequest(wire, this.pinned);
-    return transaction(this.db, () => {
+    const saved = transaction(this.db, () => {
       const current = this.row(challenge),
         now = this.time();
       assert.equal(current.consumed, 0, "state challenge consumed");
@@ -290,11 +293,14 @@ export class StateObserver {
       this.db
         .prepare("UPDATE challenges SET wire=? WHERE id=?")
         .run(wire, challenge);
+      this.boundary("after-state-request-write");
       this.db
         .prepare("UPDATE observation_clock SET time=? WHERE id=1")
         .run(now);
       return wire;
     });
+    this.boundary("after-state-request-commit");
+    return saved;
   }
   accept(challenge, receipt) {
     const row = this.row(challenge);
@@ -346,6 +352,7 @@ export class StateObserver {
       this.db
         .prepare("UPDATE challenges SET consumed=1,receipt=? WHERE id=?")
         .run(receipt, challenge);
+      this.boundary("before-state-receipt-commit");
     });
     this.boundary("after-state-commit");
     // This describes an issuer assertion at observedAt; it is not a spend reservation.

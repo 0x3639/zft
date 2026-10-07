@@ -1,8 +1,8 @@
 # PS local signed state observations
 
-This local C1/C3 increment adds an issuer-signed report about a PS credential's spent status. It extends the merged PR #14 baseline `27c1dbb` without changing the [local PS credential profile](PS-LOCAL-ENGINE.md), credential stores or frozen reference fixtures. It is an original research protocol named **`zft-ps-local-state-v1`**, implemented in [state.mjs](../research/ps-lab/local/state.mjs). No HTTP listener, wallet endorsement, image/file adapter or hosted issuer is implemented. Public PS fixture keys and plaintext lab databases remain unsuitable for real assets.
+This local C1/C3 increment adds an issuer-signed report about a PS credential's spent status. The profile was delivered in PR #15; observer recovery qualification now extends its merged baseline `42a2458` without changing the [local PS credential profile](PS-LOCAL-ENGINE.md), credential stores or frozen reference fixtures. It is an original research protocol named **`zft-ps-local-state-v1`**, implemented in [state.mjs](../research/ps-lab/local/state.mjs). No HTTP listener, wallet endorsement, image/file adapter or hosted issuer is implemented. Public PS fixture keys and plaintext lab databases remain unsuitable for real assets.
 
-A valid signature establishes what the pinned issuer reported at `observed_at`. It does not reserve the credential, prove continuous ownership, prevent issuer equivocation or make the issuer trustworthy. The holder may spend immediately after the observation. Wallet bytes remain proof context, with **`walletAuthenticated:false`**. [Current validation](../research/ps-state-validation.json) records source hashes and the [roadmap](IMPLEMENTATION.md) retains independent review and integration gates.
+A valid signature establishes what the pinned issuer reported at `observed_at`. It does not reserve the credential, prove continuous ownership, prevent issuer equivocation or make the issuer trustworthy. The holder may spend immediately after the observation. Wallet bytes remain proof context, with **`walletAuthenticated:false`**. [Current validation](../research/ps-observer-recovery-validation.json) records source hashes and the [roadmap](IMPLEMENTATION.md) retains independent review and integration gates.
 
 ## Run locally
 
@@ -88,8 +88,32 @@ State signatures neither hide the showing's public asset attribute/nullifier nor
 
 ## Validation
 
-The combined local suite contains **76 tests**: the earlier 47 credential/recovery cases plus 29 observation cases. These add two actual SIGKILL boundaries and a two-process acceptance race, for 16 process-kill locations overall. Tests cover separate-key and full-manifest pinning, wrong and weak keys, signature mutation/noncanonical signatures, every context field, bounded canonical parsing, durable exact retries, replay after restart, expiry and clock rollback, sequence ordering, an actual older issuer database snapshot, outage errors and historical observation semantics.
+The combined local suite contains **88 tests**: 47 credential/recovery cases, 29 original observation cases and 12 observer recovery regressions. The original observation slice added two actual SIGKILL boundaries and a two-process acceptance race; the recovery slice below adds five more locations, for 21 process-kill locations overall. Tests cover separate-key and full-manifest pinning, wrong and weak keys, signature mutation/noncanonical signatures, every context field, bounded canonical parsing, durable exact retries, replay after restart, expiry and clock rollback, sequence ordering, an actual older issuer database snapshot, outage errors and historical observation semantics.
 
 The [RFC 8032 section 7.1 first Ed25519 vector](https://www.rfc-editor.org/rfc/rfc8032.html#section-7.1) checks Node's exact public key and empty-message signature, with noble verification as well. Noble also verifies the exact framed bytes of a generated local receipt. These checks validate primitive/backend agreement; the new protocol composition and tests share an author and are not independent transcript review or external protocol vectors.
 
-Fourteen temporary mutation controls must fail their named regressions. The six new controls remove signature validation, omit audience from the showing challenge, leave accepted challenges reusable, permit older sequences, split acceptance writes across commits, or skip freshness. The prior eight credential/recovery controls remain intact. Source files are not mutated. The reference lab retains 43 tests, three controls and exact unchanged Python fixture reproduction. C1/C3 remain partial; independent C4 review and C5/C6 wallet/file/vault/hosting work remain open.
+Seventeen temporary mutation controls must fail their named regressions. The six original observation controls remove signature validation, omit audience from the showing challenge, leave accepted challenges reusable, permit older sequences, split acceptance writes across commits, or skip freshness. The prior eight credential/recovery controls remain intact, with three further observer recovery controls below. Source files are not mutated. The reference lab retains 43 tests, three controls and exact unchanged Python fixture reproduction. C1/C3 remain partial; independent C4 review and C5/C6 wallet/file/vault/hosting work remain open.
+
+## Observer recovery qualification
+
+The [observer recovery suite](../research/ps-lab/local/state-recovery.test.mjs) adds 12 tests after PR #15. Five new callback locations permit actual process kills; the callbacks do nothing by default and do not change transaction ordering or protocol bytes. On reopening, tests inspect both the challenge rows and sequence/time memory, then retry the exact saved request or receipt.
+
+| Process interruption | Required persisted result |
+| --- | --- |
+| After challenge insert, before time update/commit | Neither new challenge nor time change survives. |
+| After challenge commit, before return | The entire unconsumed challenge/context and sampled time survive, even though the caller received no return. A showing can be built for that saved context. |
+| After exact request write, before time update/commit | Original challenge remains unbound; acceptance rejects an unsaved request. |
+| After request commit, before return | Exact wire bytes and sampled time survive. Exact retry succeeds; a different randomized proof cannot replace the bound request. |
+| After receipt/consumption write, before commit | Original pending request, sequence and sampled time survive; the exact receipt remains retryable. |
+
+Six storage cases produce real SQLite error results within disposable databases:
+
+- Three bounded `SQLITE_FULL` cases target the preparation time update, request time update and receipt/consumption write. The existing helper was moved unchanged into [fault-support.mjs](../research/ps-lab/local/fault-support.mjs). A named trigger ABORT proves the selected statement is reached before a temporary trigger allocates less than 2 MiB under a page limit. Earlier writes roll back together; reopening and retrying after removing the fault succeeds.
+- `PRAGMA query_only` makes acceptance return `SQLITE_READONLY` with the saved request and replay memory intact. This is not a filesystem permission test.
+- A separate writer connection makes acceptance return `SQLITE_BUSY` at transaction entry. A separate reader connection makes COMMIT return `SQLITE_BUSY` after the receipt and replay writes have all executed. Explicit rollback leaves the request retryable; releasing the lock and retrying succeeds. Test connections use a one-millisecond timeout instead of the ordinary five seconds.
+
+The remaining regression retries after a persistence fault at the original challenge deadline. Neither retry nor issuer observation extends that deadline; the old request remains saved and unconsumed, and a new challenge is required. Successful retries check exact receipt retention, one-use acceptance, unchanged issuer operation count and SQLite integrity.
+
+Three additional mutations commit the challenge before the preparation time update, commit the request before its time update, or omit explicit rollback after a failed COMMIT. Each must fail its named recovery assertion in a temporary copy. The tests confirm the existing transaction design; no transaction correction was required. [PR #15 evidence](../research/ps-state-validation.json) remains historical; [current evidence](../research/ps-observer-recovery-validation.json) records these tests and refreshed source hashes.
+
+These cases do not qualify power loss, real host-disk exhaustion, journal/fsync failure, arbitrary I/O errors, database corruption, malicious restore, every constructor/write boundary or browser/phone behavior. Sequence memory still cannot protect a fresh observer, a rolled-back observer store or same/higher-sequence issuer forks. C3 remains partial, and independent review, key lifecycle, retention/availability and integration remain open.
