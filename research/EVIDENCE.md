@@ -53,3 +53,8 @@ The user has moved PS/BLS12-381 parity from a deferred expansion to the next des
 ## PS reference-core fixtures on October 6 2026
 
 [Validation evidence](ps-profile-validation.json) records the first isolated C1 fixture set, exact source hashes, 42 passing verifier tests, Python reproduction and three broken-check controls. [The profile](../docs/PS-CRYPTOGRAPHIC-PROFILE.md) distinguishes static reference observations, derived lab issuer equations and additional validation policy. The [dependency inventory](ps-lab/dependencies.json) records pinned artifacts and retained license notices. Neither these same-author transcript implementations nor their distinct curve backends establish independent review or live reference interoperability. C1 remains in progress; no deployment is performed.
+
+
+## Local PS engine on October 7 2026
+
+[Local engine validation](ps-local-engine-validation.json) records 28 lifecycle/recovery tests, four deliberately broken controls, the ephemeral walkthrough and current source hashes. The [local profile](../docs/PS-LOCAL-ENGINE.md) introduces scoped ZFT attributes/transcripts and dedicated issuer/client SQLite stores without modifying the frozen reference verifier, generator or vector bytes. Its actual process kills and concurrent writers cover selected local boundaries, not independent cryptographic review, all storage failure modes or hosted/device behavior. The older [profile evidence](ps-profile-validation.json) remains a historical record of its source revision; the new evidence hashes the current files. ZVM availability is not needed and no deployed resources change.

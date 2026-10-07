@@ -4,7 +4,9 @@
   "type": "module",
   "packageManager": "pnpm@10.14.0",
   "scripts": {
-    "test": "node --test verify.test.mjs paths.test.mjs"
+    "test": "node --test verify.test.mjs paths.test.mjs",
+    "test:local": "node --experimental-sqlite --test local/engine.test.mjs",
+    "demo:local": "node --experimental-sqlite local/demo.mjs"
   },
   "devDependencies": {
     "@noble/curves": "2.4.0",

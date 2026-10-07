@@ -1,0 +1,172 @@
+{
+  "recordedAt": "2026-10-07T08:02:42.815687+00:00",
+  "baseline": "9f85c11c6f93b713f579d7784ae07fe48ca321a6",
+  "branch": "feat/ps-local-engine",
+  "profile": "zft-ps-local-v1",
+  "scope": "Original local C2 issuer/client stores and targeted C3 recovery qualification. In-process APIs, public test issuer keys, raw bounded test assets, plaintext private SQLite files. No live service or deployed app integration.",
+  "baselineReview": {
+    "pr": 12,
+    "finalHead": "ed5faf3543c85936aed5842085f92794a74086fa",
+    "mergedAt": "2026-10-07T07:40:53Z",
+    "result": "Fresh CodeRabbit review and all CI/preview passed before merge. Bot review is not independent cryptographic validation."
+  },
+  "runtime": {
+    "node": "v22.12.0",
+    "sqlite": "node:sqlite DatabaseSync, experimental flag, rollback journal, synchronous FULL",
+    "crypto": "@noble/curves 2.4.0; frozen reference primitives, original ZFT-specific transcripts"
+  },
+  "verification": [
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test:local",
+      "tests": 28,
+      "passed": 28,
+      "coverage": "Lifecycle, exact backup/recovery, purpose/session/realm/asset/destination/wallet-context binding, malformed input, expiry and suspension, duplicate assets, identical retries, multiprocess races and SIGKILL."
+    },
+    {
+      "command": "node research/ps-lab/local/check-controls.mjs",
+      "passed": 4,
+      "controls": [
+        "Unbound recovery capability",
+        "Repeated nullifier accepted",
+        "Spend committed without response",
+        "Unscoped credential asset attribute"
+      ],
+      "expected": "Each temporary mutant exits 1 with its named assertion failure; no working source is mutated."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace demo:local",
+      "result": "Issue, export, claim with dropped response, restore into third store, stale-copy rejection, cancellation and unspent showing pass; walletAuthenticated is false."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test",
+      "tests": 43,
+      "passed": 43
+    },
+    {
+      "command": "node research/ps-lab/check-controls.mjs",
+      "passed": 3,
+      "result": "All original pairing/linear/DLEQ mutations detected."
+    },
+    {
+      "command": "python research/ps-lab/generate.py",
+      "result": "Python 3.12 hash-pinned environment reproduces exact unchanged fixture bytes; subgroup and pairing checks pass."
+    },
+    {
+      "command": "python research/ps-lab/check-inventory.py",
+      "result": "13 dependency versions, pinned artifacts and retained license notices pass."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts",
+      "result": "Passed; lockfile unchanged."
+    },
+    {
+      "command": "pnpm typecheck",
+      "result": "Passed."
+    },
+    {
+      "command": "pnpm test",
+      "tests": 229,
+      "passed": 229,
+      "result": "All 25 app test files passed with local simulated runtimes; no live ZVM endpoint used."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed."
+    }
+  ],
+  "environmentNote": "Initial sandboxed app tests could not create worktree/Wrangler temporary files; the original controls cleanup masked a denied file creation as ENOENT. Rerunning with approved local filesystem access passed without source changes.",
+  "regressionEvidence": {
+    "realmRewrap": {
+      "before": "New regression fails on earlier unscoped local implementation: Missing expected exception.",
+      "after": "Same-key cross-realm relabeling rejects; editing h to the new realm rejects its signature.",
+      "beforeOutputSha256": "6a80abd5dcb207ace171d5022aecf9c638d92605cf8852b99bd8e5e3fd6f456c",
+      "sustainedControl": "Fourth temporary mutation removes the asset scope hash and still triggers the named test."
+    }
+  },
+  "processFaults": [
+    "SIGKILL after spend write before operation insertion/commit: neither row remains; exact pending request can complete.",
+    "SIGKILL after issuer commit before reply: exact durable response recovered.",
+    "SIGKILL after unblinding/verification before client save: saved journal completes after restart."
+  ],
+  "concurrency": [
+    "Independent processes competing for one source nullifier: exactly one replacement.",
+    "Independent processes reserving one initial asset: exactly one issuance.",
+    "Independent identical submissions: byte-identical result and one operation."
+  ],
+  "documentationChecks": {
+    "scope": [
+      "docs/IMPLEMENTATION.md",
+      "docs/PS-CREDENTIAL-PROTOCOL.md",
+      "docs/PS-CRYPTOGRAPHIC-PROFILE.md",
+      "docs/PS-LOCAL-ENGINE.md",
+      "research/EVIDENCE.md",
+      "research/ps-lab/README.md"
+    ],
+    "localLinksAndAnchors": 98,
+    "result": "Passed relative file existence and Markdown heading-anchor checks; network links were not bulk checked."
+  },
+  "isolation": {
+    "liveNetworkCallsFromLab": false,
+    "deploymentPerformed": false,
+    "retainedWorker": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092",
+    "unchanged": [
+      "Root dependencies and lockfile",
+      "App, SDK, Worker and contract source",
+      "Deployed bindings and data",
+      "v1 file/vault formats",
+      "Brand assets, original untracked zft-logo and historical OG snapshots",
+      "Existing branches and worktree node_modules symlink"
+    ]
+  },
+  "limitations": [
+    "Both the frozen lab and new local profile share an author; no independent cryptographic review or external oracle for the new profile.",
+    "The new scoped asset attribute and transcripts are not reference-wire compatible; source license/server enforcement and live interoperability remain unverified.",
+    "Public test issuer keys, plaintext bearer/session persistence and unqualified BigInt secret operations are unsuitable for valuable assets.",
+    "Wallet address bytes are showing context, not a wallet endorsement; no authenticated status or public publication.",
+    "Selected SIGKILL and concurrent-writer tests do not qualify every transaction boundary, storage fault, power loss, corrupt/rolled-back backup or hosted execution.",
+    "Third local store recovery is not phone/browser cross-device acceptance; exact snapshot acknowledgment is an API gate, not proof of safe external backup.",
+    "Admission/retention, key rotation, trusted manifest distribution, entropy/backend review, browser/file/vault adapters and independent C1/C4 review remain open.",
+    "C2 local harness is complete; C3 is partial and C5/C6 integration/hosting are unimplemented.",
+    "ZVM is unavailable for upgrades per the user; live chain acceptance remains deferred."
+  ],
+  "sourceHashScope": "Current files for this local validation run; excludes this self-referential JSON. Older ps-profile-validation.json is retained as a historical record, not a current-worktree hash manifest.",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "ad6c0e9c14834d0c4621dc4000e613edbe9eaabb5ae62ca2253b492ef459d87b",
+    "docs/IMPLEMENTATION.md": "86910fa5692dd645d7a88b3417521ad4fd94f9790d3524c1089c0d5929e7cee8",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "f4ea669396f410fa4243c8e9501422057a118ab063f5cd7893b68cf6c167f496",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "docs/PS-LOCAL-ENGINE.md": "9be6e40c47b054f5313e5f5bb3205ba3c642aac26908200b197f8cc5b9a3babe",
+    "research/EVIDENCE.md": "a18a931f0802615790660dfb82f146eec76033eaf3372677d0bfdf5949438a13",
+    "research/ps-lab/README.md": "59d7f1b55c1ca90d1887f0f4ce2cccaf7cd823b13d4284530b95d7d2b161f9ff",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/check-controls.mjs": "d9ece518b050de3e77e496dc0a19277be193185ad292e2cfa7ae2ae64b170d33",
+    "research/ps-lab/local/client.mjs": "19f1480d80d4f97af33d0c0ba947a2466aaf9c0e7d48e2937d534c64249af39c",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "3d04ea402b958f67b1609f9a2bf7f25837c7a43ab13a219470d02b36eb4d7938",
+    "research/ps-lab/local/issuer.mjs": "902c8e8e1ce9036023a17b65f4ec2a776f5b7c1d33a5764d6423a903a4ba2bee",
+    "research/ps-lab/local/process-worker.mjs": "d1d3b105b1b766d3abb56f9de1cfcfd5c3fb2ee2950d4bd16534c561efb7022e",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/package.json": "db0298678aff33ec46b681b1e0fcb158e46f446e8a55e305f85fd727ddeacfe2",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb"
+  },
+  "unchangedFromBaselineSha256": {
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b"
+  }
+}

@@ -220,3 +220,6 @@ Record the decision on option A and MetaMask inventory expectations, then the se
 
 
 C1 progress after PR #11: the [reference-core profile and fixtures](PS-CRYPTOGRAPHIC-PROFILE.md) now define exact bytes for the observed active issuance, showing and transfer paths. Two different curve libraries agree on deterministic examples; independent transcript review, an external oracle, ZFT-specific bindings and final API policies remain required. This is local research, not hosted integration.
+
+
+C2/C3 progress after PR #12: the [separate local profile and engine](PS-LOCAL-ENGINE.md) implement local issuer/client stores, scoped asset attributes, complete session/recovery proof contexts and selected crash/race qualification. It uses raw bounded asset bytes rather than the production PNG/file adapters. Wallet bytes are proof context only; wallet endorsement, independent validation and hosted integration remain open. The original reference fixtures are preserved, and no live ZVM endpoint is required for this local work.
