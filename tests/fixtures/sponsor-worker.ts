@@ -112,6 +112,7 @@ export class TestSponsor extends Sponsor {
         unhold?: string[];
         release?: string[];
         receipts?: [string, { state: string; block: string }][];
+        removeReceipts?: string[];
         head?: string;
         mismatch?: boolean;
         nonce?: number;
@@ -149,6 +150,7 @@ export class TestSponsor extends Sponsor {
         for (const release of this.releases.get(name) ?? []) release();
         this.releases.delete(name);
       }
+      for (const hash of data.removeReceipts ?? []) this.receipts.delete(hash);
       for (const [hash, receipt] of data.receipts ?? [])
         this.receipts.set(hash, receipt);
       if (data.head) this.head = BigInt(data.head);

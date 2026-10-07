@@ -433,12 +433,14 @@ export class Sponsor extends DurableObject<Env> {
     if (current.hash !== receipt.blockHash)
       throw new HttpError(503, "Chain reorganization pending. Keep both keys.");
     const head = await publicClient.getBlockNumber();
+    // A revert can be reorged out too. Neither outcome is terminal until the
+    // same confirmation window has elapsed, so retries keep the existing job.
     job.state =
-      receipt.status === "reverted"
-        ? "failed"
-        : head >= receipt.blockNumber + 6n
-          ? "confirmed"
-          : "included";
+      head < receipt.blockNumber + 6n
+        ? "included"
+        : receipt.status === "reverted"
+          ? "failed"
+          : "confirmed";
     job.block = receipt.blockNumber.toString();
     job.blockHash = receipt.blockHash;
     return job;

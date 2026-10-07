@@ -1,0 +1,140 @@
+{
+  "recordedAt": "2026-10-06T13:51:20.937644+00:00",
+  "mergedBaseline": "da5185ebf62520971d6d15636de77a6ed9fa798e",
+  "integratesPullRequest": 9,
+  "priorFixCommit": "37d24d978851d2a6d689cca568878ac7ff259874",
+  "sourceSha256": {
+    "apps/api/sponsor.ts": "dc048fb817cda5d78a11b4c33860d0949f74f25bc9f8e5138dd3ed0f85d0f1d9",
+    "tests/sponsor.test.ts": "68885d9a3f4779637bfd232f5d859914fcb14caffe646bf3a23c8f1d1a4946d0",
+    "tests/sponsor-recovery.test.ts": "cb03558b5186b3f9c3a8a2b2bf404dcdfe05e1e0ac7319704082ad6e29b47875",
+    "tests/fixtures/sponsor-worker.ts": "2d2deed892e53bd6720843ed1a23c704eda463ae4c7ed8948701ff0b65e7e892",
+    "tests/fixtures/sponsor-runtime.ts": "e90565e9c2543e0c2a4502ee71f5b73ffa9e51de169024bed8e09ae1a4369135"
+  },
+  "suite": {
+    "passed": 229,
+    "failed": 0,
+    "testFiles": 25
+  },
+  "sponsorTests": [
+    {
+      "file": "tests/sponsor-recovery.test.ts",
+      "cases": [
+        {
+          "name": "can retry after a process kill before the outbox without consuming a transaction nonce or gas budget",
+          "status": "passed"
+        },
+        {
+          "name": "recovers the exact durable transaction after a process kill at broadcast",
+          "status": "passed"
+        },
+        {
+          "name": "recovers the exact durable transaction after a process kill at broadcastResponse",
+          "status": "passed"
+        },
+        {
+          "name": "retains the outbox across ambiguous delivery and receipt outages without creating a fee replacement",
+          "status": "passed"
+        },
+        {
+          "name": "refuses signing and new gas reservations for 'untracked pending nonce'",
+          "status": "passed"
+        },
+        {
+          "name": "refuses signing and new gas reservations for 'node behind the journal'",
+          "status": "passed"
+        },
+        {
+          "name": "refuses signing and new gas reservations for 'external nonce advance'",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "tests/sponsor.test.ts",
+      "cases": [
+        {
+          "name": "serves challenges, one-use authentication and fresh status during a stalled broadcast",
+          "status": "passed"
+        },
+        {
+          "name": "bounds stalled status reads, coalesces polls, and keeps authentication responsive",
+          "status": "passed"
+        },
+        {
+          "name": "a delayed older poll cannot overwrite reconciliation or release its nonce reservation",
+          "status": "passed"
+        },
+        {
+          "name": "fails closed for a forked receipt and reports an unknown job without RPC",
+          "status": "passed"
+        },
+        {
+          "name": "caps outstanding status RPC work and releases capacity only when it settles",
+          "status": "passed"
+        },
+        {
+          "name": "reset releases a leaked RPC wait and drains delivery before clearing the fixture",
+          "status": "passed"
+        },
+        {
+          "name": "enforces the final challenge quota slot under concurrent requests",
+          "status": "passed"
+        },
+        {
+          "name": "enforces the final request quota slot under concurrent requests",
+          "status": "passed"
+        },
+        {
+          "name": "enforces the final profile quota slot under concurrent requests",
+          "status": "passed"
+        },
+        {
+          "name": "keeps concurrent submissions serialized through the durable outbox and recovers after failure",
+          "status": "passed"
+        },
+        {
+          "name": "keeps a reverted receipt pending at head 100 until six subsequent blocks",
+          "status": "passed"
+        },
+        {
+          "name": "keeps a reverted receipt pending at head 105 until six subsequent blocks",
+          "status": "passed"
+        },
+        {
+          "name": "retains the same job and reservation when an unconfirmed revert is reorged out and later succeeds",
+          "status": "passed"
+        },
+        {
+          "name": "rechecks a legacy failed job against current confirmation depth without overwriting another active job",
+          "status": "passed"
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "diffCheck": "passed",
+    "runtimeUnchangedFromPriorFix": true
+  },
+  "integrationChangesFromPriorFix": [
+    "docs/DEVNET-ALPHA.md",
+    "docs/FUNCTIONAL-SPEC.md",
+    "docs/IMPLEMENTATION.md",
+    "docs/SPONSOR-OPERATIONS.md",
+    "research/sponsor-recovery.json",
+    "tests/fixtures/sponsor-runtime.ts",
+    "tests/fixtures/sponsor-worker.ts",
+    "tests/sponsor-recovery.test.ts"
+  ],
+  "deployment": {
+    "workerVersion": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092",
+    "redeployed": false,
+    "reason": "Only tests, documentation and evidence changed during integration; deployed runtime source is byte-identical to priorFixCommit."
+  },
+  "historicalEvidence": [
+    "research/sponsor-recovery.json",
+    "research/sponsor-revert-confirmations.json",
+    "research/sponsor-revert-deployment.json"
+  ],
+  "scope": "Combined local workerd verification with simulated RPC outcomes, including seven process-recovery cases and four revert-confirmation regressions. Historical evidence retains its original source hashes and branch counts. Controlled-chain/hosted failure drills, fee replacement and MetaMask/phone acceptance remain open."
+}

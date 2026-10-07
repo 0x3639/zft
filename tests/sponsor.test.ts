@@ -370,3 +370,105 @@ it("keeps concurrent submissions serialized through the durable outbox and recov
   expect((await post("/submit", {})).status).toBe(503);
   expect((await post("/authenticate", await challenge())).status).toBe(200);
 });
+
+it.each([100, 105])(
+  "keeps a reverted receipt pending at head %i until six subsequent blocks",
+  async (head) => {
+    const j = job();
+    await fixture({
+      put: { [`job:${j.id}`]: j, active: j.id, lastNonce: j.nonce },
+      head: String(head),
+      receipts: [[j.hash, { state: "reverted", block: "100" }]],
+    });
+    const poll = await worker.fetch(`/operation/${j.id}`);
+    expect(await poll.json()).toMatchObject({
+      state: "included",
+      blockNumber: "100",
+    });
+    expect((await state()).storage[`job:${j.id}`]).toMatchObject({
+      state: "submitted",
+    });
+    await worker.fetch("/__alarm");
+    expect((await state()).storage).toMatchObject({
+      active: j.id,
+      lastNonce: j.nonce,
+      [`job:${j.id}`]: { state: "included", raw: j.raw, hash: j.hash },
+    });
+    await fixture({ head: "106" });
+    expect(
+      await (await worker.fetch(`/operation/${j.id}`)).json(),
+    ).toMatchObject({ state: "failed" });
+    // Even a terminal read cannot release the serialized nonce reservation.
+    expect((await state()).storage.active).toBe(j.id);
+    await worker.fetch("/__alarm");
+    const final = (await state()).storage;
+    expect(final.active).toBeUndefined();
+    expect(final[`job:${j.id}`]).toMatchObject({
+      state: "failed",
+      raw: j.raw,
+      hash: j.hash,
+    });
+    expect(final.lastNonce).toBe(j.nonce);
+    expect(Object.keys(final).filter((key) => key.startsWith("item:"))).toEqual(
+      [],
+    );
+  },
+);
+
+it("retains the same job and reservation when an unconfirmed revert is reorged out and later succeeds", async () => {
+  const j = job();
+  await fixture({
+    put: { [`job:${j.id}`]: j, active: j.id, lastNonce: j.nonce },
+    head: "105",
+    receipts: [[j.hash, { state: "reverted", block: "100" }]],
+  });
+  await worker.fetch("/__alarm");
+  expect((await state()).storage.active).toBe(j.id);
+  await fixture({ removeReceipts: [j.hash] });
+  const poll = await worker.fetch(`/operation/${j.id}`);
+  expect(await poll.json()).toMatchObject({ state: "submitted" });
+  await worker.fetch("/__alarm");
+  const orphaned = (await state()).storage;
+  expect(orphaned.active).toBe(j.id);
+  expect(orphaned[`job:${j.id}`]).toMatchObject({
+    state: "submitted",
+    raw: j.raw,
+    hash: j.hash,
+  });
+  expect((orphaned[`job:${j.id}`] as Job).block).toBeUndefined();
+  expect((orphaned[`job:${j.id}`] as Job).blockHash).toBeUndefined();
+  await fixture({
+    head: "116",
+    receipts: [[j.hash, { state: "success", block: "110" }]],
+  });
+  await worker.fetch("/__alarm");
+  const recovered = (await state()).storage;
+  expect(recovered.active).toBeUndefined();
+  expect(recovered[`job:${j.id}`]).toMatchObject({
+    state: "confirmed",
+    raw: j.raw,
+    hash: j.hash,
+    block: "110",
+  });
+  expect(recovered.lastNonce).toBe(j.nonce);
+});
+
+it("rechecks a legacy failed job against current confirmation depth without overwriting another active job", async () => {
+  const j = {
+    ...job(),
+    state: "failed" as const,
+    block: "100",
+    blockHash: "0xblock" as Hex,
+  };
+  await fixture({
+    put: { [`job:${j.id}`]: j, active: hash(2) },
+    head: "105",
+    receipts: [[j.hash, { state: "reverted", block: "100" }]],
+  });
+  expect(await (await worker.fetch(`/operation/${j.id}`)).json()).toMatchObject(
+    { state: "included" },
+  );
+  const stored = (await state()).storage;
+  expect(stored.active).toBe(hash(2));
+  expect(stored[`job:${j.id}`]).toEqual(j);
+});

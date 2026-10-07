@@ -34,7 +34,7 @@ The [complete website functional specification](FUNCTIONAL-SPEC.md) covers the e
 
 The public relayer currently requires a **50 gwei minimum priority fee** that `eth_gasPrice` does not include. The first deployment was rejected for this reason. Its replacement used the same nonce and constructor data. The integration adds the observed floor to the node quote and caps total gas price at 100 gwei. Transaction gas is capped at 600,000; the sponsor reserves a maximum 0.1 devnet ZNN per UTC day. These are test funds from the public faucet.
 
-The UI calls an operation **confirmed** after six subsequent EVM blocks. This is an application policy, not a protocol-finality guarantee. The RPC accepts `finalized`, but independently validating its semantics remains a beta gate.
+The UI calls an operation **confirmed** after six subsequent EVM blocks. A reverted receipt also waits through those six subsequent blocks as **included** before becoming **failed**, allowing its sponsor nonce to be released and its saved authorization to be renewed. This is an application policy, not a protocol-finality guarantee. The RPC accepts `finalized`, but independently validating its semantics remains a beta gate.
 
 ## Local operation
 
