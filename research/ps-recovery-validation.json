@@ -126,7 +126,7 @@
   "sourceHashScope": "Files for this C3 run; excludes this self-referential JSON. Previous profile and local-engine validation records are frozen historical manifests.",
   "sourceSha256": {
     ".github/workflows/ci.yml": "ad6c0e9c14834d0c4621dc4000e613edbe9eaabb5ae62ca2253b492ef459d87b",
-    "docs/IMPLEMENTATION.md": "e8b713f5e5950f68cb6561680910f53a3c9a75eac72baf14c296c423a28c5e48",
+    "docs/IMPLEMENTATION.md": "6c49eed2a5819bdc6defe40a081481957cb2b087dfd76129b9614a2a67f2e42e",
     "docs/PS-CREDENTIAL-PROTOCOL.md": "f4ea669396f410fa4243c8e9501422057a118ab063f5cd7893b68cf6c167f496",
     "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
     "docs/PS-LOCAL-ENGINE.md": "21fe468920d872edaa81762d22a64ad715e0872a53f4fb6ca9496f81464d4119",
@@ -178,5 +178,13 @@
     "zft-c3-app.log": "f80105239b42ae75dfff990f7de83b3bddb3e8a8367e3fa486e65dd8a150815c",
     "zft-c3-typecheck.log": "b25d99b66a753ba41fbf30382e01b030de41dc9f86246e6aa9baa038c523f109",
     "zft-c3-install.log": "ce489e3dd3097c540a7e13a1bd5581bbb3706dffdbcb27a8167b00f7dda3153d"
+  },
+  "reviewFollowup": {
+    "recordedAt": "2026-10-07T08:56:00.342912+00:00",
+    "review": "https://github.com/0x3639/zft/pull/14#pullrequestreview-5439923733",
+    "reviewedHead": "68c02fd17b2f164a1e7ad57e3410fb90e893f9e5",
+    "finding": "Current C3 checklist retained historical 28-test/four-control counts.",
+    "disposition": "Verified against the 47-test run and eight mutation controls. Updated checklist counts and selected storage-failure coverage while retaining all remaining C3 gates. Generic docstring coverage does not identify an additional correctness issue.",
+    "validation": "Documentation-only correction; local links/anchors, source hashes and diff checks. Existing code/test outputs remain applicable. Fresh exact-head review and CI required after push."
   }
 }
