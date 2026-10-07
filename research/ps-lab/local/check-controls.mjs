@@ -112,6 +112,78 @@ const controls = [
       ],
     ],
   },
+  {
+    name: "unsigned state accepted",
+    file: "state.mjs",
+    suite: "state.test.mjs",
+    test: "state signature tampering is rejected without consuming the challenge",
+    edits: [
+      [
+        '    assert(\n      verify(\n        null,\n        framed("receipt", body),\n        this.pinned.publicKey,\n        bytes(signature),\n      ),\n      "state signature",\n    );\n',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "state audience omitted from showing challenge",
+    file: "state.mjs",
+    suite: "state.test.mjs",
+    test: "state showing challenge binds audience and every request context field",
+    edits: [
+      [
+        '  return hash(framed("show", c));',
+        '  const { audience, ...rest } = c;\n  return hash(framed("show", rest));',
+      ],
+    ],
+  },
+  {
+    name: "state challenge reused",
+    file: "state.mjs",
+    suite: "state.test.mjs",
+    test: "state response cannot be replayed after observer restart",
+    edits: [
+      [
+        "UPDATE challenges SET consumed=1,receipt=? WHERE id=?",
+        "UPDATE challenges SET consumed=0,receipt=? WHERE id=?",
+      ],
+    ],
+  },
+  {
+    name: "observer sequence regresses",
+    file: "state.mjs",
+    suite: "state.test.mjs",
+    test: "delayed state receipt cannot lower a newer accepted sequence",
+    edits: [
+      [
+        '      assert(\n        body.sequence >= Math.max(c.min_sequence, this.clock().sequence),\n        "state sequence rollback",\n      );\n',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "observation watermark committed without consumption",
+    file: "state.mjs",
+    suite: "state.test.mjs",
+    test: "state acceptance watermark and challenge consumption commit atomically",
+    edits: [
+      [
+        '      this.boundary("after-state-watermark");',
+        '      this.db.exec("COMMIT; BEGIN IMMEDIATE");\n      this.boundary("after-state-watermark");',
+      ],
+    ],
+  },
+  {
+    name: "expired state accepted",
+    file: "state.mjs",
+    suite: "state.test.mjs",
+    test: "state challenge rejects receipt outside its lifetime at offset 60",
+    edits: [
+      [
+        '  assert(\n    now >= c.created_at && now < c.expires_at,\n    "state challenge expired or clock behind",\n  );',
+        "",
+      ],
+    ],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));

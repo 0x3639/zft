@@ -1,18 +1,25 @@
 // Test-only process harness: all inputs are local lab artifacts, never live keys.
 import { Issuer } from "./issuer.mjs";
 import { Client } from "./client.mjs";
+import { StateObserver } from "./state.mjs";
 process.once("message", (job) => {
   const boundary = (phase) => {
     if (phase === job.crash) process.kill(process.pid, "SIGKILL");
   };
-  const instance = job.client
-    ? new Client(job.path, job.manifest, { boundary })
-    : new Issuer(job.path, job.realm, job.secrets, { boundary });
+  const instance = job.observer
+    ? new StateObserver(job.path, job.psManifest, job.stateManifest, {
+        now: () => job.now,
+        boundary,
+      })
+    : job.client
+      ? new Client(job.path, job.manifest, { boundary })
+      : new Issuer(job.path, job.realm, job.secrets, { boundary });
   process.send({ ready: true });
   process.once("message", () => {
     try {
       let value;
-      if (!job.client) value = instance.submit(job.wire, job.capability);
+      if (job.observer) value = instance.accept(job.challenge, job.receipt);
+      else if (!job.client) value = instance.submit(job.wire, job.capability);
       else
         switch (job.action ?? "accept") {
           case "prepare":

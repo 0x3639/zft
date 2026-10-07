@@ -223,3 +223,5 @@ C1 progress after PR #11: the [reference-core profile and fixtures](PS-CRYPTOGRA
 
 
 C2/C3 progress after PR #12: the [separate local profile and engine](PS-LOCAL-ENGINE.md) implement local issuer/client stores, scoped asset attributes, complete session/recovery proof contexts and selected crash/race qualification. It uses raw bounded asset bytes rather than the production PNG/file adapters. Wallet bytes are proof context only; wallet endorsement, independent validation and hosted integration remain open. The original reference fixtures are preserved, and no live ZVM endpoint is required for this local work.
+
+Local C1/C3 progress after PR #14: the [signed state observation profile](PS-LOCAL-STATE.md) adds a separate pinned Ed25519 key, bound showing challenges and atomic observer replay/sequence persistence. Its receipt is a timestamped issuer assertion, not a reservation or global consistency proof; fresh observers cannot detect an older snapshot from its sequence alone. Production trust distribution, wallet endorsement, independent review and hosting remain open.
