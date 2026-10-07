@@ -217,6 +217,44 @@ const controls = [
       ['      db.exec("ROLLBACK");', "      /* deliberately omit rollback */"],
     ],
   },
+  {
+    name: "noncanonical wire accepted",
+    file: "profile.mjs",
+    suite: "parser.test.mjs",
+    test: "parser corpus rejects malformed issue requests without issuer mutation",
+    edits: [
+      [
+        '  assert.equal(\n    canonical(v),\n    wire,\n    "canonical JSON; no duplicate keys or alternate encoding",\n  );',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "wire limit counts characters instead of bytes",
+    file: "profile.mjs",
+    suite: "parser.test.mjs",
+    test: "parser limits count UTF-8 bytes at each local wire boundary",
+    edits: [["Buffer.byteLength(wire) <= limit", "wire.length <= limit"]],
+  },
+  {
+    name: "unexpected bearer fields accepted",
+    file: "profile.mjs",
+    suite: "parser.test.mjs",
+    test: "parser corpus rejects malformed bearer files without creating pending claims",
+    edits: [
+      [
+        '  assert.deepEqual(\n    Object.keys(v).sort(),\n    names.split(" ").sort(),\n    "exact fields",\n  );',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "unbounded canonical JSON depth",
+    file: "profile.mjs",
+    suite: "parser.test.mjs",
+    test: "parser canonical boundaries reject deep objects and alternate numeric encodings",
+    edits: [['  assert(depth < 8, "JSON depth");', ""]],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));

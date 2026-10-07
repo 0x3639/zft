@@ -1,8 +1,8 @@
 # PS local issuer and client stores
 
-This is the isolated C2 research engine and a targeted C3 recovery harness, now accompanied by signed state observations and observer recovery tests from the merged PR #15 baseline `42a2458`. It runs locally without ZVM, an HTTP server, a wallet, Cloudflare or a reference mint. The demo uses deliberately public issuer test keys. **Do not issue real assets with it.** The [roadmap](IMPLEMENTATION.md) keeps independent C1/C4 review and product/hosting C5/C6 acceptance open.
+This is the isolated C2 research engine and a targeted C3 recovery harness, now accompanied by signed state observations, observer recovery and parser tests extending the merged PR #16 baseline `32d84dd`. It runs locally without ZVM, an HTTP server, a wallet, Cloudflare or a reference mint. The demo uses deliberately public issuer test keys. **Do not issue real assets with it.** The [roadmap](IMPLEMENTATION.md) keeps independent C1/C4 review and product/hosting C5/C6 acceptance open.
 
-[Current observer recovery validation](../research/ps-observer-recovery-validation.json) records this revision. [State validation](../research/ps-state-validation.json) remains the historical PR #15 record. [Recovery validation](../research/ps-recovery-validation.json) and [original engine evidence](../research/ps-local-engine-validation.json) remain historical PR #14 and PR #13 records. The [frozen reference profile](PS-CRYPTOGRAPHIC-PROFILE.md), its Python generator, JavaScript verifier and deterministic vectors remain unchanged. The profile below is a separate, original `zft-ps-local-v1` experiment, with different asset attributes and proof contexts. It does not claim reference wire compatibility or independent cryptographic validation.
+[Current parser validation](../research/ps-parser-validation.json) records this revision. [Observer recovery validation](../research/ps-observer-recovery-validation.json) remains the historical PR #16 record. [State validation](../research/ps-state-validation.json) remains the historical PR #15 record. [Recovery validation](../research/ps-recovery-validation.json) and [original engine evidence](../research/ps-local-engine-validation.json) remain historical PR #14 and PR #13 records. The [frozen reference profile](PS-CRYPTOGRAPHIC-PROFILE.md), its Python generator, JavaScript verifier and deterministic vectors remain unchanged. The profile below is a separate, original `zft-ps-local-v1` experiment, with different asset attributes and proof contexts. It does not claim reference wire compatibility or independent cryptographic validation.
 
 ## Run locally
 
@@ -88,6 +88,31 @@ The client verifies before committing its new credential, completed operation an
 
 Stores use rollback journals, `synchronous=FULL`, foreign keys and a five-second busy timeout. Files are created with mode 0600, reject broader group/other access or a nonregular file, and are used inside a private temporary directory in the harness. They are **plaintext bearer and issuer-session storage**, not browser vaults. The private directory and trusted local process environment are assumptions; this is not hardened against malicious filesystem replacement, database tampering or registry rollback. Never point the lab at application data.
 
+## Parser boundary qualification
+
+The [parser suite](../research/ps-lab/local/parser.test.mjs) adds 13 tests to the merged PR #16 baseline. Ten tests apply a fixed bounded malformed-input corpus to real lab entry points using disposable issuer, client and observer databases:
+
+| Artifact | Entry point | Malformed variants | Rejected calls |
+| --- | --- | ---: | ---: |
+| Issue request | `Issuer.submit` | 48 | 48 |
+| Swap request | `Issuer.submit` | 50 | 50 |
+| Issue response | `Client.accept` | 30 | 30 |
+| Swap response | `Client.accept` | 30 | 30 |
+| Issue recovery | `Client.restore`, existing and empty stores | 48 | 96 |
+| Swap recovery | `Client.restore`, existing and empty stores | 59 | 118 |
+| Bearer file | `Client.prepareClaim` | 51 | 51 |
+| Public showing | `Issuer.checkShowing` | 42 | 42 |
+| State request | `StateIssuer.observe` | 66 | 66 |
+| State receipt | `StateObserver.accept` | 47 | 47 |
+
+All **471 variants / 578 calls** must reject. After every call, tests compare all rows in every participating store, including issuer sessions/operations/assets/spends, client pending/credential records and observer challenge/sequence/time memory. Recovery targets are asserted separately so one store's rejection cannot mask acceptance by the other. The original valid operation then succeeds, including exact issuer replay or receipt retention where applicable.
+
+The selected transformations include missing/extra fields, duplicate root members, selected nested credential/source/body schemas, a duplicated receipt-body member, wrong object and embedded-wire types, whitespace, BOM, truncation/trailing data, alternate key order/escaping, invalid numeric/hex encodings, unknown protocol and oversized objects. Credential cases include zero/out-of-range scalars and malformed signature points. An own `__proto__` member rejects and leaves `Object.prototype` unchanged. These checks require rejection and unchanged database rows, not stable error classes or messages across all invalid inputs.
+
+Three additional tests cover exact UTF-8 byte limits (8,192 / 12,288 / 140,000 / 300,000), the shared parser's depth and numeric boundaries, and issuance/recovery/export of a 65,536-byte test asset. Empty and 65,537-byte assets reject without pending writes. The byte-limit test exercises the shared parser at the endpoint limits; it does not claim every artifact can fill its entire envelope with valid schema content.
+
+Four temporary controls remove canonical-wire equality, count UTF-16 characters instead of UTF-8 bytes, omit exact-field checking, or remove the depth guard. Each must fail its named regression with an assertion. The parser and cryptographic implementation are unchanged. The corpus uses fixed transformations of freshly generated valid lab artifacts; it is not a fixed external vector set, exhaustive fuzzing, allocation/CPU qualification, raw-byte UTF-8 decoder testing or an HTTP transport policy. Broader parser policies and independent C1/C4 review remain open.
+
 ## Validation and remaining gates
 
 The credential/recovery sub-suite retains **47 tests**: the original 28 lifecycle/binding/race tests plus 19 recovery regressions. Fourteen tests actually kill a child process with SIGKILL, then reopen the SQLite store and inspect persisted state. The new interruption hooks are inert unless a caller supplies the test callback; they do not change protocol bytes or transaction boundaries.
@@ -115,7 +140,7 @@ Eight credential/recovery controls mutate temporary copies and require named ass
 
 The reference lab separately retains 43 passing tests, exact Python fixture reproduction, inventory checks and three broken-verifier controls. None supplies an independent oracle for this local profile. [SQLite's atomic commit model](https://www.sqlite.org/atomiccommit.html) depends on filesystem/hardware behavior. SIGKILL, page limits and connection locks do not qualify power loss, real disk/journal exhaustion, arbitrary I/O errors, corruption, registry/backup rollback, all boundaries or hosted storage. Recovery into a third local store is not phone/browser cross-device acceptance.
 
-The [state observation extension](PS-LOCAL-STATE.md#validation) adds 29 tests, two SIGKILL locations and six mutation controls. The [observer recovery slice](PS-LOCAL-STATE.md#observer-recovery-qualification) adds 12 further tests, five SIGKILL locations and three controls. The combined local totals are **88 tests, 21 process-kill locations and 17 controls**. Observation freshness, exact proof/context binding, durable replay rejection and remembered sequence checks are covered. A new observer accepting an older registry snapshot and a timestamped unspent receipt accepted after a later spend are tested limitations, not claims of global rollback protection.
+The [state observation extension](PS-LOCAL-STATE.md#validation) adds 29 tests, two SIGKILL locations and six mutation controls. The [observer recovery slice](PS-LOCAL-STATE.md#observer-recovery-qualification) adds 12 further tests, five SIGKILL locations and three controls. The parser slice below adds 13 tests and four controls. The combined local totals are **101 tests, 21 process-kill locations and 21 controls**. Observation freshness, exact proof/context binding, durable replay rejection and remembered sequence checks are covered. A new observer accepting an older registry snapshot and a timestamped unspent receipt accepted after a later spend are tested limitations, not claims of global rollback protection.
 
 C2 is complete for this local harness. C3 remains partial: hardware/filesystem failures, corruption and rollback defense, retention/availability policy, further boundaries and real device recovery remain. C1 still needs independent equations/transcripts/vectors, reviewed entropy/backend decisions, complete malformed-input policies, trusted manifest distribution, production qualification of the local signed-observation profile and key rotation. C4 independent review is required before a hosted experiment. Admission abuse, key custody, operator compromise, censorship, equivocation, quotas and Cloudflare storage/CPU qualification remain open. C5 must decide custody and implement wallet endorsement, image/file/vault adapters and UI before any integration. C6 requires separately approved hosted resources and incident recovery.
 

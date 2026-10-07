@@ -1,0 +1,224 @@
+{
+  "recordedAt": "2026-10-07T14:04:41.760382+00:00",
+  "baseline": "32d84dd33150c0a4583e2beaf636460ce8594d4c",
+  "branch": "test/ps-parser-boundaries",
+  "profile": "zft-ps-local-v1",
+  "stateProfile": "zft-ps-local-state-v1",
+  "scope": "Local C1 bounded malformed-input qualification. Thirteen tests and four temporary mutation controls; no parser, cryptographic transcript, transaction or application implementation changes.",
+  "baselineReview": {
+    "pr": 16,
+    "finalHead": "f1daa7aa35a5997b0877404c202d6f3a651a19ef",
+    "mergedAt": "2026-10-07T13:50:37Z",
+    "result": "CodeRabbit reviewed the exact signed head without actionable findings; both app verify and both PS profile jobs plus Cloudflare preview passed. Bot review is not independent cryptographic validation."
+  },
+  "runtime": {
+    "node": "v22.12.0",
+    "sqlite": "node:sqlite DatabaseSync, experimental flag, rollback journal, synchronous FULL",
+    "crypto": "@noble/curves 2.4.0; frozen reference primitives, original ZFT-specific transcripts",
+    "stateSignature": "Node v22.12.0 crypto Ed25519; noble 2.4.0 strict public-key decoding and separate verification in tests"
+  },
+  "verification": [
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test:local",
+      "passed": 101,
+      "previousTests": 88,
+      "newParserTests": 13,
+      "processKillLocations": 21,
+      "newProcessKillLocations": 0
+    },
+    {
+      "command": "node research/ps-lab/local/check-controls.mjs",
+      "passed": 21,
+      "newControls": 4,
+      "result": "Each temporary mutation fails its named regression with ERR_ASSERTION. Working implementation files remain intact."
+    },
+    {
+      "command": "node_modules/.bin/prettier --check research/ps-lab/local/parser.test.mjs research/ps-lab/local/check-controls.mjs research/ps-lab/package.json",
+      "result": "Passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed."
+    }
+  ],
+  "inheritedValidation": {
+    "record": "research/ps-state-validation.json",
+    "head": "289442d8b8ea72366e8e873c04ce491f2b98caa3",
+    "scope": "Unchanged reference lab/application: prior 43 reference tests, three reference controls, exact Python fixture reproduction, 13-dependency inventory, isolated frozen install, typecheck and 229 app tests are baseline evidence, not new local executions in this slice. PR #16 CI passed these checks and this PR CI runs them again. Existing local demos last ran for PR #16; they are not claimed as rerun here."
+  },
+  "corpus": {
+    "artifactFamilies": 10,
+    "malformedVariants": 471,
+    "rejectedCalls": 578,
+    "familyCounts": {
+      "issue request": {
+        "variants": 48,
+        "calls": 48
+      },
+      "issue response": {
+        "variants": 30,
+        "calls": 30
+      },
+      "issue recovery": {
+        "variants": 48,
+        "calls": 96
+      },
+      "swap request": {
+        "variants": 50,
+        "calls": 50
+      },
+      "swap response": {
+        "variants": 30,
+        "calls": 30
+      },
+      "swap recovery": {
+        "variants": 59,
+        "calls": 118
+      },
+      "bearer file": {
+        "variants": 51,
+        "calls": 51
+      },
+      "public showing": {
+        "variants": 42,
+        "calls": 42
+      },
+      "state request": {
+        "variants": 66,
+        "calls": 66
+      },
+      "state receipt": {
+        "variants": 47,
+        "calls": 47
+      }
+    },
+    "method": "Fixed transformations of freshly generated valid lab artifacts. Independent rejection assertions for recovery into existing and empty stores. Every call compares all participating issuer/client/observer table rows, including sequence counters, then each family accepts its original valid artifact. Selected root/nested schemas and encodings; no exhaustive-fuzzer claim.",
+    "additionalBoundaries": [
+      "Shared parser accepts exact UTF-8 byte limits 8192, 12288, 140000 and 300000 and rejects one byte over. Multibyte characters distinguish byte and character counting.",
+      "Shared parser depth boundary, nonnegative safe integers, negative zero/fraction/exponent/alternate encoding, arrays and duplicate nested keys.",
+      "A 65536-byte bounded asset issues, restores into a second client and exports exactly; empty/65537-byte assets reject with unchanged stores."
+    ]
+  },
+  "newNegativeControls": [
+    "Remove canonical JSON wire equality.",
+    "Count JavaScript UTF-16 string length instead of UTF-8 bytes.",
+    "Remove exact-field checking.",
+    "Remove canonical JSON depth limit."
+  ],
+  "documentationChecks": {
+    "scope": [
+      "docs/IMPLEMENTATION.md",
+      "docs/PS-CREDENTIAL-PROTOCOL.md",
+      "docs/PS-CRYPTOGRAPHIC-PROFILE.md",
+      "docs/PS-LOCAL-ENGINE.md",
+      "research/EVIDENCE.md",
+      "research/ps-lab/README.md",
+      "docs/PS-LOCAL-STATE.md"
+    ],
+    "localLinksAndAnchors": 139,
+    "result": "Passed local relative-file and Markdown-anchor checks; network links not bulk checked."
+  },
+  "isolation": {
+    "liveNetworkCallsFromLab": false,
+    "deploymentPerformed": false,
+    "retainedWorker": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092",
+    "unchanged": [
+      "Root dependencies and lockfile",
+      "App, SDK, Worker and contract source",
+      "Deployed bindings and data",
+      "v1 file/vault formats",
+      "Brand assets, original untracked zft-logo and historical OG snapshots",
+      "Existing branches and worktree node_modules symlink"
+    ]
+  },
+  "limitations": [
+    "Same-author local research with public PS issuer test keys, plaintext databases and unqualified secret BigInt operations; unsuitable for real assets.",
+    "RFC primitive vector and Node/noble verification do not provide independent review of the composed state protocol or PS equations/transcripts.",
+    "State signatures prove what the pinned issuer reported; no issuer honesty, no supply/equivocation defense and no guaranteed unspent state after the snapshot.",
+    "Fresh observers, same/higher-sequence forks, restored observer backups and manipulated time/trust are not protected by the remembered sequence/time checks.",
+    "No trusted manifest distribution, key rotation/retirement, secure time source, HTTP transport, wallet authentication, image/file/vault adapter or hosted issuer.",
+    "SIGKILL is not power loss; prior page-limit/query_only tests do not qualify real disk, hardware or permission failures. Arbitrary IOERR, corruption, all boundaries, retention/availability and devices remain open.",
+    "Wallet bytes remain context only; walletAuthenticated false. Public showings expose linkable h and nullifier.",
+    "C2 local harness complete; C1/C3 partial; independent C4 review and C5/C6 integration/hosting remain open.",
+    "Selected same-author malformed transformations do not supply exhaustive fuzzing, independent vectors, allocation/CPU qualification, raw-byte UTF-8 decoder tests or HTTP transport policies.",
+    "Shared parser byte limits are tested directly; this does not claim every artifact schema can fill its entire envelope.",
+    "Malformed cases require rejection and unchanged database rows, not stable error classes/messages. No implementation correction was required."
+  ],
+  "sourceHashScope": "Current parser qualification increment excluding this JSON itself. All five earlier validation manifests remain frozen historical records.",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "ad6c0e9c14834d0c4621dc4000e613edbe9eaabb5ae62ca2253b492ef459d87b",
+    "docs/IMPLEMENTATION.md": "97d652b536afefb546d4d0390a085203581a536e81800fbe125c804bee09ac7b",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "docs/PS-LOCAL-ENGINE.md": "254e37e89780e51e547c96a68aa0fa30c63fcf33a16c4e854406c76947b8ff79",
+    "docs/PS-LOCAL-STATE.md": "03e2663bfc39040ebd33c4edd096f585dd4d0fceb19205500e3e3a8f553acc2a",
+    "research/EVIDENCE.md": "577e34ef3947ecf289119d40b4759c66ae0bfebdc7647d88699e4bcad5bcafee",
+    "research/ps-lab/README.md": "235b826733414d846ca215eb1ac311a8eb6faa1964cff4403aa6aebe76db2036",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/check-controls.mjs": "84bbc0e6fe465b94d07bee3a47bb58145c3737174205edc4fa053a05a9adebbb",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/parser.test.mjs": "122903ab7ee55174a2c67ed725fa8b0e36e3faecc1f4c4eda4519960dbbca49e",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/package.json": "ec0385b9046f6fb4084ccd2f2d4b14125f9b7472b065b039628bd7f48d13302d",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-observer-recovery-validation.json": "8c12e0465bfdefb65ef3a3f8cb3fcb17ca9bdaee7d95718e16eaa5e682449cb3",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5"
+  },
+  "unchangedFromBaselineSha256": {
+    ".github/workflows/ci.yml": "ad6c0e9c14834d0c4621dc4000e613edbe9eaabb5ae62ca2253b492ef459d87b",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-observer-recovery-validation.json": "8c12e0465bfdefb65ef3a3f8cb3fcb17ca9bdaee7d95718e16eaa5e682449cb3",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5"
+  },
+  "localOutputSha256": {
+    "/private/tmp/zft-parser-local.tap": "3d734cb143261b777779bb7f5cae7ad13ce5524ed5dc726df15d980354cfa359",
+    "/private/tmp/zft-parser-controls.log": "0fc33e94c256ab388d6ec080d5a929acf769a53e4fe0f9c31283bd7b688d0b64"
+  }
+}
