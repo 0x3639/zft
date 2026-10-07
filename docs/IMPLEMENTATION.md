@@ -1,17 +1,19 @@
 # ZFT implementation roadmap and acceptance gates
 
-This roadmap tracks delivered work and the balance of the ZFT specification. The hosted devnet alpha is live; wallet custody, the remaining public-site features and beta qualification are the active backlog. Use this document for work status, [FUNCTIONAL-SPEC.md](FUNCTIONAL-SPEC.md) for required behavior, and [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for deployed operation and limitations.
+This roadmap tracks delivered work and the balance of the ZFT specification. The hosted devnet alpha is live. The next milestone is the PS credential design and isolated prototype requested for cryptographic parity; existing wallet/device and beta qualification remain open. Use this document for work status, [FUNCTIONAL-SPEC.md](FUNCTIONAL-SPEC.md) for required behavior, and [DEVNET-ALPHA.md](DEVNET-ALPHA.md) for deployed operation and limitations.
 
 ## Roadmap status
 
-This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Last reconciled: **2026-10-06**, merged baseline **`da5185e`** ([PR #9](https://github.com/0x3639/zft/pull/9)). Its reviewed head `82b6a47` passed CodeRabbit review, both CI runs and the Cloudflare build with no outstanding actionable findings. PR #9 adds seven local crash/retry cases, now integrated into this branch. The current increment is **`fix/sponsor-revert-confirmations`**, correcting premature failure of an unconfirmed reverted transaction.
+This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Last reconciled: **2026-10-06**, merged baseline **`f0a4065`** ([PR #10](https://github.com/0x3639/zft/pull/10)). Its reviewed head `5a1b330` passed CodeRabbit with no actionable findings, both CI verify jobs and Cloudflare preview; the combined suite has 229 passing app tests. The current increment is **`docs/ps-credential-protocol`**, a design-only proposal. It does not change the deployed ERC-721 runtime or claim PS implementation.
 
 Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
 
-Current focus: **R6 browser/device acceptance and R7 operational qualification.** Brave has a connected MetaMask account and displays an existing confirmed wallet mint; this observation does not complete a new transfer/recovery acceptance run. R7.5 is merged. R7.1/R7.2 sponsor recovery checks can proceed independently of new wallet signatures. Actual MetaMask/phone and wider release acceptance remain R1.5/R1.6/R6/R7.
+Current focus: **C0 PS credential design review, followed by C1 profile/vectors and C2 isolated prototype.** The user requested the reference's PS/BLS12-381 cryptography and authorized this design step. [The proposal](PS-CREDENTIAL-PROTOCOL.md) makes the off-chain issuer, MetaMask identity versus credential custody, and native-NFT tradeoff explicit. Broader protocol expansion and apex promotion wait for that direction; v1 maintenance and its pending R1.5/R1.6/R6/R7 acceptance remain tracked. Existing wallet observations do not complete real-device acceptance.
 
 | Work | Status | Completed baseline or remaining deliverable | Acceptance |
 | --- | --- | --- | --- |
+| C0 PS protocol design | Ready for review | Pinned current reference, architecture/trust choices, recovery/state invariants and prototype acceptance | [Protocol proposal](PS-CREDENTIAL-PROTOCOL.md); no PS code or deployment |
+| C1–C6 PS qualification | Planned | Exact transcripts/vectors, isolated engine, recovery drills, independent review, integration and hosting | Separate evidence per stage; native-NFT custody decision before public integration |
 | B1 Core ownership | Complete for SDK and Worker scope | Deployed ERC-721, codec, encrypted vault, mint/export/claim/cancel/recovery; real devnet canary | [Transaction evidence](../research/hosted-devnet-canary.json); device acceptance remains R6 |
 | B2 Public proof and navigation | Complete for recorded scope | Collection-first profiles, Network dialogs, guest entry, proof card, historical epochs, safe proof download, theme/menu/lookup | [Browser evidence](../research/public-ui-acceptance.json); A-NAV/A-PROFILE/A-ITEM/A-PROOF subset |
 | B3 Page sharing | Complete for recorded scope | Initial HTML, current-holding collages, selected epochs, bounded thumbnail derivatives | [Hosted check](../research/public-canary.json), [renderer fixtures](../research/sharing-fixtures/results.json); remaining platform checks in R6 |
@@ -22,11 +24,21 @@ Current focus: **R6 browser/device acceptance and R7 operational qualification.*
 | R5 Help and remaining sharing | Complete for recorded scope | Basics/Technical views, task-aware CTAs, distinct metadata, public-copy fallback and fourteen renderer fixtures | A-NAV/A-SHARE service and browser checks; social-platform/device checks remain R6 |
 | R6 Browser and device acceptance | Pending acceptance | Actual wallet extension, two-browser/phone ownership and recovery, accessibility and errors | A-WALLET, A-TRANSFER, A-RECOVERY, A-NAV |
 | R7 Operations and release review | In progress | R7.5 is merged; local R7.1 crash/retry/nonce cases pass. Fee replacement, controlled-chain/reorg/reset drills, limits and independent review remain open | A-OPERATIONS |
-| R8 Apex promotion | After R6/R7 and release review | Reviewed build/deployment settings, `zft.foo` app routing, smoke checks and rollback | Hosting/release acceptance |
+| R8 Apex promotion | After protocol-scope decision, applicable R6/R7 and release review | Reviewed build/deployment settings, `zft.foo` app routing, smoke checks and rollback | Hosting/release acceptance |
 | R9 Curated collections | Scope decision open | Group public items at `/c/:collectionId`; decide whether part of this beta | A-DISCOVERY, A-PROFILE, A-SHARE |
 | E1 Encrypted sharing and remote backup | Deferred | Separate encryption/storage/recovery/retention protocol | New protocol review and recovery/race tests |
 | E2 Marketplace | Deferred | Verify Karum deployment/source/order types, payment asset, safe payouts; then listings/offers/settlement | A-MARKET; [exchange plan](MARKETPLACE.md) |
-| E3 Mainnet and private ownership | Outside devnet release | Mainnet launch and privacy research are separate projects | Independent design and launch review |
+| E3 Mainnet | Outside devnet release | Mainnet launch remains separate; requested PS design moved to C0–C6 | Independent launch review |
+
+## PS credential work
+
+- [ ] C0 Review the [protocol proposal](PS-CREDENTIAL-PROTOCOL.md#decision-for-review), including the choice between reference-style mint custody and ordinary wallet-visible ZVM NFTs. The design and current source evidence are prepared; architecture approval and PS implementation are not complete.
+- [ ] C1 Freeze the exact issuance/transfer/showing profile, schemas, encodings, proof transcripts, licensed dependencies and independent vectors. Current reference wallet selects committed issuance v3; older blind-issuance helper exports do not prove active use.
+- [ ] C2 Implement a local issuer and two clients for mint/export/claim/cancel/showing, isolated from live services.
+- [ ] C3 Verify atomic spend/response persistence, concurrent claims, crash/restart, response recovery, expiry and cross-device backup.
+- [ ] C4 Complete independent protocol and implementation review before a hosted experiment.
+- [ ] C5 Integrate protocol-discriminated custody, wallet endorsement, routes, files and public/OG proofs after the native-NFT decision; preserve v1.
+- [ ] C6 Qualify isolated hosted resources, issuer key lifecycle, limits/retention and incident recovery; do not treat this as apex or mainnet approval.
 
 ## Supplied brand rollout
 
@@ -92,9 +104,9 @@ R7.5 delivery: Worker **`4693920f-eeb2-427d-8b29-65f218e0d6e5`**, 2026-10-06. [H
 
 ## Decisions and dependencies
 
-Continue ready work without reopening the confirmed domain, visual theme, Cloudflare hosting, real devnet implementation, or MetaMask direction. Remaining decisions are curated-collection beta scope; long-term historical publication retention; whether portable profile-key endorsements are required; project source license; encrypted-link/remote-backup protocol; and the verified exchange/payment asset. An unanswered expansion decision does not block the existing collectible app.
+Continue ready work without reopening the confirmed domain, visual theme, Cloudflare hosting, real devnet implementation, or MetaMask direction. The next design decision is the PS issuer/custody model and its native ZVM NFT tradeoff; MetaMask remains the public identity. Other remaining decisions are curated-collection beta scope; long-term historical publication retention; whether portable profile-key endorsements are required; project source license; encrypted-link/remote-backup protocol; and the verified exchange/payment asset. An unanswered expansion decision does not block the existing collectible app.
 
-Confirmed custody direction: MetaMask controls ordinary holdings and profile actions; a fresh independent disposable key controls each transferable file. Wallet private keys are never requested/exported. The connected wallet address is the only public identity. The earlier local-profile selection flow is retired without migration; file keys remain for file authority and recovery. File custody is session-only by default; password protection is optional for remembered browser keys. Existing protected vaults stay protected. A recovery download is a secret bearer snapshot, unaffected by the browser password.
+Deployed v1 custody direction: MetaMask controls ordinary ERC-721 holdings and profile actions; a fresh independent disposable key controls each transferable file. Wallet private keys are never requested/exported. The connected wallet address is the only public identity. The earlier local-profile selection flow is retired without migration; file keys remain for file authority and recovery. File custody is session-only by default; password protection is optional for remembered browser keys. Existing protected vaults stay protected. A recovery download is a secret bearer snapshot, unaffected by the browser password.
 
 No completion date is committed. Re-estimate each implementation slice from the actual remaining work and external acceptance dependencies rather than carrying forward the original pre-implementation estimate.
 
@@ -233,3 +245,10 @@ This increment changes verification and documentation only. It requires no migra
 `fix/sponsor-revert-confirmations` corrects a terminal-state ordering bug: a reverted receipt previously became failed immediately, releasing the sponsor nonce and permitting client reauthorization before the confirmation window. It now remains included through six subsequent blocks. The same raw transaction/nonce survive a removed receipt, and old failed jobs are rechecked against current chain depth without rewriting another active reservation.
 
 Four new workerd regressions fail on `1dedcf5` and pass after the fix. The original PR #10 branch passed **222 app tests**, typecheck, build and Worker dry run; the frontend bundle is unchanged. PR #9's seven crash/retry cases and extended fixture are now integrated from main. No schema, contract, route or custody-format changes are required. The broader R1.5/R1.6/R6/R7 gates remain open. Devnet Worker **`129889f1-0cb8-49d4-9c1d-8f1ff5c1d092`** carries this fix. [Local regression evidence](../research/sponsor-revert-confirmations.json) and [hosted smoke](../research/sponsor-revert-deployment.json) record the checks. The original head `37d24d9` passed CodeRabbit review and CI; the integration with merged PR #9 passes **229 app tests**, typecheck and diff checks, with fresh PR #10 review pending. [Integration evidence](../research/sponsor-recovery-integration.json) preserves both sets of tests and their original records. Runtime source is unchanged from `37d24d9`, so no redeployment is required.
+
+
+### PS credential design, 2026-10-06
+
+PR #10 merged at `f0a4065` after clean review and CI on `5a1b330`. Its devnet confirmation fix remains deployed as Worker `129889f1-0cb8-49d4-9c1d-8f1ff5c1d092`; the 229-test integration evidence remains historical and valid for that code.
+
+The next increment documents the requested PS/BLS12-381 direction in [PS-CREDENTIAL-PROTOCOL.md](PS-CREDENTIAL-PROTOCOL.md), supported by [current reference module hashes and call sites](../research/ps-reference-2026-10-06.json). It proposes an off-chain mint prototype, distinguishes the current committed-issuance v3 call from older documented blind issuance, preserves MetaMask profile identity, and defines atomic claim/recovery and public-proof acceptance. No runtime, dependency, contract, migration, binding or deployment changes are included. C0 remains ready for review; C1–C6 and actual cryptographic parity remain unimplemented.

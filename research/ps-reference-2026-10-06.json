@@ -1,0 +1,86 @@
+{
+  "observedAt": "2026-10-07T00:28:52.537312+00:00",
+  "observationDateLocal": "2026-10-06 America/Chicago",
+  "baselineCommit": "f0a406507107eaeb14bb64148c43e75529503190",
+  "method": "Read-only retrieval and static inspection of publicly served HTML and JavaScript. No reference credential issuance, transfer, wallet access or authenticated request was performed.",
+  "sources": [
+    {
+      "url": "https://nonfungible.cash/how-it-works?view=cryptography",
+      "resolvedUrl": "https://nonfungible.cash/how-it-works?view=cryptography",
+      "bytes": 1996,
+      "sha256": "e0c09f201f473bababdadd4c54c079df493cbc0fcade47035f0eda228c1ee565",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://nonfungible.cash/assets/index-BNjbgnW6.js",
+      "bytes": 990035,
+      "sha256": "7f25f23bbbefbfa271dbb5bd9d92d4f0fc4458f1e2d8fcea8fb994908f53aab9",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://nonfungible.cash/assets/ps-qTy197Y5.js",
+      "bytes": 5554,
+      "sha256": "d3225b7e1bfe5bacab92e1022d649b3e7320d433dc84dcf56f22b27b03c53ec2",
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://nonfungible.cash/assets/index-BTeFmMtN.js",
+      "bytes": 188217,
+      "sha256": "dcbb7862eb56281491671a6a9a4abc615af586c19caf54e2c39bd3f82161d090",
+      "contentType": "text/javascript; charset=utf-8"
+    }
+  ],
+  "importChain": [
+    "help HTML -> /assets/index-BNjbgnW6.js",
+    "app openWallet -> /assets/index-BTeFmMtN.js",
+    "wallet credential functions -> /assets/ps-qTy197Y5.js",
+    "PS module primitives and public verification -> /assets/index-BNjbgnW6.js"
+  ],
+  "observations": [
+    {
+      "kind": "client call site",
+      "location": "wallet: prepare, mint, execute",
+      "finding": "prepare selects issuance_version=3; mint calls issueCommitment; execute uses finishIssue for version 3 and retains legacy finish paths."
+    },
+    {
+      "kind": "client call site",
+      "location": "wallet: swap",
+      "finding": "Uses /v1/nft/transfer/private/begin and blindTransfer with a fresh owner secret, then saves the pending operation before finish."
+    },
+    {
+      "kind": "module exports",
+      "location": "PS module",
+      "finding": "Also exports blindIssue and blindIssueV2. Export presence alone does not identify the active issuance path."
+    },
+    {
+      "kind": "client format",
+      "location": "PS module: encodeToken and decodeToken",
+      "finding": "psnft1 payload encodes keyset_id, u, v, h, s; public showing is a separate format."
+    },
+    {
+      "kind": "client derivation",
+      "location": "wallet: ownerSecret",
+      "finding": "Current reference derives owner secrets using a seed and counter; the proposed ZFT lab instead journals fresh random secrets."
+    },
+    {
+      "kind": "documentation comparison",
+      "location": "app: cryptography help sections",
+      "finding": "Help illustrates session-base blind issuance; the selected wallet path is committed issuance v3."
+    }
+  ],
+  "limits": [
+    "Server-side checks and atomicity were not inspected or exercised.",
+    "Exact reference interoperability and security are unverified.",
+    "No upstream source-code reuse license was established. Downloaded bundles are not vendored into this repository.",
+    "The prior ps-Doxcomtb.js and index-Dv919a6M.js hashes were rechecked but are not this current import chain."
+  ],
+  "primaryReferences": [
+    "https://eprint.iacr.org/2015/525",
+    "https://eips.ethereum.org/EIPS/eip-2537",
+    "https://www.rfc-editor.org/rfc/rfc9380",
+    "https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/",
+    "https://github.com/paulmillr/noble-curves",
+    "https://docs.metamask.io/metamask-connect/evm/guides/sign-data/"
+  ],
+  "proposedDesign": "docs/PS-CREDENTIAL-PROTOCOL.md"
+}

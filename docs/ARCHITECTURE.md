@@ -2,6 +2,8 @@
 
 Architecture design, updated 2026-10-04. Workers/R2/D1 and sponsor/indexer Durable Objects are now provisioned for the hosted devnet alpha. [DEVNET-ALPHA.md](DEVNET-ALPHA.md) records exact deployed resources and behavior. The [complete functional specification](FUNCTIONAL-SPEC.md#12-services-data-and-contracts) lists current API routes and required parity additions. Proposed tables/routes below remain design targets where they differ from code or migrations; they must not be treated as existing endpoints.
 
+PS design update (2026-10-06): the proposed [credential architecture](PS-CREDENTIAL-PROTOCOL.md#cloudflare-boundaries-and-proposed-api) introduces a separate issuer and authoritative spent registry for an isolated prototype. This differs materially from the v1 sponsor trust model below: a PS issuer can undermine issuance uniqueness and is required for redemption. No PS service, contract, storage binding or endpoint is deployed by this proposal.
+
 ## 1. Components and trust boundaries
 
 ```mermaid

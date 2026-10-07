@@ -109,6 +109,8 @@ Run unit tests for all above, fuzz nonce/recipient/domain mutations, and a state
 
 Karum integration may only need client signing and transfer flows; review its deployed exchange/API/source first. A bearer vault wrapper is an alternative if the exchange cannot interact with the chosen ownership pattern, but is not required for the proposed v1 contract.
 
+The next [PS credential proposal](PS-CREDENTIAL-PROTOCOL.md#zvm-contracts-and-migration) requires no new contract for its local mint-based prototype. It preserves the deployed ERC-721 and does not turn a PS credential into an ordinary wallet-visible NFT. On-chain registry or wrapper work remains a separate design.
+
 Private transfers require a separate protocol and deployment. BLS precompiles being available does not allow a contract to keep a blind-signing mint secret. Choose either an off-chain issuer trust model or a ZK note/commitment/nullifier design with reviewed mint constraints, recipient binding, and metadata privacy. Do not retrofit privacy marketing onto the public rotation contract.
 
 References: [ERC-721](https://eips.ethereum.org/EIPS/eip-721), [EIP-712](https://eips.ethereum.org/EIPS/eip-712), [OpenZeppelin ERC-721](https://docs.openzeppelin.com/contracts/5.x/erc721), [OpenZeppelin cryptography](https://docs.openzeppelin.com/contracts/5.x/api/utils/cryptography).
