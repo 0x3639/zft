@@ -44,3 +44,5 @@ jobs:
       - run: python research/ps-lab/generate.py
       - run: pnpm --dir research/ps-lab --ignore-workspace test
       - run: node research/ps-lab/check-controls.mjs
+      - run: pnpm --dir research/ps-lab --ignore-workspace test:local
+      - run: node research/ps-lab/local/check-controls.mjs
