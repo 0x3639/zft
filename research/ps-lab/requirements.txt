@@ -1,0 +1,26 @@
+# Python 3.12; complete runtime dependency closure pinned with artifact hashes.
+# Wheels: universal, CPython 3.12 Linux x86_64 and macOS arm64. No source builds.
+annotated-types==0.8.0 \
+    --hash=sha256:f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0
+cytoolz==1.1.0 \
+    --hash=sha256:945580dc158c557172fca899a35a99a16fbcebf6db0c77cb6621084bc82189f9 \
+    --hash=sha256:c7a98deb11ccd8e5d9f9441ef2ff3352aab52226a2b7d04756caaa53cd612363
+eth-hash==0.8.0 \
+    --hash=sha256:523718a51b369ab89866b929a5c93c52978cd866ea309192ad980dd8271f9fac
+eth-typing==6.0.0 \
+    --hash=sha256:ee74fb641eb36dd885e1c42c2a3055314efa532b3e71480816df70a94d35cfb9
+eth-utils==6.0.0 \
+    --hash=sha256:63cf48ee32c45541cb5748751909a8345c470432fb6f0fed4bd7c53fd6400469
+py-ecc==8.0.0 \
+    --hash=sha256:c0b2dfc4bde67a55122a392591a10e851a986d5128f680628c80b405f7663e13
+pydantic==2.13.5 \
+    --hash=sha256:346a034f080da3755d8e9cb5e00e8b07de1d39e4f6e2c87d8ab7cafa0b269a73
+pydantic_core==2.46.5 \
+    --hash=sha256:a39ac25a9a2fa4072efdb429833c4a4c8009a51ff9eea3eeae131713cd27991e \
+    --hash=sha256:0fc5be0abd4a407e200d844b404e33639a554e7bd0d448e7b9ae181be4789ac2
+toolz==1.1.0 \
+    --hash=sha256:15ccc861ac51c53696de0a5d6d4607f99c210739caf987b5d2054f3efed429d8
+typing-inspection==0.4.4 \
+    --hash=sha256:65b8397ba37ccbce054456aaccddfc91e6e3083c92824df348d96ca832f3f147
+typing_extensions==4.16.0 \
+    --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8

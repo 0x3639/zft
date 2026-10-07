@@ -48,3 +48,8 @@ ZFT’s specifications and interface are original proposed designs, not inspecte
 The user has moved PS/BLS12-381 parity from a deferred expansion to the next design milestone. [The proposal](../docs/PS-CREDENTIAL-PROTOCOL.md) preserves the existing public ERC-721 alpha while specifying an isolated PS prototype and its issuer/native-NFT tradeoff.
 
 [Current snapshot evidence](ps-reference-2026-10-06.json) traces the reference HTML to its current app, wallet and PS modules and records hashes. The wallet requests committed issuance v3 and calls blind transfer; help text still explains an older issuance path. Static client inspection cannot establish server enforcement, exact interoperability or security. No reference transactions were executed and no reference code is vendored. C1 must freeze licensed sources, exact transcripts and independent vectors before claiming equivalence.
+
+
+## PS reference-core fixtures on October 6 2026
+
+[Validation evidence](ps-profile-validation.json) records the first isolated C1 fixture set, exact source hashes, 42 passing verifier tests, Python reproduction and three broken-check controls. [The profile](../docs/PS-CRYPTOGRAPHIC-PROFILE.md) distinguishes static reference observations, derived lab issuer equations and additional validation policy. The [dependency inventory](ps-lab/dependencies.json) records pinned artifacts and retained license notices. Neither these same-author transcript implementations nor their distinct curve backends establish independent review or live reference interoperability. C1 remains in progress; no deployment is performed.

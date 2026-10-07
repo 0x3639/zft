@@ -4,16 +4,17 @@ This roadmap tracks delivered work and the balance of the ZFT specification. The
 
 ## Roadmap status
 
-This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Last reconciled: **2026-10-06**, merged baseline **`f0a4065`** ([PR #10](https://github.com/0x3639/zft/pull/10)). Its reviewed head `5a1b330` passed CodeRabbit with no actionable findings, both CI verify jobs and Cloudflare preview; the combined suite has 229 passing app tests. The current increment is **`docs/ps-credential-protocol`**, a design-only proposal. It does not change the deployed ERC-721 runtime or claim PS implementation.
+This is the work tracker for the [complete functional specification](FUNCTIONAL-SPEC.md). Last reconciled: **2026-10-06**, merged baseline **`59bd786`** ([PR #11](https://github.com/0x3639/zft/pull/11)). Its final head `ea6f64d` passed CodeRabbit with no outstanding actionable findings, both CI verify jobs and Cloudflare preview. The current increment is **`test/ps-profile-vectors`**: isolated C1 protocol fixtures and verification, with no deployed app changes. The 229-test ERC-721 baseline remains separate evidence.
 
 Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
 
-Current focus: **C0 PS credential design review, followed by C1 profile/vectors and C2 isolated prototype.** The user requested the reference's PS/BLS12-381 cryptography and authorized this design step. [The proposal](PS-CREDENTIAL-PROTOCOL.md) makes the off-chain issuer, MetaMask identity versus credential custody, and native-NFT tradeoff explicit. Broader protocol expansion and apex promotion wait for that direction; v1 maintenance and its pending R1.5/R1.6/R6/R7 acceptance remain tracked. Existing wallet observations do not complete real-device acceptance.
+Current focus: **C1 PS reference-core profile and differential vectors.** The user merged the [architecture proposal](PS-CREDENTIAL-PROTOCOL.md) and asked to continue. The [byte-level research profile](PS-CRYPTOGRAPHIC-PROFILE.md) pins committed issuance v3, showing and blind transfer for local work. C1 remains open for independently reviewed vectors and the separately versioned ZFT realm/wallet/API bindings. Public integration still requires the issuer/native-NFT custody decision; R1.5/R1.6/R6/R7 acceptance remains open.
 
 | Work | Status | Completed baseline or remaining deliverable | Acceptance |
 | --- | --- | --- | --- |
-| C0 PS protocol design | Ready for review | Pinned current reference, architecture/trust choices, recovery/state invariants and prototype acceptance | [Protocol proposal](PS-CREDENTIAL-PROTOCOL.md); no PS code or deployment |
-| C1–C6 PS qualification | Planned | Exact transcripts/vectors, isolated engine, recovery drills, independent review, integration and hosting | Separate evidence per stage; native-NFT custody decision before public integration |
+| C0 PS protocol design | Merged local research baseline | PR #11 documents architecture/trust choices and recovery/acceptance; user authorized continued local work | [Protocol proposal](PS-CREDENTIAL-PROTOCOL.md); public custody/integration decision remains C5 |
+| C1 PS profile and vectors | In progress | Reference-core encodings/transcripts, pinned licensed backends and differential fixtures; independent review and ZFT bindings remain | [Profile](PS-CRYPTOGRAPHIC-PROFILE.md), [evidence](../research/ps-profile-validation.json) |
+| C2–C6 PS qualification | Planned | Isolated engine, recovery drills, independent review, integration and hosting | Separate evidence per stage; native-NFT custody decision before public integration |
 | B1 Core ownership | Complete for SDK and Worker scope | Deployed ERC-721, codec, encrypted vault, mint/export/claim/cancel/recovery; real devnet canary | [Transaction evidence](../research/hosted-devnet-canary.json); device acceptance remains R6 |
 | B2 Public proof and navigation | Complete for recorded scope | Collection-first profiles, Network dialogs, guest entry, proof card, historical epochs, safe proof download, theme/menu/lookup | [Browser evidence](../research/public-ui-acceptance.json); A-NAV/A-PROFILE/A-ITEM/A-PROOF subset |
 | B3 Page sharing | Complete for recorded scope | Initial HTML, current-holding collages, selected epochs, bounded thumbnail derivatives | [Hosted check](../research/public-canary.json), [renderer fixtures](../research/sharing-fixtures/results.json); remaining platform checks in R6 |
@@ -32,8 +33,8 @@ Current focus: **C0 PS credential design review, followed by C1 profile/vectors 
 
 ## PS credential work
 
-- [ ] C0 Review the [protocol proposal](PS-CREDENTIAL-PROTOCOL.md#decision-for-review), including the choice between reference-style mint custody and ordinary wallet-visible ZVM NFTs. The design and current source evidence are prepared; architecture approval and PS implementation are not complete.
-- [ ] C1 Freeze the exact issuance/transfer/showing profile, schemas, encodings, proof transcripts, licensed dependencies and independent vectors. Current reference wallet selects committed issuance v3; older blind-issuance helper exports do not prove active use.
+- [x] C0 Merge the [protocol proposal](PS-CREDENTIAL-PROTOCOL.md#decision-for-review) as the local research baseline (PR #11). The user authorized C1 continuation; this does not approve hosted issuer custody or complete C5 product integration.
+- [ ] C1 Complete the exact issuance/transfer/showing profile, schemas, encodings, proof transcripts, licensed dependencies and independent vectors. The [reference-core lab](PS-CRYPTOGRAPHIC-PROFILE.md) now covers active committed issuance v3, showing and blind transfer with two curve backends, 42 passing verifier tests, one portability regression and three broken-verifier controls. Independent review/external vectors, ZFT realm/wallet bindings and bounded API/edge-case policies remain open.
 - [ ] C2 Implement a local issuer and two clients for mint/export/claim/cancel/showing, isolated from live services.
 - [ ] C3 Verify atomic spend/response persistence, concurrent claims, crash/restart, response recovery, expiry and cross-device backup.
 - [ ] C4 Complete independent protocol and implementation review before a hosted experiment.
@@ -255,3 +256,13 @@ The next increment documents the requested PS/BLS12-381 direction in [PS-CREDENT
 
 
 PR #11 follow-up review of `686c7b5`, addressed 2026-10-06: CodeRabbit identified ambiguous use of “mint” in option A. The table now distinguishes initial issuance reserving an asset tag from swaps consuming source nullifiers, consistent with the detailed atomic transition. The correction changes no protocol choice or runtime behavior. Documentation links are unchanged and diff checks pass; follow-up review remains pending.
+
+
+### PS reference-core fixtures, 2026-10-06
+
+PR #11 merged at `59bd786`; its final correction in `ea6f64d` received clean follow-up review and passing CI. The current C1 increment adds an original Python/py_ecc generator and JavaScript/noble verifier outside the app workspace. They agree on the frozen generator encodings, asset/keyset hashes, v3 issuance, showing, blind transfer and unblinding. All 42 JavaScript tests pass; Python reproduces exact committed bytes with pairing checks; three deliberate removals of pairing/proof checks are detected by specific negative tests. Dependencies and license notices are pinned in the lab and checked in a separate CI job. See [profile and limits](PS-CRYPTOGRAPHIC-PROFILE.md) and [source-hashed evidence](../research/ps-profile-validation.json).
+
+This supplies a reviewable C1 slice, not independent cryptographic validation or a live mint. Upstream server behavior and reference interoperability remain unverified. The hosted Worker remains `129889f1-0cb8-49d4-9c1d-8f1ff5c1d092`; no root dependencies, runtime, schema, data, routes, files or OG snapshots change.
+
+
+PR #12 review follow-up, 2026-10-06: both actionable findings on `42620c6` were verified. The controls runner now converts file URLs with `fileURLToPath`; a regression using a path containing spaces, Unicode and `#` fails on the original head and passes with the fix. The lab now has 43 passing tests. The four new CI actions are pinned to commits resolved from their official repositories (including dereferencing pnpm's annotated tag), with version comments; the new checkout disables credential persistence. The generic docstring coverage warning does not identify an additional correctness issue and is not a repository requirement. No cryptographic equations, fixture bytes, root app dependencies or deployed runtime change. Source hashes and validation evidence were refreshed; fresh CI and CodeRabbit review of the follow-up are pending.

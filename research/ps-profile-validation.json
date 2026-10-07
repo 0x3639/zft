@@ -1,0 +1,146 @@
+{
+  "recordedAt": "2026-10-07T01:08:09.384558+00:00",
+  "baseline": "59bd786f4a0c61b98d5ee43b93d96d0339ba24da",
+  "branch": "test/ps-profile-vectors",
+  "profile": "nfc-reference-core-2026-10-06-lab-v1",
+  "scope": "Isolated C1 reference-core research fixtures. No deployed issuer, app imports, transactions, wallet operations or runtime changes.",
+  "referenceEvidence": "research/ps-reference-2026-10-06.json",
+  "backends": {
+    "generator": "py_ecc 8.0.0 on CPython 3.12",
+    "verifier": "@noble/curves 2.4.0 and @noble/hashes 2.4.0 on Node 22.12.0"
+  },
+  "verification": [
+    {
+      "command": "python generate.py",
+      "result": "Exact committed JSON reproduction; credential/showing/transfer pairings, wrong-attribute/unblinded-response rejection, compression round trips and on-curve non-subgroup controls pass."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test",
+      "tests": 42,
+      "passed": 42
+    },
+    {
+      "command": "node research/ps-lab/check-controls.mjs",
+      "result": "All three deliberately broken verifiers detected by required negative cases.",
+      "controls": [
+        "PS pairing equation bypass",
+        "linear proof challenge bypass",
+        "DLEQ challenge bypass"
+      ]
+    },
+    {
+      "command": "python -m pip install --require-hashes --only-binary=:all: -r research/ps-lab/requirements.txt",
+      "result": "Fresh macOS arm64 CPython 3.12 virtual environment install passed."
+    },
+    {
+      "command": "python research/ps-lab/check-inventory.py",
+      "result": "All 13 pinned research dependency versions and their retained notices verified; Python requirements artifact hashes match inventory."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts",
+      "result": "Passed; isolated lock preserved."
+    },
+    {
+      "command": "pnpm typecheck",
+      "result": "Passed."
+    }
+  ],
+  "ci": "Initial head 42620c6 passed both app verify jobs, both ps-profile jobs and Cloudflare preview. Follow-up review and CI are pending for the fixes.",
+  "deployment": {
+    "performed": false,
+    "retainedWorker": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092"
+  },
+  "limitations": [
+    "Same author interpreted both transcript implementations; no independent cryptographic review or external reference oracle.",
+    "No live reference interoperability or server-side enforcement evidence.",
+    "Deterministic public fixture secrets/nonces are unsuitable for assets.",
+    "Issuer response equations are derived lab behavior, not observed server source.",
+    "Reference 32-byte profile context is not a ZFT wallet-address endorsement.",
+    "Cross-group public parameter consistency check is an additional lab policy.",
+    "Registry atomicity, idempotency, ZFT realm/session/API schema and parser edge-case policies remain open.",
+    "Current app and v1 files retain ERC-721/ECDSA behavior."
+  ],
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "3c6364b4bce3df687f81f827eff75e6aa798b9a7f8a0f9786007704a269836d9",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "research/ps-lab/README.md": "eab8459f24c2039770821f2fee3c40ce193e21c88b9781ed5e4164e6c65b0955",
+    "research/ps-lab/check-controls.mjs": "f510e2e2ab24fa83083b19184359bdebf3b7582e2fa5ac754871210abab721f2",
+    "research/ps-lab/check-inventory.py": "516c49d34f923117c3aa476fcd2e8ea6329607085deeada56a088317faa244ae",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/package.json": "741542da5f1d699ec8795a1c395c36aff994e20c406f4d4e4fa8176c3c94696e",
+    "research/ps-lab/paths.test.mjs": "64259c0396dcf0825f6afbee83e3d4557a63c39ece72f406740d278f3d661a3c",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c"
+  },
+  "reviewFollowups": [
+    {
+      "recordedAt": "2026-10-07T01:23:27.355100+00:00",
+      "reviewedCommit": "42620c68b7812943e16c92b4e222d45f872c6abd",
+      "comments": [
+        {
+          "id": 4202068895,
+          "disposition": "Pinned all four new ps-profile job actions to official upstream commits, resolving the annotated pnpm tag; disabled checkout credential persistence."
+        },
+        {
+          "id": 4202068902,
+          "disposition": "Use fileURLToPath for the spawned test pathname. Added an end-to-end regression from a path with spaces, Unicode and #."
+        }
+      ],
+      "portabilityRegression": {
+        "command": "node --test research/ps-lab/paths.test.mjs",
+        "baseline": "Fails on 42620c6: node cannot find percent-encoded pathname.",
+        "after": "Passes with fileURLToPath; all three deliberate controls are detected.",
+        "platform": "macOS arm64; Windows not exercised",
+        "baselineOutputSha256": "b3ed34f07b52be3c46befce52cfad0eabf80573854be0bcddc5cce7b4da85f36"
+      },
+      "suite": {
+        "tests": 43,
+        "passed": 43,
+        "command": "pnpm --dir research/ps-lab --ignore-workspace test"
+      },
+      "actionPins": [
+        {
+          "repository": "actions/checkout",
+          "tag": "v4",
+          "commit": "11d5960a326750d5838078e36cf38b85af677262"
+        },
+        {
+          "repository": "pnpm/action-setup",
+          "tag": "v4",
+          "annotatedTag": "f40ffcd9367d9f12939873eb1018b921a783ffaa",
+          "commit": "b906affcce14559ad1aafd4ab0e942779e9f58b1"
+        },
+        {
+          "repository": "actions/setup-node",
+          "tag": "v4",
+          "commit": "49933ea5288caeca8642d1e84afbd3f7d6820020"
+        },
+        {
+          "repository": "actions/setup-python",
+          "tag": "v5",
+          "commit": "a26af69be951a213d495a4c3e4e4022e16d87065"
+        }
+      ],
+      "unchanged": "Cryptographic equations and fixture bytes; Python reproduction and inventory checks still pass. No devnet deployment.",
+      "initialSourceSha256": {
+        ".github/workflows/ci.yml": "1832d542c15f144c09588d89314a3f1c3a1d6a102b946d61501ce9abc5ab23d7",
+        "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "3f4282ea46ea6da0f28e5020546a367f47c5fb8c484ee5ef3f57be6b7b7f398c",
+        "research/ps-lab/README.md": "e4d96d5099767d28a485557a446e7cf62073873e0330b3a94b1468f21b5d49ea",
+        "research/ps-lab/check-controls.mjs": "ade54c05cad8c8a49cff0b8caa3aa65c157b5a60251eb682dc9abe49f22bfb2c",
+        "research/ps-lab/check-inventory.py": "516c49d34f923117c3aa476fcd2e8ea6329607085deeada56a088317faa244ae",
+        "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+        "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+        "research/ps-lab/package.json": "b1c44df561fd912a88c2a404ea3e6af086675441a3006c280d283afb118ea6ee",
+        "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+        "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+        "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+        "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+        "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c"
+      }
+    }
+  ]
+}
