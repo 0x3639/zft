@@ -1,0 +1,187 @@
+{
+  "recordedAt": "2026-10-07T09:43:48.706472+00:00",
+  "baseline": "42a2458dca452162dceb3054c2a78a10b3bc554e",
+  "branch": "test/ps-observer-recovery",
+  "profile": "zft-ps-local-state-v1",
+  "credentialProfile": "zft-ps-local-v1",
+  "scope": "Local C3 observer interruption and bounded SQLite error qualification. Inert test callbacks and shared fault helpers; no acceptance rule, cryptographic transcript, transaction ordering, app integration or deployed resource change.",
+  "baselineReview": {
+    "pr": 15,
+    "finalHead": "289442d8b8ea72366e8e873c04ce491f2b98caa3",
+    "mergedAt": "2026-10-07T09:35:38Z",
+    "result": "CodeRabbit reviewed all 14 files at the exact signed head without actionable findings; both app and PS profile jobs and Cloudflare preview passed. Bot review does not provide independent cryptographic validation."
+  },
+  "runtime": {
+    "node": "v22.12.0",
+    "sqlite": "node:sqlite DatabaseSync, experimental flag, rollback journal, synchronous FULL",
+    "crypto": "@noble/curves 2.4.0; frozen reference primitives, original ZFT-specific transcripts",
+    "stateSignature": "Node v22.12.0 crypto Ed25519; noble 2.4.0 strict public-key decoding and separate verification in tests"
+  },
+  "verification": [
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test:local",
+      "passed": 88,
+      "previousTests": 76,
+      "newObserverRecoveryTests": 12,
+      "processKillLocations": 21,
+      "newProcessKillLocations": 5
+    },
+    {
+      "command": "node research/ps-lab/local/check-controls.mjs",
+      "passed": 17,
+      "newControls": 3,
+      "result": "Each temporary mutation fails its named regression with ERR_ASSERTION; working source remains intact."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace demo:state",
+      "result": "Passed; signed unspent/spent observations, sequence advance and exact replay rejection; walletAuthenticated false."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace demo:local",
+      "result": "Passed existing lifecycle/recovery demonstration."
+    },
+    {
+      "command": "prettier --check changed JavaScript and package.json",
+      "result": "Passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed."
+    }
+  ],
+  "inheritedValidation": {
+    "record": "research/ps-state-validation.json",
+    "head": "289442d8b8ea72366e8e873c04ce491f2b98caa3",
+    "scope": "Reference lab and application are unchanged. Prior 43 reference tests, three reference controls, exact Python fixtures, 13-dependency inventory, isolated frozen install, typecheck and 229 app tests remain baseline evidence, not new local executions in this increment. The PR CI runs these applicable checks again."
+  },
+  "newProcessKills": [
+    "After observer challenge insert before time update/commit: no partial preparation persists.",
+    "After challenge commit before return: complete unbound context and sampled time persist.",
+    "After exact request write before time update/commit: original challenge remains unbound and unsaved-request acceptance rejects.",
+    "After request commit before return: exact request binding and time persist; different randomized proof cannot replace it.",
+    "After receipt/consumption write before commit: original pending request and sequence/time survive; exact receipt can be retried."
+  ],
+  "newStorageFailures": [
+    "SQLITE_FULL during preparation time update: challenge insert and time roll back together.",
+    "SQLITE_FULL during request time update: exact request binding and time roll back together.",
+    "SQLITE_FULL during receipt/consumption update: sequence/time advance rolls back with acceptance.",
+    "PRAGMA query_only generates SQLITE_READONLY on acceptance; pending exact request and replay memory remain intact.",
+    "Separate connection writer lock generates SQLITE_BUSY at transaction entry; acceptance remains retryable.",
+    "Separate connection reader lock generates SQLITE_BUSY at COMMIT after all acceptance writes; explicit rollback preserves exact pending request and replay memory."
+  ],
+  "faultMethod": "Shared helper extracted unchanged from recovery.test.mjs into fault-support.mjs. A named trigger ABORT first proves the selected write is reached. A temporary trigger then attempts less than 2 MiB under max_page_count to produce a real SQLite FULL error. No host disk exhaustion. Lock tests use 1ms timeouts on their own connections; ordinary 5-second timeout unchanged.",
+  "additionalInvariant": "Retrying after a persistence fault at the original challenge deadline does not extend freshness. Old request remains saved and unconsumed; a fresh challenge is required.",
+  "newNegativeControls": [
+    "Commit challenge insertion separately before the preparation clock update.",
+    "Commit request binding separately before its clock update.",
+    "Omit explicit rollback after a failed COMMIT, leaving uncommitted acceptance writes visible."
+  ],
+  "documentationChecks": {
+    "scope": [
+      "docs/IMPLEMENTATION.md",
+      "docs/PS-CREDENTIAL-PROTOCOL.md",
+      "docs/PS-CRYPTOGRAPHIC-PROFILE.md",
+      "docs/PS-LOCAL-ENGINE.md",
+      "research/EVIDENCE.md",
+      "research/ps-lab/README.md",
+      "docs/PS-LOCAL-STATE.md"
+    ],
+    "localLinksAndAnchors": 129,
+    "result": "Passed relative file and Markdown heading-anchor checks; network links were not bulk checked."
+  },
+  "isolation": {
+    "liveNetworkCallsFromLab": false,
+    "deploymentPerformed": false,
+    "retainedWorker": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092",
+    "unchanged": [
+      "Root dependencies and lockfile",
+      "App, SDK, Worker and contract source",
+      "Deployed bindings and data",
+      "v1 file/vault formats",
+      "Brand assets, original untracked zft-logo and historical OG snapshots",
+      "Existing branches and worktree node_modules symlink"
+    ]
+  },
+  "limitations": [
+    "Same-author local research with public PS issuer test keys, plaintext databases and unqualified secret BigInt operations; unsuitable for real assets.",
+    "RFC primitive vector and Node/noble verification do not provide independent review of the composed state protocol or PS equations/transcripts.",
+    "State signatures prove what the pinned issuer reported; no issuer honesty, no supply/equivocation defense and no guaranteed unspent state after the snapshot.",
+    "Fresh observers, same/higher-sequence forks, restored observer backups and manipulated time/trust are not protected by the remembered sequence/time checks.",
+    "No trusted manifest distribution, key rotation/retirement, secure time source, HTTP transport, wallet authentication, image/file/vault adapter or hosted issuer.",
+    "SIGKILL is not power loss; prior page-limit/query_only tests do not qualify real disk, hardware or permission failures. Arbitrary IOERR, corruption, all boundaries, retention/availability and devices remain open.",
+    "Wallet bytes remain context only; walletAuthenticated false. Public showings expose linkable h and nullifier.",
+    "C2 local harness complete; C1/C3 partial; independent C4 review and C5/C6 integration/hosting remain open.",
+    "Five observer interruption hooks are inert by default. These tests do not cover all constructor/write boundaries, arbitrary IOERR/fsync failures or hardware durability. No transaction correction was required."
+  ],
+  "sourceHashScope": "Current observer recovery increment, excluding this JSON itself. Earlier validation manifests are frozen historical records.",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "ad6c0e9c14834d0c4621dc4000e613edbe9eaabb5ae62ca2253b492ef459d87b",
+    "docs/IMPLEMENTATION.md": "f6a98a77be4c4684feb4b1e0b6f7e5785862ffb75b23a29eeb593e40a56bdb83",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "docs/PS-LOCAL-ENGINE.md": "6dca18d2cf4eaf82210bffe24d011f81d22b6770b341e6c4b94c37220cd13409",
+    "docs/PS-LOCAL-STATE.md": "046de5b53453d916c97a831f436f842a64e293939fff48b8c6874debf48a66ff",
+    "research/EVIDENCE.md": "3dc63b1690768ba632a6c5e99750a7c7f07c00b34cba964e3edb440609c4d316",
+    "research/ps-lab/README.md": "95e63cce43966c66c98e6ecbe84fcb2abcc3c65b25b9fbcfb6cbc0c5d71771c6",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/check-controls.mjs": "26f7f1cafd3ecca05b87cd1c4c0239821caa41d548c44aa8cac4b3c4ac49b84d",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/package.json": "8763f69d2530d200fb8a99c96b3dff37a088e80ce9d803b16253a4b5e6e02f36",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5"
+  },
+  "unchangedFromBaselineSha256": {
+    ".github/workflows/ci.yml": "ad6c0e9c14834d0c4621dc4000e613edbe9eaabb5ae62ca2253b492ef459d87b",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5"
+  },
+  "localOutputSha256": {
+    "/private/tmp/zft-observer-local.tap": "e8409af611ec7e224a5042066cb77c81d738c57bbb1df0d0dbfb2cee2e88d6e6",
+    "/private/tmp/zft-observer-tests.tap": "7f9ccd314e46cd4ce6a7a575ce28c504a3329c8d3ed3f819b2434627cf033fd5",
+    "/private/tmp/zft-observer-controls.log": "bd34e933cdfe6023c8bb43d748dbd0fc9d3e4a58321c44d08a87d7bb5fdb6dbc",
+    "/private/tmp/zft-observer-demo.log": "e74bbac4b2c7038bc6e4f12c4a985de29b84497ab5cfcb27125fb5a64c4a1859",
+    "/private/tmp/zft-observer-lifecycle.log": "30d4b2d32c4cd67371b1f6617dbaedc3829a6b3637b1ca29613d88395fd725f1"
+  }
+}

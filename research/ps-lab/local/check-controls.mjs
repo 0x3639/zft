@@ -184,6 +184,39 @@ const controls = [
       ],
     ],
   },
+  {
+    name: "observer challenge committed without clock",
+    file: "state.mjs",
+    suite: "state-recovery.test.mjs",
+    test: "SQLITE_FULL during preparation clock update rolls back the challenge",
+    edits: [
+      [
+        '      this.boundary("after-state-challenge-insert");',
+        '      this.db.exec("COMMIT; BEGIN IMMEDIATE");\n      this.boundary("after-state-challenge-insert");',
+      ],
+    ],
+  },
+  {
+    name: "observer request committed without clock",
+    file: "state.mjs",
+    suite: "state-recovery.test.mjs",
+    test: "SQLITE_FULL during request clock update rolls back the exact wire",
+    edits: [
+      [
+        '      this.boundary("after-state-request-write");',
+        '      this.db.exec("COMMIT; BEGIN IMMEDIATE");\n      this.boundary("after-state-request-write");',
+      ],
+    ],
+  },
+  {
+    name: "observer failed commit leaves transaction open",
+    file: "store.mjs",
+    suite: "state-recovery.test.mjs",
+    test: "SQLITE_BUSY at observer COMMIT rolls back receipt and replay memory",
+    edits: [
+      ['      db.exec("ROLLBACK");', "      /* deliberately omit rollback */"],
+    ],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));
