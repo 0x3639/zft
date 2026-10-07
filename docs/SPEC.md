@@ -2,6 +2,8 @@
 
 Protocol design, updated 2026-10-04. Implementation is authorized and a hosted devnet alpha exists. The [complete website functional specification](FUNCTIONAL-SPEC.md) is the central product/interaction contract; the [reference action ledger](REFERENCE-AUDIT.md) records observed behavior and remaining audit gaps.
 
+Protocol direction update (2026-10-06): [PS-CREDENTIAL-PROTOCOL.md](PS-CREDENTIAL-PROTOCOL.md) is the next design proposal for the requested PS/BLS12-381 parity. The ERC-721 design below describes the v1 baseline; its earlier deferral of all private-protocol work is superseded by C0–C6 in the roadmap. PS issuer/custody and ordinary MetaMask NFT compatibility must be resolved before integration. No deployed semantics change in this design PR.
+
 Implementation note (2026-10-04): [DEVNET-ALPHA.md](DEVNET-ALPHA.md) is the authoritative implemented subset. Its frozen `zft-png/1` codec normalizes supported JPEG/PNG inputs to RGBA PNG and exports `zfTA` PNG envelopes. Signed profiles/social relations, public holding attestations, indexing, and unique OG images are implemented in part. Full website parity, JPEG APP15 export, and broader color-profile conversion remain planned. Aspirational fault/recovery requirements below are not claims that every beta acceptance gate has passed.
 
 ## 1. Product promise

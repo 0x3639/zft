@@ -1,8 +1,12 @@
 # Review agenda
 
-Review agenda, updated 2026-10-04. The user authorized real devnet implementation; the core public ERC-721/disposable-key/vault/Cloudflare architecture is implemented. Visual direction and `zft.foo` are confirmed. The table preserves the original recommendations; it is not a request to reapprove completed work. The [complete functional specification](FUNCTIONAL-SPEC.md) now records the website requirements and [remaining decisions](FUNCTIONAL-SPEC.md#14-implementation-sequence-and-remaining-decisions). License, marketplace/private-protocol expansions, and apex promotion remain separate decisions.
+Review agenda, updated 2026-10-06. The user authorized real devnet implementation; the core public ERC-721/disposable-key/vault/Cloudflare architecture is implemented. Visual direction and `zft.foo` are confirmed. The table preserves the original recommendations; it is not a request to reapprove completed work. The [complete functional specification](FUNCTIONAL-SPEC.md) now records the website requirements and [remaining decisions](FUNCTIONAL-SPEC.md#14-implementation-sequence-and-remaining-decisions). License, marketplace, PS architecture approval and apex promotion remain separate decisions.
 
-## Design decisions and recommendations
+## Current protocol review
+
+After PR #10, the user authorized preparing the [PS credential proposal](PS-CREDENTIAL-PROTOCOL.md). Review option A for a local isolated mint prototype, its issuer trust and recovery rules, the observed committed-issuance v3 profile, and the difference between MetaMask identity and wallet-visible NFT custody. This design is ready for review; no new issuer, protocol migration or deployment is approved by its existence. The source/license and exact-transcript gates precede implementation claims.
+
+## Original v1 decisions and recommendations
 
 | Decision | Recommendation | Consequence |
 | --- | --- | --- |
@@ -19,7 +23,7 @@ Review agenda, updated 2026-10-04. The user authorized real devnet implementatio
 | Visual direction · confirmed | NonFungible Cash structure + digitalSloth Zenon design system | Review the themed prototype before React implementation |
 | Source license | MIT recommended; confirm before adding LICENSE | Prototype/spec currently have no project license grant |
 
-## Important behavior to accept
+## Existing v1 behavior
 
 - Sending/download is not a completed transfer. The sender and every recipient holding the same current file can race to claim or cancel.
 - On-chain ownership history is public. No Cashu compatibility or equivalent privacy is claimed.
@@ -43,4 +47,4 @@ All prototype ownership and operation states are labeled simulation. It does not
 
 ## Implementation entry point
 
-M1/M2 and the hosted alpha are implemented; see [the runbook](DEVNET-ALPHA.md). Next work follows the functional specification's profile/proof/discovery parity sequence, then actual browser/device and operational beta acceptance. Record changes to protocol semantics before updating code. New trading, remote recovery, and privacy protocols need their own concrete review.
+M1/M2 and the hosted alpha are implemented; see [the runbook](DEVNET-ALPHA.md). Next work follows C0–C6 for the requested PS design and prototype; pending v1 browser/device and operational acceptance remains in the roadmap. Record changes to protocol semantics before updating code. New trading, remote recovery, and privacy protocols need their own concrete review.

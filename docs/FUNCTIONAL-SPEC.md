@@ -1,10 +1,12 @@
 # ZFT complete website functional specification
 
-Revision 12 · 2026-10-06 · reference audit, implementation, and remaining work.
+Revision 13 · 2026-10-06 · reference audit, implementation, and remaining work.
 
 This is the central specification for reproducing NonFungible Cash's website functionality with the Zenon design system and ZVM ownership. It covers the full intended product, including deferred features. It is **not a declaration that every feature is implemented or every reference operation has been tested**. The [reference action ledger](REFERENCE-AUDIT.md) records actual clicks, results, and unverified flows. The [hosted alpha runbook](DEVNET-ALPHA.md) records what is deployed.
 
 The original audit baseline was `53eb78b`. The public-profile/proof/sharing implementation now adds Collection-first profiles, contextual unlock, Network dialogs, explicit published-epoch history, independent proof checks, thumbnail-backed OG cards, and wallet connection. Wallet/file custody transitions, wallet-backed identity, direct wallet mint/receive, and optional browser password protection are implemented. R2 collection/NFT discovery and the live-data homepage are implemented. R3 Everyone/Following and profile activity are implemented with a separate public action journal and verified block times. R4 profile media and R5 Basics/Technical help with distinct sharing metadata are implemented. Real wallet/device acceptance remains unfinished. Live alpha: [devnet.zft.foo](https://devnet.zft.foo/). Intended app domain: **zft.foo**. The apex root currently serves the design prototype. Do not promote it merely because this specification is complete.
+
+The user has prioritized matching the reference's PS/BLS12-381 credential cryptography. [The PS proposal](PS-CREDENTIAL-PROTOCOL.md) governs that new design work and its C0–C6 acceptance; it does not change current endpoints or deployed ownership. MetaMask remains the public profile identity. Whether future credentials are off-chain mint instruments or retain ordinary wallet-visible ZVM NFT custody is an explicit design decision before public integration.
 
 For product interactions and route spellings, this revision supersedes conflicting draft text in older documents. The frozen codec, deployed manifest, contract source, and current API schemas remain authoritative for existing files and transactions. [SPEC](SPEC.md), [CONTRACTS](CONTRACTS.md), [ARCHITECTURE](ARCHITECTURE.md), [PAGES-AND-SHARING](PAGES-AND-SHARING.md), and [MARKETPLACE](MARKETPLACE.md) supply the detailed protocol, infrastructure, sharing, and expansion designs. Proposed schema additions below require versioned implementation and review; they do not silently change the deployed protocol.
 
@@ -12,7 +14,7 @@ For product interactions and route spellings, this revision supersedes conflicti
 
 A collector creates or receives a picture containing a disposable ownership key. Claiming rotates the token to a fresh key on ZVM. Sending or downloading a file alone does not transfer ownership. All holders of the current file can race to claim; a successful rotation invalidates previous copies. Public art, proof downloads, and social previews never contain this capability.
 
-The reference uses Cashu/Pointcheval–Sanders credentials and describes private transfers. ZFT uses public ERC-721 ownership and signed possession statements. Reproduce the journeys and page composition while explaining the actual ZFT guarantees. Neither byte-hash uniqueness nor a valid mint signature proves copyright or authorship of the depicted work.
+The reference uses Pointcheval–Sanders credentials and describes private transfers. The deployed ZFT v1 uses public ERC-721 ownership and signed possession statements; it is not cryptographically equivalent. Requested PS parity is now the next design/prototype milestone under C0–C6. Continue explaining each protocol's actual guarantees and keep existing v1 routes/files compatible. Neither byte-hash uniqueness nor a valid mint signature proves copyright or authorship of the depicted work.
 
 | Scope | Included functionality | State at baseline |
 | --- | --- | --- |
@@ -21,7 +23,8 @@ The reference uses Cashu/Pointcheval–Sanders credentials and describes private
 | Extended collections | Independent avatar/cover uploads; curated collection pages | Profile media implemented; curated collections remain planned |
 | Sharing/recovery expansion | Encrypted claim links, optional link password, encrypted remote backup | Separate protocol/service work; reference help describes these |
 | Trading expansion | Listings, offers, acceptance, cancellation, purchases, settlement history | Reference browsing inspected; ZFT settlement design and exchange compatibility still require review |
-| Mainnet/private protocol | Mainnet launch or private/unlinkable ownership | Outside this devnet release |
+| PS credential protocol | Reviewed PS/BLS12-381 construction, issuer/custody choice and isolated prototype | Design next under C0–C6; no parity or anonymity claim for deployed v1 |
+| Mainnet | Mainnet launch | Outside this devnet release |
 
 ## 2. Identities, sessions, and route contract
 
@@ -307,6 +310,8 @@ The hosted SDK canaries and existing tests are evidence for their specific scope
 
 ## 14. Implementation sequence and remaining decisions
 
+Priority update after PR #10: C0–C6 in [the roadmap](IMPLEMENTATION.md#ps-credential-work) now put PS credential design and an isolated prototype ahead of further protocol expansion. The sequence below describes the v1 delivery plan and its remaining acceptance. Resolve the issuer/native-NFT custody tradeoff and applicable release gates before apex promotion.
+
 The [implementation roadmap](IMPLEMENTATION.md) is the live status/checklist and delivery log. Wallet custody is the current priority following the user’s direction; the public-site sequence below remains the order for the remaining parity work.
 
 1. **Profile semantics and navigation:** Collection first; correct counts/links; contextual unlock and guest intent; Network dialog; mobile menu; persistent theme/lookup. Acceptance A-NAV, A-PROFILE.
@@ -316,7 +321,7 @@ The [implementation roadmap](IMPLEMENTATION.md) is the live status/checklist and
 5. **Beta qualification:** browser/phone/recovery/operational tests and review; then separately review apex routing promotion. Acceptance A-TRANSFER, A-RECOVERY, A-OPERATIONS.
 6. **Expansion:** encrypted links/remote backup and live marketplace only after their protocol/custody reviews; continue reference owner-flow audit with an authorized disposable test collection.
 
-Open decisions are the source license; exact historical-publication retention/removal policy; whether portable profile endorsements are mandatory for beta; curated-collection scope; remote-backup/link protocol; and marketplace integration/settlement asset. The visual direction, corrected domain, Cloudflare hosting, and real devnet implementation are already authorized. Do not reopen those merely because earlier draft documents call them proposals.
+Open decisions start with the PS issuer/custody architecture, ordinary MetaMask NFT expectations and the exact reviewed cryptographic profile; other decisions are the source license; exact historical-publication retention/removal policy; whether portable profile endorsements are mandatory for beta; curated-collection scope; remote-backup/link protocol; and marketplace integration/settlement asset. The visual direction, corrected domain, Cloudflare hosting, and real devnet implementation are already authorized. Do not reopen those merely because earlier draft documents call them proposals.
 
 ## 15. Public-parity milestone acceptance
 

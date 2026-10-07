@@ -41,3 +41,10 @@ The public GitHub repository listing for `sol-znn` showed no repositories with `
 The live ERC-721 and BLS responses support feasibility of EVM-based collectibles and further signature research. The proposed v1 uses ordinary ECDSA ownership rotation and does not depend on BLS. Moving PS verification on-chain alone cannot conceal an issuer’s signing secret in a public EVM; a faithful blind-signing version would still need an issuer or a different protocol.
 
 ZFT’s specifications and interface are original proposed designs, not inspected NonFungible Cash or ZVM source forks. The first product has public transfer history and relies on current ZVM devnet services. Source/license checks and production security review belong to implementation/release acceptance.
+
+
+## PS reference snapshot on October 6 2026
+
+The user has moved PS/BLS12-381 parity from a deferred expansion to the next design milestone. [The proposal](../docs/PS-CREDENTIAL-PROTOCOL.md) preserves the existing public ERC-721 alpha while specifying an isolated PS prototype and its issuer/native-NFT tradeoff.
+
+[Current snapshot evidence](ps-reference-2026-10-06.json) traces the reference HTML to its current app, wallet and PS modules and records hashes. The wallet requests committed issuance v3 and calls blind transfer; help text still explains an older issuance path. Static client inspection cannot establish server enforcement, exact interoperability or security. No reference transactions were executed and no reference code is vendored. C1 must freeze licensed sources, exact transcripts and independent vectors before claiming equivalence.
