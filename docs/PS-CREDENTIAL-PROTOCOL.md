@@ -12,7 +12,7 @@ Recommend **option A for a local, isolated prototype**. This prioritizes the req
 
 | Option | Ownership authority | MetaMask and ZVM consequence | Disposition |
 | --- | --- | --- | --- |
-| A. PS mint and spent registry | PS credential plus owner secret; mint atomically consumes its nullifier | MetaMask authenticates profiles. PS items are managed in ZFT, not ordinary NFTs in MetaMask's inventory. No new contract is required. | Proposed prototype |
+| A. PS mint and spent registry | PS credential plus owner secret; mint reserves the asset tag, and swaps atomically consume source nullifiers | MetaMask authenticates profiles. PS items are managed in ZFT, not ordinary NFTs in MetaMask's inventory. No new contract is required. | Proposed prototype |
 | B. Existing ERC-721 | ZVM contract owner and nonce | Ordinary wallet custody, public transfers, independent transaction submission | Preserve the deployed alpha; does not satisfy PS parity |
 | C. PS plus an ERC-721 wrapper or on-chain spend registry | A separately designed bridge or coordinated authority | Could add wallet-visible representations, but locking, duplicate issuance, failures and privacy need a new protocol | Deferred; no automatic wrapping |
 | D. ZK notes enforced by ZVM | Contract verifies a different proof/spend system | Can pursue on-chain private state, but PS credentials alone do not supply this construction | Separate research, not reference parity |
