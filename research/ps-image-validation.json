@@ -1,0 +1,257 @@
+{
+  "recordedAt": "2026-10-07T22:48:53.710963+00:00",
+  "baseline": "a7427d4288733a1c73a559e9f2ba11d1d573f9ba",
+  "branch": "feat/ps-image-envelope",
+  "profile": "zft-ps-local-v1",
+  "stateProfile": "zft-ps-local-state-v1",
+  "fileProfile": "zft-ps-png-lab-v1",
+  "scope": "Original offline PNG bearer adapter and independent-review packet preparation. No hosted service, browser/vault integration, wallet authentication, PS equation/transcript or core persistence change.",
+  "baselineReview": {
+    "pr": 17,
+    "finalHead": "e1617ea8972bd2bb5def01f1b9a1df42f11acd5e",
+    "mergedAt": "2026-10-07T22:15:26Z",
+    "result": "Completed CodeRabbit review with no outstanding actionable findings; all CI and preview checks passed. Bot review is not independent cryptographic validation."
+  },
+  "runtime": {
+    "node": "v22.12.0",
+    "pnpm": "10.14.0",
+    "platform": "macOS arm64",
+    "crypto": "Existing @noble/curves 2.4.0 local profile; no dependency changes",
+    "png": "Node built-in zlib inflateSync/crc32; unchanged root fast-png 8.0.0 only for fixture/compatibility checks"
+  },
+  "verification": [
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test:local",
+      "passed": 126,
+      "previousTests": 101,
+      "newImageTests": 25,
+      "processKillLocations": 21,
+      "newProcessKillLocations": 0
+    },
+    {
+      "command": "node research/ps-lab/local/check-controls.mjs",
+      "passed": 28,
+      "newControls": 7,
+      "result": "Every temporary mutation fails its named regression with ERR_ASSERTION. Source implementation remains intact."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace demo:image",
+      "result": "Passed: real disposable private PNG/recovery files, lost-response recovery, cancel, stale-copy rejection, exact public image, three issuer operations. No secrets logged."
+    },
+    {
+      "command": "pnpm exec tsx research/ps-lab/check-image-codec.ts",
+      "result": "Three original fixtures reproduce byte-for-byte; exact decoded pixels, idempotent normalization, ordinary decoding with placeholder zfPC, v1 normalization/import/public-upload rejection and real v1 roundtrip passed."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts",
+      "result": "Passed with unchanged lock and dependencies."
+    },
+    {
+      "command": "pnpm typecheck",
+      "result": "Passed root TypeScript scope. Research compatibility script is executed separately, outside root tsconfig."
+    },
+    {
+      "command": "pnpm test",
+      "passed": 229,
+      "files": 25,
+      "result": "Passed unchanged application suite."
+    },
+    {
+      "command": "pnpm exec prettier --check research/ps-lab/local/png.mjs research/ps-lab/local/image.mjs research/ps-lab/local/image.test.mjs research/ps-lab/local/image-demo.mjs research/ps-lab/local/image-fixtures.json research/ps-lab/check-image-codec.ts research/ps-lab/local/check-controls.mjs research/ps-lab/package.json",
+      "result": "Passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed."
+    }
+  ],
+  "inheritedValidation": {
+    "record": "research/ps-parser-validation.json",
+    "scope": "Unchanged reference generator/verifier/vectors and dependency inventory: 43 reference tests, three reference controls, exact Python fixture reproduction and 13-dependency inventory are inherited evidence, not newly executed local checks in this slice. PR CI reruns them. Earlier credential/state demos last ran for PR #16; this increment ran the image demo."
+  },
+  "imageBoundaries": {
+    "imageBytes": 65536,
+    "payloadBytes": 4096,
+    "fileBytes": 69644,
+    "pixels": 262144,
+    "inflatedBytesUpperBound": 1310720,
+    "imageChunks": 127,
+    "bearerChunks": 128,
+    "format": "RGBA8 noninterlaced PNG with only IHDR, consecutive IDAT, IEND; one canonical UTF-8 JSON zfPC before IEND for private files",
+    "identity": "Exact underlying PNG bytes, not pixel equivalence or proof of canonical normalizer provenance",
+    "trust": "Complete caller-pinned PS manifest; file cannot select issuer or endpoint",
+    "publicCopy": "Exact original image bytes only; no bearer chunk, credential or recovery metadata. Not steganographic erasure."
+  },
+  "regression": {
+    "name": "maximum PNG chunk budget remains exportable before issuance",
+    "before": "Initial local adapter accepted a 128-chunk raw image for issuance but export could not append the required chunk. Focused regression failed with Missing expected exception / ERR_ASSERTION.",
+    "after": "inspectImage reserves one chunk before pending issuance writes. A 127-chunk image issues and roundtrips as 128 chunks; 128 image chunks reject with unchanged database rows. Focused regression and full suite pass.",
+    "reproduction": "The final seventh new mutation removes the reserve and must fail the named regression."
+  },
+  "newNegativeControls": [
+    "Remove PNG CRC validation.",
+    "Accept compressed trailing bytes.",
+    "Remove existing local PS asset-binding assertion in a temporary copy.",
+    "Return private bearer PNG from public-copy API.",
+    "Silently select one duplicate envelope.",
+    "Ignore full image digest mismatch.",
+    "Omit envelope chunk reservation before issuance."
+  ],
+  "reviewPreparation": {
+    "packet": "docs/PS-REVIEW-PACKET.md",
+    "reviewer": "unassigned",
+    "result": "pending",
+    "scope": "Independent re-derivation, external vectors, protocol/state/storage/file boundaries and release assumptions; no outside reviewer contacted or completed review claimed."
+  },
+  "documentationChecks": {
+    "scope": [
+      "docs/IMPLEMENTATION.md",
+      "docs/PS-CREDENTIAL-PROTOCOL.md",
+      "docs/PS-CRYPTOGRAPHIC-PROFILE.md",
+      "docs/PS-LOCAL-ENGINE.md",
+      "docs/PS-LOCAL-STATE.md",
+      "docs/PS-IMAGE-ENVELOPE.md",
+      "docs/PS-REVIEW-PACKET.md",
+      "research/EVIDENCE.md",
+      "research/ps-lab/README.md"
+    ],
+    "localLinksAndAnchors": 188,
+    "result": "Passed local file/Markdown anchor checks; network links not bulk checked."
+  },
+  "isolation": {
+    "liveNetworkCallsFromLab": false,
+    "deploymentPerformed": false,
+    "retainedWorker": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092",
+    "unchanged": [
+      "Root dependency manifests and locks",
+      "App, SDK, Worker, contract, bindings and data",
+      "v1 codec and vault runtime",
+      "Branding, untracked original zft-logo and historical OG snapshots",
+      "Frozen reference profile, source snapshot, generator, verifier and vectors",
+      "Local profile.mjs, client.mjs, issuer.mjs, store.mjs and state.mjs",
+      "Six prior validation manifests",
+      "Existing branches and worktree node_modules symlink"
+    ]
+  },
+  "limitations": [
+    "Original same-author local research with public fixture issuer keys, plaintext SQLite/bearer/recovery files and unqualified secret BigInt side channels; unsuitable for real assets.",
+    "Offline import verifies credential and image binding but does not prove unspent ownership. Issuer submission decides whether a copied file can still be claimed; loss of image metadata can lose bearer authority.",
+    "Caller must prepare/normalize images before issuance. Strict PNG shape does not prove pinned-normalizer provenance. Byte-different encodings of the same pixels are different assets.",
+    "Image limits are smaller than product image limits; no JPEG or arbitrary PNG support, browser adapter, encrypted vault, wallet endorsement, public proof integration, HTTP listener or hosting.",
+    "Public-copy removal excludes the explicit envelope. It does not erase private information deliberately encoded in pixels, compressed data or visible artwork.",
+    "Fixed malformed image/JSON cases are not exhaustive fuzzing, independent review, production CPU/admission qualification or all possible decoder tests.",
+    "Two copied-image claims are prepared together and submitted sequentially; multiprocess race evidence remains in existing engine tests. No new process-kill locations or filesystem durability qualification.",
+    "Demo file readback and mode 0600 do not establish fsync/power-loss, disk failure, permission portability, phone/browser recovery or encrypted backup guarantees.",
+    "Wallet bytes remain context only and walletAuthenticated false. State receipts report snapshots, not reservations; malicious issuer, fresh-observer rollback, same/higher-sequence forks and manipulated clocks/trust remain outside guarantees.",
+    "C2 local harness complete; C1/C3 partial; independent C4 pending; C5 file prototype only; custody, trust distribution, key lifecycle and C6 hosting remain open.",
+    "No live interoperability, audit, production privacy or ordinary MetaMask NFT custody claim. Derived issuer equations and cross-group consistency remain lab choices."
+  ],
+  "primarySources": [
+    "https://www.w3.org/TR/2025/REC-png-3-20250624/",
+    "https://nodejs.org/download/release/v22.12.0/docs/api/zlib.html"
+  ],
+  "sourceHashScope": "Current image increment, its root-codec compatibility inputs and previous evidence; excludes this JSON itself. All six earlier manifests are frozen historical records.",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "86062805dbdab5ec25502af061cd23dec4299868b71c336c7f1f269f40c460fa",
+    ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
+    "docs/IMPLEMENTATION.md": "5a082fdc8011bf27d2040d9761823b44fa12376bf66459aa763f56dd41666373",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "docs/PS-IMAGE-ENVELOPE.md": "50bbbff2a138a8586b3a6d7558b50f0c3bd30e62c5df748e86dbd339b74fb5df",
+    "docs/PS-LOCAL-ENGINE.md": "d584c6dbe0f05abd948857d56779992c216fecab18ab4d387a528d6b7184dd1d",
+    "docs/PS-LOCAL-STATE.md": "d65eba6c63a2c5acfe23022a01e2daed30805ecc62f929035d5dee2e9f9d3409",
+    "docs/PS-REVIEW-PACKET.md": "921e876c1dec8d02b0523c411d465036c9005c7484e51885fb7ba36559381f60",
+    "package.json": "a1cf3153af6ff2aba8d3693f3e610f30358ca35d9ec83df33afd4e759532b100",
+    "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
+    "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
+    "research/EVIDENCE.md": "6c6acd81c0bca7252f41d53bd05e23433d6ccbeb027ad74134fdc745c39675b9",
+    "research/ps-lab/README.md": "e8df0e34fce1dd92f00e2aad0d5e2d54338b5a8791542ea06d610b06f425020d",
+    "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/check-controls.mjs": "06f133d5d79eb59b8f11ff6fbb00be6b7f68169ad28c1bbd2d97bf589f5fc108",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/image-demo.mjs": "3974306ffbef1cbf7e1c953fdf75d4646b9841c68bf3487026be50eb35b68b9c",
+    "research/ps-lab/local/image-fixtures.json": "5cace6daa1681b3ecdcbd26714d22dc15bdba2c30a03b9bd3633ab325bedf072",
+    "research/ps-lab/local/image.mjs": "9d819877a93f3dbe6f16f70376ec9620b77c36adbdd60cf1bdf7870d5b8b3eb2",
+    "research/ps-lab/local/image.test.mjs": "0fb3af64287247a3f0fe7f59d0c7672899cb67f043dbd283076c3a299b762ef7",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/parser.test.mjs": "122903ab7ee55174a2c67ed725fa8b0e36e3faecc1f4c4eda4519960dbbca49e",
+    "research/ps-lab/local/png.mjs": "cf46bfdc04c33b73e62cb9a0ad1d6fdf84be626ea220f580503b4c38b4e19369",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/package.json": "beb305931aa2ba4618f65f2e5c7c5cd2095456af7e4a708deeab25289cadbcd5",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-observer-recovery-validation.json": "8c12e0465bfdefb65ef3a3f8cb3fcb17ca9bdaee7d95718e16eaa5e682449cb3",
+    "research/ps-parser-validation.json": "61796cd05cc81162640f7eebbc2d0b5d6529091515460b03822974ea6b5ff9df",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5",
+    "tests/fixtures.ts": "6b1da35257f656338bf436d0a4765c50bfdad7f213616884e256ec9d98f614f9"
+  },
+  "unchangedFromBaselineSha256": {
+    ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "package.json": "a1cf3153af6ff2aba8d3693f3e610f30358ca35d9ec83df33afd4e759532b100",
+    "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
+    "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/parser.test.mjs": "122903ab7ee55174a2c67ed725fa8b0e36e3faecc1f4c4eda4519960dbbca49e",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-observer-recovery-validation.json": "8c12e0465bfdefb65ef3a3f8cb3fcb17ca9bdaee7d95718e16eaa5e682449cb3",
+    "research/ps-parser-validation.json": "61796cd05cc81162640f7eebbc2d0b5d6529091515460b03822974ea6b5ff9df",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5",
+    "tests/fixtures.ts": "6b1da35257f656338bf436d0a4765c50bfdad7f213616884e256ec9d98f614f9"
+  },
+  "localOutputSha256": {
+    "/private/tmp/zft-image-local.tap": "4ac6e221925edc26ec484eb630cff8b0d3b673efcdd87b478ec56cdf071a2ed5",
+    "/private/tmp/zft-image-controls.log": "ab1389e1c4896c54dcc9ba1982316082e54dbac3e777a61cbf4f7ed4a17339d1",
+    "/private/tmp/zft-image-install.log": "11446d136b99383c0645fd56eb22a8fd3369e778b9f39bd3f7b96e38d3c13b3e",
+    "/private/tmp/zft-image-compat.log": "52bc5da5866c57f783362595d9172c0f750e224d063aae147d33c26adbb5e53f",
+    "/private/tmp/zft-image-typecheck.log": "b25d99b66a753ba41fbf30382e01b030de41dc9f86246e6aa9baa038c523f109",
+    "/private/tmp/zft-image-app.log": "d26ace4d71614b2fb43e8373a3e21a02b5a56ebee59616fcdd460fe611e13f3e",
+    "/private/tmp/zft-image-demo.log": "d899bb786e43263aa02260548e0d77ca9d029bddd8609817bdc58674ab99667e",
+    "/private/tmp/zft-image-chunk-before.tap": "e84f2ee53dad6f753983e61788a323e04b1931bcba8549b52ac8969a994c8dc5",
+    "/private/tmp/zft-image-chunk-after.tap": "74de65dd46104a0927a1aecd08c38447e327aeac1e00516a44256873daebf89c"
+  }
+}
