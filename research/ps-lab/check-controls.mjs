@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync, unlinkSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 const source = readFileSync(new URL("./verify.mjs", import.meta.url), "utf8");
 const controls = [
   [
@@ -40,7 +41,7 @@ for (const [name, check, replacement, expectedFailure] of controls) {
       [
         "--test",
         "--test-reporter=tap",
-        new URL("./verify.test.mjs", import.meta.url).pathname,
+        fileURLToPath(new URL("./verify.test.mjs", import.meta.url)),
       ],
       {
         env: { ...process.env, ZFT_PS_VERIFIER: file.href },
