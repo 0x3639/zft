@@ -1,8 +1,8 @@
 # PS local issuer and client stores
 
-This is the isolated C2 research engine and a targeted C3 recovery harness, on the PR #12 baseline `9f85c11`. It runs locally without ZVM, an HTTP server, a wallet, Cloudflare or a reference mint. The demo uses deliberately public issuer test keys. **Do not issue real assets with it.** The [roadmap](IMPLEMENTATION.md) keeps independent C1/C4 review and product/hosting C5/C6 acceptance open.
+This is the isolated C2 research engine and a targeted C3 recovery harness, extended from the merged PR #13 baseline `8854ed7`. It runs locally without ZVM, an HTTP server, a wallet, Cloudflare or a reference mint. The demo uses deliberately public issuer test keys. **Do not issue real assets with it.** The [roadmap](IMPLEMENTATION.md) keeps independent C1/C4 review and product/hosting C5/C6 acceptance open.
 
-[Source and validation evidence](../research/ps-local-engine-validation.json) records the tested implementation. The [frozen reference profile](PS-CRYPTOGRAPHIC-PROFILE.md), its Python generator, JavaScript verifier and deterministic vectors remain unchanged. The profile below is a separate, original `zft-ps-local-v1` experiment, with different asset attributes and proof contexts. It does not claim reference wire compatibility or independent cryptographic validation.
+[Current recovery validation](../research/ps-recovery-validation.json) records this revision. [Original engine evidence](../research/ps-local-engine-validation.json) is retained as the historical PR #13 record. The [frozen reference profile](PS-CRYPTOGRAPHIC-PROFILE.md), its Python generator, JavaScript verifier and deterministic vectors remain unchanged. The profile below is a separate, original `zft-ps-local-v1` experiment, with different asset attributes and proof contexts. It does not claim reference wire compatibility or independent cryptographic validation.
 
 ## Run locally
 
@@ -90,16 +90,31 @@ Stores use rollback journals, `synchronous=FULL`, foreign keys and a five-second
 
 ## Validation and remaining gates
 
-Twenty-eight local tests cover the full lifecycle; capability, realm, session, purpose, wallet, asset and destination binding; canonical input limits; duplicate issuance; exact retries; suspension/expiry; backup and restore; bad responses; real multiprocess claim/issuance races; and three actual process-kill locations:
+The local suite has **47 tests**: the original 28 lifecycle/binding/race tests plus 19 recovery regressions. Fourteen tests actually kill a child process with SIGKILL, then reopen the SQLite store and inspect persisted state. The new interruption hooks are inert unless a caller supplies the test callback; they do not change protocol bytes or transaction boundaries.
 
-- After the spend write but before the operation response write/commit: restart has neither spend nor response, and the saved request can complete.
-- After issuer commit but before reply: restart recovers the exact committed result.
-- After client verification/unblinding but before its transaction: restart completes from the saved pending snapshot.
+| Interruption | Required persisted state after reopening |
+| --- | --- |
+| Before/after pending snapshot insert | No operation before the write; complete unacknowledged snapshot afterward. No issuer submission occurs. |
+| Before/after backup acknowledgment | Exact snapshot retained; submission remains blocked until the acknowledgment write commits. |
+| Before/after snapshot restore commit into a new store | No partial restore; the complete matching snapshot can be restored again and recover the original response. |
+| Before client save; after credential insert; after source-spent update; after completed-operation update before commit | Replacement, local source-spent flag and completed operation all roll back; the exact pending snapshot remains. |
+| After client commit before return | All three client writes persist; repeating recovery returns the same credential. |
+| After issuer spend/reservation, or after response insertion, before commit | Neither registry mutation nor operation response persists. Retry uses the original saved request. |
+| After issuer commit before reply | Registry mutation and exact recoverable response both persist. |
 
-Four controls mutate temporary copies, then require the corresponding named test to fail with an assertion: omit recovery hash from proof context, accept duplicate nullifiers, commit a spend before saving the response, and omit scope from the signed asset attribute. Copies use paths containing spaces, Unicode and `#`; the original modules remain intact. The realm regression also failed on the earlier unscoped implementation with “Missing expected exception.”
+The additional storage tests use real SQLite errors in disposable local databases:
 
-The reference lab separately retains 43 passing tests, exact Python fixture reproduction, inventory checks and three broken-verifier controls. None supplies an independent oracle for this new local profile. [SQLite's atomic commit model](https://www.sqlite.org/atomiccommit.html) depends on filesystem/hardware behavior; SIGKILL tests are not power-loss, disk-full, corruption, backup-rollback or all-boundary qualification. Recovery into a third local store is not phone/browser cross-device acceptance.
+- Four `SQLITE_FULL` cases: pending insert, issue response insert, swap response insert, and client completed-operation update. A temporary trigger first raises a named constraint error to verify the selected write is reached. It then requests a bounded allocation below 2 MiB while [`max_page_count`](https://www.sqlite.org/pragma.html#pragma_max_page_count) limits growth. These are page-limit failures, **not host disk exhaustion**. Earlier transaction writes roll back, recovery material remains, and retry succeeds after the fault is removed.
+- `query_only` produces `SQLITE_READONLY` during acknowledgment; it cannot open the submission gate.
+- A second connection holding a write lock causes `SQLITE_BUSY` during pending insert. A reader holding a shared lock causes `SQLITE_BUSY` at client COMMIT after all writes. Tests use a one-millisecond busy timeout; the ordinary five-second setting is unchanged. Failed completion rolls back and exact recovery succeeds once the lock is released.
+- Reopening a client and replaying an older completed recovery cannot reset the spent flag of a credential that was subsequently replaced.
 
-C2 is complete for this local harness. C3 remains partial: additional client transaction interruption, storage faults, retention/availability policy and real device recovery remain. C1 still needs independent equations/transcripts/vectors, reviewed entropy/backend decisions, complete malformed-input policies, trusted manifest distribution, signed state observations and key rotation. C4 independent review is required before a hosted experiment. Admission abuse, key custody, operator compromise, censorship, equivocation, quotas and Cloudflare storage/CPU qualification remain open. C5 must decide custody and implement wallet endorsement, image/file/vault adapters and UI before any integration. C6 requires separately approved hosted resources and incident recovery.
+[SQLite documents](https://www.sqlite.org/lang_transaction.html#response_to_errors_within_a_transaction) that some write errors may roll back a statement or the transaction. The existing transaction helper attempts an explicit rollback and rethrows the original error; these tests exercise that behavior without changing it. Successful retries and `integrity_check` accompany the interrupted transaction checks.
+
+Eight controls mutate temporary copies and require named assertion failures. The four original controls remove recovery-proof binding, permit repeated nullifiers, split issuer spend/response commits, or remove signed realm scoping. Four new controls split the client transaction after credential/source updates, acknowledge a pending snapshot automatically, or revive an old spent credential during recovery. Source files remain intact. The new tests qualify existing storage behavior; they do not represent fixes to observed production incidents.
+
+The reference lab separately retains 43 passing tests, exact Python fixture reproduction, inventory checks and three broken-verifier controls. None supplies an independent oracle for this local profile. [SQLite's atomic commit model](https://www.sqlite.org/atomiccommit.html) depends on filesystem/hardware behavior. SIGKILL, page limits and connection locks do not qualify power loss, real disk/journal exhaustion, arbitrary I/O errors, corruption, registry/backup rollback, all boundaries or hosted storage. Recovery into a third local store is not phone/browser cross-device acceptance.
+
+C2 is complete for this local harness. C3 remains partial: hardware/filesystem failures, corruption and rollback defense, retention/availability policy, further boundaries and real device recovery remain. C1 still needs independent equations/transcripts/vectors, reviewed entropy/backend decisions, complete malformed-input policies, trusted manifest distribution, signed state observations and key rotation. C4 independent review is required before a hosted experiment. Admission abuse, key custody, operator compromise, censorship, equivocation, quotas and Cloudflare storage/CPU qualification remain open. C5 must decide custody and implement wallet endorsement, image/file/vault adapters and UI before any integration. C6 requires separately approved hosted resources and incident recovery.
 
 The deployed ERC-721 app, root dependencies, Worker bindings, contract, data, v1 files, branding and historical OG snapshots are unchanged. No issuer is deployed and no collectible is migrated. The ZVM maintenance outage does not block these local checks; chain integration and live devnet acceptance must wait for the endpoint to return.

@@ -1,0 +1,182 @@
+{
+  "recordedAt": "2026-10-07T08:48:41.926603+00:00",
+  "baseline": "8854ed7ef92604e801ce22979346e8428c44373d",
+  "branch": "test/ps-recovery-boundaries",
+  "profile": "zft-ps-local-v1",
+  "scope": "Expanded local C3 interruption and bounded SQLite error qualification. Test hooks and test harness changes; no cryptographic transcript, transaction ordering, app integration or deployed resource change.",
+  "baselineReview": {
+    "pr": 13,
+    "finalHead": "fb61724bc0f7ccf4c4a132e8009129d3783d147a",
+    "mergedAt": "2026-10-07T08:33:24Z",
+    "result": "CodeRabbit reviewed the exact head with no actionable findings; both app and PS profile jobs and Cloudflare preview passed. Bot review is not independent cryptographic validation."
+  },
+  "runtime": {
+    "node": "v22.12.0",
+    "sqlite": "node:sqlite DatabaseSync, experimental flag, rollback journal, synchronous FULL",
+    "crypto": "@noble/curves 2.4.0; frozen reference primitives, original ZFT-specific transcripts"
+  },
+  "verification": [
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test:local",
+      "passed": 47,
+      "originalTests": 28,
+      "newTests": 19,
+      "processKills": 14
+    },
+    {
+      "command": "node research/ps-lab/local/check-controls.mjs",
+      "passed": 8,
+      "expected": "Each temporary mutation must fail its named regression with ERR_ASSERTION; working source remains intact."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace demo:local",
+      "result": "Ephemeral lifecycle, lost-response recovery, stale-copy rejection, cancellation and showing pass; walletAuthenticated remains false."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test",
+      "passed": 43
+    },
+    {
+      "command": "node research/ps-lab/check-controls.mjs",
+      "passed": 3
+    },
+    {
+      "command": "python research/ps-lab/generate.py",
+      "result": "Python 3.12 hash-pinned environment reproduces exact unchanged fixture bytes; subgroup and pairing checks pass."
+    },
+    {
+      "command": "python research/ps-lab/check-inventory.py",
+      "result": "13 dependency versions, pinned artifacts and retained license notices pass."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts",
+      "result": "Passed; isolated lock unchanged."
+    },
+    {
+      "command": "pnpm typecheck",
+      "result": "Passed."
+    },
+    {
+      "command": "pnpm test",
+      "passed": 229,
+      "testFiles": 25,
+      "result": "Passed with offline local runtimes, no live ZVM access."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed."
+    }
+  ],
+  "newProcessKills": [
+    "Before and after pending snapshot insert (2).",
+    "Before and after exact-backup acknowledgment (2).",
+    "Before and after restore commit into a new store (2).",
+    "After replacement credential insert, after source-spent update, after completed-operation update before commit, and after client commit before return (4).",
+    "After issuer response insertion before transaction commit (1)."
+  ],
+  "newStorageFailures": [
+    "Page-limit SQLITE_FULL at pending insert: no pending operation exposed; retry after fault removal succeeds.",
+    "Page-limit SQLITE_FULL at issuer issue and swap response inserts: reservation/spend and response roll back together; exact request retries (2).",
+    "Page-limit SQLITE_FULL at client completed-operation update: credential and source writes roll back; exact response recovers.",
+    "PRAGMA query_only forces SQLITE_READONLY at backup acknowledgment; submission gate stays closed.",
+    "Separate connection writer lock forces SQLITE_BUSY at pending insert.",
+    "Separate connection reader lock forces SQLITE_BUSY at client COMMIT after all writes; explicit rollback leaves original journal intact."
+  ],
+  "faultMethod": "Disposable private SQLite files only. A temporary trigger first raises a named ABORT to prove the selected statement is reached, then attempts a bounded allocation below 2 MiB under max_page_count. This generates a real SQLite FULL result without filling the host disk. Busy tests lower their own connection timeout to 1ms; ordinary 5-second timeout remains unchanged.",
+  "additionalInvariant": "After reopening and restoring an older completed operation, repeated recovery must not revive a credential spent by a later operation.",
+  "newNegativeControls": [
+    "Commit client credential insertion separately before SIGKILL.",
+    "Default pending acknowledgment to 1 before backup.",
+    "Commit local source-spent state before a failed completion write.",
+    "Reset an existing credential spent flag during completed recovery."
+  ],
+  "documentationChecks": {
+    "scope": [
+      "docs/IMPLEMENTATION.md",
+      "docs/PS-CREDENTIAL-PROTOCOL.md",
+      "docs/PS-CRYPTOGRAPHIC-PROFILE.md",
+      "docs/PS-LOCAL-ENGINE.md",
+      "research/EVIDENCE.md",
+      "research/ps-lab/README.md"
+    ],
+    "localLinksAndAnchors": 103,
+    "result": "Passed relative file and Markdown heading-anchor checks; network links were not bulk checked."
+  },
+  "isolation": {
+    "liveNetworkCallsFromLab": false,
+    "deploymentPerformed": false,
+    "retainedWorker": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092",
+    "unchanged": [
+      "Root dependencies and lockfile",
+      "App, SDK, Worker and contract source",
+      "Deployed bindings and data",
+      "v1 file/vault formats",
+      "Brand assets, original untracked zft-logo and historical OG snapshots",
+      "Existing branches and worktree node_modules symlink"
+    ]
+  },
+  "limitations": [
+    "Same-author research with public issuer test keys, plaintext databases and unqualified secret BigInt operations; unsuitable for real assets.",
+    "No independent transcript review, audit, external oracle, production privacy or live reference interoperability.",
+    "SIGKILL is not power loss; page-limit FULL is not host disk or journal exhaustion; query_only is not filesystem permissions qualification.",
+    "No arbitrary IOERR, corruption, malicious state rollback, all-boundary, hardware, browser/phone, retention or availability qualification.",
+    "Wallet bytes are context only, walletAuthenticated false. No wallet/file/vault integration or hosted issuer.",
+    "C2 local harness is complete; C3 remains partial; independent C1/C4 review and C5/C6 integration/hosting remain open."
+  ],
+  "sourceHashScope": "Files for this C3 run; excludes this self-referential JSON. Previous profile and local-engine validation records are frozen historical manifests.",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "ad6c0e9c14834d0c4621dc4000e613edbe9eaabb5ae62ca2253b492ef459d87b",
+    "docs/IMPLEMENTATION.md": "e8b713f5e5950f68cb6561680910f53a3c9a75eac72baf14c296c423a28c5e48",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "f4ea669396f410fa4243c8e9501422057a118ab063f5cd7893b68cf6c167f496",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "docs/PS-LOCAL-ENGINE.md": "21fe468920d872edaa81762d22a64ad715e0872a53f4fb6ca9496f81464d4119",
+    "research/EVIDENCE.md": "e4079fa42389cd6ea9064d3bf5ab50019d0b1f98a13d6b720e15938577b092c3",
+    "research/ps-lab/README.md": "bb94957b2384f5a50728bae531b939fa06eb93bfd8558d6514907f1d8819d2cb",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/check-controls.mjs": "93dba65d50b18f4260c649cbcfb0a7a21f02348d8485179604d6e0783753d5e0",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/process-worker.mjs": "c1e6ea536236869751adaa9444976dea8363d1ee985bbaf2458f999a72ca685c",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "5554d57df4eace594753bb68729ae393c867b3cf9366737db1b8be2e69bf9d6d",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "f5ea439840b6d3eb402cbf580de07997db7104f4eaf7af620f4457f9f3826ab2",
+    "research/ps-lab/package.json": "b248751ed2dc9597d0f98176aa944749968cf7f6b1b0532ed3e31bc663a8e7b5",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb"
+  },
+  "unchangedFromBaselineSha256": {
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb"
+  },
+  "localOutputSha256": {
+    "zft-c3-local.tap": "38d9ec59bf8e23aaf23e805439b81efb1faa3cebfa483527d1deb6f4ed000839",
+    "zft-c3-controls.log": "02d4f25e6ac8d7df50a803a2c66361220a3d25004473092eac066d14321e8e12",
+    "zft-c3-demo.log": "15e3c6f31aecaf615b919dc941d7dd8c3d206c5b1e6cd91ed77f0c3274ddaaf6",
+    "zft-c3-reference.tap": "6a300a5a9f10d250ad72164fc895f9424f93268524d81b57e64910367cec6375",
+    "zft-c3-reference-controls.log": "69b77ad303f2fea74b762dfb38553dba11d1e5a1173bde1bd32834a3f5262916",
+    "zft-c3-app.log": "f80105239b42ae75dfff990f7de83b3bddb3e8a8367e3fa486e65dd8a150815c",
+    "zft-c3-typecheck.log": "b25d99b66a753ba41fbf30382e01b030de41dc9f86246e6aa9baa038c523f109",
+    "zft-c3-install.log": "ce489e3dd3097c540a7e13a1bd5581bbb3706dffdbcb27a8167b00f7dda3153d"
+  }
+}
