@@ -22,3 +22,23 @@ jobs:
       - run: pnpm build
       - run: pnpm worker:check
       - run: node scripts/check-og-renderer.mjs
+  ps-profile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts
+      - run: |
+          python -m pip install --require-hashes --only-binary=:all: -r research/ps-lab/requirements.txt
+      - run: python research/ps-lab/check-inventory.py
+      - run: python research/ps-lab/generate.py
+      - run: pnpm --dir research/ps-lab --ignore-workspace test
+      - run: node research/ps-lab/check-controls.mjs

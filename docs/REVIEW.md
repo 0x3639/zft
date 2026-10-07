@@ -4,7 +4,7 @@ Review agenda, updated 2026-10-06. The user authorized real devnet implementatio
 
 ## Current protocol review
 
-After PR #10, the user authorized preparing the [PS credential proposal](PS-CREDENTIAL-PROTOCOL.md). Review option A for a local isolated mint prototype, its issuer trust and recovery rules, the observed committed-issuance v3 profile, and the difference between MetaMask identity and wallet-visible NFT custody. This design is ready for review; no new issuer, protocol migration or deployment is approved by its existence. The source/license and exact-transcript gates precede implementation claims.
+After PR #10, the user authorized preparing the [PS credential proposal](PS-CREDENTIAL-PROTOCOL.md). Review option A for a local isolated mint prototype, its issuer trust and recovery rules, the observed committed-issuance v3 profile, and the difference between MetaMask identity and wallet-visible NFT custody. PR #11 is merged and the user authorized continued local research. The [C1 profile and fixtures](PS-CRYPTOGRAPHIC-PROFILE.md) are now reviewable; independent review, ZFT bindings and public custody/integration approval remain open. No hosted issuer, protocol migration or deployment follows from the local fixture work.
 
 ## Original v1 decisions and recommendations
 

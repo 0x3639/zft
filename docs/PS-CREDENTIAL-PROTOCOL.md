@@ -144,7 +144,7 @@ Database rollback is a protocol incident: restoring a snapshot can resurrect spe
 
 The prototype starts locally with test keys, independent storage and no live wallet, payment or reference-mint mutation. A hosted experiment requires a distinct Worker, DO namespace, issuer realm and keyset. It must not inherit production bindings or the ERC-721 sponsor key. The PS signing key is issuer custody material: keep it out of the browser, public Worker configuration, R2, D1 and logs. Separating a mint Worker from the public application is an operational boundary, not protection against the hosting account's administrator.
 
-The browser verifier can run in a Web Worker; serving Workers must be benchmarked for pairing/proof CPU and memory before selecting a production crypto backend. [noble-curves](https://github.com/paulmillr/noble-curves) is a candidate group implementation, not an audited PS protocol supplied by this design. Freeze an explicit version, license and relevant audit scope in C1. No dependency is added by this PR.
+The browser verifier can run in a Web Worker; serving Workers must be benchmarked for pairing/proof CPU and memory before selecting a production crypto backend. [noble-curves](https://github.com/paulmillr/noble-curves) is a candidate group implementation, not an audited PS protocol supplied by this design. Freeze an explicit version, license and relevant audit scope in C1. The design PR added no dependencies. The subsequent isolated [C1 lab](PS-CRYPTOGRAPHIC-PROFILE.md) pins research-only noble and py_ecc backends with retained license notices; app dependencies are unchanged.
 
 Proposed isolated service paths, not existing endpoints:
 
@@ -217,3 +217,6 @@ Negative tests must fail against a deliberately broken control, not merely mirro
 ## Review outcome to record
 
 Record the decision on option A and MetaMask inventory expectations, then the selected current issuance profile and any deviation requiring review. Resolve issuer custody/availability expectations before hosting. C1 must determine usable source licenses and independent review ownership; public JavaScript availability is not a source-code license. The prototype's new tests and evidence belong under a separate PS namespace. Trading, mainnet, remote backup, bridge settlement and production migration remain separately scoped work.
+
+
+C1 progress after PR #11: the [reference-core profile and fixtures](PS-CRYPTOGRAPHIC-PROFILE.md) now define exact bytes for the observed active issuance, showing and transfer paths. Two different curve libraries agree on deterministic examples; independent transcript review, an external oracle, ZFT-specific bindings and final API policies remain required. This is local research, not hosted integration.

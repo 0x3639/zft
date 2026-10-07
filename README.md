@@ -12,7 +12,7 @@ Repository: [0x3639/zft](https://github.com/0x3639/zft).
 
 ## Review the project
 
-The next protocol milestone is the [PS credential proposal](docs/PS-CREDENTIAL-PROTOCOL.md), addressing the requested Pointcheval–Sanders/BLS12-381 parity. It proposes an isolated mint-based prototype and explicitly separates credential custody from MetaMask identity and native ERC-721 holdings. The deployed alpha continues to use public ERC-721 ownership; no PS migration or deployment is implied.
+The current protocol milestone follows the merged [PS credential proposal](docs/PS-CREDENTIAL-PROTOCOL.md), addressing the requested Pointcheval–Sanders/BLS12-381 parity. It proposes an isolated mint-based prototype and explicitly separates credential custody from MetaMask identity and native ERC-721 holdings. The [C1 reference-core lab](docs/PS-CRYPTOGRAPHIC-PROFILE.md) adds exact encodings and differential fixtures for local review. The deployed alpha continues to use public ERC-721 ownership; no PS migration or deployment is implied.
 
 Track delivery in the [implementation roadmap](docs/IMPLEMENTATION.md), including completed milestones, discovery delivery, wallet/device work and remaining acceptance gates. Start with the [complete website functional specification](docs/FUNCTIONAL-SPEC.md) and [reference action audit](docs/REFERENCE-AUDIT.md). They cover routes, controls, dialogs, ownership states, downloads, recovery, discovery/social features, marketplace scope, OG sharing, and acceptance criteria. The audit distinguishes exercised public actions from owner/payment flows still unverified.
 

@@ -1,0 +1,13 @@
+{
+  "name": "zft-ps-research",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {
+    "test": "node --test verify.test.mjs"
+  },
+  "devDependencies": {
+    "@noble/curves": "2.4.0",
+    "@noble/hashes": "2.4.0"
+  }
+}
