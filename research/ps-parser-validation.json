@@ -115,7 +115,7 @@
       "research/ps-lab/README.md",
       "docs/PS-LOCAL-STATE.md"
     ],
-    "localLinksAndAnchors": 139,
+    "localLinksAndAnchors": 140,
     "result": "Passed local relative-file and Markdown-anchor checks; network links not bulk checked."
   },
   "isolation": {
@@ -150,7 +150,7 @@
     "docs/IMPLEMENTATION.md": "97d652b536afefb546d4d0390a085203581a536e81800fbe125c804bee09ac7b",
     "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
     "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
-    "docs/PS-LOCAL-ENGINE.md": "254e37e89780e51e547c96a68aa0fa30c63fcf33a16c4e854406c76947b8ff79",
+    "docs/PS-LOCAL-ENGINE.md": "08d5b3946d6096d45fbd802e390b3c59f586a62e6f51ebe15d4c23f96282366a",
     "docs/PS-LOCAL-STATE.md": "03e2663bfc39040ebd33c4edd096f585dd4d0fceb19205500e3e3a8f553acc2a",
     "research/EVIDENCE.md": "577e34ef3947ecf289119d40b4759c66ae0bfebdc7647d88699e4bcad5bcafee",
     "research/ps-lab/README.md": "235b826733414d846ca215eb1ac311a8eb6faa1964cff4403aa6aebe76db2036",
@@ -220,5 +220,12 @@
   "localOutputSha256": {
     "/private/tmp/zft-parser-local.tap": "3d734cb143261b777779bb7f5cae7ad13ce5524ed5dc726df15d980354cfa359",
     "/private/tmp/zft-parser-controls.log": "0fc33e94c256ab388d6ec080d5a929acf769a53e4fe0f9c31283bd7b688d0b64"
+  },
+  "reviewFollowup": {
+    "recordedAt": "2026-10-07T14:17:57.953351+00:00",
+    "reviewedHead": "753a1f382955d8f50c7109e2465342446915ce39",
+    "comment": "https://github.com/0x3639/zft/pull/17#discussion_r4208016070",
+    "disposition": "Replaced the incorrect directional parser reference with a direct local section link. No executable code changed; 140 local documentation links/anchors and diff checks pass. Existing tests and controls remain evidence for unchanged code.",
+    "initialHeadCI": "Both app verify jobs, both ps-profile jobs and Cloudflare preview passed on 753a1f3; the follow-up head still requires its own review and checks."
   }
 }
