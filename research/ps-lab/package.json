@@ -5,11 +5,12 @@
   "packageManager": "pnpm@10.14.0",
   "scripts": {
     "test": "node --test verify.test.mjs paths.test.mjs",
-    "test:local": "node --experimental-sqlite --test local/engine.test.mjs local/recovery.test.mjs local/state.test.mjs local/state-recovery.test.mjs local/parser.test.mjs local/image.test.mjs local/vault.test.mjs",
+    "test:local": "node --experimental-sqlite --test local/engine.test.mjs local/recovery.test.mjs local/state.test.mjs local/state-recovery.test.mjs local/parser.test.mjs local/image.test.mjs local/vault.test.mjs local/browser.test.mjs",
     "demo:local": "node --experimental-sqlite local/demo.mjs",
     "demo:state": "node --experimental-sqlite local/state-demo.mjs",
     "demo:image": "node --experimental-sqlite local/image-demo.mjs",
-    "demo:vault": "node --experimental-sqlite local/vault-demo.mjs"
+    "demo:vault": "node --experimental-sqlite local/vault-demo.mjs",
+    "browser:local": "node --experimental-sqlite local/browser-server.mjs"
   },
   "devDependencies": {
     "@noble/curves": "2.4.0",

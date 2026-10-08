@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ZFT · Local PS lab</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" type="module"></script>
+  </head>
+  <body>
+    <header>
+      <a class="wordmark" href="/">ZFT<span> / LAB</span></a
+      ><span class="pill">LOCAL · TEST KEYS</span
+      ><button id="disconnect" class="quiet" type="button">
+        Disconnect console
+      </button>
+    </header>
+    <main>
+      <div class="hero">
+        <div>
+          <p class="eyebrow">POINTCHEVAL–SANDERS / OFFLINE WORKFLOW</p>
+          <h1>Art you can pass on.</h1>
+          <p class="lead">
+            Try a complete credential handoff, with recovery at every step.
+          </p>
+        </div>
+        <div class="orbit" aria-hidden="true">Z<span>↗</span></div>
+      </div>
+      <aside class="notice">
+        <strong>Disposable research environment.</strong> Use test files only.
+        Cryptography and plaintext working databases run in the local Node
+        process. Stopping it deletes the issuer and all three clients;
+        downloaded files cannot recreate that issuer. Passwords travel only to
+        this local process. No wallet or ZVM connection.
+      </aside>
+      <div id="status" role="status" aria-live="polite">
+        Opening the local lab…
+      </div>
+      <div id="download" aria-live="polite"></div>
+      <section class="workspace">
+        <label for="actor">Working client</label
+        ><select id="actor">
+          <option value="alice">Alice · sender</option>
+          <option value="bob">Bob · receiver</option>
+          <option value="restored">Restored · third client</option></select
+        ><span id="realm" class="mono"></span><span id="counts"></span>
+      </section>
+      <div class="grid">
+        <section class="card">
+          <p class="step">01 / PREPARE</p>
+          <h2>Start a handoff</h2>
+          <p class="muted">
+            Mint one of three original test images, or import a private bearer
+            PNG from this running lab.
+          </p>
+          <form id="mint">
+            <label for="fixture">Test artwork</label>
+            <div id="artwork" class="artwork"></div>
+            <select
+              id="fixture"
+              name="fixture"
+              aria-label="Test artwork"
+            ></select
+            ><button type="submit">Prepare mint</button>
+          </form>
+          <div class="divider"></div>
+          <form id="claim">
+            <label for="claim-file">Private bearer PNG</label
+            ><input
+              type="file"
+              id="claim-file"
+              accept="image/png"
+              required
+            /><button type="submit" class="secondary">Prepare claim</button>
+          </form>
+          <p class="caption">
+            Import verification alone cannot tell whether a file has been spent.
+          </p>
+        </section>
+        <section class="card">
+          <p class="step">02 / SAVE & VERIFY</p>
+          <h2>Keep your recovery</h2>
+          <p class="muted">
+            Download an encrypted snapshot, then choose that saved file again.
+            Submission stays blocked until the exact contents are verified.
+          </p>
+          <label for="operation">Prepared operation</label
+          ><select id="operation"></select>
+          <p id="operation-state" class="caption"></p>
+          <form id="backup">
+            <label for="backup-password">Password for this export</label
+            ><input
+              id="backup-password"
+              type="password"
+              autocomplete="new-password"
+              required
+              placeholder="At least 12 UTF-8 bytes"
+            /><button type="submit">Download encrypted recovery</button>
+          </form>
+          <div class="divider"></div>
+          <form id="acknowledge">
+            <label for="backup-id">Expected backup</label
+            ><select id="backup-id"></select
+            ><label for="recovery-file">Reselect the saved recovery file</label
+            ><input
+              id="recovery-file"
+              type="file"
+              accept="application/json,.json"
+              required
+            /><label for="recovery-password">Export password</label
+            ><input
+              id="recovery-password"
+              type="password"
+              autocomplete="current-password"
+              required
+            /><button type="submit" class="secondary">
+              Verify saved recovery
+            </button>
+          </form>
+        </section>
+        <section class="card">
+          <p class="step">03 / COMPLETE</p>
+          <h2>Commit the handoff</h2>
+          <p class="muted">
+            The local issuer accepts one winning claim. A repeated request
+            recovers the same result.
+          </p>
+          <form id="submit">
+            <label class="check"
+              ><input id="lose-response" type="checkbox" /> Simulate a lost
+              response after commit</label
+            ><button id="submit-button" type="submit" disabled>
+              Submit prepared request
+            </button>
+          </form>
+          <button id="recover" type="button" class="secondary">
+            Recover original response
+          </button>
+          <div class="divider"></div>
+          <h3>Local credentials</h3>
+          <select id="credential" aria-label="Local credential"></select>
+          <p class="caption">
+            “Locally active” is saved client state, not a fresh issuer ownership
+            check.
+          </p>
+          <div class="button-row">
+            <button id="export" type="button" class="secondary">
+              Private PNG</button
+            ><button id="public" type="button" class="secondary">
+              Public image
+            </button>
+          </div>
+          <button id="cancel" type="button" class="quiet danger">
+            Prepare cancellation
+          </button>
+          <p class="caption">
+            Cancellation creates a new secret and needs its own recovery backup.
+            It can lose a race to another claim.
+          </p>
+          <form id="save-bearer">
+            <label for="bearer-password">Encrypt a credential export</label
+            ><input
+              id="bearer-password"
+              type="password"
+              autocomplete="new-password"
+              required
+              placeholder="Export password"
+            /><button type="submit" class="secondary">
+              Download encrypted credential
+            </button>
+          </form>
+        </section>
+      </div>
+      <section class="card restore">
+        <div>
+          <p class="step">RECOVERY WORKBENCH</p>
+          <h2>Continue in another client</h2>
+          <p class="muted">
+            Restore encrypted recovery into the third client, then recover the
+            original response. The same temporary issuer must still be running.
+          </p>
+        </div>
+        <form id="restore">
+          <label for="restore-id">Expected recovery backup</label
+          ><select id="restore-id"></select
+          ><label for="restore-file">Saved encrypted recovery</label
+          ><input
+            id="restore-file"
+            type="file"
+            accept="application/json,.json"
+            required
+          /><label for="restore-password">Export password</label
+          ><input
+            id="restore-password"
+            type="password"
+            autocomplete="current-password"
+            required
+          /><button type="submit">Restore into third client</button>
+        </form>
+        <form id="claim-vault">
+          <h3>Claim an encrypted credential</h3>
+          <label for="bearer-id">Expected credential backup</label
+          ><select id="bearer-id"></select
+          ><label for="bearer-file">Encrypted credential file</label
+          ><input
+            id="bearer-file"
+            type="file"
+            accept="application/json,.json"
+            required
+          /><label for="claim-password">Export password</label
+          ><input
+            id="claim-password"
+            type="password"
+            autocomplete="current-password"
+            required
+          /><button type="submit" class="secondary">
+            Prepare encrypted-file claim
+          </button>
+        </form>
+      </section>
+      <footer>
+        <span>Research prototype · no real assets</span
+        ><span
+          >PS credentials are managed in ZFT. MetaMask identity and a possible
+          future Snap are separate work.</span
+        >
+      </footer>
+    </main>
+  </body>
+</html>

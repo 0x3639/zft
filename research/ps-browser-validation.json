@@ -1,0 +1,275 @@
+{
+  "recordedAt": "2026-10-08T08:52:13.675848+00:00",
+  "baseline": "e0a8beb854f3a5fa29cf9aa47a3f529ada984322",
+  "branch": "feat/ps-browser-lab",
+  "scope": "Original disposable Node-backed browser console. Existing PS/PNG/vault cryptography and plaintext SQLite stores remain in Node; not a browser cryptographic client or public issuer API.",
+  "baselineReview": {
+    "pr": 19,
+    "head": "848df718faa2018ddc63c1a847bac9d1f939c32c",
+    "mergedAt": "2026-10-08T08:25:45Z",
+    "result": "Exact-head CodeRabbit review had no outstanding actionable findings; both app verify and both ps-profile jobs plus Cloudflare preview passed. Optional bounded buffer optimization deferred; generic docstring warning not required CI."
+  },
+  "productDirection": {
+    "recordedDate": "2026-10-08",
+    "decision": "User confirmed ZFT need not appear in MetaMask initially. Continue ZFT-managed PS credentials with MetaMask identity; investigate a display-focused Snap only after the core experience.",
+    "snap": "Dedicated Snap home page is a plausible later view based on official docs. Standard NFT inventory, artwork, mobile support, permissions/distribution and any custody role are not established or implemented."
+  },
+  "verification": [
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test:local",
+      "passed": 160,
+      "newTests": 12,
+      "processKillLocations": 21,
+      "newProcessKillLocations": 0
+    },
+    {
+      "command": "node research/ps-lab/local/check-controls.mjs",
+      "passed": 40,
+      "newControls": 5,
+      "result": "Each deliberately weakened temporary copy fails its named regression with ERR_ASSERTION."
+    },
+    {
+      "command": "node --experimental-sqlite --test research/ps-lab/local/browser.test.mjs",
+      "passed": 12,
+      "scope": "Affected HTTP/controller tests rerun after the explicit Save-link UI update."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts",
+      "result": "Passed; dependency artifacts unchanged."
+    },
+    {
+      "command": "node --check research/ps-lab/local/browser/app.js",
+      "result": "Passed."
+    },
+    {
+      "command": "pnpm exec prettier --check research/ps-lab/local/browser-lab.mjs research/ps-lab/local/browser-server.mjs research/ps-lab/local/browser.test.mjs research/ps-lab/local/browser/* research/ps-lab/local/check-controls.mjs research/ps-lab/package.json",
+      "result": "Passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed."
+    }
+  ],
+  "browserAcceptance": {
+    "environment": "Codex in-app desktop browser on macOS; viewport widths 1280 and 390. No phone or ordinary Chrome/Firefox acceptance claim.",
+    "verified": [
+      "Prepared a mint through UI and rendered an explicit encrypted Save link.",
+      "Selected an actual API-generated encrypted recovery file with the browser file chooser.",
+      "Exact file/password verification enabled submission; password inputs cleared afterward.",
+      "Simulated issuer commit with lost return, restored selected recovery into third client and recovered its verified credential through UI.",
+      "Desktop and narrow layouts had scrollWidth equal to viewport width.",
+      "Disconnect cleared this page capability, file selections and rendered download; other tab and Node stores intentionally remained.",
+      "No browser console warning/error was reported in the observed recovery flow."
+    ],
+    "unverified": [
+      "Browser-managed Blob download completion: in-app download event and downloadMedia timed out, no saved file was confirmed.",
+      "The UI recovery file was generated through actual loopback HTTP and saved by a test script; it was not a proven browser download\u2013reselect roundtrip.",
+      "UI mint/restore was exercised; full claim/cancel/encrypted-bearer workflows were verified in controller/HTTP tests, not every action repeated through browser UI."
+    ],
+    "screenshots": [
+      "/private/tmp/zft-browser-desktop.jpg",
+      "/private/tmp/zft-browser-mobile.jpg"
+    ],
+    "codeChangesDuringAcceptance": "Changed automatic transient Blob click into an explicit retained Save link; completion remained unconfirmed in this browser. No parser, cryptographic or core storage correction was made."
+  },
+  "httpBoundary": {
+    "bind": "127.0.0.1; dynamic port; no alternate host option",
+    "authentication": "Single exact Host and Origin plus 256-bit launch capability; duplicate origins/hosts reject; no CORS. All actions POST /api, canonical exact-field JSON.",
+    "bodyBytes": 2109440,
+    "headersBytes": 8192,
+    "activeBodies": 2,
+    "connections": 8,
+    "timeoutSettingsMs": 10000,
+    "operations": 24,
+    "backupsPerSource": 4,
+    "limits": "Synchronous pairings/KDF work blocks the event loop and delays timers. Local limits are not production DoS or cumulative resource qualification.",
+    "secrets": "Status excludes credentials/snapshots; private downloads intentionally carry bearer authority. Passwords and request bodies are never logged or echoed in errors. Capability prints only in local startup URL.",
+    "files": "No request-selected filesystem paths or static directory access. Browser uploads send bounded file bytes; no fsync/durability implication."
+  },
+  "newNegativeControls": [
+    "Accept foreign Origin.",
+    "Accept wrong launch capability.",
+    "Acknowledge before decrypting selected recovery.",
+    "Export bearer authority in public image.",
+    "Expose pending snapshot in status."
+  ],
+  "inheritedValidation": {
+    "record": "research/ps-vault-validation.json",
+    "head": "848df718faa2018ddc63c1a847bac9d1f939c32c",
+    "scope": "PR #19 CI reran unchanged application/reference checks, including 43 reference tests, three reference controls, exact Python fixtures, 13-dependency inventory, typecheck, 229 app tests and image compatibility. These are inherited, not newly executed locally in the browser slice; PR CI reruns them. Existing vault demo last ran for PR #19; prior demos remain historical."
+  },
+  "documentationChecks": {
+    "files": [
+      "docs/IMPLEMENTATION.md",
+      "docs/PS-CREDENTIAL-PROTOCOL.md",
+      "docs/PS-CRYPTOGRAPHIC-PROFILE.md",
+      "docs/PS-LOCAL-ENGINE.md",
+      "docs/PS-LOCAL-STATE.md",
+      "docs/PS-IMAGE-ENVELOPE.md",
+      "docs/PS-LOCAL-VAULT.md",
+      "docs/PS-BROWSER-LAB.md",
+      "docs/PS-REVIEW-PACKET.md",
+      "research/EVIDENCE.md",
+      "research/ps-lab/README.md"
+    ],
+    "localLinksAndAnchors": 231,
+    "result": "All local files and Markdown anchors checked; external links not bulk verified."
+  },
+  "isolation": {
+    "externalNetworkCallsFromLab": false,
+    "loopbackHTTP": true,
+    "deploymentPerformed": false,
+    "workerUnchanged": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092",
+    "preserved": [
+      "Eight historical PS evidence manifests",
+      "Frozen reference profile/snapshot/generator/verifier/vectors/locks",
+      "Local profile/client/issuer/store/state/image/png/vault implementations",
+      "Root dependencies and app/SDK/contracts/bindings/data",
+      "v1 formats/vault, branding and historical OG snapshots",
+      "Original untracked zft-logo, existing branches and node_modules symlink"
+    ]
+  },
+  "limitations": [
+    "Public fixture PS keys, plaintext Node working stores and unqualified secret BigInt side channels: research only; independent reviewer unassigned.",
+    "No browser-owned crypto/encrypted working storage, wallet identity endorsement, Snap, hosted issuer or production key lifecycle.",
+    "Single operator capability controls all three roles. No multiuser isolation, local malware/extension defense or TLS.",
+    "Stopping destroys registry/clients; new random realm rejects old files. SIGKILL/power loss can leave plaintext temporary data; no secure deletion or durable issuer restart recovery.",
+    "Reselected bytes demonstrate available exact recovery, not filesystem durability or completion of a browser download.",
+    "Unknown/failed transport may preserve pending operations; no browser refresh synchronization, production error taxonomy or arbitrary-image normalization qualification.",
+    "Status local flags are not fresh unspent ownership. Signed observations retain all earlier rollback/equivocation/clock/trust limitations.",
+    "Old encrypted exports remain valid; password changes do not revoke old copies.",
+    "C1/C3 partial, C4 independent review pending, C5 local workflow only, C6 unimplemented. No interoperability/audit/production privacy or ordinary MetaMask NFT custody claim."
+  ],
+  "primarySources": [
+    "https://nodejs.org/download/release/v22.12.0/docs/api/http.html",
+    "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Origin",
+    "https://docs.metamask.io/snaps/",
+    "https://docs.metamask.io/snaps/features/custom-ui/"
+  ],
+  "sourceHashScope": "Current browser slice and prior source scope; excludes this JSON itself. Signed Git tree fixes evidence together with sources. All previous manifests remain historical.",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "86062805dbdab5ec25502af061cd23dec4299868b71c336c7f1f269f40c460fa",
+    ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
+    "docs/IMPLEMENTATION.md": "9d00e276ef1bf29abb503203eddee55a76e08c9eee681a6adcac1213936949b8",
+    "docs/PS-BROWSER-LAB.md": "ecff354df175a3c00af098c54359164de7af68a0cb38664794c58810e112f48d",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "02523eb5ef1f4a05ec865090928e7a9a24279e60c9436906e05b599caf62c290",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "docs/PS-IMAGE-ENVELOPE.md": "6c3b800a18d9e64d2d3dbcb0fff299588b511cd0ee655c8dbbc47128bdf6eebb",
+    "docs/PS-LOCAL-ENGINE.md": "beddda427fa6058f777925da737f7c6db6234a6e0ad3b6e80a897dd95124500a",
+    "docs/PS-LOCAL-STATE.md": "968b479f43de55830b5baea75383723758462c8e7b707edfaf9326e47a32ba80",
+    "docs/PS-LOCAL-VAULT.md": "6ff036b54b06fe9860ba21a64a55610701a0dcfcfdd87fa08240c1c94f208d2c",
+    "docs/PS-REVIEW-PACKET.md": "cafb169b916852f7424f5c3f6e96ce4b7b8edb8eacf3ba5c53e6d83d4123d188",
+    "package.json": "a1cf3153af6ff2aba8d3693f3e610f30358ca35d9ec83df33afd4e759532b100",
+    "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
+    "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
+    "research/EVIDENCE.md": "35f211297c27a4aa58f1af06bcdbce768dd611fffff326e00fc8397f42bb0f58",
+    "research/ps-image-validation.json": "afb40f783d0f6fd4e0de0832486895f4ff06a2039e5e773b7bc36d4b39f2a5cc",
+    "research/ps-lab/README.md": "715f3627591bb943a94d1a1948d03023f935ecb612a5b582658f8fb699a718f5",
+    "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/browser-lab.mjs": "a8cbbe0db3794f6754e49bdac70ff42d001e6d302f43845d5d65da40c643ff6f",
+    "research/ps-lab/local/browser-server.mjs": "3ced500bce57f7e458e5f685e9d7af44222ad97167837919b8fdc044004c157d",
+    "research/ps-lab/local/browser.test.mjs": "eb146ce0d1bd66a1ac97c1d2384071d473d2b84954ff790c69ddfc17e0be4325",
+    "research/ps-lab/local/browser/app.js": "b6202220864cc4e04afe2146e33e264b78a5546a0edaf276383222ab967bce2e",
+    "research/ps-lab/local/browser/index.html": "1b065a099c25b856af6953748b0a7ad3264d5a20cc799d48becd9d0c956201da",
+    "research/ps-lab/local/browser/style.css": "cb3fbb0eadd0b350ebf16e3be071e3de453801aabb092a5c3cda0e7bf1e59c15",
+    "research/ps-lab/local/check-controls.mjs": "16f0dc451e2c85be21dd77535feb356d71a2b96e5ce8f21465d218401f9a6576",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/image-demo.mjs": "3974306ffbef1cbf7e1c953fdf75d4646b9841c68bf3487026be50eb35b68b9c",
+    "research/ps-lab/local/image-fixtures.json": "5cace6daa1681b3ecdcbd26714d22dc15bdba2c30a03b9bd3633ab325bedf072",
+    "research/ps-lab/local/image.mjs": "9d819877a93f3dbe6f16f70376ec9620b77c36adbdd60cf1bdf7870d5b8b3eb2",
+    "research/ps-lab/local/image.test.mjs": "0fb3af64287247a3f0fe7f59d0c7672899cb67f043dbd283076c3a299b762ef7",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/parser.test.mjs": "122903ab7ee55174a2c67ed725fa8b0e36e3faecc1f4c4eda4519960dbbca49e",
+    "research/ps-lab/local/png.mjs": "cf46bfdc04c33b73e62cb9a0ad1d6fdf84be626ea220f580503b4c38b4e19369",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/local/vault-demo.mjs": "584ff3249bf2dd5ca78d0acdb52d1ad0c27af0e941a89ff8727a280c20cd7dec",
+    "research/ps-lab/local/vault.mjs": "ca000fc6e326ab7f8c0340ca95da6476ac431c79aaa16204e441d725ea736e7c",
+    "research/ps-lab/local/vault.test.mjs": "a29aa3b5074a4a3ddc95ef1669250683e1d44cdcc936850aa3c2693e21a26ff8",
+    "research/ps-lab/package.json": "445c02333c007e6a68324ce73445043cb11f9753160886dff7809859f03199f6",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-observer-recovery-validation.json": "8c12e0465bfdefb65ef3a3f8cb3fcb17ca9bdaee7d95718e16eaa5e682449cb3",
+    "research/ps-parser-validation.json": "61796cd05cc81162640f7eebbc2d0b5d6529091515460b03822974ea6b5ff9df",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5",
+    "research/ps-vault-validation.json": "58da078339b830ee99f9bbd3e71473fae3dfc59146d6ca1787f9cd772b760c9a",
+    "tests/fixtures.ts": "6b1da35257f656338bf436d0a4765c50bfdad7f213616884e256ec9d98f614f9"
+  },
+  "unchangedFromBaselineSha256": {
+    ".github/workflows/ci.yml": "86062805dbdab5ec25502af061cd23dec4299868b71c336c7f1f269f40c460fa",
+    ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "package.json": "a1cf3153af6ff2aba8d3693f3e610f30358ca35d9ec83df33afd4e759532b100",
+    "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
+    "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
+    "research/ps-image-validation.json": "afb40f783d0f6fd4e0de0832486895f4ff06a2039e5e773b7bc36d4b39f2a5cc",
+    "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/image-demo.mjs": "3974306ffbef1cbf7e1c953fdf75d4646b9841c68bf3487026be50eb35b68b9c",
+    "research/ps-lab/local/image-fixtures.json": "5cace6daa1681b3ecdcbd26714d22dc15bdba2c30a03b9bd3633ab325bedf072",
+    "research/ps-lab/local/image.mjs": "9d819877a93f3dbe6f16f70376ec9620b77c36adbdd60cf1bdf7870d5b8b3eb2",
+    "research/ps-lab/local/image.test.mjs": "0fb3af64287247a3f0fe7f59d0c7672899cb67f043dbd283076c3a299b762ef7",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/parser.test.mjs": "122903ab7ee55174a2c67ed725fa8b0e36e3faecc1f4c4eda4519960dbbca49e",
+    "research/ps-lab/local/png.mjs": "cf46bfdc04c33b73e62cb9a0ad1d6fdf84be626ea220f580503b4c38b4e19369",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/local/vault-demo.mjs": "584ff3249bf2dd5ca78d0acdb52d1ad0c27af0e941a89ff8727a280c20cd7dec",
+    "research/ps-lab/local/vault.mjs": "ca000fc6e326ab7f8c0340ca95da6476ac431c79aaa16204e441d725ea736e7c",
+    "research/ps-lab/local/vault.test.mjs": "a29aa3b5074a4a3ddc95ef1669250683e1d44cdcc936850aa3c2693e21a26ff8",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-observer-recovery-validation.json": "8c12e0465bfdefb65ef3a3f8cb3fcb17ca9bdaee7d95718e16eaa5e682449cb3",
+    "research/ps-parser-validation.json": "61796cd05cc81162640f7eebbc2d0b5d6529091515460b03822974ea6b5ff9df",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5",
+    "research/ps-vault-validation.json": "58da078339b830ee99f9bbd3e71473fae3dfc59146d6ca1787f9cd772b760c9a",
+    "tests/fixtures.ts": "6b1da35257f656338bf436d0a4765c50bfdad7f213616884e256ec9d98f614f9"
+  },
+  "localOutputSha256": {
+    "/private/tmp/zft-browser-local.tap": "ece5db8bfc88ad40cc64e6c59e49e37ff33d807e70ce258aad68510fdb79d1a1",
+    "/private/tmp/zft-browser-controls.log": "5e130383cf8efe50de1b753a80a351821b4a2db862d6a6a4c4a508c20d844dac",
+    "/private/tmp/zft-browser-final-focused.tap": "7f2bb60a2599b67f0f2fd1301c583b08cda00f00f6239cfb1d663dbf065a41e7",
+    "/private/tmp/zft-browser-install.log": "d2b843bc3ffca1994f29cb9554a1ebc89700e62c2b890074f19402ea31d35e6b",
+    "/private/tmp/zft-browser-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "/private/tmp/zft-browser-desktop.jpg": "ca6670872139caa679abbbfba114f2a27bc57202debad90e2a45b20815c2a55a",
+    "/private/tmp/zft-browser-mobile.jpg": "27e21d29984084684abff8424bfe3b62e7645fac41586f70033804515163758b"
+  }
+}
