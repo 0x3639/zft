@@ -255,6 +255,87 @@ const controls = [
     test: "parser canonical boundaries reject deep objects and alternate numeric encodings",
     edits: [['  assert(depth < 8, "JSON depth");', ""]],
   },
+  {
+    name: "PNG checksum bypassed",
+    file: "png.mjs",
+    suite: "image.test.mjs",
+    test: "PNG CRC errors and truncated or trailing containers reject",
+    edits: [
+      [
+        '    assert.equal(\n      crc32(raw.subarray(4, -4)),\n      raw.readUInt32BE(raw.length - 4),\n      "PNG CRC",\n    );',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "PNG compressed trailing bytes accepted",
+    file: "png.mjs",
+    suite: "image.test.mjs",
+    test: "PNG rejects trailing deflate bytes and concatenated streams",
+    edits: [
+      [
+        '  assert.equal(\n    inflated.engine.bytesWritten,\n    compressed.length,\n    "PNG zlib trailing bytes",\n  );',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "PS PNG asset binding removed",
+    file: "profile.mjs",
+    suite: "image.test.mjs",
+    test: "PS PNG image substitution rejects even with a recomputed full digest",
+    edits: [
+      [
+        '  assert.equal(\n    assetValue(bytes(v.asset), pinned),\n    v.credential.h,\n    "asset binding",\n  );',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "PS PNG public copy leaks bearer",
+    file: "image.mjs",
+    suite: "image.test.mjs",
+    test: "public PNG export removes all envelope authority",
+    edits: [
+      [
+        "  return importImage(file, manifest).image;",
+        "  importImage(file, manifest);\n  return Buffer.from(file);",
+      ],
+    ],
+  },
+  {
+    name: "PS PNG duplicate envelope silently selected",
+    file: "image.mjs",
+    suite: "image.test.mjs",
+    test: "PS PNG rejects duplicate envelopes",
+    edits: [
+      [
+        "    envelopes = chunks.filter((c) => c.type === BEARER_CHUNK);",
+        "    envelopes = chunks.filter((c) => c.type === BEARER_CHUNK).slice(-1);",
+      ],
+    ],
+  },
+  {
+    name: "PS PNG full digest mismatch ignored",
+    file: "image.mjs",
+    suite: "image.test.mjs",
+    test: "PS PNG rejects altered full image digest",
+    edits: [
+      [
+        '  assert.equal(p.hash(image), body.image_sha256, "PNG image digest");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "PNG issuance leaves no envelope space",
+    file: "png.mjs",
+    suite: "image.test.mjs",
+    test: "maximum PNG chunk budget remains exportable before issuance",
+    edits: [
+      ['  assert(chunks.length < CHUNK_LIMIT, "PNG image chunk count");', ""],
+    ],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));

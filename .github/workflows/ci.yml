@@ -16,6 +16,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
+      - run: pnpm exec tsx research/ps-lab/check-image-codec.ts
       - run: pnpm test
       - run: pnpm contracts:build
       - run: pnpm contracts:test
