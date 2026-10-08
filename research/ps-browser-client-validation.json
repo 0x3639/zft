@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-10-08T14:17:17.994057+00:00",
+  "recordedAt": "2026-10-08T14:31:48.997677+00:00",
   "baseline": "2a2bc7119386dd103b4799cc132a0ffec7011b8a",
   "branch": "feat/ps-browser-client",
   "scope": "Isolated local browser-owned PS credential workflow: Worker-generated secrets/proofs, encrypted pending and credential journal in IndexedDB, exact downloaded recovery acknowledgment, and bounded loopback issuer operations. Not deployed product integration.",
@@ -17,23 +17,24 @@
   "verification": [
     {
       "command": "pnpm --dir research/ps-lab --ignore-workspace test:local",
-      "passed": 201,
-      "newTests": 21,
+      "passed": 203,
+      "newTests": 23,
       "processKillLocations": 21,
       "newKillLocations": 0,
       "scope": "Generated browser modules execute under Node WebCrypto and worker-thread adapters; real loopback HTTP, mock transactional persistence for automated client/Worker tests. Actual IndexedDB acceptance is separate."
     },
     {
       "command": "node research/ps-lab/local/check-controls.mjs",
-      "passed": 51,
-      "newControls": 6,
+      "passed": 52,
+      "newControls": 7,
       "newFailuresDetected": [
         "submission without acknowledged recovery",
         "in-memory publication before persistence",
         "spent-state revival on replay",
         "reopening after lock during persistence",
         "pending snapshot disclosure in summary",
-        "adopting decrypted identity instead of caller pins"
+        "adopting decrypted identity instead of caller pins",
+        "forgetting a completed source when accepting earlier recovery out of order"
       ],
       "result": "All temporary mutations fail their named regression with ERR_ASSERTION."
     },
@@ -51,7 +52,7 @@
     },
     {
       "command": "python3 /private/tmp/zft-client-check-doc-links.py",
-      "linksAndAnchors": 276,
+      "linksAndAnchors": 277,
       "failures": 0
     }
   ],
@@ -89,7 +90,9 @@
       "Ordinary target browsers, phones and cross-device flows",
       "Quota/eviction/browser crash/hardware durability"
     ],
-    "log": "/private/tmp/zft-client-browser.txt"
+    "log": "/private/tmp/zft-client-browser.txt",
+    "validatedHead": "e1aa87ab2b8e99ce772468e902d1380f3dd5c415",
+    "followupScope": "Recovery-order fix verified with automated regressions; initial real-browser acceptance not rerun for the fix."
   },
   "storage": {
     "format": "zft-ps-browser-client-state-v1",
@@ -143,7 +146,7 @@
     "/web/client-storage.mjs": "95cb0674df8949e2890cc0602fc6ad022687240771f3d9d76b9f34681451f0fe",
     "/web/client-ui.mjs": "daeeba6ca542b5c6567abb4695af45ab14aa6c48ef2533fdc0438930a6072183",
     "/web/client-worker.mjs": "e36f0ec3056ccc33a2a78e51f69daf54e5e04a45f05622b7afa4d39a9abc64de",
-    "/web/client.mjs": "a149a2993cdaab5f87cae38feca5a78592c866668cfe576889afa3013554444a",
+    "/web/client.mjs": "100bb84a45ff3781f17e2da81e7a2b934da2ba914b79983ff7ce9db18154108a",
     "/web/profile.mjs": "18a014c51ee45a2606b2b93f568972dc7a51c0c0351f76506bf691660639a114",
     "/web/runtime.mjs": "7f266e687ffade16c7c3fae582e8d0ec4e5943b187abd83060663bf89a48b979",
     "/web/schema.mjs": "6292db8c8f56086e23bd1384bb3a9ff4ee56fab40f659850b5442cdd3064b9bb",
@@ -173,8 +176,8 @@
   "sourceSha256": {
     ".github/workflows/ci.yml": "86062805dbdab5ec25502af061cd23dec4299868b71c336c7f1f269f40c460fa",
     ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
-    "docs/IMPLEMENTATION.md": "e337f386430ce4b66f8c5f82e37cf4652cfb1a623e55c97befe986e65c75ebe5",
-    "docs/PS-BROWSER-CLIENT.md": "c2d665c031f317307a7531fd65a28c7bb0053d686d1a6830d76a76cd00462b06",
+    "docs/IMPLEMENTATION.md": "6814111be4a5570969ab875b3fd7e99026dd0d84c5a9c3693d25d812098d2dbc",
+    "docs/PS-BROWSER-CLIENT.md": "1ac234b7f13e19dcf36a0a908f84bbaadbacde4be257f79e666ad964b0816eea",
     "docs/PS-BROWSER-LAB.md": "f872c08d8be67b6cd67436d7d9bad9d94b96cf9f43a8eb85af3a4a364d5332d5",
     "docs/PS-BROWSER-VAULT.md": "a5c3b671a5aac18367c8c6d263c7292247a0bf0b129f63073e1eceacd3da5d53",
     "docs/PS-CREDENTIAL-PROTOCOL.md": "02523eb5ef1f4a05ec865090928e7a9a24279e60c9436906e05b599caf62c290",
@@ -187,11 +190,11 @@
     "package.json": "a1cf3153af6ff2aba8d3693f3e610f30358ca35d9ec83df33afd4e759532b100",
     "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
     "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
-    "research/EVIDENCE.md": "376fa13f3cf32479b8e3eace5ac316ead5b6ba0d8dc64fef8f1fb40fb601596f",
+    "research/EVIDENCE.md": "da317e2fc08e1f5fa3d377a4eccae7b45af275a67e7eeb91551579c1ab9d3c6b",
     "research/ps-browser-validation.json": "0a9a91462338c968f70788cf635a92612a38b37938e7f9a94ee53477281fa709",
     "research/ps-browser-vault-validation.json": "fbc8fc61c175dcf57fed3c3c0adf71f2f07721070b4eb7b66341bac93ae4ae26",
     "research/ps-image-validation.json": "afb40f783d0f6fd4e0de0832486895f4ff06a2039e5e773b7bc36d4b39f2a5cc",
-    "research/ps-lab/README.md": "48cea6ec6c0e53fcb0a6bfaef5f39887c33a912039d642a1c0842f59965c7f14",
+    "research/ps-lab/README.md": "cfc538f17dede001cd32397b351af80b7448a5e2c2b284d78cba38f7f539f26c",
     "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
     "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
     "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
@@ -204,7 +207,7 @@
     "research/ps-lab/local/browser/app.js": "967f5c649766c3ba1e58a4e59071e54f899b9534037c6dfe73f7d6e68b8e17a9",
     "research/ps-lab/local/browser/index.html": "52d024ba08704414c521331bad4fbb4640f786f62f3faf11b2fa2681aba23254",
     "research/ps-lab/local/browser/style.css": "cb3fbb0eadd0b350ebf16e3be071e3de453801aabb092a5c3cda0e7bf1e59c15",
-    "research/ps-lab/local/check-controls.mjs": "be93bad2509dbd239e58e8fa6be3473599bda85ad6f36d3c9142fae5056b8991",
+    "research/ps-lab/local/check-controls.mjs": "54c8c7ce66a26eabf3e0b5db604003aad70c2b9b38b61c03d4053780fd9029b8",
     "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
     "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
     "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
@@ -228,7 +231,7 @@
     "research/ps-lab/local/vault-demo.mjs": "584ff3249bf2dd5ca78d0acdb52d1ad0c27af0e941a89ff8727a280c20cd7dec",
     "research/ps-lab/local/vault.mjs": "ca000fc6e326ab7f8c0340ca95da6476ac431c79aaa16204e441d725ea736e7c",
     "research/ps-lab/local/vault.test.mjs": "a29aa3b5074a4a3ddc95ef1669250683e1d44cdcc936850aa3c2693e21a26ff8",
-    "research/ps-lab/local/web-client.test.mjs": "357ad71d201cf6a00d51f163ce482d7dc7a3353bb18629a9eb80679f2783c234",
+    "research/ps-lab/local/web-client.test.mjs": "5f2d759f6b9e66ce466f48f798cfd4fe442e09e25eb5a9e1ef2963727c044968",
     "research/ps-lab/local/web-vault.test.mjs": "ad26919517d8c0b092d8a5fa855a027d96ad679463d5a0eade724436a495c1b6",
     "research/ps-lab/package.json": "d7423627027926c7582c959c2de775e067ea04aaf6b94bac30d22e68dec899f7",
     "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
@@ -243,7 +246,7 @@
     "research/ps-lab/web/client-ui.mjs": "daeeba6ca542b5c6567abb4695af45ab14aa6c48ef2533fdc0438930a6072183",
     "research/ps-lab/web/client-worker.mjs": "e36f0ec3056ccc33a2a78e51f69daf54e5e04a45f05622b7afa4d39a9abc64de",
     "research/ps-lab/web/client.html": "f27ff4033da9f3123b566745771f713ac8d1e5c007dbeb81556311a69a547d5e",
-    "research/ps-lab/web/client.mjs": "a149a2993cdaab5f87cae38feca5a78592c866668cfe576889afa3013554444a",
+    "research/ps-lab/web/client.mjs": "100bb84a45ff3781f17e2da81e7a2b934da2ba914b79983ff7ce9db18154108a",
     "research/ps-lab/web/index.html": "106cedda6bcda201459db724ba40c397507440d9b5b984d33756fe22f42b2202",
     "research/ps-lab/web/modules.mjs": "8d592d09c70a89b7f5a43de7039c1c693a9c8275eb3b6fefad8489d3e21d36b7",
     "research/ps-lab/web/runtime.mjs": "7f266e687ffade16c7c3fae582e8d0ec4e5943b187abd83060663bf89a48b979",
@@ -340,6 +343,35 @@
     "/private/tmp/zft-client-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
     "/private/tmp/zft-client-generated.json": "b33619efa522a444513d8caea58abae50814fc1892068fca4e9508bbafc1d0d9",
     "/private/tmp/zft-client-browser.txt": "478e6018d76b5cadaead3293f78f69125baa342a7fb5252d7a3fad848d17fa55",
-    "/private/tmp/zft-client-links.log": "c230c8d345e72e38e957466212e30606273f0b51ec99fb616ebeeb0981753166"
+    "/private/tmp/zft-client-links.log": "c230c8d345e72e38e957466212e30606273f0b51ec99fb616ebeeb0981753166",
+    "/private/tmp/zft-client-review-before.tap": "b080f7993e22ece73f42bed63e6a660a407c7b3e9a0e0ab631cc08b5d8b74501",
+    "/private/tmp/zft-client-review-after.tap": "47f968d184f76ae113c0ee954135a7355aed519b4daaac1a5ef38dab2f0d6958",
+    "/private/tmp/zft-client-review-local.tap": "e21372b33e21e66c08a437904d5787a3ae30eb8c621d957669f4038566c5008d",
+    "/private/tmp/zft-client-review-controls.log": "683237893b17309e57a5a89c10c991dbaf3906da651b17af383cd9c8a0a81369",
+    "/private/tmp/zft-client-review-links.log": "527dde2389c8f42aa75786453f651d6cee0cc40803455608f7a4caa1aea55351",
+    "/private/tmp/zft-client-review-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "/private/tmp/zft-client-review-generated.json": "4d283e6542208c70e48188f14baa10d69c12211177927c462826d61a6687dee5"
+  },
+  "reviewFollowup": {
+    "reviewedHead": "e1aa87ab2b8e99ce772468e902d1380f3dd5c415",
+    "initialHeadChecks": "Both app verify, both ps-profile, Cloudflare preview and CodeRabbit status passed. Formal review posted two actionable findings; status success did not resolve them.",
+    "findings": [
+      {
+        "comment": 4220172967,
+        "url": "https://github.com/0x3639/zft/pull/22#discussion_r4220172967",
+        "valid": true,
+        "impact": "Availability: accepting a completed swap before its earlier mint in a fresh client causes the earlier response save to fail completed-source-spent validation. No double-spend authority is accepted.",
+        "fix": "Initialize newly inserted credential spent state from any completed operation consuming it; keep existing credential/conflict logic and whole-journal validation.",
+        "regression": "Cancel and claim tests cover both orders, encrypted reopen, spent export rejection, active replacement and idempotent replay. Both fail before the fix and pass after it. New temporary mutation is caught by the cancel regression."
+      },
+      {
+        "comment": 4220172946,
+        "url": "https://github.com/0x3639/zft/pull/22#discussion_r4220172946",
+        "valid": true,
+        "fix": "Correct README test-count list punctuation and update counts."
+      }
+    ],
+    "currentVerification": "203 local tests, 52 mutation controls, 277 documentation links, formatting and diff checks pass; current source/generated hashes refreshed. No reference/app rerun locally; new head requires fresh CI and CodeRabbit.",
+    "separateReviewGate": "PS-OWN-01 and independent C1/C4 review remain open."
   }
 }

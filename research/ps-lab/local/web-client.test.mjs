@@ -287,6 +287,67 @@ test("browser client replayed recovery never revives a locally spent credential"
   await assert.rejects(() => a.c.export(id, password));
   assert(a.c.summary().credentials.find((c) => c.id === id).locallySpent);
 });
+for (const kind of ["cancel", "claim"])
+  test(`browser client restores ${kind} and mint recoveries in either order`, async (t) => {
+    const f = fixture(t),
+      a = await client(f),
+      mint = await prepared(f, a),
+      mintBackup = await ready(a, mint),
+      original = await submit(f, a, mint),
+      owner = kind === "cancel" ? a : await client(f);
+    let swap;
+    if (kind === "cancel")
+      swap = await owner.c.prepareCancel(f.issuer.session("swap"), original.id);
+    else {
+      const transfer = await a.c.export(original.id, password);
+      swap = await owner.c.prepareClaim(
+        f.issuer.session("swap"),
+        transfer.wire,
+        password,
+        transfer.id,
+      );
+    }
+    const swapBackup = await ready(owner, swap.digest),
+      replacement = await submit(f, owner, swap.digest);
+    for (const order of [
+      [mint, swap.digest],
+      [swap.digest, mint],
+    ]) {
+      const restored = await client(f);
+      for (const backup of [mintBackup, swapBackup])
+        await restored.c.restore(backup.wire, password, backup.id);
+      for (const digest of order) {
+        const request = restored.c.submission(digest, true),
+          response = f.issuer.recover(digest, request.capability);
+        await assert.doesNotReject(() => restored.c.accept(digest, response));
+      }
+      const expected = [
+        { id: original.id, locallySpent: true },
+        { id: replacement.id, locallySpent: false },
+      ].sort((a, b) => a.id.localeCompare(b.id));
+      await reopen(f, restored);
+      assert.deepEqual(
+        restored.c
+          .summary()
+          .credentials.sort((a, b) => a.id.localeCompare(b.id)),
+        expected,
+      );
+      assert(restored.c.summary().operations.every((op) => op.complete));
+      await assert.rejects(() => restored.c.export(original.id, password));
+      await assert.doesNotReject(() =>
+        restored.c.export(replacement.id, password),
+      );
+      const request = restored.c.submission(mint, true);
+      await assert.doesNotReject(() =>
+        restored.c.accept(mint, f.issuer.recover(mint, request.capability)),
+      );
+      assert(
+        restored.c.summary().credentials.find((c) => c.id === original.id)
+          .locallySpent,
+      );
+    }
+    assert.equal(f.issuer.counts().operations, 2);
+  });
 test("browser client prevents a second pending spend of the same source", async (t) => {
   const f = fixture(t),
     a = await client(f),

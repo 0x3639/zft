@@ -345,7 +345,17 @@ export class BrowserClient {
       next = clone(this.#state);
     if (next.credentials[id])
       assert.equal(next.credentials[id].wire, wire, "conflicting credential");
-    else next.credentials[id] = { wire, spent: false };
+    else {
+      // An earlier response may be recovered after its replacement was accepted.
+      const spent = Object.values(next.operations).some((op) => {
+        if (op.response === null) return false;
+        const completed = snapshot(op.snapshot, this.#pinned);
+        return (
+          completed.source !== null && credentialId(completed.source) === id
+        );
+      });
+      next.credentials[id] = { wire, spent };
+    }
     if (v.source && next.credentials[credentialId(v.source)])
       next.credentials[credentialId(v.source)].spent = true;
     next.operations[digest].response = response;

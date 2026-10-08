@@ -551,8 +551,8 @@ const controls = [
     test: "browser client replayed recovery never revives a locally spent credential",
     edits: [
       [
-        "    else next.credentials[id] = { wire, spent: false };",
-        "    next.credentials[id] = { wire, spent: false };",
+        "    if (v.source && next.credentials[credentialId(v.source)])",
+        "    next.credentials[id].spent = false;\n    if (v.source && next.credentials[credentialId(v.source)])",
       ],
     ],
   },
@@ -589,6 +589,18 @@ const controls = [
       [
         "      validate(\n        await openState(wire, password, manifest, id),\n        p.trust(manifest),\n        id,\n      ),",
         "      await openState(wire, password, manifest, id),",
+      ],
+    ],
+  },
+  {
+    name: "browser client forgets completed source during out-of-order recovery",
+    file: "../web/client.mjs",
+    suite: "web-client.test.mjs",
+    test: "browser client restores cancel and mint recoveries in either order",
+    edits: [
+      [
+        "      next.credentials[id] = { wire, spent };",
+        "      next.credentials[id] = { wire, spent: false };",
       ],
     ],
   },
