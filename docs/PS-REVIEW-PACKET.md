@@ -1,10 +1,10 @@
 # PS independent review packet
 
-Prepared October 7, 2026, against the merged PR #17 baseline `a7427d4288733a1c73a559e9f2ba11d1d573f9ba` plus the isolated image-envelope increment. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
+Prepared October 7, 2026, against the merged PR #18 baseline `96ed20876016f839fcda0a81a5764da4a84d5924` plus the isolated encrypted file-vault increment. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
 
 ## Freeze the reviewed revision
 
-Record the exact commit under review and verify its signature. [Current image evidence](../research/ps-image-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
+Record the exact commit under review and verify its signature. [Current vault evidence](../research/ps-vault-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
 
 ```sh
 git rev-parse HEAD
@@ -12,7 +12,7 @@ git verify-commit HEAD
 python3 - <<'PY'
 import hashlib, json
 from pathlib import Path
-v = json.loads(Path('research/ps-image-validation.json').read_text())
+v = json.loads(Path('research/ps-vault-validation.json').read_text())
 for name, expected in v['sourceSha256'].items():
     assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
 print('source hashes match')
@@ -31,6 +31,7 @@ The main evidence manifest cannot hash itself or name its own eventual commit. T
 | State transitions | [Issuer](../research/ps-lab/local/issuer.mjs), [client](../research/ps-lab/local/client.mjs), [store](../research/ps-lab/local/store.mjs) | Atomic unique spend/reservation plus exact response; acknowledged complete backup; verify before saving replacement; retry/recovery and competing claims |
 | Signed observations | [State profile](PS-LOCAL-STATE.md), [state.mjs](../research/ps-lab/local/state.mjs) | Separate pinned Ed25519 key, exact PS showing challenge, time/audience/sequence binding, one-use observer persistence, explicit rollback/equivocation limits |
 | Image transport | [Image specification](PS-IMAGE-ENVELOPE.md), [image adapter](../research/ps-lab/local/image.mjs), [PNG subset](../research/ps-lab/local/png.mjs) | Version separation, whole-image binding, bearer-secret boundaries, no implicit trust selection, canonical schemas and bounded hostile inputs |
+| Encrypted files | [Vault profile](PS-LOCAL-VAULT.md), [vault.mjs](../research/ps-lab/local/vault.mjs) | Fixed KDF costs, AEAD framing, pinned identity, complete decrypted-record validation, lock limits, exact saved recovery and no implied backup freshness |
 | Product boundary | [Protocol proposal](PS-CREDENTIAL-PROTOCOL.md), [roadmap](IMPLEMENTATION.md) | Custody choice, wallet identity versus bearer authority, recovery usability, future hosted trust and incident assumptions |
 
 ## Reproduce and challenge the evidence
@@ -46,9 +47,10 @@ node research/ps-lab/local/check-controls.mjs
 pnpm --dir research/ps-lab --ignore-workspace demo:local
 pnpm --dir research/ps-lab --ignore-workspace demo:state
 pnpm --dir research/ps-lab --ignore-workspace demo:image
+pnpm --dir research/ps-lab --ignore-workspace demo:vault
 ```
 
-With the repository's separate root dependencies installed, run the image codec compatibility check described in [image evidence](PS-IMAGE-ENVELOPE.md#evidence-and-remaining-work). All demos use public fixture issuer keys and disposable local data. Do not introduce real assets, wallet keys, application databases, hosted bindings or network calls into this review setup.
+With the repository's separate root dependencies installed, run the image codec compatibility check described in [image evidence](PS-IMAGE-ENVELOPE.md#evidence-and-remaining-work). All demos use public fixture issuer keys and disposable local data; the vault demo also uses a deliberately public test password. Do not introduce real assets, wallet keys, application databases, hosted bindings or network calls into this review setup.
 
 Specific questions for an independent reviewer:
 
@@ -57,11 +59,11 @@ Specific questions for an independent reviewer:
 3. Can a malicious holder produce a different-asset replacement, reuse an owner secret/nonces unsafely, substitute public parameters, exploit subgroup/identity handling or extract a witness from the randomness model? Assess secret operations separately from public verification.
 4. Can any interleaving or storage failure release a valid response without its durable spend/reservation, expose incomplete recovery, revive a spent local credential or consume an observer challenge without its receipt/watermark? Extend beyond the selected SIGKILL and SQLite-error tests.
 5. Can stale state, issuer/observer restore, equivocation, compromised keys, manipulated clocks or trust replacement be represented as fresh authority? Existing tests deliberately demonstrate limits for fresh observers and historical receipts; require explicit incident/admission/retention policies rather than interpreting those tests as protections.
-6. Can parsing, decompression, nested JSON, unsupported image formats or a private/public output mix leak authority or permit image substitution? Challenge the exact byte limits and trust boundary; current corpus coverage is bounded and same-author.
+6. Can parsing, decompression, nested JSON, unsupported image formats or a private/public output mix leak authority or permit image substitution? Challenge the exact byte limits and trust boundary; current corpus coverage is bounded and same-author. Verify password/KDF costs, all AEAD inputs, final authentication before plaintext exposure, decrypted-record validation and the fact that old encrypted exports remain valid.
 7. Are public/observer outputs accurately described? Wallet bytes currently authenticate no wallet. Reused nullifiers and public asset attributes can link observations. Image metadata removal is not steganographic erasure. Determine which privacy claims, if any, the whole proposed system could support.
 
 ## Required review output and release gates
 
 For each finding, record revision, affected invariant, concrete attacker/input/failure path, reproduction, impact, proposed correction and independent retest result. Keep rejected hypotheses and unresolved questions distinct from validated findings. Record the scope and provenance of any external implementation or vectors; publicly readable website code is not automatically licensed for reuse.
 
-A handoff is complete only when a reviewer records their scope, assumptions, excluded surfaces and unresolved findings. A clean report would still not qualify browser devices, production randomness/side channels, issuer custody/key ceremony, hardware durability, database rollback recovery, resource limits, hosting or a public custody model. C1/C3 remain partial; C4 is pending; the file prototype is limited C5 preparation and C6 is unimplemented. Do not infer release approval from test success, a signed commit or a bot review.
+A handoff is complete only when a reviewer records their scope, assumptions, excluded surfaces and unresolved findings. A clean report would still not qualify browser devices, production randomness/side channels, issuer custody/key ceremony, hardware durability, database rollback recovery, resource limits, hosting or a public custody model. C1/C3 remain partial; C4 is pending; the file/vault prototypes are limited C5 preparation and C6 is unimplemented. Do not infer release approval from test success, a signed commit or a bot review.

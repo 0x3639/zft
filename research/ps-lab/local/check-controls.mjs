@@ -336,6 +336,82 @@ const controls = [
       ['  assert(chunks.length < CHUNK_LIMIT, "PNG image chunk count");', ""],
     ],
   },
+  {
+    name: "vault authentication finalization skipped",
+    file: "vault.mjs",
+    suite: "vault.test.mjs",
+    test: "vault authentication rejects wrong passwords and modified tags before returning records",
+    edits: [
+      [
+        "      final = decipher.final(); // Authenticate before decoding or exposing any plaintext.",
+        "      final = Buffer.alloc(0);",
+      ],
+    ],
+  },
+  {
+    name: "vault authenticated header omitted",
+    file: "vault.mjs",
+    suite: "vault.test.mjs",
+    test: "vault GCM payload is verified through WebCrypto with exact header AAD",
+    edits: [
+      ["      cipher.setAAD(Buffer.from(p.canonical(h)));", ""],
+      ["      decipher.setAAD(Buffer.from(h.aad));", ""],
+    ],
+  },
+  {
+    name: "vault pinned manifest ignored",
+    file: "vault.mjs",
+    suite: "vault.test.mjs",
+    test: "vault binds caller-pinned complete manifest and vault identity",
+    edits: [
+      [
+        '  assert.equal(\n    p.canonical(v.manifest),\n    p.canonical(pinned.manifest),\n    "vault content manifest",\n  );',
+        "",
+      ],
+      [
+        '  assert.equal(\n    p.canonical(v.manifest),\n    p.canonical(pinned.manifest),\n    "pinned vault manifest",\n  );',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "vault lock retains readable records",
+    file: "vault.mjs",
+    suite: "vault.test.mjs",
+    test: "vault lock blocks every plaintext or sealing operation",
+    edits: [["    this.#records = null;", "    // broken lock"]],
+  },
+  {
+    name: "vault acknowledges before encrypted readback",
+    file: "vault.mjs",
+    suite: "vault.test.mjs",
+    test: "vault recovery acknowledgment requires the exact encrypted file readback",
+    edits: [
+      [
+        "  expectedId,\n) {\n  const vault = LocalVault.open(",
+        "  expectedId,\n) {\n  client.acknowledge(digest, p.hash(client.backup(digest)));\n  const vault = LocalVault.open(",
+      ],
+    ],
+  },
+  {
+    name: "vault decrypted records skip protocol validation",
+    file: "vault.mjs",
+    suite: "vault.test.mjs",
+    test: "vault rejects authenticated malformed content and every invalid record before opening",
+    edits: [
+      [
+        "    const entry = record(value, pinned);",
+        "    const entry = { ...value };",
+      ],
+    ],
+  },
+  {
+    name: "vault KDF cost weakened",
+    file: "vault.mjs",
+    suite: "vault.test.mjs",
+    test: "vault GCM payload is verified through WebCrypto with exact header AAD",
+    edits: [["      N: 32768,", "      N: 16384,"]],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));

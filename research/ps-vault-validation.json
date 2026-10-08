@@ -1,0 +1,259 @@
+{
+  "recordedAt": "2026-10-08T00:31:47.199595+00:00",
+  "baseline": "96ed20876016f839fcda0a81a5764da4a84d5924",
+  "branch": "feat/ps-local-vault",
+  "vaultProfile": "zft-ps-local-vault-v1",
+  "contentProfile": "zft-ps-local-vault-content-v1",
+  "profile": "zft-ps-local-v1",
+  "scope": "Original local encrypted file-vault wrapper for exact bearer and recovery records. Existing working SQLite stores remain plaintext. No PS equation, core storage, image implementation, app/browser/v1 vault or deployed-resource change.",
+  "baselineReview": {
+    "pr": 18,
+    "finalHead": "f4b018e064e3c59c943d1dec208ac184fcba3cd7",
+    "mergedAt": "2026-10-08T00:21:31Z",
+    "result": "Exact head received clean CodeRabbit review with no actionable comments; both app verify and both ps-profile jobs plus Cloudflare preview passed. Bot review is not independent cryptographic validation."
+  },
+  "runtime": {
+    "node": "v22.12.0",
+    "pnpm": "10.14.0",
+    "platform": "macOS arm64",
+    "crypto": "Node built-in scryptSync and AES-256-GCM; no new dependencies",
+    "filesystem": "Private disposable macOS files; POSIX mode/descriptor checks also run on Linux in CI; no Windows claim"
+  },
+  "verification": [
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace test:local",
+      "passed": 148,
+      "previousTests": 126,
+      "newVaultTests": 22,
+      "processKillLocations": 21,
+      "newProcessKillLocations": 0
+    },
+    {
+      "command": "node research/ps-lab/local/check-controls.mjs",
+      "passed": 35,
+      "newControls": 7,
+      "result": "Each temporary mutation fails its named regression with ERR_ASSERTION. Source implementations remain intact."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace demo:vault",
+      "result": "Passed: encrypted-file readback before acknowledgment, lock/reopen, lost-response recovery into third working client, encrypted replacement bearer, exact public image and stale-copy rejection; two issuer operations. Public test password and issuer keys, no secret logs, disposable files removed."
+    },
+    {
+      "command": "pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts",
+      "result": "Passed with unchanged lock/dependencies."
+    },
+    {
+      "command": "pnpm exec prettier --check research/ps-lab/local/vault.mjs research/ps-lab/local/vault.test.mjs research/ps-lab/local/vault-demo.mjs research/ps-lab/local/check-controls.mjs research/ps-lab/package.json",
+      "result": "Passed."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Passed."
+    }
+  ],
+  "primitiveChecks": {
+    "scrypt": "Exact RFC 7914 section 12 password/NaCl vector, N=1024 r=8 p=16 dkLen=64, checks Node primitive. Vault uses the separately specified fixed N=32768 r=8 p=1 dkLen=32.",
+    "aesGcm": "WebCrypto decrypts exact generated Node Cipher bytes with an independently assembled canonical header as AAD and a 128-bit tag; same-author check may share the Node/OpenSSL backend.",
+    "independence": "Neither check establishes independent review of the vault construction, password policy or complete PS protocol."
+  },
+  "inheritedValidation": {
+    "record": "research/ps-image-validation.json",
+    "head": "f4b018e064e3c59c943d1dec208ac184fcba3cd7",
+    "scope": "PR #18 evidence and CI establish unchanged reference/application checks: 43 reference tests, three reference controls, exact Python fixtures, 13-dependency inventory, root typecheck, 229 app tests and three original normalized-image compatibility fixtures. They were not newly executed locally for this slice and PR CI reruns them. Existing image demo last ran for PR #18; only the vault demo ran here."
+  },
+  "vaultBoundaries": {
+    "records": 8,
+    "plaintextBytes": 1048576,
+    "fileBytes": 2101248,
+    "passwordUtf8Bytes": [12, 1024],
+    "passwordEncoding": "Exact well-formed Unicode UTF-8; no normalization; byte count is not entropy.",
+    "kdf": {
+      "name": "scrypt",
+      "N": 32768,
+      "r": 8,
+      "p": 1,
+      "maxmem": 67108864,
+      "keyBytes": 32,
+      "saltBytes": 16
+    },
+    "cipher": {
+      "name": "AES-256-GCM",
+      "ivBytes": 12,
+      "tagBytes": 16,
+      "aad": "Canonical complete outer header excluding ciphertext and tag"
+    },
+    "identity": "Caller-pinned complete local PS manifest and 16-byte vault ID; inner content rechecks both.",
+    "freshness": "No version counter, anti-rollback, expiry or revocation. Older valid vault exports still decrypt. Re-sealing under another password does not revoke older files.",
+    "fileIO": "Exclusive mode-0600 new files with fsync request, no overwrite. Descriptor-based bounded reads with leaf-symlink, regular-file and mode checks. Partial failed exports may remain; exact decrypt/readback is required before acknowledgment."
+  },
+  "newNegativeControls": [
+    "Skip GCM final authentication before returning records.",
+    "Omit AAD on both encryption and decryption.",
+    "Ignore complete caller-pinned manifest in outer/inner checks.",
+    "Retain records when locking.",
+    "Acknowledge recovery before exact encrypted-file readback.",
+    "Skip revalidation of decrypted typed records.",
+    "Weaken scrypt N from 32768 to 16384."
+  ],
+  "documentationChecks": {
+    "scope": [
+      "docs/IMPLEMENTATION.md",
+      "docs/PS-CREDENTIAL-PROTOCOL.md",
+      "docs/PS-CRYPTOGRAPHIC-PROFILE.md",
+      "docs/PS-LOCAL-ENGINE.md",
+      "docs/PS-LOCAL-STATE.md",
+      "docs/PS-IMAGE-ENVELOPE.md",
+      "docs/PS-LOCAL-VAULT.md",
+      "docs/PS-REVIEW-PACKET.md",
+      "research/EVIDENCE.md",
+      "research/ps-lab/README.md"
+    ],
+    "localLinksAndAnchors": 209,
+    "result": "Passed local file/Markdown anchor checks; network links not bulk checked."
+  },
+  "isolation": {
+    "liveNetworkCallsFromLab": false,
+    "deploymentPerformed": false,
+    "retainedWorker": "129889f1-0cb8-49d4-9c1d-8f1ff5c1d092",
+    "unchanged": [
+      "All seven earlier PS validation manifests",
+      "Frozen reference profile/source snapshot/generator/verifier/vectors/dependency locks",
+      "Local profile/client/issuer/store/state/image/png implementations and original fixtures",
+      "Root dependencies, app/SDK/Worker/contract, bindings and data",
+      "v1 file/vault formats and implementations",
+      "Branding, original untracked zft-logo and historical OG snapshots",
+      "Existing branches and worktree node_modules symlink"
+    ]
+  },
+  "limitations": [
+    "Original same-author local research; public PS issuer fixture keys and demo password; unsuitable for real assets. Independent reviewer remains unassigned and result pending.",
+    "Encrypted export files do not encrypt the working client/issuer/observer SQLite stores. Explicit reads and restore return/store plaintext; no browser/v1 vault integration.",
+    "Fixed synchronous scrypt settings are bounded lab policy, not reviewed production password/device/admission parameters. Weak passwords permit offline guessing; rate-limited hosted password unlock and aggregate resource qualification are absent.",
+    "Owned key/intermediate buffers are zero-filled best effort. JS strings, caller copies, crypto backend allocations, GC, swap/crash dumps and secure memory are not qualified. Lock is an API boundary.",
+    "Outer issuer manifest, stable vault ID and ciphertext length are visible. The file is not a wallet endorsement, status receipt or proof of unspent ownership.",
+    "Old exports remain decryptable and can omit later operations. Password changes do not revoke old copies; no revision rollback defense, automatic client synchronization or retention/deletion policy.",
+    "Exclusive file creation and fsync are not atomic publication, parent-directory durability, power-loss or real-device qualification. A failed export can leave a partial file; prior backups are preserved and retry uses a new path.",
+    "Filesystem helpers assume trusted private parent directories and local process; Windows, malicious hard links/parent replacement, concurrent editing and hardware/IOERR are not qualified.",
+    "Typed malformed cases are selected same-author coverage, not exhaustive fuzzing or independent cryptographic vectors. No new process-kill or filesystem fault controls were added.",
+    "Wallet bytes remain context only and walletAuthenticated false; public showing linkage, issuer honesty/equivocation, fresh-observer rollback and manipulated clocks/trust remain outside guarantees.",
+    "C2 local harness complete; C1/C3 partial; independent C4 pending; C5 local file/export-vault preparation only; custody approval, production trust/key lifecycle and C6 hosting remain open.",
+    "No live interoperability, audit, production privacy or ordinary MetaMask NFT custody claim. Derived issuer equations and extra cross-group checks remain lab choices."
+  ],
+  "primarySources": [
+    "https://www.rfc-editor.org/rfc/rfc7914.html#section-12",
+    "https://nodejs.org/download/release/v22.12.0/docs/api/crypto.html"
+  ],
+  "sourceHashScope": "Current vault increment and its prior scope; excludes this JSON itself. Seven previous PS validation manifests are immutable historical records.",
+  "sourceSha256": {
+    ".github/workflows/ci.yml": "86062805dbdab5ec25502af061cd23dec4299868b71c336c7f1f269f40c460fa",
+    ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
+    "docs/IMPLEMENTATION.md": "aa794bd07d3c1af2fa32f51698bc9a8cc6fc26ed3939d9258521d91212eec71f",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "docs/PS-IMAGE-ENVELOPE.md": "24b68025f47780ea3a4ec7715bf579cd58ec3350ec1440ea524b2cf2fdd66235",
+    "docs/PS-LOCAL-ENGINE.md": "80e954247eb0faebef414a14b82d6577d378cf38dc07d9fca25030995f7e654d",
+    "docs/PS-LOCAL-STATE.md": "f65bdd88d6c71f34d84520554d462df9e649c620f0e045de77f6d8d08ebefff9",
+    "docs/PS-LOCAL-VAULT.md": "12975235baa498a586355096b4fa4ece3aac0d2dadd80c1744871f2a7150be1a",
+    "docs/PS-REVIEW-PACKET.md": "92fd3589cfc584719000b7d195d5a5bde2df1c1cc0ed29ea916a5ea792e411e5",
+    "package.json": "a1cf3153af6ff2aba8d3693f3e610f30358ca35d9ec83df33afd4e759532b100",
+    "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
+    "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
+    "research/EVIDENCE.md": "19eae7a59eb77713a7941d9295d217915c95192ce372862d535c78d5979fec2d",
+    "research/ps-image-validation.json": "afb40f783d0f6fd4e0de0832486895f4ff06a2039e5e773b7bc36d4b39f2a5cc",
+    "research/ps-lab/README.md": "dec98bd9013c644328c59e372bd3b5577e3b5738fa0193117897c5578019f8ac",
+    "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/check-controls.mjs": "bd802d1e2367ed327ae0a9ce182477be1c08257b380d801d4462fb76563f13cb",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/image-demo.mjs": "3974306ffbef1cbf7e1c953fdf75d4646b9841c68bf3487026be50eb35b68b9c",
+    "research/ps-lab/local/image-fixtures.json": "5cace6daa1681b3ecdcbd26714d22dc15bdba2c30a03b9bd3633ab325bedf072",
+    "research/ps-lab/local/image.mjs": "9d819877a93f3dbe6f16f70376ec9620b77c36adbdd60cf1bdf7870d5b8b3eb2",
+    "research/ps-lab/local/image.test.mjs": "0fb3af64287247a3f0fe7f59d0c7672899cb67f043dbd283076c3a299b762ef7",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/parser.test.mjs": "122903ab7ee55174a2c67ed725fa8b0e36e3faecc1f4c4eda4519960dbbca49e",
+    "research/ps-lab/local/png.mjs": "cf46bfdc04c33b73e62cb9a0ad1d6fdf84be626ea220f580503b4c38b4e19369",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/local/vault-demo.mjs": "584ff3249bf2dd5ca78d0acdb52d1ad0c27af0e941a89ff8727a280c20cd7dec",
+    "research/ps-lab/local/vault.mjs": "ca000fc6e326ab7f8c0340ca95da6476ac431c79aaa16204e441d725ea736e7c",
+    "research/ps-lab/local/vault.test.mjs": "a29aa3b5074a4a3ddc95ef1669250683e1d44cdcc936850aa3c2693e21a26ff8",
+    "research/ps-lab/package.json": "6ef011942ce2f9cd5a6dbdb1ef3958c245191b6d2078894a71ff4367a7a87ed8",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-observer-recovery-validation.json": "8c12e0465bfdefb65ef3a3f8cb3fcb17ca9bdaee7d95718e16eaa5e682449cb3",
+    "research/ps-parser-validation.json": "61796cd05cc81162640f7eebbc2d0b5d6529091515460b03822974ea6b5ff9df",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5",
+    "tests/fixtures.ts": "6b1da35257f656338bf436d0a4765c50bfdad7f213616884e256ec9d98f614f9"
+  },
+  "unchangedFromBaselineSha256": {
+    ".github/workflows/ci.yml": "86062805dbdab5ec25502af061cd23dec4299868b71c336c7f1f269f40c460fa",
+    ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
+    "docs/PS-CREDENTIAL-PROTOCOL.md": "b73eeda466961ee7e7e927671f3a81b35ab82b5f5212fc948d8ba3fa720a5151",
+    "docs/PS-CRYPTOGRAPHIC-PROFILE.md": "51a42c6f135cb09a7644cb3ccab69e35d51dc3945edee898ecf2063af8173ef3",
+    "package.json": "a1cf3153af6ff2aba8d3693f3e610f30358ca35d9ec83df33afd4e759532b100",
+    "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
+    "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
+    "research/ps-image-validation.json": "afb40f783d0f6fd4e0de0832486895f4ff06a2039e5e773b7bc36d4b39f2a5cc",
+    "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
+    "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
+    "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
+    "research/ps-lab/local/client.mjs": "a2056b1664aee6b2efe2813096ea366cffd6a69d0ecd1eabf9a0692c32de97f9",
+    "research/ps-lab/local/demo.mjs": "e5cee48f15673277e5b3a57d37cf4e5d8a31b18a1027f63a8f5aa6aba0134f1f",
+    "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
+    "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
+    "research/ps-lab/local/image-demo.mjs": "3974306ffbef1cbf7e1c953fdf75d4646b9841c68bf3487026be50eb35b68b9c",
+    "research/ps-lab/local/image-fixtures.json": "5cace6daa1681b3ecdcbd26714d22dc15bdba2c30a03b9bd3633ab325bedf072",
+    "research/ps-lab/local/image.mjs": "9d819877a93f3dbe6f16f70376ec9620b77c36adbdd60cf1bdf7870d5b8b3eb2",
+    "research/ps-lab/local/image.test.mjs": "0fb3af64287247a3f0fe7f59d0c7672899cb67f043dbd283076c3a299b762ef7",
+    "research/ps-lab/local/issuer.mjs": "b4213aefba7bb7f0dc5e284f6f9bfde206d0ef248a6482f5aae1cdabb6d1399f",
+    "research/ps-lab/local/parser.test.mjs": "122903ab7ee55174a2c67ed725fa8b0e36e3faecc1f4c4eda4519960dbbca49e",
+    "research/ps-lab/local/png.mjs": "cf46bfdc04c33b73e62cb9a0ad1d6fdf84be626ea220f580503b4c38b4e19369",
+    "research/ps-lab/local/process-worker.mjs": "c33f9738a6b5d45792220f6a48737287724ccdd87392f0a51be33d3ddbf90740",
+    "research/ps-lab/local/profile.mjs": "be8ea6be93db67d2aa76a2973b044fbccd784f1f50703ae937d764c00df3cb04",
+    "research/ps-lab/local/recovery.test.mjs": "506d7f0f8189ca4b1239e95c8f315e27d4fa5c9fb04764e9d5d9915af30221b6",
+    "research/ps-lab/local/state-demo.mjs": "c38ba39e207e74ec66c7e15130923fdda169acd341d5092ab8b31332f0f3015c",
+    "research/ps-lab/local/state-recovery.test.mjs": "d13cab0efc0d76e9053bfd9c2f9c17e9ab4e54153a721eaec0a047ef480c2c9b",
+    "research/ps-lab/local/state.mjs": "278836eb4eb3b1159c394f676b2fa7a6bdc749b2d602019a6e11f134fc8ea673",
+    "research/ps-lab/local/state.test.mjs": "1985646e57aca748bfc298136fd220a9efe78df8198df083da0c7a140797126a",
+    "research/ps-lab/local/store.mjs": "a0571be8c194c1eb4512b2f8ec340c34a14441223f01767c42c139e4db2a774c",
+    "research/ps-lab/local/test-support.mjs": "a9cb100123a9d957f37207ccec6ceb0a2391b2d75710f9fd69922a53232d4131",
+    "research/ps-lab/pnpm-lock.yaml": "efeac30badb04c49e74a3d5ee218b0e8c831475c984d716c9e749310e190f29f",
+    "research/ps-lab/requirements.txt": "4bade6f7f325a93dfef09db22b8beeacda8691d92ad5e8526b7631e7e9d8ad44",
+    "research/ps-lab/vectors.json": "aba4b18a5691d92cfb48b54de280586b04dcc19bc1657ee9d80a9d33174f8248",
+    "research/ps-lab/verify.mjs": "ba4d8936820cdf47df7bbbd7977cfca9dff423e3ec320e25eef0b375c1f3a99e",
+    "research/ps-lab/verify.test.mjs": "9620a5ad35774a3f1e0bc8b6ff934e08c4b594eaf165a189d28848bc0e83186c",
+    "research/ps-local-engine-validation.json": "8d1ccdd0e55f33b8e38963a164d19d16a9c69ff310b8f3bae6c35a8fea505a41",
+    "research/ps-observer-recovery-validation.json": "8c12e0465bfdefb65ef3a3f8cb3fcb17ca9bdaee7d95718e16eaa5e682449cb3",
+    "research/ps-parser-validation.json": "61796cd05cc81162640f7eebbc2d0b5d6529091515460b03822974ea6b5ff9df",
+    "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
+    "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
+    "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5",
+    "tests/fixtures.ts": "6b1da35257f656338bf436d0a4765c50bfdad7f213616884e256ec9d98f614f9"
+  },
+  "localOutputSha256": {
+    "/private/tmp/zft-vault-local.tap": "929dc8671959bfc768bbe6aed9265831ca6936d073fdade4732044d3411edffa",
+    "/private/tmp/zft-vault-controls.log": "794732e09ff5857d1b69a6438a970035869f74d5c7a71544e50d1120aacb344d",
+    "/private/tmp/zft-vault-demo.log": "1fe1c80c3c97dfaeba1b69fa441dd5b9625eaa4bd74581bd5ba293aea670cb5b",
+    "/private/tmp/zft-vault-install.log": "8130b6a49ae5a748fed8a546b9e3322eeef8d386424f0b4cf9c472ee7d2b984d",
+    "/private/tmp/zft-vault-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+  }
+}
