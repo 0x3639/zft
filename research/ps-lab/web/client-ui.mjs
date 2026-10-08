@@ -1,4 +1,5 @@
 import { MAX_FILE } from "./client-cipher.mjs";
+import { FILE_LIMIT } from "./png.mjs";
 import * as p from "./profile.mjs";
 const $ = (id) => document.getElementById(id);
 let token = location.hash.slice(1),
@@ -9,6 +10,7 @@ let token = location.hash.slice(1),
   seq = 0,
   timer,
   downloadUrl,
+  previewUrl,
   unlocked = false;
 const pending = new Map();
 history.replaceState(null, "", "/client/");
@@ -29,6 +31,49 @@ function clearDownload() {
   downloadUrl = null;
   $("save-link").replaceChildren();
 }
+function clearPreview() {
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  previewUrl = null;
+  $("preview").removeAttribute("src");
+  $("preview").hidden = true;
+  $("preview-caption").textContent =
+    "Choose View artwork for the selected credential.";
+}
+function showImage(artwork) {
+  clearPreview();
+  previewUrl = URL.createObjectURL(
+    new Blob([artwork.bytes], { type: "image/png" }),
+  );
+  $("preview").src = previewUrl;
+  $("preview").hidden = false;
+  $("preview-caption").textContent =
+    artwork.width + " × " + artwork.height + " · SHA-256 " + artwork.digest;
+}
+function imageDownload(result) {
+  clearDownload();
+  const privateFile = result.imageKind === "private-image";
+  downloadUrl = URL.createObjectURL(
+    new Blob([result.artwork.bytes], { type: "image/png" }),
+  );
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.download =
+    "ps-" +
+    (privateFile ? "private-bearer" : "public-artwork") +
+    "-" +
+    result.artwork.digest.slice(0, 16) +
+    ".png";
+  a.textContent = "Save " + a.download;
+  $("save-link").append(
+    a,
+    document.createElement("br"),
+    document.createTextNode(
+      privateFile
+        ? "Private bearer PNG: anyone with this file can attempt a claim. Keep it off public uploads."
+        : "Public artwork: original image bytes only; no credential envelope.",
+    ),
+  );
+}
 function lock() {
   generation++;
   worker?.terminate();
@@ -38,6 +83,7 @@ function lock() {
     v.reject(new Error("Locked. Reopen the saved browser copy."));
   pending.clear();
   clearDownload();
+  clearPreview();
   clearTimeout(timer);
   for (const el of document.querySelectorAll("input")) el.value = "";
   $("operations").replaceChildren();
@@ -78,6 +124,7 @@ function call(action, data = {}) {
 }
 function render(state) {
   if (!state) return;
+  clearPreview();
   unlocked = true;
   const select = (id, rows, label) => {
     const old = $(id).value;
@@ -148,6 +195,10 @@ async function run(work) {
     active(g);
     if (result) {
       render(result.state);
+      if (result.artwork) {
+        if (result.imageKind === "view-image") showImage(result.artwork);
+        else imageDownload(result);
+      }
       if (result.checks)
         $("checks-result").textContent = result.checks
           .map((x) => "PASS " + x)
@@ -192,6 +243,14 @@ form("unlock", async (g) => {
 form("mint", () =>
   call("mint", { asset: bootstrap.fixtures[Number($("art").value)].asset }),
 );
+form("png-import", async (g) => {
+  const file = $("png-file").files[0];
+  if (!file || file.size > FILE_LIMIT)
+    throw new Error("Select a PNG no larger than 69,644 bytes.");
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  active(g);
+  return call($("png-action").value, { bytes });
+});
 form("operation", async (g) => {
   const action = $("operation-action").value,
     digest = $("operations").value;
@@ -232,6 +291,7 @@ form("credential", async (g) => {
   return result;
 });
 $("checks").onclick = () => run(() => call("checks"));
+$("credentials").onchange = clearPreview;
 $("actor").onchange = lock;
 $("lock").onclick = lock;
 for (const event of ["pointerdown", "keydown"])

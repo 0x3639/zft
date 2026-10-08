@@ -604,6 +604,68 @@ const controls = [
       ],
     ],
   },
+  {
+    name: "browser PNG skips CRC",
+    file: "../web/png.mjs",
+    suite: "web-image.test.mjs",
+    test: "browser PNG rejects CRC corruption before inflation",
+    edits: [["crc32(raw.subarray(4, -4)),", "u32(raw, raw.length - 4),"]],
+  },
+  {
+    name: "browser PNG accepts permissive decoder",
+    file: "../web/png.mjs",
+    suite: "web-image.test.mjs",
+    test: "browser PNG decoder refuses permissive runtime before accepting images",
+    edits: [
+      [
+        '        rejected,\n        "PNG decoder must reject incomplete or trailing zlib input",',
+        '        true,\n        "PNG decoder must reject incomplete or trailing zlib input",',
+      ],
+    ],
+  },
+  {
+    name: "browser preview exposes private envelope",
+    file: "../web/client.mjs",
+    suite: "web-image.test.mjs",
+    test: "browser artwork preview is exact public bytes and private export is explicit",
+    edits: [["    const bytes = privateFile", "    const bytes = true"]],
+  },
+  {
+    name: "browser image issuance skips PNG validation",
+    file: "../web/client.mjs",
+    suite: "web-image.test.mjs",
+    test: "browser malformed artwork never writes pending state",
+    edits: [
+      [
+        "      value = await inspectImage(bytes);",
+        "      value = {image: bytes};",
+      ],
+    ],
+  },
+  {
+    name: "browser generated envelope skips full image digest",
+    file: "image.mjs",
+    suite: "web-image.test.mjs",
+    test: "browser PNG checks full digest and signed asset after image substitution",
+    edits: [
+      [
+        '  assert.equal(p.hash(image), body.image_sha256, "PNG image digest");',
+        "  // Deliberately disabled image digest.",
+      ],
+    ],
+  },
+  {
+    name: "browser generated envelope skips signed asset binding",
+    file: "image.mjs",
+    suite: "web-image.test.mjs",
+    test: "browser PNG checks full digest and signed asset after image substitution",
+    edits: [
+      [
+        "  p.importBearer(envelope, p.trust(manifest));\n  return { image, envelope, image_sha256, width, height };",
+        "  return { image, envelope, image_sha256, width, height };",
+      ],
+    ],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));
