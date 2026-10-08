@@ -1,0 +1,23 @@
+.hero {
+  display: block;
+  max-width: 980px;
+}
+.hero > p:not(.eyebrow) {
+  max-width: 680px;
+}
+.hero aside {
+  margin-top: 24px;
+}
+#records,
+#checks-result {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+#save-link {
+  overflow-wrap: anywhere;
+  margin: 16px 0;
+}
+#download {
+  color: #432b88;
+}

@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { BrowserLab, MAX_BODY } from "./browser-lab.mjs";
 import { parse } from "./profile.mjs";
+import { browserModules } from "../web/modules.mjs";
 const assets = new Map(
   [
     ["/", ["index.html", "text/html; charset=utf-8"]],
@@ -16,6 +17,24 @@ const assets = new Map(
     { type, data: readFileSync(new URL("./browser/" + file, import.meta.url)) },
   ]),
 );
+for (const [url, data] of browserModules())
+  assets.set(url, { type: "text/javascript; charset=utf-8", data });
+for (const [url, file] of [["/vault/", "index.html"]])
+  assets.set(url, {
+    type: "text/html; charset=utf-8",
+    data: readFileSync(new URL("../web/" + file, import.meta.url)),
+  });
+assets.set("/vault/style.css", {
+  type: "text/css; charset=utf-8",
+  data: readFileSync(new URL("../web/style.css", import.meta.url)),
+});
+for (const name of ["noble-curves", "noble-hashes"])
+  assets.set("/licenses/" + name, {
+    type: "text/plain; charset=utf-8",
+    data: readFileSync(
+      new URL("../licenses/" + name + "-LICENSE", import.meta.url),
+    ),
+  });
 const headers = {
   "Cache-Control": "no-store",
   "X-Content-Type-Options": "nosniff",
@@ -23,7 +42,7 @@ const headers = {
   "Cross-Origin-Resource-Policy": "same-origin",
   "X-Frame-Options": "DENY",
   "Content-Security-Policy":
-    "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+    "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
 };
 export async function startBrowserLab() {
   const lab = new BrowserLab();

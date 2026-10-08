@@ -216,7 +216,8 @@ test("browser state excludes private snapshots credentials and capabilities", (t
     envelope,
   ])
     assert(!serialized.includes(secret));
-  assert(!Object.keys(state(lab)).includes("manifest"));
+  assert.deepEqual(state(lab).manifest, lab.manifest);
+  assert.equal(p.trust(state(lab).manifest).pk.id, lab.manifest.keyset_id);
 });
 
 test("browser validates file and actor inputs before creating issuer sessions", (t) => {
@@ -363,9 +364,35 @@ test("browser HTTP serves only fixed assets with restrictive response policy", a
   assert(
     page.headers.get("content-security-policy").includes("connect-src 'self'"),
   );
+  assert(
+    page.headers.get("content-security-policy").includes("worker-src 'self'"),
+  );
+  for (const path of [
+    "/vault/",
+    "/vault/style.css",
+    "/web/worker.mjs",
+    "/web/vault.mjs",
+    "/web/profile.mjs",
+    "/vendor/@noble/hashes/scrypt.js",
+    "/licenses/noble-curves",
+    "/licenses/noble-hashes",
+  ]) {
+    const asset = await fetch(r.origin + path);
+    assert.equal(asset.status, 200, path);
+    const text = await asset.text();
+    assert(!text.includes(r.token));
+    if (path.endsWith(".mjs") || path.endsWith(".js")) {
+      assert.match(asset.headers.get("content-type"), /javascript/);
+      assert(!/["']node:/.test(text));
+    }
+    if (path.startsWith("/licenses/")) assert(text.includes("MIT License"));
+  }
   for (const path of [
     "/api",
     "/vectors.json",
+    "/web/modules.mjs",
+    "/web/local/client.mjs",
+    "/vendor/@noble/hashes/package.json",
     "/../vault.mjs",
     "/?token=" + r.token,
   ])

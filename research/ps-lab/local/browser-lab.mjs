@@ -86,6 +86,7 @@ export class BrowserLab {
   state() {
     return {
       realm: this.manifest.realm,
+      manifest: this.manifest,
       operations: [...this.operations.values()].map((op) => {
         const row = this.client(op.actor).pending(op.digest);
         return {

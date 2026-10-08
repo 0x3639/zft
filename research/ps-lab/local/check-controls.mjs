@@ -457,11 +457,76 @@ const controls = [
     test: "browser state excludes private snapshots credentials and capabilities",
     edits: [["          ...op,", "          ...op, snapshot: row.snapshot,"]],
   },
+  {
+    name: "web vault KDF cost weakened",
+    file: "../web/vault.mjs",
+    suite: "web-vault.test.mjs",
+    test: "web vault scrypt agrees with Node at the fixed profile cost",
+    edits: [["      N: 32768,", "      N: 16384,"]],
+  },
+  {
+    name: "web vault adopts file trust",
+    file: "../web/vault.mjs",
+    suite: "web-vault.test.mjs",
+    test: "web vault pins complete manifest and vault identity",
+    edits: [
+      [
+        "const pinned = p.trust(manifest),",
+        "const pinned = p.trust(JSON.parse(wire).manifest),",
+      ],
+    ],
+  },
+  {
+    name: "web vault skips decrypted record validation",
+    file: "../web/vault.mjs",
+    suite: "web-vault.test.mjs",
+    test: "web vault rejects authenticated invalid records after decrypt",
+    edits: [
+      [
+        "const records = s.validateContent(",
+        "const records = ((wire) => JSON.parse(wire).records)(",
+      ],
+    ],
+  },
+  {
+    name: "web vault seal returns after lock",
+    file: "../web/vault.mjs",
+    suite: "web-vault.test.mjs",
+    test: "web vault explicit lock prevents access and an in-flight seal",
+    edits: [
+      [
+        '      this.#open();\n      assert.equal(epoch, this.#epoch, "vault changed");\n      const imported',
+        "      const imported",
+      ],
+      [
+        '      this.#open();\n      assert.equal(epoch, this.#epoch, "vault changed");\n      const wire',
+        "      const wire",
+      ],
+    ],
+  },
+  {
+    name: "web worker revives after lock",
+    file: "../web/worker.mjs",
+    suite: "web-vault.test.mjs",
+    test: "web vault worker lock invalidates an asynchronous open",
+    edits: [
+      [
+        '      if (started !== epoch) throw new Error("locked during open");',
+        "",
+      ],
+      [
+        '    if (started !== epoch) throw new Error("locked during operation");',
+        "",
+      ],
+    ],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));
   try {
     cpSync(join(lab, "local"), join(dir, "local"), { recursive: true });
+    cpSync(join(lab, "web"), join(dir, "web"), { recursive: true });
+    cpSync(join(lab, "licenses"), join(dir, "licenses"), { recursive: true });
     for (const file of ["verify.mjs", "vectors.json"])
       cpSync(join(lab, file), join(dir, file));
     symlinkSync(join(lab, "node_modules"), join(dir, "node_modules"), "dir");
