@@ -520,6 +520,90 @@ const controls = [
       ],
     ],
   },
+  {
+    name: "browser client skips backup gate",
+    file: "../web/client.mjs",
+    suite: "web-client.test.mjs",
+    test: "browser client requires persisted exact recovery reselection before any submission",
+    edits: [
+      [
+        '    assert(row.acknowledged, "recovery file required");\n    const v = snapshot(row.snapshot, this.#pinned);',
+        "    const v = snapshot(row.snapshot, this.#pinned);",
+      ],
+    ],
+  },
+  {
+    name: "browser client publishes state before commit",
+    file: "../web/client.mjs",
+    suite: "web-client.test.mjs",
+    test: "browser client aborted preparation never exposes a pending request",
+    edits: [
+      [
+        "    const revision = await this.#persist(wire, this.#revision);",
+        "    this.#state = next;\n    const revision = await this.#persist(wire, this.#revision);",
+      ],
+    ],
+  },
+  {
+    name: "browser client replay revives spent authority",
+    file: "../web/client.mjs",
+    suite: "web-client.test.mjs",
+    test: "browser client replayed recovery never revives a locally spent credential",
+    edits: [
+      [
+        "    if (v.source && next.credentials[credentialId(v.source)])",
+        "    next.credentials[id].spent = false;\n    if (v.source && next.credentials[credentialId(v.source)])",
+      ],
+    ],
+  },
+  {
+    name: "browser client delayed commit reopens after lock",
+    file: "../web/client.mjs",
+    suite: "web-client.test.mjs",
+    test: "browser client lock after persistence starts cannot reopen completed ciphertext",
+    edits: [
+      [
+        '    assert(this.#state && epoch === this.#epoch, "client locked");',
+        '    assert(true, "client locked");',
+      ],
+    ],
+  },
+  {
+    name: "browser client status exposes pending authority",
+    file: "../web/client.mjs",
+    suite: "web-client.test.mjs",
+    test: "browser client summaries and encrypted storage do not expose authority",
+    edits: [
+      [
+        "      clientId: this.#state.client_id,",
+        "      clientId: this.#state.client_id,\n      raw: this.#state.operations,",
+      ],
+    ],
+  },
+  {
+    name: "browser client adopts decrypted identity",
+    file: "../web/client.mjs",
+    suite: "web-client.test.mjs",
+    test: "browser client authenticated journal cannot replace inner trust or identity",
+    edits: [
+      [
+        "      validate(\n        await openState(wire, password, manifest, id),\n        p.trust(manifest),\n        id,\n      ),",
+        "      await openState(wire, password, manifest, id),",
+      ],
+    ],
+  },
+  {
+    name: "browser client forgets completed source during out-of-order recovery",
+    file: "../web/client.mjs",
+    suite: "web-client.test.mjs",
+    test: "browser client restores cancel and mint recoveries in either order",
+    edits: [
+      [
+        "      next.credentials[id] = { wire, spent };",
+        "      next.credentials[id] = { wire, spent: false };",
+      ],
+    ],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));

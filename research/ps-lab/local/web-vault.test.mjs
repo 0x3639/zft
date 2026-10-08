@@ -69,7 +69,9 @@ test("web vault module closure is deterministic and has no Node imports", () => 
   assert(modules.has("/vendor/@noble/hashes/scrypt.js"));
   for (const [url, source] of modules) {
     assert(!/["']node:/.test(source), url);
-    for (const m of source.matchAll(/(?:from\s*|import\s*)["']([^"']+)["']/g)) {
+    for (const m of source.matchAll(
+      /(?:from\s*|import\s*)["']([^"\'\s]+)["']/g,
+    )) {
       const target = new URL(m[1], pathToFileURL(join(directory, url)));
       assert.equal(target.protocol, "file:");
       assert(readFileSync(target));

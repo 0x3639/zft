@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ZFT · Browser client lab</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/vault/style.css" />
+    <script type="module" src="/web/client-ui.mjs"></script>
+  </head>
+  <body>
+    <header>
+      <a class="wordmark" href="/">ZFT / LAB</a
+      ><span class="pill">LOCAL · TEST KEYS</span
+      ><button id="lock" class="quiet" type="button">Lock client</button>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">BROWSER CLIENT / RESEARCH</p>
+        <h1>Prepare. Save. Claim.</h1>
+        <p>
+          Generate test credentials in this browser and keep encrypted working
+          copies here. Use Alice, Bob and Restored to try a transfer and recover
+          an interrupted operation.
+        </p>
+        <aside class="notice">
+          Public test keys only. This temporary issuer disappears when the lab
+          stops. Never use valuable assets. A copied file is not a completed
+          transfer: the recipient must claim it successfully.
+        </aside>
+      </section>
+      <p id="status" role="status" aria-live="polite">Connecting…</p>
+      <p id="realm"></p>
+      <p id="state">Locked.</p>
+      <div class="grid">
+        <section class="card">
+          <p class="eyebrow">01 / OPEN</p>
+          <h2>Your browser copy</h2>
+          <form id="unlock">
+            <label
+              >Role<select id="actor">
+                <option value="alice">Alice</option>
+                <option value="bob">Bob</option>
+                <option value="restored">Restored</option>
+              </select></label
+            ><label
+              >Action<select id="mode">
+                <option value="create">Create a new browser copy</option>
+                <option value="open">Open saved browser copy</option>
+              </select></label
+            ><label
+              >Browser password<input
+                id="password"
+                type="password"
+                autocomplete="off"
+                required /></label
+            ><button>Unlock client</button>
+          </form>
+          <p>
+            Use at least 12 UTF-8 bytes for test passwords. Locking clears the
+            Worker; reopen with the same role and password. Reload requires the
+            launch link again.
+          </p>
+        </section>
+        <section class="card" data-open>
+          <p class="eyebrow">02 / PREPARE</p>
+          <h2>Mint a test artwork</h2>
+          <form id="mint">
+            <label>Artwork<select id="art"></select></label
+            ><button>Prepare mint</button>
+          </form>
+          <h2>Files</h2>
+          <label
+            >Encrypted file<input
+              id="file"
+              type="file"
+              accept=".json,application/json" /></label
+          ><label
+            >File password<input
+              id="file-password"
+              type="password"
+              autocomplete="off" /></label
+          ><label
+            >Expected file ID<input
+              id="expected"
+              placeholder="32 lowercase hex characters"
+              maxlength="32"
+          /></label>
+          <form id="import">
+            <label
+              >Import action<select id="import-action">
+                <option value="claim">Prepare claim from transfer file</option>
+                <option value="restore">Restore a recovery file</option>
+              </select></label
+            ><button>Open selected file</button>
+          </form>
+          <p>
+            Get the expected ID separately from the sender or your backup
+            record. Files never select trusted issuers. File passwords are
+            cleared after each action.
+          </p>
+        </section>
+        <section class="card" data-open>
+          <p class="eyebrow">03 / RECOVERABLE SUBMISSION</p>
+          <h2>Pending operations</h2>
+          <form id="operation">
+            <label>Operation<select id="operations"></select></label
+            ><label
+              >Action<select id="operation-action">
+                <option value="backup">
+                  Create encrypted recovery download
+                </option>
+                <option value="acknowledge">
+                  Verify reselected recovery file
+                </option>
+                <option value="submit">Submit exact saved request</option>
+                <option value="recover">Recover issuer response</option>
+              </select></label
+            ><label
+              ><input id="lose" type="checkbox" /> Simulate lost return after
+              submission</label
+            ><button>Continue operation</button>
+          </form>
+          <p>
+            Save the recovery file, then reselect it and enter its password
+            before submitting. If a response is lost, recover the same
+            operation. Unknown recovery leaves the request pending.
+          </p>
+          <div id="save-link"></div>
+        </section>
+        <section class="card" data-open>
+          <p class="eyebrow">04 / TRANSFER</p>
+          <h2>Locally active credentials</h2>
+          <form id="credential">
+            <label>Credential<select id="credentials"></select></label
+            ><label
+              >Action<select id="credential-action">
+                <option value="export">
+                  Create encrypted transfer download
+                </option>
+                <option value="cancel">
+                  Prepare cancellation to a fresh secret
+                </option>
+              </select></label
+            ><button>Continue credential</button>
+          </form>
+          <p>
+            Share the encrypted transfer file and expected ID with another role.
+            Cancellation also requires saving and verifying its recovery file.
+            Old copies are rejected after a successful claim or cancellation.
+          </p>
+        </section>
+      </div>
+      <div data-open>
+        <button id="checks" type="button">Run isolated storage checks</button>
+        <pre id="checks-result"></pre>
+      </div>
+      <p>
+        Locks after five minutes without interaction, when hidden, or when
+        leaving. Other tabs lock separately. Browser copies may be evicted; old
+        backups remain readable. This lab does not qualify phones, power loss,
+        rollback protection, wallet identity or production cryptography.
+      </p>
+      <p class="caption">
+        Licenses: <a href="/licenses/noble-curves">noble-curves</a> ·
+        <a href="/licenses/noble-hashes">noble-hashes</a>.
+      </p>
+    </main>
+  </body>
+</html>
