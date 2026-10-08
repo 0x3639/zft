@@ -63,3 +63,5 @@ The demo uses disposable files with public test keys/password, saves and verifie
 
 
 The [browser console](PS-BROWSER-LAB.md) reuses this format for encrypted downloads and verifies reselected content against identities pinned in the running lab. Browser file selection proves available bytes, not filesystem durability; browser-managed download saving remains unverified in the recorded in-app check. Its [current evidence](../research/ps-browser-validation.json) supersedes this historical manifest only for changed wrapper/docs files.
+
+The [browser vault](PS-BROWSER-VAULT.md) now reuses these exact file bytes with browser-worker cryptography and encrypted IndexedDB copies. Node SQLite stores remain plaintext. [Current browser-vault evidence](../research/ps-browser-vault-validation.json) records compatibility and precise browser/download limits; the PR #19 counts above remain historical.

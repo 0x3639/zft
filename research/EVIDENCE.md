@@ -91,3 +91,7 @@ The [vault specification](../docs/PS-LOCAL-VAULT.md) distinguishes encrypted exp
 ## Local PS browser console, 2026-10-08
 
 [ps-browser-validation.json](ps-browser-validation.json) records the isolated browser/controller/loopback HTTP increment over merged PR #19. It covers 160 local tests, 40 mutation controls, unchanged 21 kill locations, source/baseline hashes and explicitly partial browser acceptance. The encrypted recovery used in the UI restore check came from the actual API; automated browser saving was not confirmed. All eight earlier PS manifests remain frozen historical evidence. The October 8 product direction accepts ZFT-managed PS credentials initially and defers a possible MetaMask display Snap.
+
+## Browser PS vault protection
+
+[Current browser-vault evidence](ps-browser-vault-validation.json) records the PR #20 merge baseline `b859b3e`, 180 local tests, 45 mutation controls, 21 unchanged SIGKILL locations and seven separate real IndexedDB checks. The [browser vault](../docs/PS-BROWSER-VAULT.md) adapts unchanged validators, runs scrypt/WebCrypto in a worker and saves only ciphertext/revisions. Actual browser open, re-encrypt, commit, lock and reopen passed. Brave console download/reselection passed; in-app browser-vault download capture still timed out. Root app/reference checks are inherited from PR #20 CI and rerun by PR CI. All nine older manifests remain historical. Full browser proof execution, independent review, devices, wallet/product integration and hosting remain open.

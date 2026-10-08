@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ZFT · Browser vault lab</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/vault/style.css" />
+    <script type="module" src="/web/vault-ui.mjs"></script>
+  </head>
+  <body>
+    <header>
+      <a class="wordmark" href="/">ZFT / LAB</a
+      ><span class="pill">LOCAL · TEST KEYS</span
+      ><button id="lock" class="quiet" type="button">Lock vault</button>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">BROWSER VAULT / RESEARCH</p>
+        <h1>Keep your files protected.</h1>
+        <p>
+          Open and protect a local test credential in this browser. The password
+          and decrypted records stay in a dedicated browser worker.
+        </p>
+        <aside class="notice">
+          Research only. Start with an encrypted file from this running lab.
+          Browser storage can be cleared or evicted; keep a verified backup. A
+          new temporary issuer cannot recover this issuer’s files.
+        </aside>
+      </section>
+      <p id="status" role="status" aria-live="polite">
+        Connecting to the local lab…
+      </p>
+      <p id="realm"></p>
+      <div class="grid">
+        <section class="card">
+          <p class="eyebrow">01 / OPEN</p>
+          <h2>Select a trusted backup</h2>
+          <form id="open">
+            <label
+              >Expected backup<select id="expected" required></select></label
+            ><label
+              >Encrypted vault file<input
+                id="file"
+                type="file"
+                accept=".json,application/json"
+                required /></label
+            ><label
+              >Password<input
+                id="password"
+                type="password"
+                autocomplete="off"
+                required /></label
+            ><button>Open selected file</button>
+          </form>
+          <form id="reopen">
+            <label
+              >Saved vault password<input
+                id="saved-password"
+                type="password"
+                autocomplete="off"
+                required /></label
+            ><button>Open browser copy</button>
+          </form>
+          <p>
+            The expected identity comes from this running lab, never from the
+            selected file.
+          </p>
+        </section>
+        <section class="card">
+          <p class="eyebrow">02 / PROTECT</p>
+          <h2>Save an encrypted copy</h2>
+          <p id="records">Locked. No decrypted records are shown.</p>
+          <form id="protect">
+            <label
+              >Password for the new copy<input
+                id="new-password"
+                type="password"
+                autocomplete="off"
+                required /></label
+            ><button id="protect-button" disabled>
+              Encrypt and save in browser
+            </button>
+          </form>
+          <p>
+            Each save uses fresh salt and IV. Another tab’s changes cause a
+            conflict instead of being overwritten. Older exports and passwords
+            remain valid for their old copies.
+          </p>
+          <button id="download" disabled>Prepare saved-file download</button>
+          <div id="save-link"></div>
+        </section>
+        <section class="card">
+          <p class="eyebrow">03 / CHECK</p>
+          <h2>Verify a saved file</h2>
+          <form id="verify">
+            <label
+              >Reselect the downloaded file<input
+                id="verify-file"
+                type="file"
+                accept=".json,application/json"
+                required /></label
+            ><button id="verify-button" disabled>
+              Compare exact saved bytes
+            </button>
+          </form>
+          <p>
+            This checks available bytes; it does not prove filesystem durability
+            or acknowledge an issuer operation.
+          </p>
+          <button id="checks" disabled>Run isolated storage checks</button>
+          <pre id="checks-result"></pre>
+        </section>
+      </div>
+      <p>
+        Locks after five minutes without interaction, when hidden, or when
+        leaving the page. Locking ends the worker and clears this page’s
+        selected files and download. Other tabs must lock separately.
+      </p>
+      <p>
+        No production custody, secure-memory, anti-rollback, wallet or phone
+        qualification is implied.
+      </p>
+      <p class="caption">
+        Cryptographic dependency licenses:
+        <a href="/licenses/noble-curves">noble-curves</a> ·
+        <a href="/licenses/noble-hashes">noble-hashes</a>.
+      </p>
+    </main>
+  </body>
+</html>
