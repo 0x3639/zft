@@ -115,6 +115,12 @@ export function browserModules() {
     "worker.mjs",
     "vault-ui.mjs",
     "checks.mjs",
+    "client-cipher.mjs",
+    "client-checks.mjs",
+    "client.mjs",
+    "client-storage.mjs",
+    "client-worker.mjs",
+    "client-ui.mjs",
   ])
     modules.set("/web/" + file, read("./" + file));
   // Resolve the installed, lock-pinned noble dependency closure at startup only.
@@ -140,7 +146,7 @@ export function browserModules() {
   }
   function rewrite(source, url) {
     return source.replace(
-      /((?:from\s*|import\s*)["'])([^"']+)(["'])/g,
+      /((?:from\s*|import\s*)["'])([^"\'\s]+)(["'])/g,
       (all, before, spec, after) => {
         if (spec.startsWith("@noble/"))
           return (

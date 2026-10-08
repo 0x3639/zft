@@ -5,6 +5,7 @@ let downloadUrl,
   state,
   busy = false;
 $("vault-link").href = "/vault/#" + token;
+$("client-link").href = "/client/#" + token;
 history.replaceState(null, "", "/"); // Keep launch capability out of subsequent URLs.
 const message = (text, error = false) => {
   $("status").textContent = text;
@@ -270,6 +271,7 @@ $("operation").onchange = render;
 $("disconnect").onclick = () => {
   token = "";
   $("vault-link").href = "/vault/";
+  $("client-link").href = "/client/";
   clearDownload();
   state = null;
   for (const el of document.querySelectorAll("button,input,select"))

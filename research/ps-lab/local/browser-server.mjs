@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { BrowserLab, MAX_BODY } from "./browser-lab.mjs";
 import { parse } from "./profile.mjs";
+import { BrowserIssuer, MAX_CLIENT_BODY } from "./browser-client-api.mjs";
 import { browserModules } from "../web/modules.mjs";
 const assets = new Map(
   [
@@ -19,7 +20,10 @@ const assets = new Map(
 );
 for (const [url, data] of browserModules())
   assets.set(url, { type: "text/javascript; charset=utf-8", data });
-for (const [url, file] of [["/vault/", "index.html"]])
+for (const [url, file] of [
+  ["/vault/", "index.html"],
+  ["/client/", "client.html"],
+])
   assets.set(url, {
     type: "text/html; charset=utf-8",
     data: readFileSync(new URL("../web/" + file, import.meta.url)),
@@ -46,6 +50,7 @@ const headers = {
 };
 export async function startBrowserLab() {
   const lab = new BrowserLab();
+  const browserIssuer = new BrowserIssuer(lab.issuer);
   const token = randomBytes(32).toString("hex");
   let origin,
     host,
@@ -67,7 +72,7 @@ export async function startBrowserLab() {
         res.writeHead(200, { "Content-Type": asset.type });
         return res.end(asset.data);
       }
-      if (req.url !== "/api" || req.method !== "POST")
+      if (!["/api", "/issuer"].includes(req.url) || req.method !== "POST")
         return reply(404, { error: "Not found." });
       const authorization = req.headers.authorization;
       if (
@@ -100,14 +105,20 @@ export async function startBrowserLab() {
         const chunks = [];
         for await (const chunk of req) {
           size += chunk.length;
-          assert(size <= MAX_BODY, "body bound");
+          assert(
+            size <= (req.url === "/issuer" ? MAX_CLIENT_BODY : MAX_BODY),
+            "body bound",
+          );
           chunks.push(chunk);
         }
         const wire = new TextDecoder("utf-8", {
           fatal: true,
           ignoreBOM: true,
         }).decode(Buffer.concat(chunks));
-        const result = lab.dispatch(parse(wire, MAX_BODY));
+        const result =
+          req.url === "/issuer"
+            ? browserIssuer.dispatch(parse(wire, MAX_CLIENT_BODY))
+            : lab.dispatch(parse(wire, MAX_BODY));
         reply(200, result);
       } catch {
         // Never return assertion diffs, request bodies, passwords or credential material.
