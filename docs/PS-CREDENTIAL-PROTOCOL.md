@@ -17,7 +17,11 @@ Recommend **option A for a local, isolated prototype**. This prioritizes the req
 | C. PS plus an ERC-721 wrapper or on-chain spend registry | A separately designed bridge or coordinated authority | Could add wallet-visible representations, but locking, duplicate issuance, failures and privacy need a new protocol | Deferred; no automatic wrapping |
 | D. ZK notes enforced by ZVM | Contract verifies a different proof/spend system | Can pursue on-chain private state, but PS credentials alone do not supply this construction | Separate research, not reference parity |
 
-Approving a design PR records the direction; it does not approve an issuer deployment, erase old collectibles or promote the apex site. Before exposing PS items publicly, explicitly resolve the tradeoff between **reference-style credential ownership** and the earlier expectation of **ordinary ZVM NFTs held in MetaMask**. Neither model should be advertised as the other.
+Approving a design PR records the direction; it does not approve an issuer deployment, erase old collectibles or promote the apex site. On October 8, 2026, the user confirmed that PS ZFTs do not need to appear in MetaMask yet. Continue with ZFT-managed PS credentials and MetaMask profile identity; ordinary MetaMask NFT inventory is not an initial integration requirement. This resolves that presentation tradeoff, while independent review and hosted issuer approval remain separate gates. A possible MetaMask Snap for viewing ZFTs is deferred until the core experience is complete; it is not a wrapper or a custody migration.
+
+## Deferred MetaMask Snap
+
+After the core ZFT experience and release qualification, investigate a display-first Snap that shows a user’s ZFT collection inside MetaMask. The [official Snaps documentation](https://docs.metamask.io/snaps/) supports a dedicated Snap home page and [custom UI](https://docs.metamask.io/snaps/features/custom-ui/). That makes a custom ZFT view plausible; it is not evidence that PS credentials can appear in the standard NFT inventory. Verify artwork support, target extension/mobile availability, permissions, data provenance and review/distribution requirements at implementation time. Start with public artwork and verified, timestamped status; do not move bearer secrets into a Snap by implication. Any later signing, custody or recovery role requires a separate design and review. No Snap dependency or implementation is part of the local browser increment.
 
 ## Reference baseline and parity boundary
 
@@ -216,7 +220,7 @@ Negative tests must fail against a deliberately broken control, not merely mirro
 
 ## Review outcome to record
 
-Record the decision on option A and MetaMask inventory expectations, then the selected current issuance profile and any deviation requiring review. Resolve issuer custody/availability expectations before hosting. C1 must determine usable source licenses and independent review ownership; public JavaScript availability is not a source-code license. The prototype's new tests and evidence belong under a separate PS namespace. Trading, mainnet, remote backup, bridge settlement and production migration remain separately scoped work.
+The October 8 direction accepts ZFT-managed PS credentials without initial MetaMask inventory display; an optional later Snap is recorded above. Record the selected issuance profile and any deviation requiring review. Resolve issuer custody/availability expectations before hosting. C1 must determine usable source licenses and independent review ownership; public JavaScript availability is not a source-code license. The prototype's new tests and evidence belong under a separate PS namespace. Trading, mainnet, remote backup, bridge settlement and production migration remain separately scoped work.
 
 
 C1 progress after PR #11: the [reference-core profile and fixtures](PS-CRYPTOGRAPHIC-PROFILE.md) now define exact bytes for the observed active issuance, showing and transfer paths. Two different curve libraries agree on deterministic examples; independent transcript review, an external oracle, ZFT-specific bindings and final API policies remain required. This is local research, not hosted integration.

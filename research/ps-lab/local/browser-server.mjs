@@ -1,0 +1,150 @@
+// Loopback-only disposable test console. No public issuer API or arbitrary file access.
+import assert from "node:assert/strict";
+import { createServer } from "node:http";
+import { randomBytes, timingSafeEqual } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
+import { BrowserLab, MAX_BODY } from "./browser-lab.mjs";
+import { parse } from "./profile.mjs";
+const assets = new Map(
+  [
+    ["/", ["index.html", "text/html; charset=utf-8"]],
+    ["/app.js", ["app.js", "text/javascript; charset=utf-8"]],
+    ["/style.css", ["style.css", "text/css; charset=utf-8"]],
+  ].map(([url, [file, type]]) => [
+    url,
+    { type, data: readFileSync(new URL("./browser/" + file, import.meta.url)) },
+  ]),
+);
+const headers = {
+  "Cache-Control": "no-store",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "no-referrer",
+  "Cross-Origin-Resource-Policy": "same-origin",
+  "X-Frame-Options": "DENY",
+  "Content-Security-Policy":
+    "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+};
+export async function startBrowserLab() {
+  const lab = new BrowserLab();
+  const token = randomBytes(32).toString("hex");
+  let origin,
+    host,
+    active = 0;
+  const server = createServer(
+    { maxHeaderSize: 8192, requestTimeout: 10000, headersTimeout: 10000 },
+    async (req, res) => {
+      for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
+      const reply = (status, value) => {
+        res.writeHead(status, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(value));
+      };
+      // Duplicate security headers are rejected even when Node coalesces them.
+      const single = (name) => req.headersDistinct[name]?.length === 1;
+      if (!single("host") || req.headers.host !== host)
+        return reply(403, { error: "Loopback host required." });
+      if (req.method === "GET" && assets.has(req.url)) {
+        const asset = assets.get(req.url);
+        res.writeHead(200, { "Content-Type": asset.type });
+        return res.end(asset.data);
+      }
+      if (req.url !== "/api" || req.method !== "POST")
+        return reply(404, { error: "Not found." });
+      const authorization = req.headers.authorization;
+      if (
+        !single("origin") ||
+        req.headers.origin !== origin ||
+        !single("authorization") ||
+        typeof authorization !== "string" ||
+        !/^Bearer [0-9a-f]{64}$/.test(authorization) ||
+        !timingSafeEqual(
+          Buffer.from(authorization.slice(7)),
+          Buffer.from(token),
+        )
+      )
+        return reply(403, {
+          error: "Open the launch link from the local terminal.",
+        });
+      if (
+        req.headers["content-type"] !== "application/json" ||
+        req.headers["content-encoding"] ||
+        req.headers.expect
+      )
+        return reply(415, { error: "Plain JSON required." });
+      if (active >= 2)
+        return reply(429, {
+          error: "Lab busy. Retry after the current action.",
+        });
+      active++;
+      try {
+        let size = 0;
+        const chunks = [];
+        for await (const chunk of req) {
+          size += chunk.length;
+          assert(size <= MAX_BODY, "body bound");
+          chunks.push(chunk);
+        }
+        const wire = new TextDecoder("utf-8", {
+          fatal: true,
+          ignoreBOM: true,
+        }).decode(Buffer.concat(chunks));
+        const result = lab.dispatch(parse(wire, MAX_BODY));
+        reply(200, result);
+      } catch {
+        // Never return assertion diffs, request bodies, passwords or credential material.
+        if (!res.destroyed)
+          reply(400, {
+            error:
+              "Action rejected. Check the selected client, exact file and password. A stale bearer or duplicate mint can also be rejected; preserve pending recovery.",
+          });
+      } finally {
+        active--;
+      }
+    },
+  );
+  server.maxConnections = 8;
+  server.setTimeout(10000, (socket) => socket.destroy());
+  server.on("clientError", (_error, socket) => socket.destroy());
+  try {
+    await new Promise((resolve, reject) => {
+      server.once("error", reject);
+      server.listen(0, "127.0.0.1", resolve);
+    });
+    host = "127.0.0.1:" + server.address().port;
+    origin = "http://" + host;
+  } catch (error) {
+    lab.close();
+    throw error;
+  }
+  return {
+    origin,
+    token,
+    lab,
+    url: origin + "/#" + token,
+    close: async () => {
+      await new Promise((resolve) => {
+        server.close(resolve);
+        server.closeAllConnections();
+      });
+      lab.close();
+    },
+  };
+}
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  const running = await startBrowserLab();
+  console.log(
+    "Disposable PS browser lab — test keys only. Stopping deletes issuer and client state.",
+  );
+  console.log(running.url);
+  let closing = false;
+  for (const signal of ["SIGINT", "SIGTERM"])
+    process.on(signal, async () => {
+      if (closing) return;
+      closing = true;
+      await running.close();
+      process.exit(0);
+    });
+}

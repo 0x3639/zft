@@ -412,6 +412,51 @@ const controls = [
     test: "vault GCM payload is verified through WebCrypto with exact header AAD",
     edits: [["      N: 32768,", "      N: 16384,"]],
   },
+  {
+    name: "browser foreign origin accepted",
+    file: "browser-server.mjs",
+    suite: "browser.test.mjs",
+    test: "browser HTTP rejects foreign origins and missing launch capabilities",
+    edits: [["req.headers.origin !== origin ||", "false ||"]],
+  },
+  {
+    name: "browser wrong launch capability accepted",
+    file: "browser-server.mjs",
+    suite: "browser.test.mjs",
+    test: "browser HTTP rejects foreign origins and missing launch capabilities",
+    edits: [["Buffer.from(token),", "Buffer.from(authorization.slice(7)),"]],
+  },
+  {
+    name: "browser acknowledges before encrypted reselection",
+    file: "browser-lab.mjs",
+    suite: "browser.test.mjs",
+    test: "browser recovery reselection gates submission and restores a lost response",
+    edits: [
+      [
+        "      const opened = LocalVault.open(",
+        '      if (a === "acknowledge") c.acknowledge(input.digest, p.hash(c.backup(input.digest)));\n      const opened = LocalVault.open(',
+      ],
+    ],
+  },
+  {
+    name: "browser public export includes bearer authority",
+    file: "browser-lab.mjs",
+    suite: "browser.test.mjs",
+    test: "browser recovery reselection gates submission and restores a lost response",
+    edits: [
+      [
+        "? p.bytes(p.importBearer(envelope, c.pinned).asset)",
+        "? exportImage(envelope, this.manifest)",
+      ],
+    ],
+  },
+  {
+    name: "browser state leaks recovery snapshot",
+    file: "browser-lab.mjs",
+    suite: "browser.test.mjs",
+    test: "browser state excludes private snapshots credentials and capabilities",
+    edits: [["          ...op,", "          ...op, snapshot: row.snapshot,"]],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft PS controls ü # "));

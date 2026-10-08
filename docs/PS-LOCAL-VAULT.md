@@ -2,7 +2,7 @@
 
 `zft-ps-local-vault-v1` is an original, offline C5 research wrapper for the [local PS profile](PS-LOCAL-ENGINE.md) and [image adapter](PS-IMAGE-ENVELOPE.md), extending merged PR #18 (`96ed208`). It encrypts exported bearer records and exact pending-operation recovery snapshots in a separate file. It does **not** encrypt the live client/issuer/observer SQLite databases, change PS equations or integrate a browser. Public fixture issuer keys and the demo's public password are test material, unsuitable for real assets.
 
-Implementation: [vault.mjs](../research/ps-lab/local/vault.mjs). [Current evidence](../research/ps-vault-validation.json) records source hashes and validation. The [independent-review packet](PS-REVIEW-PACKET.md) includes this boundary; the reviewer is unassigned and review remains pending.
+Implementation: [vault.mjs](../research/ps-lab/local/vault.mjs). [Historical PR #19 evidence](../research/ps-vault-validation.json) records source hashes and validation. The [independent-review packet](PS-REVIEW-PACKET.md) includes this boundary; the reviewer is unassigned and review remains pending.
 
 ## Format and password handling
 
@@ -60,3 +60,6 @@ Twenty-two new tests cover exact encrypted records, fresh salt/IV, wrong passwor
 Seven new temporary controls omit GCM finalization/AAD, ignore pinned manifests, retain records on lock, acknowledge before encrypted readback, skip decrypted-record validation or weaken the KDF. Each must fail its named regression. RFC 7914 section 12's password/NaCl vector checks Node scrypt; WebCrypto decrypts exact generated AES-GCM bytes using independently assembled header input. Node and WebCrypto may share a backend; these are primitive/API checks, not independent review of the composed vault protocol.
 
 The demo uses disposable files with public test keys/password, saves and verifies encrypted recovery before acknowledgment, deliberately loses a committed response, restores into a third plaintext working client, saves its new bearer encrypted, locks/reopens it and verifies the exact public image. It removes all temporary files and logs only outcomes. C1/C3/C4 remain partial or pending. Browser/phone acceptance, secure password entry, encrypted working stores, memory isolation, backup freshness, wallet endorsement, public custody approval, production trust/key lifecycle and C6 hosting remain open.
+
+
+The [browser console](PS-BROWSER-LAB.md) reuses this format for encrypted downloads and verifies reselected content against identities pinned in the running lab. Browser file selection proves available bytes, not filesystem durability; browser-managed download saving remains unverified in the recorded in-app check. Its [current evidence](../research/ps-browser-validation.json) supersedes this historical manifest only for changed wrapper/docs files.
