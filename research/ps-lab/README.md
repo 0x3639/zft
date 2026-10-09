@@ -1,6 +1,6 @@
 # Isolated PS research lab
 
-Current local increment: [create-only encrypted PS key file](../../docs/PS-KEY-FILE.md). [Current evidence](../ps-key-file-validation.json) records 22 focused tests, seven new mutation controls and seven new process-kill boundaries. The final record is never overwritten; uncertain completion retains it for explicit inspection. This isolated library does not change the serving issuer, session storage or release gates.
+Current candidate: [consolidated protected PS service](../../docs/PS-CONSOLIDATED-CANDIDATE.md). The separate service composes encrypted key/session/backup storage, asynchronous issuer/status commits, authenticated HTTP, exact recovery and stopped restore/rotation. [Current evidence](../ps-consolidated-validation.json) tracks the final candidate. Earlier key-file and other validation records are historical. Real provider/backend qualification, independent review, device acceptance and staging approval remain pending.
 
 Previous local increment: [PS key envelope](../../docs/PS-KEY-ENVELOPE.md). [Historical envelope evidence](../ps-key-envelope-validation.json) records the encrypted scalar representation and injected wrap/unwrap failures.
 
@@ -63,7 +63,6 @@ With root dependencies installed, `pnpm exec tsx research/ps-lab/check-image-cod
 
 The [separate vault format](../../docs/PS-LOCAL-VAULT.md) encrypts typed bearer and recovery records, supports explicit lock/reopen, and requires exact saved encrypted-file readback before acknowledging recovery. Fixed scrypt/AES-GCM parameters, complete caller-pinned identity and decrypted-record validation are covered by 22 tests and seven controls. The vault demo restores a lost claim response using disposable encrypted files and a public test password. Working SQLite stores remain plaintext, older exports remain readable and password changes do not revoke old backups. No browser/v1 vault integration or secure-memory claim is made.
 
-
 ## Disposable browser console
 
 Run `pnpm --dir research/ps-lab --ignore-workspace browser:local` from the repository root and open the printed launch link. See [PS-BROWSER-LAB.md](../../docs/PS-BROWSER-LAB.md) for the flow and boundaries. The browser drives Node-held cryptography and three plaintext client stores over an authenticated loopback interface. Public test keys only; stopping removes the temporary issuer and prevents later recovery. Twelve new tests and five controls bring totals to 160/40; the 21 SIGKILL locations are unchanged. [Historical persistent evidence](../ps-browser-validation.json) separates UI acceptance from HTTP tests; browser-managed download saving remains unverified. No production app/dependency or core protocol change.
@@ -80,7 +79,6 @@ The console's **Browser client** link runs mint/claim/cancel proofs in a dedicat
 
 The same client now validates normalized PNG inputs, claims private PNGs and displays selected artwork using public image bytes only. Explicit private downloads carry plaintext bearer authority; public downloads preserve only the original image. Existing encrypted recovery gates apply to mint/claim/cancel. See [workflow, strict decoder boundary and acceptance](../../docs/PS-BROWSER-ARTWORK.md) and [historical artwork evidence](../ps-browser-artwork-validation.json). Automated tests use a strict Node decoder adapter; actual browser checks exercise native decompression. There is no general image normalizer, phone qualification or independent cryptographic review.
 
-
 ## ZFT product interface
 
 Run `pnpm ps:local` from the repository root to build and open the real React `/ps/` interface on a disposable loopback issuer. It adds collection/item routes and JPG/PNG preparation over the existing browser Worker. Root dependencies must already be installed. See [workflow and limits](../../docs/PS-PRODUCT-INTERFACE.md), [release sequence](../../docs/PS-RELEASE-PLAN.md) and [historical product evidence](../ps-product-interface-validation.json). That increment recorded 218 lab tests and 58 controls; root verification separately recorded 235 tests and three bridge controls. These figures describe that historical slice.
@@ -89,4 +87,4 @@ The root app wallet interoperability tests import this lab's pinned verifier. Be
 
 ## Persistent issuer monitoring
 
-`pnpm ps:persistent health /absolute/private/state` runs a read-only live probe while the persistent issuer holds its lock. Exit 0 means the selected reads are available without tracked warnings; 2 means attention; 1 means unavailable. See [the monitoring contract and limits](../../docs/PS-OPERATIONS-HEALTH.md) and [current evidence](../ps-health-validation.json). This does not send external alerts, change admission or authorize hosting.
+`pnpm ps:persistent health /absolute/private/state` runs a read-only live probe while the persistent issuer holds its lock. Exit 0 means the selected reads are available without tracked warnings; 2 means attention; 1 means unavailable. See [the monitoring contract and limits](../../docs/PS-OPERATIONS-HEALTH.md) and [historical health evidence](../ps-health-validation.json). This does not send external alerts, change admission or authorize hosting.

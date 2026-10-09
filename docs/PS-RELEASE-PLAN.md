@@ -16,7 +16,9 @@ Continue engineering where dependencies permit while recording blocked external 
 
 ## Commit and release policy for this sequence
 
-The user authorized unsigned local increments during development, then requested batch signing. All five increments were signed and verified without changing their trees and published in [PR #24](https://github.com/0x3639/zft/pull/24). The unsigned originals remain on a local backup branch. Repository/global signing configuration is unchanged. PR #24 merged at `b89cf61c3961b55f8fff5631a72c1c5740bfd3d7` after six verified signed commits, clean latest-head CodeRabbit and green CI/preview. New operations work starts from that merged baseline with signed commits on its own branch. Never rewrite merged/published history; no merge or deployment follows automatically from a commit.
+October 9 user update: remaining implementation is consolidated on one branch with unsigned local checkpoints, followed by batch signing and one final PR. See the [consolidated candidate checklist](PS-CONSOLIDATED-CANDIDATE.md). This supersedes the earlier per-increment signing/PR cadence, while release gates remain in force.
+
+The user authorized unsigned local increments during development, then requested batch signing. All five increments were signed and verified without changing their trees and published in [PR #24](https://github.com/0x3639/zft/pull/24). The unsigned originals remain on a local backup branch. Repository/global signing configuration is unchanged. PR #24 merged at `b89cf61c3961b55f8fff5631a72c1c5740bfd3d7` after six verified signed commits, clean latest-head CodeRabbit and green CI/preview. PRs #25–#29 followed that earlier signed-increment cadence. The current consolidated candidate instead uses unsigned local checkpoints followed by final batch signing and one PR, as directed above. Never rewrite merged/published history; no merge or deployment follows automatically from a commit.
 
 Keep the v1 protocol/data, frozen PS reference artifacts and historical evidence manifests intact. New current manifests record their own source hashes and inherited evidence. ZVM downtime does not block local PS work. Initial MetaMask inventory display is unnecessary; an optional display Snap follows the core experience.
 
@@ -32,9 +34,12 @@ PR #27 merged at `f69b8302ab44ab30c22c9126584f88e5718616f7` after clean exact-he
 
 Next work remains qualified secret execution, actual provider identity/permissions, durable asynchronous integration, protected session state and whole backups, hosted admission/fencing/retention/alerts, target devices and independent review. Provider/account/region/budget/operator and reviewer are unassigned; neither this record format nor its merge authorizes resources, migration or staging.
 
-
 ## Encrypted key-file experiment after PR #28
 
 PR #28 merged at `0259f76e78abdc1ee85d9e58e839531215302e35` after clean exact-head CodeRabbit and green CI/preview on signed head `7f81ec92529f65018e7ed4cf00bdcecbefcc2506`. The [next local experiment](PS-KEY-FILE.md) adds a create-only private ciphertext file, explicit digest selection, publication/synchronization failure handling and real process-kill/race tests. It composes the unchanged envelope adapter without calling the serving issuer or migrating any data.
 
 The selected local filesystem experiments do not qualify power-loss durability, network filesystems, global writer fencing, rollback freshness, provider custody or production key execution. Existing plaintext issuer/session stores and all external release gates remain unchanged. Subsequent integration still needs an approved key/configuration/checkpoint authority and durable async issuer recovery; none follows automatically from file publication.
+
+## Consolidated service after PR #29
+
+PR #29 merged at `23df3222f9b3bd280b9947846eb78ba96d3d069c`. The [consolidated candidate](PS-CONSOLIDATED-CANDIDATE.md) completes provider-neutral integration in one change: protected session/whole-backup records, asynchronous issuer/status commits, exact recovery, stopped restore/wrapping rotation, explicit admission, HTTP/client composition and operator procedures. The original local issuer and application stay unchanged. Its local checkpoints remain unsigned until the final batch-signing pass; only then is one PR published. Actual provider/backend qualification, independent review, global operational acceptance, devices and staging approvals remain external dependencies.

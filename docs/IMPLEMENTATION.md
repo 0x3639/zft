@@ -8,17 +8,17 @@ This is the work tracker for the [complete functional specification](FUNCTIONAL-
 
 Status meanings: **Complete** means the stated deliverable and its listed verification are complete; it does not imply all release gates passed. **In progress** means work is underway. **Next** means ready to implement. **Pending acceptance** means code exists but the specified real-world check remains. **Deferred** means a separately scoped protocol or launch decision is required. Do not use a percentage: these workstreams differ substantially in effort.
 
-Current focus: **Local custody contracts and external release gates.** The [local product interface](PS-PRODUCT-INTERFACE.md) adds JPG/PNG preparation and product routes over the existing encrypted browser client. [PS-OWN-01](PS-REVIEW-PACKET.md#open-review-item-former-holder-and-cross-asset-forgery) remains an independent-review gate. Initial MetaMask inventory display is unnecessary; a possible display Snap follows the core experience. [Public presentations](PS-PUBLIC-PRESENTATION.md) now separate credential proofs, optional wallet signing-key endorsements and issuer snapshots. The [persistent local issuer](PS-PERSISTENT-LOCAL.md) now retains trust and state; independent review, operational qualification, real extension/device acceptance and hosting remain open.
+Current focus: **Consolidated protected service candidate and external release gates.** The [local product interface](PS-PRODUCT-INTERFACE.md) adds JPG/PNG preparation and product routes over the existing encrypted browser client. [PS-OWN-01](PS-REVIEW-PACKET.md#open-review-item-former-holder-and-cross-asset-forgery) remains an independent-review gate. Initial MetaMask inventory display is unnecessary; a possible display Snap follows the core experience. [Public presentations](PS-PUBLIC-PRESENTATION.md) now separate credential proofs, optional wallet signing-key endorsements and issuer snapshots. The [persistent local issuer](PS-PERSISTENT-LOCAL.md) now retains trust and state; independent review, operational qualification, real extension/device acceptance and hosting remain open.
 
 | Work | Status | Completed baseline or remaining deliverable | Acceptance |
 | --- | --- | --- | --- |
 | C0 PS protocol design | Merged local research baseline | PR #11 documents architecture/trust choices and recovery/acceptance; user authorized continued local work | [Protocol proposal](PS-CREDENTIAL-PROTOCOL.md); ZFT-managed PS presentation accepted October 8; hosting remains separate |
 | C1 PS profile and vectors | In progress | Frozen reference-core fixtures, local credential/state profiles and 13 parser regressions across ten artifact families; independent review/external vectors, trust distribution, wallet endorsement and production policies remain | [Reference profile](PS-CRYPTOGRAPHIC-PROFILE.md), [local profile](PS-LOCAL-ENGINE.md) |
 | C2 Local PS engine | Complete for local harness | Issuer, two client stores, mint/export/claim/cancel/showing and recovery into a third store | [Local profile and evidence](PS-LOCAL-ENGINE.md); no hosted or browser integration |
-| C3 PS recovery qualification | In progress | 266 local tests before the new signer experiment, 22 SIGKILL locations, bounded SQLite failures, exact retries and 78 mutation controls; observer preparation/request/receipt failures covered, while hardware faults, global rollback defense, retention and real devices remain | [Historical health evidence](../research/ps-health-validation.json), [scope and limits](PS-LOCAL-ENGINE.md#validation-and-remaining-gates) |
+| C3 PS recovery qualification | In progress | 330 baseline local tests plus 74 service tests, 47 selected SIGKILL locations and 116 local/service mutation controls; protected sessions, asynchronous commits, whole backups and stopped restore/rotation are covered, while hardware faults, global rollback defense and real devices remain | [Historical health evidence](../research/ps-health-validation.json), [scope and limits](PS-LOCAL-ENGINE.md#validation-and-remaining-gates) |
 | C4 Independent PS review | Prepared; review pending | [Handoff packet](PS-REVIEW-PACKET.md) with scope, reproduction and unanswered questions; reviewer unassigned | Independent review before a hosted experiment |
 | C5 PS file and wallet integration | Local product/public evidence; acceptance open | [PNG adapter](PS-IMAGE-ENVELOPE.md), [encrypted file vault](PS-LOCAL-VAULT.md), [Node console](PS-BROWSER-LAB.md) and [browser vault](PS-BROWSER-VAULT.md); [browser client](PS-BROWSER-CLIENT.md) runs proofs/recovery and [browser artwork](PS-BROWSER-ARTWORK.md) handles PNG/display; [product routes and normalization](PS-PRODUCT-INTERFACE.md) are local; [public proofs and optional signing-key endorsements](PS-PUBLIC-PRESENTATION.md) are implemented locally | ZFT-managed PS direction accepted; independent review and hosting approval remain |
-| C6 PS hosting | Local persistence and health only | [Persistent local issuer](PS-PERSISTENT-LOCAL.md) retains trust/registry; [live health](PS-OPERATIONS-HEALTH.md) reports aggregate status; production key custody, separately approved resources, admission/retention and operations remain | No hosted issuer or launch approval |
+| C6 PS hosting | Integrated local candidate; external gates open | [Consolidated service](PS-CONSOLIDATED-CANDIDATE.md) composes custody, protected sessions/backups, asynchronous state, authenticated HTTP and operator procedures; actual provider/backend qualification, infrastructure fencing, on-call and release approval remain | No hosted issuer or launch approval |
 | B1 Core ownership | Complete for SDK and Worker scope | Deployed ERC-721, codec, encrypted vault, mint/export/claim/cancel/recovery; real devnet canary | [Transaction evidence](../research/hosted-devnet-canary.json); device acceptance remains R6 |
 | B2 Public proof and navigation | Complete for recorded scope | Collection-first profiles, Network dialogs, guest entry, proof card, historical epochs, safe proof download, theme/menu/lookup | [Browser evidence](../research/public-ui-acceptance.json); A-NAV/A-PROFILE/A-ITEM/A-PROOF subset |
 | B3 Page sharing | Complete for recorded scope | Initial HTML, current-holding collages, selected epochs, bounded thumbnail derivatives | [Hosted check](../research/public-canary.json), [renderer fixtures](../research/sharing-fixtures/results.json); remaining platform checks in R6 |
@@ -259,13 +259,11 @@ Cloudflare beta deployments use a scoped environment; PR previews have separate 
 - The generic 80% docstring suggestion is not a required CI check or a correctness issue; no blanket comments were added to self-explanatory functions.
 - **186 app tests**, typecheck/build/Worker dry run and the stronger hosted canary pass. Deployed Worker **`5e7fdf99-4375-4657-aa77-76a5ae46f4de`** has the verified frontend bundle and healthy index; [evidence](../research/pr5-review.json). No migration, contract or route changes. Follow-up review and CI for the new commit remain pending; real extension/device acceptance stays R6.
 
-
 [PR #6](https://github.com/0x3639/zft/pull/6) review of `51666f3`, addressed 2026-10-06:
 
 - [Help title cleanup](https://github.com/0x3639/zft/pull/6#discussion_r4193200979): reproduced on hosted direct-load Technical → Basics → Mint. The component captured the already-rewritten initial HTML title, then restored it on exit. Cleanup now sets the neutral app title. Hosted checks verify the same route, Back/Forward and direct `/about?view=cryptography` → Recovery; [before/after evidence](../research/pr6-title-review.json).
 - **194 app tests**, typecheck/build/Worker dry run and the read-only hosted help/bundle/PNG check pass. Worker **`0f53a02e-0450-4bec-ac0d-0475f3ecd728`** preserves the existing routes, schema and data. The OG renderer is unchanged; the fourteen-fixture run remains valid.
 - The generic docstring percentage warning is not required CI or a correctness defect; no blanket comments were added. Follow-up CodeRabbit review and CI remain pending.
-
 
 PR #6 follow-up review of `0111421`, addressed 2026-10-06:
 
@@ -280,7 +278,6 @@ PR #6 follow-up review of `0111421`, addressed 2026-10-06:
 - CI on `8a5a3ca` exposed an unintended live `eth_chainId` read from viem's separate wallet-signing client. The fixture now handles it locally, rejects all unexpected outbound fetches and asserts the local read. This removes the test's RPC latency dependency without increasing its bounds or changing production signing.
 - The generic docstring percentage advisory is not an enforced repository check; no blanket comments or review-setting changes were added.
 
-
 ### R7.1 local recovery qualification, 2026-10-06
 
 `test/sponsor-recovery` adds seven tests of the production Sponsor with a separate workerd process group and a unique temporary SQLite directory. Three cases actually kill the process: before signing/outbox persistence, after the durable outbox but before simulated RPC acceptance, and after simulated acceptance but before a response. Restarting uses the same database without seeding replacement jobs. Retries retain transaction bytes/hash/nonce, daily gas reservation and operation quota; new submissions remain blocked until confirmation. Three mismatched-nonce cases refuse new signing, and an ambiguous-delivery/receipt-outage case preserves the reservation. The test fixture denies real RPC fetches.
@@ -293,16 +290,13 @@ This increment changes verification and documentation only. It requires no migra
 
 Four new workerd regressions fail on `1dedcf5` and pass after the fix. The original PR #10 branch passed **222 app tests**, typecheck, build and Worker dry run; the frontend bundle is unchanged. PR #9's seven crash/retry cases and extended fixture are now integrated from main. No schema, contract, route or custody-format changes are required. The broader R1.5/R1.6/R6/R7 gates remain open. Devnet Worker **`129889f1-0cb8-49d4-9c1d-8f1ff5c1d092`** carries this fix. [Local regression evidence](../research/sponsor-revert-confirmations.json) and [hosted smoke](../research/sponsor-revert-deployment.json) record the checks. The original head `37d24d9` passed CodeRabbit review and CI; the integration with merged PR #9 passes **229 app tests**, typecheck and diff checks, with fresh PR #10 review pending. [Integration evidence](../research/sponsor-recovery-integration.json) preserves both sets of tests and their original records. Runtime source is unchanged from `37d24d9`, so no redeployment is required.
 
-
 ### PS credential design, 2026-10-06
 
 PR #10 merged at `f0a4065` after clean review and CI on `5a1b330`. Its devnet confirmation fix remains deployed as Worker `129889f1-0cb8-49d4-9c1d-8f1ff5c1d092`; the 229-test integration evidence remains historical and valid for that code.
 
 The next increment documents the requested PS/BLS12-381 direction in [PS-CREDENTIAL-PROTOCOL.md](PS-CREDENTIAL-PROTOCOL.md), supported by [current reference module hashes and call sites](../research/ps-reference-2026-10-06.json). It proposes an off-chain mint prototype, distinguishes the current committed-issuance v3 call from older documented blind issuance, preserves MetaMask profile identity, and defines atomic claim/recovery and public-proof acceptance. No runtime, dependency, contract, migration, binding or deployment changes are included. C0 remains ready for review; C1–C6 and actual cryptographic parity remain unimplemented.
 
-
 PR #11 follow-up review of `686c7b5`, addressed 2026-10-06: CodeRabbit identified ambiguous use of “mint” in option A. The table now distinguishes initial issuance reserving an asset tag from swaps consuming source nullifiers, consistent with the detailed atomic transition. The correction changes no protocol choice or runtime behavior. Documentation links are unchanged and diff checks pass; follow-up review remains pending.
-
 
 ### PS reference-core fixtures, 2026-10-06
 
@@ -310,9 +304,7 @@ PR #11 merged at `59bd786`; its final correction in `ea6f64d` received clean fol
 
 This supplies a reviewable C1 slice, not independent cryptographic validation or a live mint. Upstream server behavior and reference interoperability remain unverified. The hosted Worker remains `129889f1-0cb8-49d4-9c1d-8f1ff5c1d092`; no root dependencies, runtime, schema, data, routes, files or OG snapshots change.
 
-
 PR #12 review follow-up, 2026-10-06: both actionable findings on `42620c6` were verified. The controls runner now converts file URLs with `fileURLToPath`; a regression using a path containing spaces, Unicode and `#` fails on the original head and passes with the fix. The lab now has 43 passing tests. The four new CI actions are pinned to commits resolved from their official repositories (including dereferencing pnpm's annotated tag), with version comments; the new checkout disables credential persistence. The generic docstring coverage warning does not identify an additional correctness issue and is not a repository requirement. No cryptographic equations, fixture bytes, root app dependencies or deployed runtime change. Source hashes and validation evidence were refreshed. Signed follow-up `ed5faf3` received fresh clean CodeRabbit review and green CI before PR #12 merged at `9f85c11` on 2026-10-07. The original evidence JSON is retained as the historical pre-review record.
-
 
 ### Local PS issuer and recovery, 2026-10-07
 
@@ -325,7 +317,6 @@ All 28 local tests and the walkthrough pass. Four deliberately broken implementa
 PR #13 merged at `8854ed7` after clean CodeRabbit review and all CI/preview checks on signed head `fb61724`. The next local C3 slice adds 19 regressions: 11 more process-kill locations, seven bounded SQLite failure/lock cases, and completed-recovery replay after a later spend. All 47 local tests and eight mutation controls pass. The client journal, backup gate, restored snapshot, replacement credential, local spent flag and issuer response retain their atomic/recoverable behavior. These tests found no additional protocol or transaction correction to make.
 
 [Historical PR #14 evidence](../research/ps-recovery-validation.json) records that recovery increment; current browser evidence is linked above. Frozen reference bytes, local cryptographic equations/transcripts, root application dependencies and deployed resources remain unchanged. C3 stays partial: page-limit errors are not a full disk or power loss; corruption/rollback defense, further boundaries, retention/availability and real devices still need qualification. C1/C4 independent review and C5/C6 integration/hosting remain open.
-
 
 ## Product interface increment
 
@@ -359,7 +350,10 @@ From merged PR #26, the [status signer experiment](PS-STATUS-SIGNER-CONTRACT.md)
 
 Merged PR #27 (`f69b830`) is the baseline for the [key-envelope experiment](PS-KEY-ENVELOPE.md). It adds fresh-key AES-256-GCM records, caller-pinned scope, inner scalar/manifest checks, injected wrapping, denied/late unwrap handling and a disposable process-restart issuer check. [Historical envelope evidence](../research/ps-key-envelope-validation.json) records the affected tests and eight mutation controls. No serving issuer, database, session-secret, backup or status-key storage changes are included. Provider custody, durable integration, independent C1/C4 and PS-OWN-01 remain open.
 
-
 ## Local encrypted PS key file
 
 Merged PR #28 (`0259f76`) is the baseline for [create-only key-file storage](PS-KEY-FILE.md). It validates wrap/unwrap before writing, syncs an exclusive private ciphertext temporary file, publishes without replacement, then syncs both directory transitions. Callers must pin a ciphertext digest when opening; postpublication failures return an explicit uncertain result and preserve the final file. [Current evidence](../research/ps-key-file-validation.json) records races, filesystem faults, seven actual SIGKILL boundaries and seven new mutation controls. The issuer, original plaintext storage and prior adapters remain unchanged. Provider qualification, durable issuer integration, session protection and independent review are still open.
+
+### Consolidated protected service candidate
+
+Merged PR #29 (`23df322`) is the baseline for the [integrated service candidate](PS-CONSOLIDATED-CANDIDATE.md). It connects protected keys/session records to durable asynchronous issuer/status operations, stopped encrypted backup/restore and wrapping rotation, separate participant/operator/monitor access, bounded HTTP and the unchanged client. It has a separate schema and explicit drivers; existing product/legacy issuer state is untouched. [Current evidence](../research/ps-consolidated-validation.json) covers local acceptance. External key/backend/provider qualification, independent C1/C4 and PS-OWN-01 review, real devices and staging approval remain release blockers. Development checkpoints are local and unsigned by user direction; all published history is signed before one consolidated PR.

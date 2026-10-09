@@ -27,7 +27,7 @@ pnpm ps:release-test
 pnpm ps:release-check /absolute/path/to/operator-evidence.json
 ```
 
-The check verifies source-manifest hashes, the built `dist/web` fingerprint, clean source state, ancestry from merged PR #28 (`0259f76e78abdc1ee85d9e58e839531215302e35`), the expected signature on every new commit, exact-candidate report hashes, review/check states and target coverage. The known untracked worktree `node_modules` symlink is permitted; other untracked or tracked changes block readiness. The evidence file is outside Git to avoid a self-referential candidate SHA. Report paths are local operator paths, never issuer/file-selected URLs.
+The check verifies source-manifest hashes, the built `dist/web` fingerprint, clean source state, ancestry from merged PR #29 (`23df3222f9b3bd280b9947846eb78ba96d3d069c`), the expected signature on every new commit, exact-candidate report hashes, review/check states and target coverage. The known untracked worktree `node_modules` symlink is permitted; other untracked or tracked changes block readiness. The evidence file is outside Git to avoid a self-referential candidate SHA. Report paths are local operator paths, never issuer/file-selected URLs.
 
 The default template intentionally fails. A successful synthetic test does not represent real approval. The checker only reports readiness for isolated staging; it does not deploy, merge, sign, install resources, contact reviewers or authorize apex. Existing v1 deployment commands are unchanged, and this is not a substitute for human release controls.
 
@@ -35,6 +35,6 @@ The default template intentionally fails. A successful synthetic test does not r
 
 The [review packet](PS-REVIEW-PACKET.md) and [operations policy](PS-LOCAL-OPERATIONS.md) are ready for a reviewer/operator to scope. The independent reviewer is unassigned. Target-device access and final support scope are unconfirmed. Hosting, production key custody and operational ownership are undecided. These are actual release dependencies; no live date or production cryptographic guarantee is asserted.
 
-The source manifest is fixed to `research/ps-key-file-validation.json`. An operator record cannot substitute a one-file or historical manifest; a different `sourceManifest` value blocks readiness. The checker always reads the fixed path regardless of operator input.
+The source manifest is fixed to `research/ps-consolidated-validation.json`. An operator record cannot substitute a one-file or historical manifest; a different `sourceManifest` value blocks readiness. The checker always reads the fixed path regardless of operator input.
 
-The trusted ancestry baseline advances to merged PR #28 for this key-file experiment; the expected signer is checked on every commit after that baseline. Historical validation JSON files, including the PR #24 readiness record, remain unchanged. No pending approval has been promoted.
+The trusted ancestry baseline advances to merged PR #29 for this consolidated service candidate; the expected signer is checked on every commit after that baseline. Historical validation JSON files, including the PR #24 readiness record, remain unchanged. No pending approval has been promoted.

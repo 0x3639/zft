@@ -1,6 +1,6 @@
 # Research and capability evidence
 
-Current local increment: [create-only encrypted PS key file](../docs/PS-KEY-FILE.md). [Current evidence](ps-key-file-validation.json) records 22 focused tests, seven new mutation controls and seven new process-kill boundaries. The final record is never overwritten; uncertain completion retains it for explicit inspection. This isolated library does not change the serving issuer, session storage or release gates.
+Current candidate: [consolidated protected PS service](../docs/PS-CONSOLIDATED-CANDIDATE.md). The separate service composes encrypted key/session/backup storage, asynchronous issuer/status commits, authenticated HTTP, exact recovery and stopped restore/rotation. [Current evidence](ps-consolidated-validation.json) tracks the final candidate. Earlier key-file and other validation records are historical. Real provider/backend qualification, independent review, device acceptance and staging approval remain pending.
 
 Previous local increment: [PS key envelope](../docs/PS-KEY-ENVELOPE.md). [Historical envelope evidence](ps-key-envelope-validation.json) records the encrypted scalar representation and injected wrap/unwrap failures.
 
@@ -56,18 +56,15 @@ The live ERC-721 and BLS responses support feasibility of EVM-based collectibles
 
 ZFT’s specifications and interface are original proposed designs, not inspected NonFungible Cash or ZVM source forks. The first product has public transfer history and relies on current ZVM devnet services. Source/license checks and production security review belong to implementation/release acceptance.
 
-
 ## PS reference snapshot on October 6 2026
 
 The user has moved PS/BLS12-381 parity from a deferred expansion to the next design milestone. [The proposal](../docs/PS-CREDENTIAL-PROTOCOL.md) preserves the existing public ERC-721 alpha while specifying an isolated PS prototype and its issuer/native-NFT tradeoff.
 
 [Current snapshot evidence](ps-reference-2026-10-06.json) traces the reference HTML to its current app, wallet and PS modules and records hashes. The wallet requests committed issuance v3 and calls blind transfer; help text still explains an older issuance path. Static client inspection cannot establish server enforcement, exact interoperability or security. No reference transactions were executed and no reference code is vendored. C1 must freeze licensed sources, exact transcripts and independent vectors before claiming equivalence.
 
-
 ## PS reference-core fixtures on October 6 2026
 
 [Validation evidence](ps-profile-validation.json) records the first isolated C1 fixture set, exact source hashes, 42 passing verifier tests, Python reproduction and three broken-check controls. [The profile](../docs/PS-CRYPTOGRAPHIC-PROFILE.md) distinguishes static reference observations, derived lab issuer equations and additional validation policy. The [dependency inventory](ps-lab/dependencies.json) records pinned artifacts and retained license notices. Neither these same-author transcript implementations nor their distinct curve backends establish independent review or live reference interoperability. C1 remains in progress; no deployment is performed.
-
 
 ## Local PS engine on October 7 2026
 
@@ -101,7 +98,6 @@ The [file specification](../docs/PS-IMAGE-ENVELOPE.md) bounds inputs and records
 
 The [vault specification](../docs/PS-LOCAL-VAULT.md) distinguishes encrypted export files from plaintext working databases and records limits on memory, fsync, rollback, browser/device and password qualification. Earlier app/reference checks are inherited evidence from PR #18 and rerun by CI. Seven prior PS validation manifests, reference artifacts, credential/state/image implementations, root dependencies, v1 runtime and deployed resources remain unchanged.
 
-
 ## Local PS browser console, 2026-10-08
 
 [ps-browser-validation.json](ps-browser-validation.json) records the isolated browser/controller/loopback HTTP increment over merged PR #19. It covers 160 local tests, 40 mutation controls, unchanged 21 kill locations, source/baseline hashes and explicitly partial browser acceptance. The encrypted recovery used in the UI restore check came from the actual API; automated browser saving was not confirmed. All eight earlier PS manifests remain frozen historical evidence. The October 8 product direction accepts ZFT-managed PS credentials initially and defers a possible MetaMask display Snap.
@@ -117,7 +113,6 @@ The [vault specification](../docs/PS-LOCAL-VAULT.md) distinguishes encrypted exp
 ## Browser PS artwork increment
 
 [Historical browser-artwork evidence](ps-browser-artwork-validation.json) records the isolated PNG/display increment after PR #22: 216 local tests, 58 controls, 21 unchanged SIGKILL locations, exact generated source hashes and actual desktop PNG download/claim/cancel/reopen checks. [Scope](../docs/PS-BROWSER-ARTWORK.md) distinguishes the Node decoder test adapter from native browser acceptance and leaves general normalization, devices, resource qualification and independent PS-OWN-01/C1/C4 review open. Eleven earlier PS manifests are historical records; app/reference checks are inherited locally and rerun in CI.
-
 
 ## PS product interface
 

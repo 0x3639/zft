@@ -124,7 +124,9 @@ Before selecting machine sizes or promising latency, measure representative vali
 
 ## Implementation sequence and review exits
 
-Each increment needs its own signed candidate, focused regressions, current source evidence and completed PR review. This ordering refines the [release sequence](PS-RELEASE-PLAN.md); it does not close existing external gates.
+October 9 user update: remaining implementation is consolidated on one branch with unsigned local checkpoints, followed by batch signing and one final PR. See the [consolidated candidate checklist](PS-CONSOLIDATED-CANDIDATE.md). This supersedes the earlier per-increment signing/PR cadence, while release gates remain in force.
+
+Complete the remaining local work with focused regressions and unsigned local checkpoints on one branch. Preserve the unsigned history, batch-sign the final unchanged tree, then publish one consolidated PR with current source evidence and completed review. Subsequent fixes in that published PR are signed. This ordering refines the [release sequence](PS-RELEASE-PLAN.md); it does not close existing external gates.
 
 | Increment                                      | Concrete deliverable                                                                                                                  | Exit before proceeding to dependent work                                                                                                  |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
