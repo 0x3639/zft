@@ -1,5 +1,11 @@
 # Research and capability evidence
 
+Current local increment: [offline operations](../docs/PS-LOCAL-OPERATIONS.md), with 250 local tests, 73 mutation controls and explicit suspended-restore review. [Current evidence](ps-operations-validation.json) preserves earlier manifests as historical.
+
+Previous local increment: [persistent issuer](../docs/PS-PERSISTENT-LOCAL.md). [Historical persistent evidence](ps-persistent-validation.json) records 242 local tests, 68 controls and 22 actual process-kill locations. Earlier manifests, including product/public presentation, remain historical. No hosted release or production key-custody claim.
+
+Previous local increment: [public PS presentation](../docs/PS-PUBLIC-PRESENTATION.md), with separate credential proof, optional wallet signing-key endorsement and issuer snapshot. [Historical presentation evidence](ps-presentation-validation.json) records 230 local tests, 63 lab controls, 241 app tests and precise browser limits. The product-interface manifest is now historical.
+
 Observed 2026-10-04. Public services can change; rerun these checks before implementation/deployment.
 
 ## Sources
@@ -102,4 +108,9 @@ The [vault specification](../docs/PS-LOCAL-VAULT.md) distinguishes encrypted exp
 
 ## Browser PS artwork increment
 
-[Current browser-artwork evidence](ps-browser-artwork-validation.json) records the isolated PNG/display increment after PR #22: 216 local tests, 58 controls, 21 unchanged SIGKILL locations, exact generated source hashes and actual desktop PNG download/claim/cancel/reopen checks. [Scope](../docs/PS-BROWSER-ARTWORK.md) distinguishes the Node decoder test adapter from native browser acceptance and leaves general normalization, devices, resource qualification and independent PS-OWN-01/C1/C4 review open. Eleven earlier PS manifests are historical records; app/reference checks are inherited locally and rerun in CI.
+[Historical browser-artwork evidence](ps-browser-artwork-validation.json) records the isolated PNG/display increment after PR #22: 216 local tests, 58 controls, 21 unchanged SIGKILL locations, exact generated source hashes and actual desktop PNG download/claim/cancel/reopen checks. [Scope](../docs/PS-BROWSER-ARTWORK.md) distinguishes the Node decoder test adapter from native browser acceptance and leaves general normalization, devices, resource qualification and independent PS-OWN-01/C1/C4 review open. Eleven earlier PS manifests are historical records; app/reference checks are inherited locally and rerun in CI.
+
+
+## PS product interface
+
+[Current product-interface evidence](ps-product-interface-validation.json) records baseline PR #23 (`673f89d`), 235 app tests, 218 lab tests, 58 lab controls and three app controls. The [React interface](../docs/PS-PRODUCT-INTERFACE.md) adds bounded JPG/PNG normalization, scoped item views and recovery-driven operations. Actual desktop download/reselection, recipient claim, cancellation and third-client restore are distinct from Node test adapters. Twelve previous PS manifests remain historical. No hosted issuer or independent review completion is claimed.

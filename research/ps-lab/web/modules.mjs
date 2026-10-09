@@ -158,8 +158,41 @@ export function browserModules() {
     "client-storage.mjs",
     "client-worker.mjs",
     "client-ui.mjs",
+    "public-worker.mjs",
   ])
     modules.set("/web/" + file, read("./" + file));
+  let state = read("../local/state.mjs");
+  const stateEnd = state.indexOf("export class StateIssuer");
+  assert(
+    stateEnd > 0 && state.split("export class StateIssuer").length === 2,
+    "state codec extraction",
+  );
+  state = state.slice(0, stateEnd);
+  state = replace(
+    state,
+    'import { createPublicKey, sign, verify } from "node:crypto";\n',
+    "",
+  );
+  state = replace(
+    state,
+    'import { store, transaction } from "./store.mjs";\n',
+    "",
+  );
+  state = replace(state, '"node:assert/strict"', '"./runtime.mjs"');
+  const pkStart = state.indexOf("  return createPublicKey({"),
+    pkEnd = state.indexOf("\n}", pkStart);
+  assert(pkStart > 0 && pkEnd > pkStart, "state public key adapter");
+  state =
+    state.slice(0, pkStart) + "  return bytes(raw,32);" + state.slice(pkEnd);
+  modules.set("/web/state.mjs", state);
+  modules.set(
+    "/web/presentation.mjs",
+    replace(
+      read("../local/presentation.mjs"),
+      '"node:assert/strict"',
+      '"./runtime.mjs"',
+    ),
+  );
   // Resolve the installed, lock-pinned noble dependency closure at startup only.
   const require = createRequire(import.meta.url);
   const roots = Object.fromEntries(

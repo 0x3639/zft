@@ -1,10 +1,10 @@
 # PS independent review packet
 
-Updated October 8, 2026, against merged PR #21 baseline `2a2bc7119386dd103b4799cc132a0ffec7011b8a` plus isolated browser credential execution. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
+Updated October 9, 2026, against merged PR #23 baseline `673f89dba48a3222be02894ad659a62fe6e58aad` plus the local product, public-presentation persistent-issuer and offline-operations increments. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
 
 ## Freeze the reviewed revision
 
-Record the exact commit under review and verify its signature. [Current browser-artwork evidence](../research/ps-browser-artwork-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
+Record the exact commit under review and verify its signature. The five development increments were batch-signed with verified signatures before [PR #24](https://github.com/0x3639/zft/pull/24). Review fixes must also be signed. [Current release evidence](../research/ps-release-readiness-validation.json) lists current source hashes; [operations evidence](../research/ps-operations-validation.json) and other historical manifests apply only to their own revisions. Do not update mismatching hashes just to make a check pass.
 
 ```sh
 git rev-parse HEAD
@@ -12,7 +12,7 @@ git verify-commit HEAD
 python3 - <<'PY'
 import hashlib, json
 from pathlib import Path
-v = json.loads(Path('research/ps-browser-artwork-validation.json').read_text())
+v = json.loads(Path('research/ps-release-readiness-validation.json').read_text())
 for name, expected in v['sourceSha256'].items():
     assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
 print('source hashes match')
@@ -61,7 +61,7 @@ Specific questions for an independent reviewer:
 4. Can any interleaving or storage failure release a valid response without its durable spend/reservation, expose incomplete recovery, revive a spent local credential or consume an observer challenge without its receipt/watermark? Extend beyond the selected SIGKILL and SQLite-error tests.
 5. Can stale state, issuer/observer restore, equivocation, compromised keys, manipulated clocks or trust replacement be represented as fresh authority? Existing tests deliberately demonstrate limits for fresh observers and historical receipts; require explicit incident/admission/retention policies rather than interpreting those tests as protections.
 6. Can parsing, decompression, nested JSON, unsupported image formats or a private/public output mix leak authority or permit image substitution? Challenge the exact byte limits and trust boundary; current corpus coverage is bounded and same-author. Verify password/KDF costs, all AEAD inputs, final authentication before plaintext exposure, decrypted-record validation and the fact that old encrypted exports remain valid.
-7. Are public/observer outputs accurately described? Wallet bytes currently authenticate no wallet. Reused nullifiers and public asset attributes can link observations. Image metadata removal is not steganographic erasure. Determine which privacy claims, if any, the whole proposed system could support.
+7. Are public/observer outputs accurately described? Base showing wallet bytes alone authenticate no wallet. The [public presentation](PS-PUBLIC-PRESENTATION.md) adds a separate optional ERC-191 signing-key endorsement of exact evidence; it does not check contract-wallet validity or grant spend authority. Reused nullifiers and public asset attributes can link observations. Image metadata removal is not steganographic erasure. Determine which privacy claims, if any, the whole proposed system could support.
 
 ## Required review output and release gates
 
@@ -87,3 +87,24 @@ Existing evidence: six focused engine regressions passed on `9b83f87` on October
 Browser credential review additionally covers the [client protocol/storage boundary](PS-BROWSER-CLIENT.md), generated proof execution, complete encrypted working journals, both outer and decrypted identity pins, exact saved-file acknowledgment, compare-and-swap completion, serialized Worker actions and loopback-only issuer interface. Existing reference/local proof equations are unchanged. Challenge authenticated but inconsistent journals, competing stale tabs, locked asynchronous completions, response loss, recovery replay and any path that sends bearer secrets to Node or revives spent authority. PS-OWN-01 remains open.
 
 Browser artwork review covers the [portable PNG decoder boundary](PS-BROWSER-ARTWORK.md#browser-decompression-boundary), exact generated envelope adaptation, caller input ownership, private/public outputs and lock checks. Challenge native trailing-stream behavior across engines, internal decoder allocation, same-author Node/browser agreement and the UI distinction between a viewable stale image and successfully refreshed authority. Actual desktop PNG download/claim/cancel acceptance does not close PS-OWN-01 or qualify phones.
+
+
+## Product interface boundary
+
+Review the [React interface](PS-PRODUCT-INTERFACE.md), [bridge](../apps/web/src/ps/bridge.ts) and [fixed asset loader](../research/ps-lab/local/product-assets.mjs) for origin/capability scope, private/public output separation, late Worker replies, recovery gating and meaningful user labels. This interface preserves the existing credential Worker and transcripts; it does not authenticate a wallet or provide a fresh issuer observation. The [release sequence](PS-RELEASE-PLAN.md) separates implementation from independent review and device/hosting acceptance.
+
+## Public-presentation review scope
+
+Review the [new composition](PS-PUBLIC-PRESENTATION.md), its origin/chain audience, exact ERC-191 message and low-S recovery, full image/asset binding, pinned Ed25519 receipt, unsigned anonymous case, publication consent and Worker lock boundary. Re-derive malicious fresh signatures and proofs independently. Static public viewers bootstrap keys from the same origin and retain no global rollback state. Historical receipt validity must never be presented as current ownership. Profile login and ERC-1271 are outside this increment.
+
+## Persistent issuer review scope
+
+Review [local persistence](PS-PERSISTENT-LOCAL.md): private key generation/files, pinned identities, missing-registry rejection, exclusive local process ownership, saved response/status replay, publication startup verification, quota behavior and suspended admission. Same-directory locking and configuration hashes do not prove global freshness; copied/rolled-back stores and compromised keys remain release concerns. Private keys are plaintext local research files.
+
+## Offline operations review scope
+
+Review [backup/restore semantics](PS-LOCAL-OPERATIONS.md): closed SQLite snapshots under exclusive ownership, fixed files and limits, signature/checkpoint trust, suspended restore, no-overwrite/readiness behavior and explicit local approval. The test accepting the authenticity of an older snapshot documents a remaining rollback risk. Define external checkpoint authority, fencing, key compromise/retirement, response retention and recovery availability before hosting; local approval cannot establish those properties.
+
+## Release handoff status
+
+Use the [preflight](PS-RELEASE-PREFLIGHT.md) after the unpublished series is signed. [Target-device acceptance](PS-ACCEPTANCE-MATRIX.md), production key custody/operations and isolated staging owner approval remain pending. The checker validates recorded exact-candidate evidence; it does not provide independent review or certify report authenticity. No reviewer has been contacted or assigned.

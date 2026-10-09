@@ -1,5 +1,11 @@
 # Isolated PS research lab
 
+Current local increment: [offline operations](../../docs/PS-LOCAL-OPERATIONS.md), with 250 local tests, 73 mutation controls and explicit suspended-restore review. [Current evidence](../ps-operations-validation.json) preserves earlier manifests as historical.
+
+Previous local increment: [persistent issuer](../../docs/PS-PERSISTENT-LOCAL.md). [Historical persistent evidence](../ps-persistent-validation.json) records 242 local tests, 68 controls and 22 actual process-kill locations. Earlier manifests, including product/public presentation, remain historical. No hosted release or production key-custody claim.
+
+Previous local increment: [public PS presentation](../../docs/PS-PUBLIC-PRESENTATION.md), with separate credential proof, optional wallet signing-key endorsement and issuer snapshot. [Historical presentation evidence](../ps-presentation-validation.json) records 230 local tests, 63 lab controls, 241 app tests and precise browser limits. The product-interface manifest is now historical.
+
 The reference fixtures use public test keys and deterministic proof nonces. **Never issue assets with this code.** This is the first C1 fixture set for the [reference-core profile](../../docs/PS-CRYPTOGRAPHIC-PROFILE.md), not the app SDK, an issuer service or a cryptographic audit.
 
 The Python generator uses py_ecc; the JavaScript verifier uses noble. The two backends agree on generator/point encodings, keyset and asset hashing, committed issuance v3, randomized showing, private transfer and unblinding. Both transcript implementations were prepared together; independent review and an external oracle remain open.
@@ -52,7 +58,7 @@ The [separate vault format](../../docs/PS-LOCAL-VAULT.md) encrypts typed bearer 
 
 ## Disposable browser console
 
-Run `pnpm --dir research/ps-lab --ignore-workspace browser:local` from the repository root and open the printed launch link. See [PS-BROWSER-LAB.md](../../docs/PS-BROWSER-LAB.md) for the flow and boundaries. The browser drives Node-held cryptography and three plaintext client stores over an authenticated loopback interface. Public test keys only; stopping removes the temporary issuer and prevents later recovery. Twelve new tests and five controls bring totals to 160/40; the 21 SIGKILL locations are unchanged. [Current evidence](../ps-browser-validation.json) separates UI acceptance from HTTP tests; browser-managed download saving remains unverified. No production app/dependency or core protocol change.
+Run `pnpm --dir research/ps-lab --ignore-workspace browser:local` from the repository root and open the printed launch link. See [PS-BROWSER-LAB.md](../../docs/PS-BROWSER-LAB.md) for the flow and boundaries. The browser drives Node-held cryptography and three plaintext client stores over an authenticated loopback interface. Public test keys only; stopping removes the temporary issuer and prevents later recovery. Twelve new tests and five controls bring totals to 160/40; the 21 SIGKILL locations are unchanged. [Historical persistent evidence](../ps-browser-validation.json) separates UI acceptance from HTTP tests; browser-managed download saving remains unverified. No production app/dependency or core protocol change.
 
 ## Browser-owned vault protection
 
@@ -65,3 +71,10 @@ The console's **Browser client** link runs mint/claim/cancel proofs in a dedicat
 ## Browser artwork
 
 The same client now validates normalized PNG inputs, claims private PNGs and displays selected artwork using public image bytes only. Explicit private downloads carry plaintext bearer authority; public downloads preserve only the original image. Existing encrypted recovery gates apply to mint/claim/cancel. See [workflow, strict decoder boundary and acceptance](../../docs/PS-BROWSER-ARTWORK.md) and [current evidence](../ps-browser-artwork-validation.json). Automated tests use a strict Node decoder adapter; actual browser checks exercise native decompression. There is no general image normalizer, phone qualification or independent cryptographic review.
+
+
+## ZFT product interface
+
+Run `pnpm ps:local` from the repository root to build and open the real React `/ps/` interface on a disposable loopback issuer. It adds collection/item routes and JPG/PNG preparation over the existing browser Worker. Root dependencies must already be installed. See [workflow and limits](../../docs/PS-PRODUCT-INTERFACE.md), [release sequence](../../docs/PS-RELEASE-PLAN.md) and [current evidence](../ps-product-interface-validation.json). The lab suite now contains 218 tests and 58 controls; root verification separately contains 235 tests and three bridge controls. Earlier records above describe their historical slices.
+
+The root app wallet interoperability tests import this lab's pinned verifier. Before running root `pnpm test` in a fresh checkout, also run `pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts`; the app CI job performs both separate installs. No root dependency or lock changes are required.

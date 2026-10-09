@@ -15,6 +15,156 @@ import { spawnSync } from "node:child_process";
 const lab = fileURLToPath(new URL("../", import.meta.url));
 const controls = [
   {
+    name: "backup file digest ignored",
+    file: "persistent-ops.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "snapshot file tampering and wrong externally supplied checkpoint reject before creating destination",
+    edits: [
+      [
+        '    assert.equal(p.hash(data), b.files[name].sha256, "snapshot file digest");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "backup checkpoint signature ignored",
+    file: "persistent-ops.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "snapshot signature is checked independently of its supplied content hash",
+    edits: [["    verify(", "    true || verify("]],
+  },
+  {
+    name: "restored issuer automatically enabled",
+    file: "persistent-ops.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "restore is suspended and requires matching explicit review before new admission",
+    edits: [["    issuer.setEnabled(false);", "    issuer.setEnabled(true);"]],
+  },
+  {
+    name: "restore resume gate bypassed",
+    file: "persistent-ops.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "restore is suspended and requires matching explicit review before new admission",
+    edits: [
+      [
+        '    assert(!lab.restoreReviewRequired, "restore review required");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "restored observations resume without review",
+    file: "presentation-api.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "restored loopback service exposes recovery but refuses new sessions and observations before review",
+    edits: [["      this.admission();", ""]],
+  },
+
+  {
+    name: "missing persistent registry silently recreated",
+    file: "persistent.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent startup rejects missing database instead of silently creating a fresh registry",
+    edits: [["for (const f of FILES)", "for (const f of [])"]],
+  },
+  {
+    name: "unsafe persistent key permissions accepted",
+    file: "persistent.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent startup rejects unsafe permissions symlinks and changed private trust",
+    edits: [["        (s.mode & 0o077) === 0 &&", ""]],
+  },
+  {
+    name: "persistent process lock bypassed",
+    file: "persistent.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent exclusive ownership rejects a second server and refuses to steal a live lock",
+    edits: [
+      [
+        'import assert from "node:assert/strict";',
+        'import assert from "node:assert/strict";\nimport {existsSync} from "node:fs";',
+      ],
+      [
+        "this.lock = acquire(dir);",
+        "this.lock = existsSync(join(dir, 'run.lock')) ? readPrivate(join(dir, 'run.lock')) : acquire(dir);",
+      ],
+    ],
+  },
+  {
+    name: "committed public receipt discarded",
+    file: "persistent-public.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent observation returns the committed receipt after interruption before API return",
+    edits: [["receipt: r.receipt,", "receipt: null,"]],
+  },
+  {
+    name: "persistent operation admission skipped",
+    file: "persistent-api.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent operation cap rejects new work while exact authorized response remains recoverable",
+    edits: [
+      [
+        '      assert(\n        this.issuer.counts().operations < LIMITS.operations,\n        "local operation cap",\n      );',
+        "",
+      ],
+      [
+        '    assert(\n      this.issuer.counts().operations < LIMITS.operations,\n      "local operation cap",\n    );',
+        "",
+      ],
+    ],
+  },
+
+  {
+    name: "public image loses signed asset binding",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "public evidence rejects cross-asset images even with a fresh valid wallet signature",
+    edits: [
+      [
+        '  assert.equal(p.assetValue(image.image, ps), c.h, "presentation signed asset");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "public receipt signature skipped",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "public evidence rejects every substituted scope, context, signed body and proof field",
+    edits: [["    ed25519.verify(", "    true || ed25519.verify("]],
+  },
+  {
+    name: "wallet endorsement skipped",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "public evidence verifies the exact ERC-191 endorsement independently of credential validity",
+    edits: [
+      [
+        "walletSigningKeyValid = verifyEndorsement(",
+        "walletSigningKeyValid = true || verifyEndorsement(",
+      ],
+    ],
+  },
+  {
+    name: "expired evidence published",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "public evidence distinguishes anonymous credential proof from wallet signing key and expiry",
+    edits: [
+      ['  if (requireFresh) assert(inInterval, "presentation expired");', ""],
+    ],
+  },
+  {
+    name: "public origin replaced",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "caller pins cannot be replaced by an imported public record",
+    edits: [
+      ['  assert.equal(v.origin, expectedOrigin, "presentation origin");', ""],
+    ],
+  },
+
+  {
     name: "unbound recovery capability",
     file: "profile.mjs",
     test: "recovery capability substitution invalidates the proof",
