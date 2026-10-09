@@ -15,6 +15,55 @@ import { spawnSync } from "node:child_process";
 const lab = fileURLToPath(new URL("../", import.meta.url));
 const controls = [
   {
+    name: "status signer skips pinned signature verification",
+    file: "status-signer.mjs",
+    suite: "status-signer.test.mjs",
+    test: "status signer verifies signatures against the exact pinned message and public key",
+    edits: [
+      [
+        "if (!verify(null, expected, this.#publicKey, signature))",
+        "if (false)",
+      ],
+    ],
+  },
+  {
+    name: "status signer accepts a substituted provider key identity",
+    file: "status-signer.mjs",
+    suite: "status-signer.test.mjs",
+    test: "status signer rejects a substituted provider key identity",
+    edits: [["value.key_id !== this.#keyId ||", "false ||"]],
+  },
+  {
+    name: "status signer shares verification memory with transport",
+    file: "status-signer.mjs",
+    suite: "status-signer.test.mjs",
+    test: "status signer transport mutation cannot replace verification bytes",
+    edits: [["message: Uint8Array.from(expected),", "message: expected,"]],
+  },
+  {
+    name: "status signer accepts oversized input",
+    file: "status-signer.mjs",
+    suite: "status-signer.test.mjs",
+    test: "status signer rejects oversized input before transport",
+    edits: [["message.byteLength > SIGN_MESSAGE_BYTES ||", "false ||"]],
+  },
+  {
+    name: "status signer ignores absolute deadline",
+    file: "status-signer.mjs",
+    suite: "status-signer.test.mjs",
+    test: "status signer absolute deadline rejects late results and closes the adapter",
+    edits: [
+      [
+        "const expired = () => performance.now() >= deadline;",
+        "const expired = () => false;",
+      ],
+      [
+        'const timer = setTimeout(() => finish("TIMEOUT"), this.#timeoutMs);',
+        "const timer = setTimeout(() => {}, this.#timeoutMs);",
+      ],
+    ],
+  },
+  {
     name: "monitor authorization bypassed",
     file: "health.mjs",
     suite: "health.test.mjs",

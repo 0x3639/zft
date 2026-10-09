@@ -156,6 +156,6 @@ test("operator evidence cannot substitute a partial source manifest", () => {
   const result = f.check();
   assert.equal(result.ready, false);
   assert(result.blockers.some((x) => /source manifest/.test(x)));
-  f.evidence.sourceManifest = "research/ps-health-validation.json";
+  f.evidence.sourceManifest = "research/ps-status-signer-validation.json";
   assert.equal(f.check().ready, true);
 });
