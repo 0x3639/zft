@@ -6,9 +6,11 @@ import * as p from "./profile.mjs";
 export class PersistentBrowserIssuer extends BrowserIssuer {
   constructor(lab) {
     super(lab.issuer);
+    this.restoreReviewRequired = lab.restoreReviewRequired;
     this.clients = lab.config.clients;
     this.mode = {
       kind: "persistent-local",
+      restoreReviewRequired: lab.restoreReviewRequired,
       operationLimit: LIMITS.operations,
       sessionLimit: LIMITS.sessions,
     };
@@ -36,12 +38,14 @@ export class PersistentBrowserIssuer extends BrowserIssuer {
       // Exact authorized replay remains available at all admission limits.
       const old = this.issuer.recover(p.hash(input.wire), input.capability);
       if (old !== null) return { response: old };
+      assert(!this.restoreReviewRequired, "restore review required");
       assert(
         this.issuer.counts().operations < LIMITS.operations,
         "local operation cap",
       );
       return { response: this.issuer.submit(input.wire, input.capability) };
     }
+    assert(!this.restoreReviewRequired, "restore review required");
     assert(
       this.issuer.counts().operations < LIMITS.operations,
       "local operation cap",

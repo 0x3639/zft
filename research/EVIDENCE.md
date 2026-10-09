@@ -1,6 +1,8 @@
 # Research and capability evidence
 
-Current local increment: [persistent issuer](../docs/PS-PERSISTENT-LOCAL.md). [Current evidence](ps-persistent-validation.json) records 242 local tests, 68 controls and 22 actual process-kill locations. Earlier manifests, including product/public presentation, remain historical. No hosted release or production key-custody claim.
+Current local increment: [offline operations](../docs/PS-LOCAL-OPERATIONS.md), with 250 local tests, 73 mutation controls and explicit suspended-restore review. [Current evidence](ps-operations-validation.json) preserves earlier manifests as historical.
+
+Previous local increment: [persistent issuer](../docs/PS-PERSISTENT-LOCAL.md). [Historical persistent evidence](ps-persistent-validation.json) records 242 local tests, 68 controls and 22 actual process-kill locations. Earlier manifests, including product/public presentation, remain historical. No hosted release or production key-custody claim.
 
 Previous local increment: [public PS presentation](../docs/PS-PUBLIC-PRESENTATION.md), with separate credential proof, optional wallet signing-key endorsement and issuer snapshot. [Historical presentation evidence](ps-presentation-validation.json) records 230 local tests, 63 lab controls, 241 app tests and precise browser limits. The product-interface manifest is now historical.
 

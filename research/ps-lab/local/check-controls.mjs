@@ -15,6 +15,52 @@ import { spawnSync } from "node:child_process";
 const lab = fileURLToPath(new URL("../", import.meta.url));
 const controls = [
   {
+    name: "backup file digest ignored",
+    file: "persistent-ops.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "snapshot file tampering and wrong externally supplied checkpoint reject before creating destination",
+    edits: [
+      [
+        '    assert.equal(p.hash(data), b.files[name].sha256, "snapshot file digest");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "backup checkpoint signature ignored",
+    file: "persistent-ops.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "snapshot signature is checked independently of its supplied content hash",
+    edits: [["    verify(", "    true || verify("]],
+  },
+  {
+    name: "restored issuer automatically enabled",
+    file: "persistent-ops.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "restore is suspended and requires matching explicit review before new admission",
+    edits: [["    issuer.setEnabled(false);", "    issuer.setEnabled(true);"]],
+  },
+  {
+    name: "restore resume gate bypassed",
+    file: "persistent-ops.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "restore is suspended and requires matching explicit review before new admission",
+    edits: [
+      [
+        '    assert(!lab.restoreReviewRequired, "restore review required");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "restored observations resume without review",
+    file: "presentation-api.mjs",
+    suite: "persistent-ops.test.mjs",
+    test: "restored loopback service exposes recovery but refuses new sessions and observations before review",
+    edits: [["      this.admission();", ""]],
+  },
+
+  {
     name: "missing persistent registry silently recreated",
     file: "persistent.mjs",
     suite: "persistent.test.mjs",

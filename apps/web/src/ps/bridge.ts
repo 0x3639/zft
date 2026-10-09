@@ -46,6 +46,7 @@ export type Result = {
 export type Bootstrap = {
   mode?: {
     kind: "persistent-local";
+    restoreReviewRequired?: boolean;
     operationLimit: number;
     sessionLimit: number;
   };

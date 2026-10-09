@@ -1,10 +1,10 @@
 # PS independent review packet
 
-Updated October 9, 2026, against merged PR #23 baseline `673f89dba48a3222be02894ad659a62fe6e58aad` plus the local product, public-presentation and persistent-issuer increments. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
+Updated October 9, 2026, against merged PR #23 baseline `673f89dba48a3222be02894ad659a62fe6e58aad` plus the local product, public-presentation persistent-issuer and offline-operations increments. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
 
 ## Freeze the reviewed revision
 
-Record the exact commit under review and verify its signature. Development increments are temporarily unsigned locally at the user’s request; the unpublished series must be signed and every signature verified before this external handoff. [Current persistent-local evidence](../research/ps-persistent-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
+Record the exact commit under review and verify its signature. Development increments are temporarily unsigned locally at the user’s request; the unpublished series must be signed and every signature verified before this external handoff. [Current operations evidence](../research/ps-operations-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
 
 ```sh
 git rev-parse HEAD
@@ -12,7 +12,7 @@ git verify-commit HEAD
 python3 - <<'PY'
 import hashlib, json
 from pathlib import Path
-v = json.loads(Path('research/ps-persistent-validation.json').read_text())
+v = json.loads(Path('research/ps-operations-validation.json').read_text())
 for name, expected in v['sourceSha256'].items():
     assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
 print('source hashes match')
@@ -100,3 +100,7 @@ Review the [new composition](PS-PUBLIC-PRESENTATION.md), its origin/chain audien
 ## Persistent issuer review scope
 
 Review [local persistence](PS-PERSISTENT-LOCAL.md): private key generation/files, pinned identities, missing-registry rejection, exclusive local process ownership, saved response/status replay, publication startup verification, quota behavior and suspended admission. Same-directory locking and configuration hashes do not prove global freshness; copied/rolled-back stores and compromised keys remain release concerns. Private keys are plaintext local research files.
+
+## Offline operations review scope
+
+Review [backup/restore semantics](PS-LOCAL-OPERATIONS.md): closed SQLite snapshots under exclusive ownership, fixed files and limits, signature/checkpoint trust, suspended restore, no-overwrite/readiness behavior and explicit local approval. The test accepting the authenticity of an older snapshot documents a remaining rollback risk. Define external checkpoint authority, fencing, key compromise/retirement, response retention and recovery availability before hosting; local approval cannot establish those properties.

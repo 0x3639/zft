@@ -19,8 +19,10 @@ export class PresentationApi {
       now = () => Math.floor(Date.now() / 1000),
       privateKey = generateKeyPairSync("ed25519").privateKey,
       durable = false,
+      admission = () => {},
     } = {},
   ) {
+    this.admission = admission;
     this.ps = issuer.pinned.manifest;
     this.origin = origin;
     this.now = now;
@@ -96,6 +98,7 @@ export class PresentationApi {
     p.fields(input, schema[input.action]);
     if (input.action === "bootstrap") return this.pins();
     if (input.action === "prepare") {
+      this.admission();
       assert(this.requests.size < 64, "presentation request cap");
       p.bytes(input.wallet, 20);
       assert(

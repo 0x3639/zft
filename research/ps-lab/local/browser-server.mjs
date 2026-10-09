@@ -246,7 +246,12 @@ export async function startBrowserLab({
         join(lab.dir, "presentations.db"),
         origin,
         persistentDir
-          ? { privateKey: lab.statusPrivateKey, durable: true }
+          ? {
+              privateKey: lab.statusPrivateKey,
+              durable: true,
+              admission: () =>
+                assert(!lab.restoreReviewRequired, "restore review required"),
+            }
           : {},
       );
     if (persistentDir) await presentation.validateRecords();

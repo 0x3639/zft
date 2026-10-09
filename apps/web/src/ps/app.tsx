@@ -333,6 +333,12 @@ export default function PsApp() {
           These PS credentials are managed here; they are not NFTs in MetaMask’s
           inventory.
         </aside>
+        {boot?.mode?.restoreReviewRequired && (
+          <p role="alert">
+            This issuer was restored. New operations and observations are paused
+            for operator review. Saved response recovery remains available.
+          </p>
+        )}
         <div className="ps-notice" role="status" aria-live="polite">
           {busy || message}
         </div>

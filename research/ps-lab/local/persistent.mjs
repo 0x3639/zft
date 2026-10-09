@@ -30,7 +30,7 @@ export const LIMITS = Object.freeze({
   databaseBytes: 16 * 1024 * 1024,
 });
 const FILES = ["issuer.db", "presentations.db"];
-function syncDirectory(dir) {
+export function syncDirectory(dir) {
   const fd = openSync(dir, constants.O_RDONLY);
   try {
     fsyncSync(fd);
@@ -49,7 +49,7 @@ export function privateDirectory(path) {
   assert.equal(realpathSync(dir), dir, "canonical directory required");
   return dir;
 }
-function writeExclusive(path, value) {
+export function writeExclusive(path, value) {
   const fd = openSync(
     path,
     constants.O_WRONLY |
@@ -65,7 +65,7 @@ function writeExclusive(path, value) {
     closeSync(fd);
   }
 }
-function readPrivate(path, limit = 16384) {
+export function readPrivate(path, limit = 16384) {
   const fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
   try {
     const s = fstatSync(fd);
@@ -81,7 +81,7 @@ function readPrivate(path, limit = 16384) {
     closeSync(fd);
   }
 }
-function statusKey(value) {
+export function statusKey(value) {
   const key = createPrivateKey({
     key: Buffer.from(p.bytes(value)),
     type: "pkcs8",
@@ -266,6 +266,36 @@ export class PersistentLab {
     this.pins = pins;
     this.manifest = pins.manifest;
     this.closed = false;
+    this.restoreReviewRequired = false;
+    const optional = (name) => {
+      try {
+        return readPrivate(join(dir, name));
+      } catch (e) {
+        if (e.code === "ENOENT") return null;
+        throw e;
+      }
+    };
+    this.restored = optional("restore.json");
+    if (this.restored) {
+      p.fields(this.restored, "format checkpoint sequence");
+      assert.equal(this.restored.format, "zft-ps-local-restore-v1");
+      p.bytes(this.restored.checkpoint, 32);
+      assert(
+        Number.isSafeInteger(this.restored.sequence) &&
+          this.restored.sequence >= 0,
+        "restore sequence",
+      );
+      const approval = optional("restore-approved.json");
+      if (approval) {
+        p.fields(approval, "checkpoint");
+        assert.equal(
+          approval.checkpoint,
+          this.restored.checkpoint,
+          "restore approval mismatch",
+        );
+      }
+      this.restoreReviewRequired = !approval;
+    }
     this.lock = acquire(dir);
     try {
       this.issuer = new Issuer(
@@ -280,10 +310,14 @@ export class PersistentLab {
       throw e;
     }
   }
+  closeIssuer() {
+    this.issuer?.close();
+    this.issuer = undefined;
+  }
   close() {
     if (this.closed) return;
     this.closed = true;
-    this.issuer?.close();
+    this.closeIssuer();
     const path = join(this.dir, "run.lock");
     assert.equal(
       p.canonical(readPrivate(path)),
