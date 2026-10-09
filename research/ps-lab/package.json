@@ -11,7 +11,9 @@
     "demo:image": "node --experimental-sqlite local/image-demo.mjs",
     "demo:vault": "node --experimental-sqlite local/vault-demo.mjs",
     "browser:local": "node --experimental-sqlite local/browser-server.mjs",
-    "issuer:local": "node --experimental-sqlite local/persistent-cli.mjs"
+    "issuer:local": "node --experimental-sqlite local/persistent-cli.mjs",
+    "test:service": "node --experimental-sqlite --test service/*.test.mjs",
+    "test:service-controls": "node service/check-controls.mjs"
   },
   "devDependencies": {
     "@noble/curves": "2.4.0",

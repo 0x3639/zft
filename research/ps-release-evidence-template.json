@@ -2,7 +2,7 @@
   "format": "zft-ps-release-evidence-v1",
   "target": "isolated-staging",
   "candidate": null,
-  "sourceManifest": "research/ps-key-file-validation.json",
+  "sourceManifest": "research/ps-consolidated-validation.json",
   "sourceManifestSha256": null,
   "artifactSha256": null,
   "gates": {

@@ -51,3 +51,5 @@ jobs:
       - run: node research/ps-lab/check-controls.mjs
       - run: pnpm --dir research/ps-lab --ignore-workspace test:local
       - run: node research/ps-lab/local/check-controls.mjs
+      - run: pnpm --dir research/ps-lab --ignore-workspace test:service
+      - run: pnpm --dir research/ps-lab --ignore-workspace test:service-controls
