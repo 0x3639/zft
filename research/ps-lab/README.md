@@ -1,6 +1,6 @@
 # Isolated PS research lab
 
-Current local increment: [live issuer health](../../docs/PS-OPERATIONS-HEALTH.md), with 265 local tests, 78 mutation controls and a read-only probe with separate monitoring authority. [Current evidence](../ps-health-validation.json) preserves earlier manifests as historical.
+Current local increment: [live issuer health](../../docs/PS-OPERATIONS-HEALTH.md), with 266 local tests, 78 mutation controls and a read-only probe with separate monitoring authority. [Current evidence](../ps-health-validation.json) preserves earlier manifests as historical.
 
 Previous local increment: [offline operations](../../docs/PS-LOCAL-OPERATIONS.md), with 250 local tests, 73 mutation controls and explicit suspended-restore review. [Historical operations evidence](../ps-operations-validation.json) applies to that revision.
 

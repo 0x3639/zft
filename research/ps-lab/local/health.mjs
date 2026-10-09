@@ -121,13 +121,16 @@ export class HealthMonitor {
       if (error.code !== "ENOENT") throw error;
     }
     const temporary = join(lab.dir, ".monitor-" + p.randomHex(16) + ".json");
+    let published = false;
     try {
       writeExclusive(temporary, this.descriptor);
       renameSync(temporary, this.path);
+      published = true;
       syncDirectory(lab.dir);
     } catch (error) {
       try {
-        unlinkSync(temporary);
+        if (published) this.close();
+        else unlinkSync(temporary);
       } catch {
         // Cleanup is best effort; preserve the original startup failure.
       }

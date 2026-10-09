@@ -594,3 +594,53 @@ test("monitor startup preserves the original failure when temporary cleanup also
     }
   }
 });
+
+test("monitor removes its published descriptor when startup directory sync fails", (t) => {
+  const dir = realpathSync(
+    mkdtempSync(join(tmpdir(), "zft-health-published-")),
+  );
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const published = join(dir, MONITOR_FILE);
+  // Test-only fsync/unlink faults; cleanup remains best effort on a failing disk.
+  for (const cleanupFails of [false, true]) {
+    const original = Object.assign(new Error("injected directory sync"), {
+      code: "EIO",
+    });
+    const savedSync = fs.fsyncSync,
+      savedUnlink = fs.unlinkSync;
+    let attempted;
+    try {
+      fs.fsyncSync = (fd) => {
+        if (fs.fstatSync(fd).isDirectory()) throw original;
+        return savedSync(fd);
+      };
+      fs.unlinkSync = (path) => {
+        attempted = path;
+        if (cleanupFails)
+          throw Object.assign(new Error("injected unlink"), { code: "EPERM" });
+        return savedUnlink(path);
+      };
+      syncBuiltinESMExports();
+      assert.throws(
+        () => new HealthMonitor({ dir }, null, "http://127.0.0.1:12345"),
+        (error) => error === original,
+        "original directory sync error survives cleanup",
+      );
+      assert.equal(attempted, published, "published monitor cleanup attempted");
+      assert.equal(
+        existsSync(published),
+        cleanupFails,
+        "published descriptor cleanup outcome",
+      );
+      assert.deepEqual(
+        fs.readdirSync(dir),
+        cleanupFails ? [MONITOR_FILE] : [],
+        "no abandoned temporary file",
+      );
+    } finally {
+      fs.fsyncSync = savedSync;
+      fs.unlinkSync = savedUnlink;
+      syncBuiltinESMExports();
+    }
+  }
+});
