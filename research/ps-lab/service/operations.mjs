@@ -51,6 +51,7 @@ export class HealthAlert {
     this.#gate = new AsyncBoundary("ALERT", timeoutMs);
   }
   async sample(issuer, { signal } = {}) {
+    this.#gate.check(signal);
     const report = health(issuer),
       state = report.status + ":" + report.warnings.join(",");
     if (this.#last === state) return { changed: false };

@@ -364,6 +364,8 @@ test("alerts deliver only fixed aggregates, deduplicate acknowledged states and 
     events.map((e) => e.warnings),
     [[], ["suspended"]],
   );
+  a.close();
+  await assert.rejects(a.sample(f.issuer), { code: "ERR_PS_ALERT_CLOSED" });
   const denied = new HealthAlert(() => {
     throw new Error("secret provider detail");
   });
