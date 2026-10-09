@@ -1,6 +1,8 @@
 # Research and capability evidence
 
-Current local increment: [PS key envelope](../docs/PS-KEY-ENVELOPE.md). [Current evidence](ps-key-envelope-validation.json) records an isolated encrypted scalar record and injected wrap/unwrap failures. No production keystore, provider integration, session-secret protection or migration is implemented; independent review and all release gates remain open.
+Current local increment: [create-only encrypted PS key file](../docs/PS-KEY-FILE.md). [Current evidence](ps-key-file-validation.json) records 22 focused tests, seven new mutation controls and seven new process-kill boundaries. The final record is never overwritten; uncertain completion retains it for explicit inspection. This isolated library does not change the serving issuer, session storage or release gates.
+
+Previous local increment: [PS key envelope](../docs/PS-KEY-ENVELOPE.md). [Historical envelope evidence](ps-key-envelope-validation.json) records the encrypted scalar representation and injected wrap/unwrap failures.
 
 Previous local increment: [status signer contract](../docs/PS-STATUS-SIGNER-CONTRACT.md). [Historical adapter evidence](ps-status-signer-validation.json) covers a provider-neutral Ed25519 transport experiment, bounds, cancellation and selected existing receipt/checkpoint compatibility. No cloud transport or production custody is implemented; external release gates remain open.
 

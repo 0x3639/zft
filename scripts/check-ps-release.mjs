@@ -4,8 +4,8 @@ import { resolve, join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
-export const BASE = "f69b8302ab44ab30c22c9126584f88e5718616f7";
-export const SOURCE_MANIFEST = "research/ps-key-envelope-validation.json";
+export const BASE = "0259f76e78abdc1ee85d9e58e839531215302e35";
+export const SOURCE_MANIFEST = "research/ps-key-file-validation.json";
 export const SIGNER = "310A0EAEA8449754CF17E8BBF6B82D1155879DAB";
 export const GATES = [
   "independentCrypto",

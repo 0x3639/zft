@@ -15,6 +15,67 @@ import { spawnSync } from "node:child_process";
 const lab = fileURLToPath(new URL("../", import.meta.url));
 const controls = [
   {
+    name: "key file skips expected ciphertext digest",
+    file: "key-file.mjs",
+    suite: "key-file.test.mjs",
+    test: "key file pins ciphertext digest before unwrap",
+    edits: [
+      [
+        '            if (p.hash(selected) !== expectedSha256) throw fail("DIGEST");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "key file skips unwrap verification before publication",
+    file: "key-file.mjs",
+    suite: "key-file.test.mjs",
+    test: "key file validates unwrap before any disk publication",
+    edits: [["      await this.#envelope.open(wire, { signal });", ""]],
+  },
+  {
+    name: "key file omits file synchronization",
+    file: "key-file.mjs",
+    suite: "key-file.test.mjs",
+    test: "key file syncs file and both directory transitions before success",
+    edits: [["\n          fsyncSync(fd);", ""]],
+  },
+  {
+    name: "key file omits directory synchronization",
+    file: "key-file.mjs",
+    suite: "key-file.test.mjs",
+    test: "key file syncs file and both directory transitions before success",
+    edits: [["\n        fsyncSync(fd);", ""]],
+  },
+  {
+    name: "key file skips temporary inode ownership",
+    file: "key-file.mjs",
+    suite: "key-file.test.mjs",
+    test: "key file refuses to unlink a substituted temporary inode",
+    edits: [
+      [
+        '    if (!identity || !same(lstatSync(path), identity)) throw fail("IO");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "key file accepts publicly readable records",
+    file: "key-file.mjs",
+    suite: "key-file.test.mjs",
+    test: "key file rejects unsafe bounded reads before unwrap",
+    edits: [["              !privateOwner(s) ||", ""]],
+  },
+  {
+    name: "key file ignores replaced storage directory",
+    file: "key-file.mjs",
+    suite: "key-file.test.mjs",
+    test: "key file detects directory replacement during provider work",
+    edits: [
+      ["      (this.#identity && !same(s, this.#identity))", "      false"],
+    ],
+  },
+  {
     name: "key envelope skips caller scope pin",
     file: "key-envelope.mjs",
     suite: "key-envelope.test.mjs",
