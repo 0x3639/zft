@@ -2,9 +2,9 @@
 
 This is preparation for step 7, not a release authorization. The [sequence](PS-RELEASE-PLAN.md) now has local product, public evidence, persistent issuer and offline restore increments. Independent review, production key/operations design, target device acceptance and isolated staging approval remain open. PS is still loopback-only; these changes have not been deployed to devnet or apex.
 
-## Finish local work and sign the unpublished series
+## Signed candidate and future revisions
 
-The user temporarily authorized unsigned local commits. Leave shared GPG configuration intact. Before external review, verify the working tree, make a recoverable local reference, batch-sign only the unpublished commits above merged PR #23 and verify every signature against expected fingerprint `310A0EAEA8449754CF17E8BBF6B82D1155879DAB`. GPG may request one local approval and reuse its agent cache; it is not guaranteed to prompt only once. Do not bypass a failed signature or rewrite merged/published history. Keep the commit series unpublished until signing succeeds.
+The five local development commits were batch-signed and verified with expected fingerprint `310A0EAEA8449754CF17E8BBF6B82D1155879DAB`, retaining an unsigned backup branch, then published in [PR #24](https://github.com/0x3639/zft/pull/24). Shared GPG configuration remains intact. Every follow-up commit must also be signed and verified. Do not bypass a failed signature or rewrite merged/published history.
 
 Signing changes commit IDs. Record the resulting exact candidate and tree in the review handoff. Earlier local test logs may be carried forward only where source/build hashes are identical, with the relationship documented. A later code change invalidates exact-candidate approvals until reviewed again. Push for CodeRabbit/CI review only after the new series is signed; never merge or deploy automatically.
 
@@ -34,3 +34,5 @@ The default template intentionally fails. A successful synthetic test does not r
 ## Handoff and remaining decisions
 
 The [review packet](PS-REVIEW-PACKET.md) and [operations policy](PS-LOCAL-OPERATIONS.md) are ready for a reviewer/operator to scope. The independent reviewer is unassigned. Target-device access and final support scope are unconfirmed. Hosting, production key custody and operational ownership are undecided. These are actual release dependencies; no live date or production cryptographic guarantee is asserted.
+
+The source manifest is fixed to `research/ps-release-readiness-validation.json`. An operator record cannot substitute a one-file or historical manifest; a different `sourceManifest` value blocks readiness. The checker always reads the fixed path regardless of operator input.

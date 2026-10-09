@@ -4,7 +4,7 @@ Updated October 9, 2026, against merged PR #23 baseline `673f89dba48a3222be02894
 
 ## Freeze the reviewed revision
 
-Record the exact commit under review and verify its signature. Development increments are temporarily unsigned locally at the user’s request; the unpublished series must be signed and every signature verified before this external handoff. [Current operations evidence](../research/ps-operations-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
+Record the exact commit under review and verify its signature. The five development increments were batch-signed with verified signatures before [PR #24](https://github.com/0x3639/zft/pull/24). Review fixes must also be signed. [Current release evidence](../research/ps-release-readiness-validation.json) lists current source hashes; [operations evidence](../research/ps-operations-validation.json) and other historical manifests apply only to their own revisions. Do not update mismatching hashes just to make a check pass.
 
 ```sh
 git rev-parse HEAD
@@ -12,7 +12,7 @@ git verify-commit HEAD
 python3 - <<'PY'
 import hashlib, json
 from pathlib import Path
-v = json.loads(Path('research/ps-operations-validation.json').read_text())
+v = json.loads(Path('research/ps-release-readiness-validation.json').read_text())
 for name, expected in v['sourceSha256'].items():
     assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
 print('source hashes match')

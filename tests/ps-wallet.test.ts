@@ -25,6 +25,8 @@ function provider(change?: string) {
           selected = "0x2222222222222222222222222222222222222222";
         if (change === "chain") chain = "0x2";
         if (change === "disconnect") listeners.get("disconnect")?.(undefined);
+        if (change?.startsWith("v:"))
+          return (signature.slice(0, -2) + change.slice(2)) as Hex;
         return signature;
       }
       throw new Error("Unexpected RPC: " + method);
@@ -73,3 +75,41 @@ it("PS signing rejects unscoped requests before prompting the wallet", async () 
   expect(p.request).not.toHaveBeenCalled();
   s.disconnect();
 });
+
+it.each([0, 1, 27, 28])(
+  "PS signing normalizes provider recovery byte %i for the strict published verifier",
+  async (recovery) => {
+    const parity = recovery >= 27 ? recovery - 27 : recovery;
+    let text = "",
+      canonical: Hex | undefined;
+    for (let i = 0; i < 100; i++) {
+      text = message + " " + i;
+      canonical = await signer.signMessage({ message: text });
+      if (parseInt(canonical.slice(-2), 16) - 27 === parity) break;
+    }
+    expect(parseInt(canonical!.slice(-2), 16) - 27).toBe(parity);
+    const p = provider("v:" + recovery.toString(16).padStart(2, "0"));
+    const s = await connectPsWallet(p);
+    try {
+      const signature = await signPsPresentation(s, text);
+      expect(signature).toBe(canonical);
+      expect(
+        verifyEndorsement(text, signature, s.account.slice(2).toLowerCase()),
+      ).toBe(true);
+    } finally {
+      s.disconnect();
+    }
+  },
+);
+it.each([2, 26, 29, 35])(
+  "PS signing rejects unsupported recovery byte %i",
+  async (recovery) => {
+    const p = provider("v:" + recovery.toString(16).padStart(2, "0"));
+    const s = await connectPsWallet(p);
+    try {
+      await expect(signPsPresentation(s, message)).rejects.toThrow();
+    } finally {
+      s.disconnect();
+    }
+  },
+);

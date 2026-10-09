@@ -84,15 +84,17 @@ export async function signPsPresentation(
     params: [stringToHex(message), s.account],
   });
   await assertPsWallet(s);
-  if (
-    typeof value !== "string" ||
-    !/^0x[0-9a-f]{130}$/i.test(value) ||
-    !(await verifyMessage({
-      address: s.account,
-      message,
-      signature: value as Hex,
-    }))
-  )
+  if (typeof value !== "string" || !/^0x[0-9a-f]{130}$/i.test(value))
     throw new Error("Wallet signed a different presentation.");
-  return value.toLowerCase() as Hex;
+  const raw = value.toLowerCase(),
+    recovery = parseInt(raw.slice(-2), 16);
+  if (![0, 1, 27, 28].includes(recovery))
+    throw new Error("Unsupported wallet signature recovery byte.");
+  // Wallets can return yParity; published evidence uses the strict 27/28 form.
+  const signature = (
+    recovery < 2 ? raw.slice(0, -2) + (recovery + 27).toString(16) : raw
+  ) as Hex;
+  if (!(await verifyMessage({ address: s.account, message, signature })))
+    throw new Error("Wallet signed a different presentation.");
+  return signature;
 }

@@ -149,3 +149,13 @@ test("artifact fingerprint changes for added modified or removed files and rejec
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("operator evidence cannot substitute a partial source manifest", () => {
+  const f = fixture();
+  f.evidence.sourceManifest = "research/partial-one-file.json";
+  const result = f.check();
+  assert.equal(result.ready, false);
+  assert(result.blockers.some((x) => /source manifest/.test(x)));
+  f.evidence.sourceManifest = "research/ps-release-readiness-validation.json";
+  assert.equal(f.check().ready, true);
+});

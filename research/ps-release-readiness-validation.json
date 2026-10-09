@@ -1,25 +1,29 @@
 {
-  "recordedAt": "2026-10-09T08:30:12.936674+00:00",
-  "baseline": "958d1480a2d0723dd173fe2a1acf69b58913fab3",
-  "scope": "Read-only isolated-staging preflight, pending evidence template and real-target acceptance runbook. No gate approval or deployment.",
-  "commitPolicy": "Unsigned local increments remain unpublished at user request; all must be batch-signed/verified before push. No GPG configuration change.",
+  "recordedAt": "2026-10-09T11:49:07.762259+00:00",
+  "baseline": "2f387306571226989fa3f118a161344de3ef3cdb",
+  "scope": "Release preflight plus PR 24 review/CI follow-up and selected native anonymous publication/restart acceptance. External gate approvals remain pending.",
+  "commitPolicy": "Five original increments signed and verified with unchanged trees, then published in PR 24; all follow-up commits signed. Global/repository GPG settings unchanged.",
   "verification": {
-    "releasePreflightTests": 8,
+    "releasePreflightTests": 9,
+    "appTests": 249,
+    "appBridgeControls": 3,
+    "walletFocusedTests": 14,
+    "cleanInstallWalletTests": 6,
     "typecheck": "passed",
+    "build": "passed",
     "format": "passed",
     "diff": "passed",
-    "docsLinks": 363,
-    "defaultPreflight": "Expected failure: unsigned/unpublished candidate, missing exact-head reviews/CI, independent reviewer and other operator evidence. Precommit output is not release approval."
+    "docsLinks": 367,
+    "beforeAfter": "Two yParity cases and partial-source-manifest regression fail on reviewed implementation and pass after correction. Fresh temporary checkout reproduces missing lab dependency; isolated frozen install makes six original wallet tests pass.",
+    "defaultPreflight": "Expected blocked result until exact-head review/checks and genuine independent/operator/device approvals exist; not release approval."
   },
   "inheritedUnchangedRuntime": {
     "localTests": 250,
     "labMutationControls": 73,
     "actualProcessKillLocations": 22,
-    "appTests": 241,
-    "appBridgeControls": 3,
     "referenceTests": 43,
     "referenceControls": 3,
-    "note": "Not rerun for documentation/preflight-only slice; individual earlier manifests identify precise execution and inherited evidence."
+    "note": "Unchanged lab/core runtime: both PS CI jobs passed for baseline 2f38730, including reference fixture reproduction/inventory. Root app tests and preflight rerun locally for this follow-up; app CI must rerun on latest signed head."
   },
   "externalGates": {
     "independentReview": "unassigned; PS-OWN-01 open",
@@ -32,10 +36,11 @@
     "Checker validates local records/hashes and exact-candidate consistency; it cannot certify independence, honesty or quality of reports",
     "Synthetic passing test is not real approval",
     "No signing/push/merge/deployment is performed by the check",
-    "No hosted PS enablement; existing v1 deploy commands unchanged"
+    "No hosted PS enablement; existing v1 deploy commands unchanged",
+    "Native acceptance is Codex desktop anonymous publication from a scripted recovery fixture, not real MetaMask/Firefox/phone acceptance. No actual release gate approved."
   ],
   "sourceSha256": {
-    ".github/workflows/ci.yml": "bf1cb457aa3b761516b75b365fdd80c42bb89d491c0da17cf53ecc8661129d9f",
+    ".github/workflows/ci.yml": "309154fff7b49e6a7043a256489a2103361f95dd9bf916b17e54bccb96175fac",
     ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
     "apps/web/src/brand-logo.tsx": "b5e8bf725711799228a7fb90ff4908ee49880331dd5266073cc01f3b4a44f10d",
     "apps/web/src/image.worker.ts": "2b1d4d9343638dc34d4460e474e9bb07976e275112cbcfc81c5ca835466b80bf",
@@ -46,11 +51,11 @@
     "apps/web/src/ps/presentation-controls.tsx": "03ceacedf757b7850acba36ddb88a0895a1bdb4a92cd5857e63958f34d01aded",
     "apps/web/src/ps/public-page.tsx": "a80e9a9b276e2fccf8ab357583befb8678180deb7f2841a98ae3fdf3bf2d76ed",
     "apps/web/src/ps/style.css": "63ef0deb70001ca3603141d7e12515b14e8a35ac9f3a5627bbb2d645c17bdbcd",
-    "apps/web/src/ps/wallet.ts": "370b08dc38aed044ea63201e09d072984dae20bdc3e1a9351bf1962864dfd8a2",
+    "apps/web/src/ps/wallet.ts": "6ce37b5ba369ec5aebb61d77827615b5d5d17ba5b54908c159ca6db2cae3907a",
     "apps/web/src/site-controls.tsx": "33ba36f5a89c16eade159e06eed0cf011e05bd3195205a7c817bf6ee224893af",
     "apps/web/src/styles.css": "d89c9da93c8ef77d85e2c66a3dbd6fe2f73a0389b0a085153892c88e7c5808bb",
-    "docs/IMPLEMENTATION.md": "8a8346adfd93694935eb13036680ee8820269dcad14f27d116a3a9d6bf838aff",
-    "docs/PS-ACCEPTANCE-MATRIX.md": "1adbb8201761bb555139b0b2ff96a253e8cf63be2f087add54f05494d660ccad",
+    "docs/IMPLEMENTATION.md": "817eb2b48597d918996abac01e9a00a7af449b9ca1bbb835a363032184cd10f9",
+    "docs/PS-ACCEPTANCE-MATRIX.md": "927488c36c633a3865be1f32009e56016bacfb6cd2af3bb817026846b3d82692",
     "docs/PS-BROWSER-ARTWORK.md": "29140e50cc8855a846965b7cf988c585f3c2ed55221dc8ecf76758d77baeb2f2",
     "docs/PS-BROWSER-CLIENT.md": "b6ebc74c2b45150e768a6e245456e0cce440da3d3bb343319aa11aff26e266de",
     "docs/PS-BROWSER-LAB.md": "f872c08d8be67b6cd67436d7d9bad9d94b96cf9f43a8eb85af3a4a364d5332d5",
@@ -64,10 +69,10 @@
     "docs/PS-LOCAL-VAULT.md": "def91f28dba5db117ed08f5adef3e91a2675cfef3dd3b84fc771df19b5a27fa0",
     "docs/PS-PERSISTENT-LOCAL.md": "4d86b868bf74cfded2debf001c0fb2d01d5ab6d5df7aba78efb39aac72e6ac3d",
     "docs/PS-PRODUCT-INTERFACE.md": "4c12413f3a6824f000c9ccd730a78935f987169ff958250c93af9ff44cf9d7a1",
-    "docs/PS-PUBLIC-PRESENTATION.md": "09f2c0759fd0114b91bd45a66c5785c6d8ba33b9c70f2b2d0c10fe49767548e6",
-    "docs/PS-RELEASE-PLAN.md": "41686e8e7e653b0b0b53a4cb63eec000a5ff1460af24584f7178845a981f0c76",
-    "docs/PS-RELEASE-PREFLIGHT.md": "96ab05c8996d09f7de3803e337a4d30e8fcd179024f0b860f69012226803bb87",
-    "docs/PS-REVIEW-PACKET.md": "a260170204fd092c6ce6130dba7b0a67b106f43301e45473bd5af14c0b773b19",
+    "docs/PS-PUBLIC-PRESENTATION.md": "d4f8e1ba5e8d41faaba214a7c0521926511678b7a05d3e9f4687825bf2b5e355",
+    "docs/PS-RELEASE-PLAN.md": "babef1c16d05073e3edade1df75b5cdacf8c61740bdf1bf0292928ec9929431d",
+    "docs/PS-RELEASE-PREFLIGHT.md": "072c0a45b7fdc00b397cfafe26287b09c63f2e2ed167ac50e0fa09ce97c38888",
+    "docs/PS-REVIEW-PACKET.md": "f1f1d300bfa545e9936c3312c5145b94e98699a4ed911f67d3eb913806cc45f2",
     "package.json": "e3cdd393c9380a40b52c86402dc3e1a36d53df2612dafd734b3cd0b4cfbcceea",
     "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
     "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
@@ -76,7 +81,7 @@
     "research/ps-browser-validation.json": "0a9a91462338c968f70788cf635a92612a38b37938e7f9a94ee53477281fa709",
     "research/ps-browser-vault-validation.json": "fbc8fc61c175dcf57fed3c3c0adf71f2f07721070b4eb7b66341bac93ae4ae26",
     "research/ps-image-validation.json": "afb40f783d0f6fd4e0de0832486895f4ff06a2039e5e773b7bc36d4b39f2a5cc",
-    "research/ps-lab/README.md": "42925f12e2d54f5ef3e40e9981dedefab7811e368149d4713bf76f74bb852ca3",
+    "research/ps-lab/README.md": "846ffadd1c5f6faf15d4c80b43bc9757e09de248b0ffbb28b93a14dfd1a0d043",
     "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
     "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
     "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
@@ -165,11 +170,11 @@
     "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5",
     "research/ps-vault-validation.json": "58da078339b830ee99f9bbd3e71473fae3dfc59146d6ca1787f9cd772b760c9a",
     "scripts/check-ps-product-controls.mjs": "0f73fcc9a52d8ec218eee8e4c2b5e1ab2f9875d08aa4733733d8779f4b99a87e",
-    "scripts/check-ps-release.mjs": "1d7673c20db806e5a468a7ccb4009a08c16a36c6faa41264f582067593a532f2",
-    "scripts/check-ps-release.test.mjs": "6b67cc6dd27c5aeeee1ea22dacf6bc5292a7f26f1b73fc087bcc483048848e8b",
+    "scripts/check-ps-release.mjs": "a332d56eac4b70295c6fbea25896d699640e11bf561d86a980d9d155c8099bf4",
+    "scripts/check-ps-release.test.mjs": "ff753b4d240deae4d6e9d8f414d066f7e8b06c8730a52cf9f50467beaf4b2a72",
     "tests/fixtures.ts": "6b1da35257f656338bf436d0a4765c50bfdad7f213616884e256ec9d98f614f9",
     "tests/ps-product.test.ts": "2adaa830337712d0e9598404dcbbb2a32c0f9e58e84efd72e32eb9ace17f118f",
-    "tests/ps-wallet.test.ts": "10b20a8e6a48e699883533561d2bfc910dfc371b549473fdb37ef45163c27091"
+    "tests/ps-wallet.test.ts": "d82a3baefb01380d43b742c6a297a444d2e9a21ea2a87f57a4e1dec0592010d3"
   },
   "unchangedBaselineSha256": {
     ".node-version": "ccb4022e91abb8575a29d306d7aff041f578bb86eb1180d69475bb86a5c4512c",
@@ -182,7 +187,6 @@
     "apps/web/src/ps/presentation-controls.tsx": "03ceacedf757b7850acba36ddb88a0895a1bdb4a92cd5857e63958f34d01aded",
     "apps/web/src/ps/public-page.tsx": "a80e9a9b276e2fccf8ab357583befb8678180deb7f2841a98ae3fdf3bf2d76ed",
     "apps/web/src/ps/style.css": "63ef0deb70001ca3603141d7e12515b14e8a35ac9f3a5627bbb2d645c17bdbcd",
-    "apps/web/src/ps/wallet.ts": "370b08dc38aed044ea63201e09d072984dae20bdc3e1a9351bf1962864dfd8a2",
     "apps/web/src/site-controls.tsx": "33ba36f5a89c16eade159e06eed0cf011e05bd3195205a7c817bf6ee224893af",
     "apps/web/src/styles.css": "d89c9da93c8ef77d85e2c66a3dbd6fe2f73a0389b0a085153892c88e7c5808bb",
     "docs/PS-BROWSER-ARTWORK.md": "29140e50cc8855a846965b7cf988c585f3c2ed55221dc8ecf76758d77baeb2f2",
@@ -198,7 +202,7 @@
     "docs/PS-LOCAL-VAULT.md": "def91f28dba5db117ed08f5adef3e91a2675cfef3dd3b84fc771df19b5a27fa0",
     "docs/PS-PERSISTENT-LOCAL.md": "4d86b868bf74cfded2debf001c0fb2d01d5ab6d5df7aba78efb39aac72e6ac3d",
     "docs/PS-PRODUCT-INTERFACE.md": "4c12413f3a6824f000c9ccd730a78935f987169ff958250c93af9ff44cf9d7a1",
-    "docs/PS-PUBLIC-PRESENTATION.md": "09f2c0759fd0114b91bd45a66c5785c6d8ba33b9c70f2b2d0c10fe49767548e6",
+    "package.json": "e3cdd393c9380a40b52c86402dc3e1a36d53df2612dafd734b3cd0b4cfbcceea",
     "packages/file-codec/index.ts": "ac901b2c59715cb4cebb30001870517ab1ab25f131bec95fbe9f9993fd8970b6",
     "pnpm-lock.yaml": "2ce46b3c77b3ba6128fa5b08ce6683e77129c0c6b13f358bf34c9d74d4e944fb",
     "research/EVIDENCE.md": "291096a4065144e8a43e2af29519587b5610b6746a571f69a63cb388ff3aad54",
@@ -207,7 +211,6 @@
     "research/ps-browser-validation.json": "0a9a91462338c968f70788cf635a92612a38b37938e7f9a94ee53477281fa709",
     "research/ps-browser-vault-validation.json": "fbc8fc61c175dcf57fed3c3c0adf71f2f07721070b4eb7b66341bac93ae4ae26",
     "research/ps-image-validation.json": "afb40f783d0f6fd4e0de0832486895f4ff06a2039e5e773b7bc36d4b39f2a5cc",
-    "research/ps-lab/README.md": "42925f12e2d54f5ef3e40e9981dedefab7811e368149d4713bf76f74bb852ca3",
     "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
     "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
     "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
@@ -296,33 +299,126 @@
     "research/ps-profile-validation.json": "e1c1aa12454fb2932a8aa89b5fef5c361dbdb70a176c7b66835ccae6cb2d7685",
     "research/ps-recovery-validation.json": "f44d7ec262df92b24f09d1d1e37113c6d1bd67cc8cd9847c8510d8759a263357",
     "research/ps-reference-2026-10-06.json": "3d708f75072e16c615f2b0c89c0338f451a6f1006af8d92cc46ccd0a829877eb",
+    "research/ps-release-evidence-template.json": "874e8b09bc4387d2fcd49f119036e8c4a85b6ae9b64945667757dbe40d9163c3",
     "research/ps-state-validation.json": "a53e3a1c28c284b8f0c8b641071b3ae98d45c6e99a312edf2dd1c604fedba9e5",
     "research/ps-vault-validation.json": "58da078339b830ee99f9bbd3e71473fae3dfc59146d6ca1787f9cd772b760c9a",
     "scripts/check-ps-product-controls.mjs": "0f73fcc9a52d8ec218eee8e4c2b5e1ab2f9875d08aa4733733d8779f4b99a87e",
     "tests/fixtures.ts": "6b1da35257f656338bf436d0a4765c50bfdad7f213616884e256ec9d98f614f9",
-    "tests/ps-product.test.ts": "2adaa830337712d0e9598404dcbbb2a32c0f9e58e84efd72e32eb9ace17f118f",
-    "tests/ps-wallet.test.ts": "10b20a8e6a48e699883533561d2bfc910dfc371b549473fdb37ef45163c27091"
+    "tests/ps-product.test.ts": "2adaa830337712d0e9598404dcbbb2a32c0f9e58e84efd72e32eb9ace17f118f"
   },
   "localOutputSha256": {
-    "/private/tmp/zft-release-tests.tap": {
-      "bytes": 1858,
-      "sha256": "78e9bed9a8567870e4882ef812f4a8a3a00c201e465c4d79136da642ce3ee52d"
+    "/private/tmp/zft-pr24-app-controls.log": {
+      "bytes": 95,
+      "sha256": "47cdb4984b43d1e3e046e57f0bc680100d16eb47587e0a5292ff622e3ff79509"
     },
-    "/private/tmp/zft-release-typecheck.log": {
-      "bytes": 99,
-      "sha256": "b25d99b66a753ba41fbf30382e01b030de41dc9f86246e6aa9baa038c523f109"
+    "/private/tmp/zft-pr24-app-tests.log": {
+      "bytes": 5045,
+      "sha256": "3a9ebe3e8c562306b2e4f59496177a918a428db94be3015e938e7b8551aefd0c"
     },
-    "/private/tmp/zft-release-format.log": {
+    "/private/tmp/zft-pr24-build.log": {
+      "bytes": 3540,
+      "sha256": "2b4c3838cee8f756e7e58a9dca69b12812685a5f363802bc594706ad9802813b"
+    },
+    "/private/tmp/zft-pr24-ci-failure.log": {
+      "bytes": 14743,
+      "sha256": "b8ca95f78ab7b407ea2d2c878aedf5c3067f8bc1e318fec7b32d7f291ef3e150"
+    },
+    "/private/tmp/zft-pr24-clean-install.log": {
+      "bytes": 814,
+      "sha256": "3a4c56982ceb4832b7b18c751246705608d86e875d6a1089ce171c4f8e42b38b"
+    },
+    "/private/tmp/zft-pr24-format.log": {
       "bytes": 66,
       "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
     },
-    "/private/tmp/zft-release-links.log": {
-      "bytes": 58,
-      "sha256": "f0e079114e10fdd35d5cc6a58cfc5d24eb38f0c261ee34e7287fb58e16d6ca60"
+    "/private/tmp/zft-pr24-install-after.log": {
+      "bytes": 448,
+      "sha256": "6916bfc91efe249cc0a5bf160d7cc1735486f42f566b8fc272644f63e31fd6f4"
     },
-    "/private/tmp/zft-release-blocked.json": {
-      "bytes": 1462,
-      "sha256": "f24a8a3c3b970cc3789b2de840672e5659481935396c91ddd2fa6d0a5b6d6c04"
+    "/private/tmp/zft-pr24-install-before.log": {
+      "bytes": 1342,
+      "sha256": "8447054612dad3ee3b1499c2b8ec961b42a8c7710e831cfbf22e4eabbc5662a3"
+    },
+    "/private/tmp/zft-pr24-links.log": {
+      "bytes": 58,
+      "sha256": "693342973faba35340fbc71ced0f54644e5a2feebd7eee9894f64c49149b77f7"
+    },
+    "/private/tmp/zft-pr24-preflight-after.log": {
+      "bytes": 1893,
+      "sha256": "a43f1fd4561fc206027e6c9245b3b78cc1c8dda340c2f8c26f670d693f422326"
+    },
+    "/private/tmp/zft-pr24-preflight-before.log": {
+      "bytes": 2747,
+      "sha256": "6861f30c5223f04d119892d69e84759de5eaa0cf17f3be7aaa6321080548d531"
+    },
+    "/private/tmp/zft-pr24-public-desktop.jpg": {
+      "bytes": 65678,
+      "sha256": "8ea66040dd31c4e6991f2395595e90c8714b21c28ab9b0b4ddb414f1b985bf64"
+    },
+    "/private/tmp/zft-pr24-public-mobile.jpg": {
+      "bytes": 51890,
+      "sha256": "75a99e91494cf8a3a4dcb8aa09aaa26512fe6bf4cf47ca1b0bcdf93b351ed85a"
+    },
+    "/private/tmp/zft-pr24-typecheck.log": {
+      "bytes": 99,
+      "sha256": "b25d99b66a753ba41fbf30382e01b030de41dc9f86246e6aa9baa038c523f109"
+    },
+    "/private/tmp/zft-pr24-wallet-after.log": {
+      "bytes": 304,
+      "sha256": "bbef11dd19eba397b427cf88efdab180740e19b1f97fb4fa9d67b5f3e322bdfe"
+    },
+    "/private/tmp/zft-pr24-wallet-before.log": {
+      "bytes": 3770,
+      "sha256": "f2e4f529c6e52d347833da5e91dbacad40a261f4517a6cf1795579e4239a782e"
     }
+  },
+  "reviewFollowup": {
+    "pr": 24,
+    "reviewedHead": "2f387306571226989fa3f118a161344de3ef3cdb",
+    "reviewId": 5469552674,
+    "findings": [
+      {
+        "comment": 4229718705,
+        "disposition": "Valid compatibility bug: normalize only 00/01 to 1b/1c; canonical forms retained, unsupported recovery bytes rejected; eight added cases."
+      },
+      {
+        "comment": 4229718729,
+        "disposition": "Valid retention documentation mismatch: distinguish disposable and persistent public requests/records/status key."
+      },
+      {
+        "comment": 4229718737,
+        "disposition": "Valid handoff command mismatch: use current release-readiness manifest; operations manifest remains historical."
+      },
+      {
+        "comment": 4229718751,
+        "disposition": "Valid preflight source-selection weakness: collectFacts always loads the fixed manifest and alternate operator sourceManifest values block readiness."
+      }
+    ],
+    "ciFailure": "App verify lacked isolated lab dependency installation needed by tests/ps-wallet.test.ts. Frozen separate install added without dependency/lock changes."
+  },
+  "nativeAcceptance": {
+    "candidate": "2f387306571226989fa3f118a161344de3ef3cdb",
+    "provenance": "Node fixture seeded a disposable credential and encrypted recovery. Native UI imported the selected recovery, retrieved the committed response, prepared public evidence, enforced consent, and published anonymously. No UI mint/download or real wallet acceptance claimed.",
+    "publicPath": "/ps/proof/503ad6487fafef5c576142c3764dc61970ba966ca2d7c815707d70650ea37235",
+    "desktop": {
+      "artwork": [
+        {
+          "height": 2,
+          "loaded": true,
+          "width": 2
+        }
+      ],
+      "scrollWidth": 1280,
+      "width": 1280
+    },
+    "mobile": {
+      "scrollWidth": 390,
+      "width": 390
+    },
+    "publicPage": "- banner:\n  - link \"ZFT home\":\n    - /url: /ps/\n    - img \"ZFT home\"\n  - generic: PUBLIC PS EVIDENCE\n  - 'button \"Color theme: system\"':\n- main:\n  - complementary: Local research issuer. Verify its trust and test-only scope. The public link contains artwork and evidence, never a bearer file. Independent cryptographic review is pending.\n  - heading \"Public artwork evidence\" [level=1]\n  - paragraph: This origin supplies the trusted issuer keys. Independently pin the issuer to verify outside this local preview.\n  - img \"Verified public artwork\"\n  - term: Credential proof\n  - definition: Verified\n  - term: Wallet signing key\n  - definition: Not endorsed. Contract-wallet validity is not checked.\n  - term: Issuer report\n  - definition: Reported unspent at 2026-10-09T11:43:12.000Z. Historical \u2014 interval expired. This is a snapshot, not a reservation or guaranteed current ownership.\n  - paragraph: \"Artwork SHA-256: 9ecc0d3410c294cf74c5e33a2d644a0fb3f8fdc4853c36abfec1127e86c8ed35\"\n  - link \"Download public artwork\":\n    - /url: blob:http://127.0.0.1:61542/c60cd117-fa2d-4c63-8e7f-2c645858a679",
+    "privatePage": "- banner:\n  - link \"ZFT home\":\n    - /url: /ps/\n    - img \"ZFT home\"\n  - generic: PS \u00b7 LOCAL PREVIEW\n  - 'button \"Color theme: system\"':\n  - button \"Lock\"\n- navigation \"PS navigation\":\n  - link \"Collection\":\n    - /url: /ps/\n  - link \"Create\":\n    - /url: /ps/create\n  - link \"Receive\":\n    - /url: /ps/receive\n  - link \"Recovery\":\n    - /url: /ps/recover\n- main:\n  - complementary: Persistent local research issuer \u00b7 generated private keys and local registry retained across restarts. Back up the issuer separately; browser recovery files cannot restore its database. Test artwork only. These PS credentials are managed here; they are not NFTs in MetaMask\u2019s inventory.\n  - status: Browser copy unlocked.\n  - generic: ALICE \u00b7 revision 3\n  - generic: Issuer 1f4657c229\u2026c6a78e\n  - button \"Switch test role\"\n  - paragraph: IN THIS BROWSER\n  - heading \"Your collection\" [level=1]\n  - paragraph: Local credentials. A displayed image is not a fresh issuer status check.\n  - button \"Create a ZFT\"\n  - button \"Verified public artwork Artwork 9ecc0d34 PS credential \u00b7 locally active\":\n    - img \"Verified public artwork\"\n    - generic: Artwork 9ecc0d34\n    - generic: PS credential \u00b7 locally active\n- contentinfo: ZFT \u00b7 LOCAL PS PRODUCT PREVIEW \u00b7 Independent cryptographic review pending.",
+    "console": [],
+    "restart": "Normal issuer SIGTERM and restart; same trust/origin, new launch capability, encrypted Alice revision 3 retained one credential and public artwork; public link reverified historical receipt.",
+    "picker": "setFiles returned successfully after 212 seconds despite requested 10-second timeout; no app expiry/lock changes."
   }
 }

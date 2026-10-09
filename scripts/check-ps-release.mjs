@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 export const BASE = "673f89dba48a3222be02894ad659a62fe6e58aad";
+export const SOURCE_MANIFEST = "research/ps-release-readiness-validation.json";
 export const SIGNER = "310A0EAEA8449754CF17E8BBF6B82D1155879DAB";
 export const GATES = [
   "independentCrypto",
@@ -51,6 +52,11 @@ export function artifactHash(root) {
 }
 export function evaluateRelease(facts, evidence, reportHash) {
   const blockers = [...facts.errors];
+  if (
+    evidence.sourceManifest !== undefined &&
+    evidence.sourceManifest !== SOURCE_MANIFEST
+  )
+    blockers.push("The fixed release source manifest is required");
   if (evidence.format !== "zft-ps-release-evidence-v1")
     blockers.push("Unsupported evidence format");
   if (evidence.target !== "isolated-staging")
@@ -122,7 +128,7 @@ export function evaluateRelease(facts, evidence, reportHash) {
     blockers,
   };
 }
-export function collectFacts(root, manifest) {
+export function collectFacts(root) {
   const git = (...args) =>
     execFileSync("git", args, {
       cwd: root,
@@ -135,7 +141,7 @@ export function collectFacts(root, manifest) {
     sourcesMatch = false,
     built = null;
   try {
-    const file = boundedFile(resolve(root, manifest)),
+    const file = boundedFile(resolve(root, SOURCE_MANIFEST)),
       value = JSON.parse(file);
     sourceManifestSha256 = hash(file);
     const entries = Object.entries(value.sourceSha256);
@@ -209,11 +215,7 @@ if (
       process.argv[2] ?? "research/ps-release-evidence-template.json",
     );
   const evidence = JSON.parse(boundedFile(evidencePath)),
-    facts = collectFacts(
-      root,
-      evidence.sourceManifest ??
-        "research/ps-release-readiness-validation.json",
-    );
+    facts = collectFacts(root);
   const result = evaluateRelease(facts, evidence, (path) =>
     hash(boundedFile(resolve(path))),
   );
