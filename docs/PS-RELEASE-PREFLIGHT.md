@@ -37,4 +37,4 @@ The [review packet](PS-REVIEW-PACKET.md) and [operations policy](PS-LOCAL-OPERAT
 
 The source manifest is fixed to `research/ps-consolidated-validation.json`. An operator record cannot substitute a one-file or historical manifest; a different `sourceManifest` value blocks readiness. The checker always reads the fixed path regardless of operator input.
 
-The trusted ancestry baseline advances to merged PR #28 for this key-file experiment; the expected signer is checked on every commit after that baseline. Historical validation JSON files, including the PR #24 readiness record, remain unchanged. No pending approval has been promoted.
+The trusted ancestry baseline advances to merged PR #29 for this consolidated service candidate; the expected signer is checked on every commit after that baseline. Historical validation JSON files, including the PR #24 readiness record, remain unchanged. No pending approval has been promoted.

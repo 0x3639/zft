@@ -301,3 +301,74 @@ test("denied wrapping rotation never publishes a ready destination or changes so
   assert(!fs.existsSync(join(target, READY)));
   assert.deepEqual(fs.readFileSync(join(f.dir, DATABASE)), before);
 });
+
+test("wrapping rotation removes replaced encrypted-session bytes from destination database pages", async (t) => {
+  const { rotateWrappingKey } = await import("./rotation.mjs"),
+    d = directories(t),
+    dir = d.make("long-wrap"),
+    target = d.make("short-wrap");
+  // Public test transport with authenticated core plus disposable opaque padding; old records use overflow pages.
+  const padded = (request) => {
+    if (request.operation === "wrap") {
+      const result = transport(request);
+      return {
+        ...result,
+        material: Buffer.concat([result.material, Buffer.alloc(3000, 0x97)]),
+      };
+    }
+    return transport({
+      ...request,
+      material: request.material.subarray(0, -3000),
+    });
+  };
+  const ready = await initializeService(dir, secrets, {
+    ...config,
+    transport: padded,
+    status: statusConfig,
+  });
+  const live = await openService(dir, ready.sha256, {
+    ...options,
+    loadCustody: ({ directory, keySha256 }) =>
+      loadReferenceCustody(directory, keySha256, {
+        ...config,
+        transport: padded,
+      }),
+  });
+  live.issuer.setEnabled(true);
+  await live.issuer.session("issue");
+  await live.issuer.session("swap");
+  live.close();
+  const marker = Buffer.from("97".repeat(128));
+  assert(
+    fs.readFileSync(join(dir, DATABASE)).includes(marker),
+    "fixture must retain recognizable old ciphertext bytes",
+  );
+  const result = await rotateWrappingKey(dir, ready.sha256, target, {
+    oldTransport: padded,
+    newTransport: transport,
+    newKeyId: "public-test/short-wrap",
+  });
+  assert(
+    !fs.readFileSync(join(target, DATABASE)).includes(marker),
+    "rotated database must not retain replaced wrapped-key bytes",
+  );
+  assert(
+    fs.readFileSync(join(dir, DATABASE)).includes(marker),
+    "source remains preserved",
+  );
+  const pins = readPins(target, result.readyDigest),
+    db = openServiceStore(
+      join(target, DATABASE),
+      pins.manifest,
+      pins.configuration_id,
+    );
+  try {
+    assert.equal(db.prepare("SELECT count(*) AS n FROM sessions").get().n, 2);
+    assert.equal(
+      db.prepare("SELECT restore_required FROM policy").get().restore_required,
+      1,
+    );
+  } finally {
+    db.close();
+  }
+});

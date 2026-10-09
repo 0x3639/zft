@@ -26,7 +26,10 @@ export function grant(db, role, ttl, now) {
 }
 export function revoke(db, hash) {
   p.bytes(hash, 32);
-  db.prepare("UPDATE grants SET revoked=1 WHERE hash=?").run(hash);
+  const { changes } = db
+    .prepare("UPDATE grants SET revoked=1 WHERE hash=?")
+    .run(hash);
+  assert.equal(changes, 1, "unknown grant");
 }
 export function authorize(db, token, role, now) {
   assert(roles.includes(role));

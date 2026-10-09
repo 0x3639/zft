@@ -432,3 +432,51 @@ test("HTTP body deadline closes a stalled upload without custody work", async (t
   assert.equal(result, 503);
   assert.equal(f.issuer.counts().sessions, 0);
 });
+
+test("operator revocation rejects unknown and pruned hashes and retains idempotence for known grants", async (t) => {
+  const f = await server(t),
+    headers = { Authorization: "Bearer " + f.roles.operator.token };
+  const unknown = await f.request(
+    "/ops/revoke",
+    { hash: "ff".repeat(32) },
+    { headers },
+  );
+  assert.equal(
+    unknown.status,
+    400,
+    "unknown grant must not report successful revocation",
+  );
+  assert.deepEqual(unknown.body, { error: "request-rejected" });
+  assert.doesNotThrow(() =>
+    authorize(
+      f.issuer.database,
+      f.roles.participant.token,
+      "participant",
+      1000,
+    ),
+  );
+  for (let n = 0; n < 2; n++)
+    assert.equal(
+      (
+        await f.request(
+          "/ops/revoke",
+          { hash: f.roles.participant.hash },
+          { headers },
+        )
+      ).status,
+      200,
+      "known revocation remains idempotent",
+    );
+  pruneGrants(f.issuer.database, 1000, { apply: true });
+  assert.equal(
+    (
+      await f.request(
+        "/ops/revoke",
+        { hash: f.roles.participant.hash },
+        { headers },
+      )
+    ).status,
+    400,
+    "pruned grant no longer matches",
+  );
+});

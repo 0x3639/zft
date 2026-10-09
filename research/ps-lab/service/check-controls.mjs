@@ -187,6 +187,20 @@ const controls = [
       ],
     ],
   },
+  {
+    name: "revocation silently accepts an unknown grant",
+    file: "admission.mjs",
+    suite: "http.test.mjs",
+    test: "operator revocation rejects unknown and pruned hashes and retains idempotence for known grants",
+    edits: [['assert.equal(changes, 1, "unknown grant");', ""]],
+  },
+  {
+    name: "rotation retains copied database remnants",
+    file: "rotation.mjs",
+    suite: "runtime.test.mjs",
+    test: "wrapping rotation removes replaced encrypted-session bytes from destination database pages",
+    edits: [['db.exec("VACUUM");', ""]],
+  },
 ];
 for (const control of controls) {
   const dir = mkdtempSync(join(tmpdir(), "zft-service-controls-"));

@@ -119,6 +119,13 @@ export async function rotateWrappingKey(
       pins.manifest,
       pins.configuration_id,
     );
+    // Scrub replaced ordinary-table cells in the destination database; not storage-media erasure.
+    db.exec("PRAGMA secure_delete=ON");
+    assert.equal(
+      db.prepare("PRAGMA secure_delete").get().secure_delete,
+      1,
+      "secure deletion enabled",
+    );
     transaction(db, () => {
       for (const row of replacements)
         db.prepare("UPDATE sessions SET protected=? WHERE id=?").run(
@@ -133,6 +140,8 @@ export async function rotateWrappingKey(
         "INSERT OR REPLACE INTO restore_review VALUES(1,?,?,NULL)",
       ).run(checkpoint, seq);
     });
+    // Rebuild the live destination file to discard source freelist/cell remnants copied before secure_delete was enabled.
+    db.exec("VACUUM");
     db.close();
     db = undefined;
     const ready = publish(
