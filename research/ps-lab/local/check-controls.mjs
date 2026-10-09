@@ -15,6 +15,92 @@ import { spawnSync } from "node:child_process";
 const lab = fileURLToPath(new URL("../", import.meta.url));
 const controls = [
   {
+    name: "key envelope skips caller scope pin",
+    file: "key-envelope.mjs",
+    suite: "key-envelope.test.mjs",
+    test: "key envelope rejects scope substitution before unwrap",
+    edits: [
+      [
+        '      if (p.canonical(value.scope) !== this.#context) throw fail("INPUT");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "key envelope skips inner scalar identity",
+    file: "key-envelope.mjs",
+    suite: "key-envelope.test.mjs",
+    test: "key envelope validates authenticated plaintext against full pinned manifest",
+    edits: [
+      [
+        "p.canonical(p.manifest(this.#scope.manifest.realm, value)) !==\n      p.canonical(this.#scope.manifest)",
+        "false",
+      ],
+    ],
+  },
+  {
+    name: "key envelope omits authenticated public header",
+    file: "key-envelope.mjs",
+    suite: "key-envelope.test.mjs",
+    test: "key envelope authenticates ciphertext IV tag and wrapped key",
+    edits: [
+      ["        cipher.setAAD(aad(this.#scope, wrapped_key, iv));", ""],
+      [
+        "        cipher.setAAD(aad(this.#scope, value.wrapped_key, value.iv));",
+        "",
+      ],
+    ],
+  },
+  {
+    name: "key envelope releases unauthenticated plaintext",
+    file: "key-envelope.mjs",
+    suite: "key-envelope.test.mjs",
+    test: "key envelope authenticates ciphertext IV tag and wrapped key",
+    edits: [
+      [
+        "final = cipher.final(); // Never return update() bytes before authentication succeeds.",
+        "final = Buffer.alloc(0); // Deliberately omitted authentication.",
+      ],
+    ],
+  },
+  {
+    name: "key envelope shares encryption key with transport",
+    file: "key-envelope.mjs",
+    suite: "key-envelope.test.mjs",
+    test: "key envelope isolates encryption key from transport mutation",
+    edits: [["material: new Uint8Array(material),", "material,"]],
+  },
+  {
+    name: "key envelope accepts wrong provider identity",
+    file: "key-envelope.mjs",
+    suite: "key-envelope.test.mjs",
+    test: "key envelope validates transport metadata and owned bounded byte responses",
+    edits: [["response.key_id !== this.#scope.wrapping_key_id", "false"]],
+  },
+  {
+    name: "key envelope ignores absolute deadline",
+    file: "key-envelope.mjs",
+    suite: "key-envelope.test.mjs",
+    test: "key envelope absolute deadline rejects late unwrap and closes instance",
+    edits: [
+      [
+        "const expired = () => performance.now() >= deadline;",
+        "const expired = () => false;",
+      ],
+      [
+        'const timer = setTimeout(() => finish("TIMEOUT"), this.#timeoutMs);',
+        "const timer = setTimeout(() => {}, this.#timeoutMs);",
+      ],
+    ],
+  },
+  {
+    name: "key envelope omits byte bounds",
+    file: "key-envelope.mjs",
+    suite: "key-envelope.test.mjs",
+    test: "key envelope bounds serialized records wrapped keys and ciphertext before unwrap",
+    edits: [["value.byteLength > max", "false"]],
+  },
+  {
     name: "status signer skips pinned signature verification",
     file: "status-signer.mjs",
     suite: "status-signer.test.mjs",

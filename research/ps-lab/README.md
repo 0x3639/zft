@@ -1,6 +1,8 @@
 # Isolated PS research lab
 
-Current local increment: [provider-neutral status signer contract](../../docs/PS-STATUS-SIGNER-CONTRACT.md), with 20 focused local tests and five new mutation controls. It does not call a cloud provider or replace the serving issuer. [Current evidence](../ps-status-signer-validation.json) preserves earlier manifests as historical.
+Current local increment: [PS key-envelope contract](../../docs/PS-KEY-ENVELOPE.md), with 22 focused tests and eight mutation controls for encrypted records, pinned scalar identity and bounded wrap/unwrap failures. [Current evidence](../ps-key-envelope-validation.json) keeps all earlier manifests historical. The serving issuer still uses its original plaintext storage; this adapter is isolated.
+
+Previous local increment: [provider-neutral status signer contract](../../docs/PS-STATUS-SIGNER-CONTRACT.md), with 20 focused local tests and five new mutation controls. It does not call a cloud provider or replace the serving issuer. [Historical evidence](../ps-status-signer-validation.json) preserves earlier manifests as historical.
 
 Previous local increment: [live issuer health](../../docs/PS-OPERATIONS-HEALTH.md), with 266 local tests, 78 mutation controls and a read-only probe with separate monitoring authority. [Historical health evidence](../ps-health-validation.json) applies to that revision.
 

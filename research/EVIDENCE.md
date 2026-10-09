@@ -1,6 +1,8 @@
 # Research and capability evidence
 
-Current local increment: [status signer contract](../docs/PS-STATUS-SIGNER-CONTRACT.md). [Current adapter evidence](ps-status-signer-validation.json) covers a provider-neutral Ed25519 transport experiment, bounds, cancellation and selected existing receipt/checkpoint compatibility. No cloud transport or production custody is implemented; external release gates remain open.
+Current local increment: [PS key envelope](../docs/PS-KEY-ENVELOPE.md). [Current evidence](ps-key-envelope-validation.json) records an isolated encrypted scalar record and injected wrap/unwrap failures. No production keystore, provider integration, session-secret protection or migration is implemented; independent review and all release gates remain open.
+
+Previous local increment: [status signer contract](../docs/PS-STATUS-SIGNER-CONTRACT.md). [Historical adapter evidence](ps-status-signer-validation.json) covers a provider-neutral Ed25519 transport experiment, bounds, cancellation and selected existing receipt/checkpoint compatibility. No cloud transport or production custody is implemented; external release gates remain open.
 
 Previous local increment: [live operations health](../docs/PS-OPERATIONS-HEALTH.md). [Historical health evidence](ps-health-validation.json) records read-only loopback monitoring, separate capabilities and bounded CLI probes.
 
