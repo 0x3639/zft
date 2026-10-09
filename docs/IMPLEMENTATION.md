@@ -342,3 +342,7 @@ The third unpublished increment retains generated private issuer/status keys, pi
 ## Local operations increment
 
 Offline checkpointed backups and suspended restores now have eight regressions and five mutations. The suite explicitly demonstrates why an authenticated older snapshot is not automatically safe to resume. 250 local tests and 73 controls pass; the 22 actual kill locations are unchanged. [Operations policy](PS-LOCAL-OPERATIONS.md) and [evidence](../research/ps-operations-validation.json) keep production monitoring, retention/key lifecycle, global freshness and independent review open. No hosted release follows from a local restore approval.
+
+## Release readiness preparation
+
+The [target-device matrix](PS-ACCEPTANCE-MATRIX.md) and [read-only release preflight](PS-RELEASE-PREFLIGHT.md) record the remaining external gates. Eight synthetic preflight regressions test stale/missing reports, unsigned revisions, unresolved ownership review, artifact substitution and scope limits. All real gate approvals remain pending. The local increments are unpublished and unsigned at the user’s request; batch signing and exact-head review precede any release. [Current readiness evidence](../research/ps-release-readiness-validation.json) records this tooling separately from the 250 local tests and 73 controls inherited from the operations increment.

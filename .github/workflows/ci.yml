@@ -19,6 +19,7 @@ jobs:
       - run: pnpm exec tsx research/ps-lab/check-image-codec.ts
       - run: pnpm test
       - run: node scripts/check-ps-product-controls.mjs
+      - run: pnpm ps:release-test
       - run: pnpm contracts:build
       - run: pnpm contracts:test
       - run: pnpm build

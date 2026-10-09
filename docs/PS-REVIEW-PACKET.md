@@ -104,3 +104,7 @@ Review [local persistence](PS-PERSISTENT-LOCAL.md): private key generation/files
 ## Offline operations review scope
 
 Review [backup/restore semantics](PS-LOCAL-OPERATIONS.md): closed SQLite snapshots under exclusive ownership, fixed files and limits, signature/checkpoint trust, suspended restore, no-overwrite/readiness behavior and explicit local approval. The test accepting the authenticity of an older snapshot documents a remaining rollback risk. Define external checkpoint authority, fencing, key compromise/retirement, response retention and recovery availability before hosting; local approval cannot establish those properties.
+
+## Release handoff status
+
+Use the [preflight](PS-RELEASE-PREFLIGHT.md) after the unpublished series is signed. [Target-device acceptance](PS-ACCEPTANCE-MATRIX.md), production key custody/operations and isolated staging owner approval remain pending. The checker validates recorded exact-candidate evidence; it does not provide independent review or certify report authenticity. No reviewer has been contacted or assigned.

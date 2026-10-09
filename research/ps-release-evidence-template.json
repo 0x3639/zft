@@ -1,0 +1,57 @@
+{
+  "format": "zft-ps-release-evidence-v1",
+  "target": "isolated-staging",
+  "candidate": null,
+  "sourceManifest": "research/ps-release-readiness-validation.json",
+  "sourceManifestSha256": null,
+  "artifactSha256": null,
+  "gates": {
+    "independentCrypto": {
+      "status": "pending",
+      "candidate": null,
+      "owner": null,
+      "report": null,
+      "reportSha256": null,
+      "independenceConfirmed": false,
+      "psOwn01": "open",
+      "unresolvedActionableFindings": null
+    },
+    "keyCustody": {
+      "status": "pending",
+      "candidate": null,
+      "owner": null,
+      "report": null,
+      "reportSha256": null
+    },
+    "operations": {
+      "status": "pending",
+      "candidate": null,
+      "owner": null,
+      "report": null,
+      "reportSha256": null
+    },
+    "devices": {
+      "status": "pending",
+      "candidate": null,
+      "owner": null,
+      "report": null,
+      "reportSha256": null,
+      "passedTargets": []
+    },
+    "stagingApproval": {
+      "status": "pending",
+      "candidate": null,
+      "owner": null,
+      "report": null,
+      "reportSha256": null,
+      "apex": false
+    }
+  },
+  "checks": {
+    "candidate": null,
+    "ci": "pending",
+    "preview": "pending",
+    "codeRabbit": "pending",
+    "actionableFindings": null
+  }
+}
