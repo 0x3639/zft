@@ -8,8 +8,9 @@ import { join } from "node:path";
 import { PresentationApi, MAX_PRESENTATION_BODY } from "./presentation-api.mjs";
 import { BrowserLab, MAX_BODY } from "./browser-lab.mjs";
 import { PersistentLab } from "./persistent.mjs";
+import { HealthMonitor } from "./health.mjs";
 import { PersistentBrowserIssuer } from "./persistent-api.mjs";
-import { parse } from "./profile.mjs";
+import { parse, canonical } from "./profile.mjs";
 import { BrowserIssuer, MAX_CLIENT_BODY } from "./browser-client-api.mjs";
 import { productAssets, productRoute } from "./product-assets.mjs";
 import { browserModules } from "../web/modules.mjs";
@@ -82,7 +83,8 @@ export async function startBrowserLab({
     ? new PersistentBrowserIssuer(lab)
     : new BrowserIssuer(lab.issuer);
   const token = randomBytes(32).toString("hex");
-  let presentation,
+  let monitor,
+    presentation,
     ready = false;
   let origin,
     host,
@@ -100,6 +102,12 @@ export async function startBrowserLab({
       const single = (name) => req.headersDistinct[name]?.length === 1;
       if (!single("host") || req.headers.host !== host)
         return reply(403, { error: "Loopback host required." });
+      if (monitor && req.url.startsWith("/ops/")) {
+        res.setHeader("Connection", "close");
+        const [status, value] = monitor.reply(req);
+        res.writeHead(status, { "Content-Type": "application/json" });
+        return res.end(canonical(value));
+      }
       if (product && req.method === "GET") {
         if (req.url === "/ps/trust.json")
           return reply(200, presentation.pins());
@@ -254,12 +262,19 @@ export async function startBrowserLab({
             }
           : {},
       );
-    if (persistentDir) await presentation.validateRecords();
+    if (persistentDir) {
+      await presentation.validateRecords();
+      monitor = new HealthMonitor(lab, presentation, origin);
+    }
     ready = true;
   } catch (error) {
     server.close();
-    presentation?.close();
-    lab.close();
+    try {
+      monitor?.close();
+    } finally {
+      presentation?.close();
+      lab.close();
+    }
     throw error;
   }
   return {
@@ -272,8 +287,12 @@ export async function startBrowserLab({
         server.close(resolve);
         server.closeAllConnections();
       });
-      presentation?.close();
-      lab.close();
+      try {
+        monitor?.close();
+      } finally {
+        presentation?.close();
+        lab.close();
+      }
     },
   };
 }

@@ -1,6 +1,8 @@
 # Research and capability evidence
 
-Current local increment: [offline operations](../docs/PS-LOCAL-OPERATIONS.md), with 250 local tests, 73 mutation controls and explicit suspended-restore review. [Current evidence](ps-operations-validation.json) preserves earlier manifests as historical.
+Current local increment: [live operations health](../docs/PS-OPERATIONS-HEALTH.md). [Current health evidence](ps-health-validation.json) records read-only loopback monitoring, separate capabilities and bounded CLI probes. Earlier JSON manifests remain historical; release approval, key custody and independent review remain pending.
+
+Previous local increment: [offline operations](../docs/PS-LOCAL-OPERATIONS.md), with 250 local tests, 73 mutation controls and explicit suspended-restore review. [Historical operations evidence](ps-operations-validation.json) preserves earlier manifests as historical.
 
 Previous local increment: [persistent issuer](../docs/PS-PERSISTENT-LOCAL.md). [Historical persistent evidence](ps-persistent-validation.json) records 242 local tests, 68 controls and 22 actual process-kill locations. Earlier manifests, including product/public presentation, remain historical. No hosted release or production key-custody claim.
 

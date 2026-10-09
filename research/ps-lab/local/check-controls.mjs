@@ -15,6 +15,51 @@ import { spawnSync } from "node:child_process";
 const lab = fileURLToPath(new URL("../", import.meta.url));
 const controls = [
   {
+    name: "monitor authorization bypassed",
+    file: "health.mjs",
+    suite: "health.test.mjs",
+    test: "monitor capability cannot mint and launch capability cannot inspect health",
+    edits: [["!this.authorized(req) ||", "false ||"]],
+  },
+  {
+    name: "restored issuer health hides pending review",
+    file: "health.mjs",
+    suite: "health.test.mjs",
+    test: "restored issuer health requires review even when policy is manually enabled",
+    edits: [
+      [
+        "restoreReviewRequired: this.lab.restoreReviewRequired,",
+        "restoreReviewRequired: false,",
+      ],
+    ],
+  },
+  {
+    name: "monitor challenge replay accepted",
+    file: "health.mjs",
+    suite: "health.test.mjs",
+    test: "probe refuses redirects oversized malformed and replayed responses",
+    edits: [
+      ['  assert.equal(value.challenge, challenge, "monitor challenge");', ""],
+    ],
+  },
+  {
+    name: "monitor capacity warning delayed until full",
+    file: "health.mjs",
+    suite: "health.test.mjs",
+    test: "health distinguishes approaching active session capacity and actual saturation",
+    edits: [
+      ["value.counts[key] * 5 >= limit * 4", "value.counts[key] >= limit"],
+    ],
+  },
+  {
+    name: "monitor response deadline omitted",
+    file: "health-probe.mjs",
+    suite: "health.test.mjs",
+    test: "probe enforces an absolute deadline even when peer trickles bytes",
+    edits: [['() => req.destroy(Error("Local monitor timeout"))', "() => {}"]],
+  },
+
+  {
     name: "backup file digest ignored",
     file: "persistent-ops.mjs",
     suite: "persistent-ops.test.mjs",

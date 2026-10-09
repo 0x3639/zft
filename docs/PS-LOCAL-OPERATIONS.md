@@ -47,7 +47,7 @@ The approval command is an explicit local operator acknowledgment, not automated
 - **Key compromise:** suspend and isolate the issuer; assume signatures and stored authority may be forged. No automatic rotation/migration protocol is implemented. Fresh keys do not repair old signed authority or silently migrate credentials.
 - **Public record removal:** no deletion/retention API is provided. Before hosting, define retention, privacy obligations and incident response without deleting spend/recovery evidence needed for safety.
 
-Offline `status` emits counts, enabled state, realm and restore-review status. It requires the same lock, so it is not live monitoring. Production health/metrics, alert delivery, on-call ownership, authenticated administration, admission identity, KMS/rotation, retention and backup transport remain release work. No telemetry or secret logging endpoint has been added.
+Offline `status` emits counts, enabled state, realm and restore-review status and requires the same exclusive lock. The separate [live health probe](PS-OPERATIONS-HEALTH.md) now reads aggregate status while the issuer runs, with a distinct monitoring capability and bounded deadline. Hosted telemetry/alerts, on-call ownership, authenticated administration, admission identity, KMS/rotation, retention and backup transport remain release work. No external telemetry or secret logging is added.
 
 ## Evidence
 

@@ -78,3 +78,7 @@ The same client now validates normalized PNG inputs, claims private PNGs and dis
 Run `pnpm ps:local` from the repository root to build and open the real React `/ps/` interface on a disposable loopback issuer. It adds collection/item routes and JPG/PNG preparation over the existing browser Worker. Root dependencies must already be installed. See [workflow and limits](../../docs/PS-PRODUCT-INTERFACE.md), [release sequence](../../docs/PS-RELEASE-PLAN.md) and [current evidence](../ps-product-interface-validation.json). The lab suite now contains 218 tests and 58 controls; root verification separately contains 235 tests and three bridge controls. Earlier records above describe their historical slices.
 
 The root app wallet interoperability tests import this lab's pinned verifier. Before running root `pnpm test` in a fresh checkout, also run `pnpm --dir research/ps-lab --ignore-workspace install --frozen-lockfile --ignore-scripts`; the app CI job performs both separate installs. No root dependency or lock changes are required.
+
+## Persistent issuer monitoring
+
+`pnpm ps:persistent health /absolute/private/state` runs a read-only live probe while the persistent issuer holds its lock. Exit 0 means the selected reads are available without tracked warnings; 2 means attention; 1 means unavailable. See [the monitoring contract and limits](../../docs/PS-OPERATIONS-HEALTH.md) and [current evidence](../ps-health-validation.json). This does not send external alerts, change admission or authorize hosting.
