@@ -4,7 +4,7 @@ Updated October 8, 2026, against merged PR #21 baseline `2a2bc7119386dd103b4799c
 
 ## Freeze the reviewed revision
 
-Record the exact commit under review and verify its signature. [Current browser-client evidence](../research/ps-browser-client-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
+Record the exact commit under review and verify its signature. [Current browser-artwork evidence](../research/ps-browser-artwork-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
 
 ```sh
 git rev-parse HEAD
@@ -12,7 +12,7 @@ git verify-commit HEAD
 python3 - <<'PY'
 import hashlib, json
 from pathlib import Path
-v = json.loads(Path('research/ps-browser-client-validation.json').read_text())
+v = json.loads(Path('research/ps-browser-artwork-validation.json').read_text())
 for name, expected in v['sourceSha256'].items():
     assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
 print('source hashes match')
@@ -85,3 +85,5 @@ Required result: exact reviewed revision, attacker knowledge, independently auth
 Existing evidence: six focused engine regressions passed on `9b83f87` on October 8 (stale-copy/cancel, duplicate issuance, bearer validation, transfer-field binding, competing claims and cross-realm relabeling). They do not establish security against every freshly constructed malicious proof. This item remains a C1/C4 release-review gate before real-asset issuance or a hosted experiment. Continuing isolated browser work does not close it.
 
 Browser credential review additionally covers the [client protocol/storage boundary](PS-BROWSER-CLIENT.md), generated proof execution, complete encrypted working journals, both outer and decrypted identity pins, exact saved-file acknowledgment, compare-and-swap completion, serialized Worker actions and loopback-only issuer interface. Existing reference/local proof equations are unchanged. Challenge authenticated but inconsistent journals, competing stale tabs, locked asynchronous completions, response loss, recovery replay and any path that sends bearer secrets to Node or revives spent authority. PS-OWN-01 remains open.
+
+Browser artwork review covers the [portable PNG decoder boundary](PS-BROWSER-ARTWORK.md#browser-decompression-boundary), exact generated envelope adaptation, caller input ownership, private/public outputs and lock checks. Challenge native trailing-stream behavior across engines, internal decoder allocation, same-author Node/browser agreement and the UI distinction between a viewable stale image and successfully refreshed authority. Actual desktop PNG download/claim/cancel acceptance does not close PS-OWN-01 or qualify phones.

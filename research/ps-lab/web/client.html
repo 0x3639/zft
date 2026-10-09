@@ -69,6 +69,33 @@
             <label>Artwork<select id="art"></select></label
             ><button>Prepare mint</button>
           </form>
+          <h2>PNG artwork</h2>
+          <form id="png-import">
+            <label
+              >PNG file<input
+                id="png-file"
+                type="file"
+                accept=".png,image/png"
+                required
+            /></label>
+            <label
+              >PNG action<select id="png-action">
+                <option value="claim-image">
+                  Prepare claim from private bearer PNG
+                </option>
+                <option value="mint-image">
+                  Prepare mint from normalized artwork PNG
+                </option>
+              </select></label
+            >
+            <button>Prepare PNG operation</button>
+          </form>
+          <p>
+            Mint inputs must already be small normalized RGBA8 PNGs (at most
+            65,536 bytes). No JPEG conversion here. Private bearer files contain
+            the claim secret; any copy can race until a claim commits. Save and
+            verify a separate recovery file before submitting.
+          </p>
           <h2>Files</h2>
           <label
             >Encrypted file<input
@@ -135,6 +162,13 @@
             <label>Credential<select id="credentials"></select></label
             ><label
               >Action<select id="credential-action">
+                <option value="view-image">View artwork</option>
+                <option value="public-image">
+                  Download public artwork PNG
+                </option>
+                <option value="private-image">
+                  Download private bearer PNG
+                </option>
                 <option value="export">
                   Create encrypted transfer download
                 </option>
@@ -144,6 +178,22 @@
               </select></label
             ><button>Continue credential</button>
           </form>
+          <figure class="artwork-preview">
+            <img
+              id="preview"
+              alt="Verified artwork for the selected local credential"
+              hidden
+            />
+            <figcaption id="preview-caption">
+              Choose View artwork for the selected credential.
+            </figcaption>
+          </figure>
+          <p>
+            Public artwork downloads contain only the original image. Private
+            bearer PNG downloads contain plaintext claim authority: keep them
+            off public uploads. Viewing a local credential does not prove it is
+            still unspent.
+          </p>
           <p>
             Share the encrypted transfer file and expected ID with another role.
             Cancellation also requires saving and verifying its recovery file.

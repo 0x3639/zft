@@ -5,6 +5,8 @@ import { Client as Snapshot } from "./snapshot.mjs";
 import { BrowserVault } from "./vault.mjs";
 import { recordId } from "./schema.mjs";
 import { FORMAT, MAX_CLEAR, sealState, openState } from "./client-cipher.mjs";
+import { inspectImage } from "./png.mjs";
+import { importImage, exportImage } from "./image.mjs";
 export const MAX_OPERATIONS = 8;
 const credentialId = (c) => p.encodedPoint(p.mul(p.GN, p.scalar(c.s, true)));
 const clone = (v) => p.parse(p.canonical(v), MAX_CLEAR);
@@ -237,6 +239,43 @@ export class BrowserClient {
     const row = this.#state.credentials[id];
     assert(row && !row.spent, "unknown or spent");
     return p.importBearer(row.wire, this.#pinned);
+  }
+  async prepareImageIssue(session, bytes) {
+    this.#active();
+    const epoch = this.#epoch,
+      value = await inspectImage(bytes);
+    this.#active(epoch);
+    return this.#prepare(session, value.image);
+  }
+  async prepareImageClaim(session, bytes) {
+    this.#active();
+    const epoch = this.#epoch,
+      value = await importImage(bytes, this.#pinned.manifest);
+    this.#active(epoch);
+    const old = p.importBearer(value.envelope, this.#pinned);
+    assert(
+      !this.#state.credentials[credentialId(old.credential)]?.spent,
+      "known spent",
+    );
+    return this.#prepare(session, value.image, old.credential);
+  }
+  async artwork(id, privateFile = false) {
+    const old = this.#credential(id),
+      epoch = this.#epoch;
+    const value = await inspectImage(p.bytes(old.asset));
+    const bytes = privateFile
+      ? await exportImage(
+          p.bearer(value.image, old.credential, this.#pinned),
+          this.#pinned.manifest,
+        )
+      : value.image;
+    this.#active(epoch);
+    return {
+      bytes,
+      width: value.width,
+      height: value.height,
+      digest: p.hash(value.image),
+    };
   }
   async backup(digest, password) {
     const row = this.#row(digest),

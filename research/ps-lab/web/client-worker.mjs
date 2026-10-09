@@ -104,6 +104,28 @@ self.onmessage = async ({ data }) => {
         result = {
           checks: await storageChecks(config.manifest, config.id, row.wire),
         };
+      } else if (action === "mint-image" || action === "claim-image") {
+        const { session } = await api(
+          {
+            action: "session",
+            kind: action === "mint-image" ? "issue" : "swap",
+          },
+          e,
+        );
+        result =
+          action === "mint-image"
+            ? await client.prepareImageIssue(session, data.bytes)
+            : await client.prepareImageClaim(session, data.bytes);
+      } else if (
+        ["view-image", "public-image", "private-image"].includes(action)
+      ) {
+        result = {
+          artwork: await client.artwork(
+            data.credential,
+            action === "private-image",
+          ),
+          imageKind: action,
+        };
       } else if (action === "mint") {
         const { session } = await api({ action: "session", kind: "issue" }, e);
         result = await client.prepareIssue(session, p.bytes(data.asset));

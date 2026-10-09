@@ -108,8 +108,45 @@ export function browserModules() {
       schema +
       "\nexport {content,validateContent,header,record};\n",
   );
+  let image = read("../local/image.mjs");
+  image = replace(image, '"node:assert/strict"', '"./runtime.mjs"');
+  image = replace(
+    image,
+    "export function exportImage",
+    "export async function exportImage",
+  );
+  image = replace(
+    image,
+    "export function importImage",
+    "export async function importImage",
+  );
+  image = replace(
+    image,
+    "const { image } = inspectImage",
+    "const { image } = await inspectImage",
+  );
+  image = replace(
+    image,
+    "const { image, width, height } = inspectImage",
+    "const { image, width, height } = await inspectImage",
+  );
+  image = replace(
+    image,
+    "export function publicImage",
+    "export async function publicImage",
+  );
+  image = replace(
+    image,
+    "return importImage(file, manifest).image;",
+    "return (await importImage(file, manifest)).image;",
+  );
+  // Client-specific wrappers are implemented by BrowserClient, not the Node client.
+  const imageEnd = image.indexOf("// Validate before any journal write;");
+  assert(imageEnd > 0, "image adapter extraction");
+  modules.set("/web/image.mjs", image.slice(0, imageEnd));
   for (const file of [
     "runtime.mjs",
+    "png.mjs",
     "vault.mjs",
     "storage.mjs",
     "worker.mjs",

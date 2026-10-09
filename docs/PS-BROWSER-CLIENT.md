@@ -1,6 +1,6 @@
 # Local PS browser credential client
 
-This C5 research increment follows merged PR #21 (`2a2bc71`). The console's **Browser client** link opens an isolated client whose dedicated module Worker generates owner secrets, issuance/transfer proofs and encrypted pending journals. The existing local issuer still runs in Node. The deployed app, v1 custody and local PS cryptographic transcripts are unchanged. **Public fixture issuer keys: do not use real assets.** [Current evidence](../research/ps-browser-client-validation.json) records the exact scope; [PS-OWN-01](PS-REVIEW-PACKET.md#open-review-item-former-holder-and-cross-asset-forgery) remains open for independent review.
+This C5 research increment follows merged PR #21 (`2a2bc71`). The console's **Browser client** link opens an isolated client whose dedicated module Worker generates owner secrets, issuance/transfer proofs and encrypted pending journals. The existing local issuer still runs in Node. The deployed app, v1 custody and local PS cryptographic transcripts are unchanged. **Public fixture issuer keys: do not use real assets.** [Historical PR #22 evidence](../research/ps-browser-client-validation.json) records the exact scope; [PS-OWN-01](PS-REVIEW-PACKET.md#open-review-item-former-holder-and-cross-asset-forgery) remains open for independent review.
 
 ## Run and use
 
@@ -48,7 +48,7 @@ Codex's in-app desktop browser generated a fresh pending mint, downloaded the ac
 
 Full browser claim/cancel UI paths, ordinary browsers, phones and multi-device acceptance remain open; automated client/Worker/HTTP tests cover those underlying protocol operations. Desktop and 390px layout checks, password clearing, observed console logs and lock/reopen are recorded in the evidence. Existing reference/app checks are inherited from PR #21 CI, not newly run locally in this slice; PR CI reruns them. Ten earlier manifests remain frozen historical evidence.
 
-This is a local browser credential workflow, not the ZFT product integration. Browser PNG import/export and custom artwork normalization, collection/artwork display, wallet identity/endorsement, public showing/state UI, device qualification and production trust/key/retention policy remain. No Snap, wrapper, app migration, issuer deployment or apex promotion. Same-author protocol composition and unqualified secret BigInt side channels remain research limitations. C1/C3 are partial, C4 including PS-OWN-01 is pending, C5 remains partial and C6 is unimplemented.
+This is a local browser credential workflow, not the ZFT product integration. The later [browser artwork increment](PS-BROWSER-ARTWORK.md) adds PNG import/export and selected-image display. General artwork normalization, broader collection display, wallet identity/endorsement, public showing/state UI, device qualification and production trust/key/retention policy remain. No Snap, wrapper, app migration, issuer deployment or apex promotion. Same-author protocol composition and unqualified secret BigInt side channels remain research limitations. C1/C3 are partial, C4 including PS-OWN-01 is pending, C5 remains partial and C6 is unimplemented.
 
 ## PR review follow-up
 

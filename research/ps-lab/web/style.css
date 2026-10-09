@@ -21,3 +21,26 @@
 #download {
   color: #432b88;
 }
+
+.artwork-preview {
+  margin: 1rem 0;
+}
+.artwork-preview img {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  min-height: 64px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: #171c20;
+  border-radius: 8px;
+}
+.artwork-preview img[hidden] {
+  display: none;
+}
+.artwork-preview figcaption {
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
