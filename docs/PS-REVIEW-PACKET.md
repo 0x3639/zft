@@ -1,10 +1,10 @@
 # PS independent review packet
 
-Updated October 9, 2026, against merged PR #24 baseline `b89cf61c3961b55f8fff5631a72c1c5740bfd3d7` plus read-only local health monitoring. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
+Updated October 9, 2026, against merged PR #26 baseline `19d4c35af70d17c9df85206c37cbed64f8e11b0c` plus the isolated status-signer contract. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
 
 ## Freeze the reviewed revision
 
-Record the exact commit under review and verify its signature. The five development increments were batch-signed with verified signatures before [PR #24](https://github.com/0x3639/zft/pull/24). Review fixes must also be signed. [Current release evidence](../research/ps-health-validation.json) lists current source hashes; [operations evidence](../research/ps-operations-validation.json) and other historical manifests apply only to their own revisions. Do not update mismatching hashes just to make a check pass.
+Record the exact commit under review and verify its signature. The five development increments were batch-signed with verified signatures before [PR #24](https://github.com/0x3639/zft/pull/24). Review fixes must also be signed. [Current release evidence](../research/ps-status-signer-validation.json) lists current source hashes; [operations evidence](../research/ps-operations-validation.json) and other historical manifests apply only to their own revisions. Do not update mismatching hashes just to make a check pass.
 
 ```sh
 git rev-parse HEAD
@@ -12,7 +12,7 @@ git verify-commit HEAD
 python3 - <<'PY'
 import hashlib, json
 from pathlib import Path
-v = json.loads(Path('research/ps-health-validation.json').read_text())
+v = json.loads(Path('research/ps-status-signer-validation.json').read_text())
 for name, expected in v['sourceSha256'].items():
     assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
 print('source hashes match')
@@ -107,8 +107,12 @@ Review [backup/restore semantics](PS-LOCAL-OPERATIONS.md): closed SQLite snapsho
 
 ## Release handoff status
 
-Use the [preflight](PS-RELEASE-PREFLIGHT.md) for the exact signed candidate. PR #24 is merged; new operations changes require their own signed candidate and review. [Target-device acceptance](PS-ACCEPTANCE-MATRIX.md), production key custody/operations and isolated staging owner approval remain pending. The checker validates recorded exact-candidate evidence; it does not provide independent review or certify report authenticity. No reviewer has been contacted or assigned.
+Use the [preflight](PS-RELEASE-PREFLIGHT.md) for the exact signed candidate. PR #26 is merged; the status-signer experiment requires its own signed candidate and review. [Target-device acceptance](PS-ACCEPTANCE-MATRIX.md), production key custody/operations and isolated staging owner approval remain pending. The checker validates recorded exact-candidate evidence; it does not provide independent review or certify report authenticity. No reviewer has been contacted or assigned.
 
 ## Local health review scope
 
 Review the [monitoring boundary](PS-OPERATIONS-HEALTH.md): independent process capability, private descriptor lifetime, exact local route/Host/headers, absence of credential material, aggregate read-only sampling, nonce/instance binding and deadline. An `ok` report must not be treated as a write probe, current-ownership proof, backup-freshness check or production release approval. Cross-host monitoring and operator authentication are outside this increment.
+
+## Status signer contract review scope
+
+Review the [local adapter](PS-STATUS-SIGNER-CONTRACT.md) and its injected-transport trust boundary. Challenge pinned key/metadata, exact raw message ownership, schema/size bounds, signature verification, failure redaction, deadline/blockage and late completion after cancel/close. Test keys and local transport simulations are not cloud custody evidence. The adapter does not validate receipt semantics or write issuer state; future integration must authorize/framing-check messages and preserve atomic spend/exact-response and historical observation replay. The core local modules remain unchanged; PS-OWN-01 and independent review stay open.

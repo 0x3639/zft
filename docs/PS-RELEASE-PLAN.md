@@ -19,3 +19,9 @@ Continue engineering where dependencies permit while recording blocked external 
 The user authorized unsigned local increments during development, then requested batch signing. All five increments were signed and verified without changing their trees and published in [PR #24](https://github.com/0x3639/zft/pull/24). The unsigned originals remain on a local backup branch. Repository/global signing configuration is unchanged. PR #24 merged at `b89cf61c3961b55f8fff5631a72c1c5740bfd3d7` after six verified signed commits, clean latest-head CodeRabbit and green CI/preview. New operations work starts from that merged baseline with signed commits on its own branch. Never rewrite merged/published history; no merge or deployment follows automatically from a commit.
 
 Keep the v1 protocol/data, frozen PS reference artifacts and historical evidence manifests intact. New current manifests record their own source hashes and inherited evidence. ZVM downtime does not block local PS work. Initial MetaMask inventory display is unnecessary; an optional display Snap follows the core experience.
+
+## Custody contract experiment after PR #26
+
+PR #25 merged at `f3bb3bfcb8d4e60344a33dfaea6fd5d5bf3a0c27` after clean exact-head review and CI/preview. The [hosting/custody proposal](PS-HOSTING-CUSTODY-DESIGN.md) then merged in PR #26 at `19d4c35af70d17c9df85206c37cbed64f8e11b0c`, also with clean exact-head review and checks. Provider, reviewer and resource choices remain pending.
+
+The next local increment implements the [status signer contract](PS-STATUS-SIGNER-CONTRACT.md): raw Ed25519 request/response validation, pinned-key verification, owned message bytes, bounded async lifecycle and selected compatibility tests. It has no private-key loader, cloud access or live issuer integration. Protected storage, qualified PS secret operations and durable asynchronous signing remain subsequent engineering; none of the seven release gates is promoted by this adapter.

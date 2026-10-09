@@ -1,6 +1,8 @@
 # Isolated PS research lab
 
-Current local increment: [live issuer health](../../docs/PS-OPERATIONS-HEALTH.md), with 266 local tests, 78 mutation controls and a read-only probe with separate monitoring authority. [Current evidence](../ps-health-validation.json) preserves earlier manifests as historical.
+Current local increment: [provider-neutral status signer contract](../../docs/PS-STATUS-SIGNER-CONTRACT.md), with 20 focused local tests and five new mutation controls. It does not call a cloud provider or replace the serving issuer. [Current evidence](../ps-status-signer-validation.json) preserves earlier manifests as historical.
+
+Previous local increment: [live issuer health](../../docs/PS-OPERATIONS-HEALTH.md), with 266 local tests, 78 mutation controls and a read-only probe with separate monitoring authority. [Historical health evidence](../ps-health-validation.json) applies to that revision.
 
 Previous local increment: [offline operations](../../docs/PS-LOCAL-OPERATIONS.md), with 250 local tests, 73 mutation controls and explicit suspended-restore review. [Historical operations evidence](../ps-operations-validation.json) applies to that revision.
 

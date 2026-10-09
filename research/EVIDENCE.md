@@ -1,6 +1,8 @@
 # Research and capability evidence
 
-Current local increment: [live operations health](../docs/PS-OPERATIONS-HEALTH.md). [Current health evidence](ps-health-validation.json) records read-only loopback monitoring, separate capabilities and bounded CLI probes. Earlier JSON manifests remain historical; release approval, key custody and independent review remain pending.
+Current local increment: [status signer contract](../docs/PS-STATUS-SIGNER-CONTRACT.md). [Current adapter evidence](ps-status-signer-validation.json) covers a provider-neutral Ed25519 transport experiment, bounds, cancellation and selected existing receipt/checkpoint compatibility. No cloud transport or production custody is implemented; external release gates remain open.
+
+Previous local increment: [live operations health](../docs/PS-OPERATIONS-HEALTH.md). [Historical health evidence](ps-health-validation.json) records read-only loopback monitoring, separate capabilities and bounded CLI probes.
 
 Previous local increment: [offline operations](../docs/PS-LOCAL-OPERATIONS.md), with 250 local tests, 73 mutation controls and explicit suspended-restore review. [Historical operations evidence](ps-operations-validation.json) preserves earlier manifests as historical.
 
