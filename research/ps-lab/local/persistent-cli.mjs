@@ -10,12 +10,14 @@ import {
   approveRestore,
   resumePersistent,
 } from "./persistent-ops.mjs";
+import { probeHealth } from "./health-probe.mjs";
 import { startBrowserLab } from "./browser-server.mjs";
 const [command, ...args] = process.argv.slice(2);
 const arity = {
   init: 2,
   serve: 1,
   status: 1,
+  health: 1,
   suspend: 1,
   resume: 1,
   "recover-lock": 1,
@@ -25,7 +27,7 @@ const arity = {
 };
 assert(
   Object.hasOwn(arity, command) && args.length === arity[command],
-  "Usage: init DIR PORT | serve DIR | status DIR | suspend DIR | resume DIR | recover-lock DIR | backup DIR NEW_BACKUP | restore BACKUP NEW_DIR EXPECTED_CHECKPOINT | approve-restore DIR EXPECTED_CHECKPOINT",
+  "Usage: init DIR PORT | serve DIR | status DIR | health DIR | suspend DIR | resume DIR | recover-lock DIR | backup DIR NEW_BACKUP | restore BACKUP NEW_DIR EXPECTED_CHECKPOINT | approve-restore DIR EXPECTED_CHECKPOINT",
 );
 const [path, arg, checkpoint] = args;
 if (command === "init") {
@@ -53,6 +55,20 @@ if (command === "init") {
       await r.close();
       process.exit(0);
     });
+} else if (command === "health") {
+  try {
+    const result = await probeHealth(path);
+    console.log(JSON.stringify(result));
+    process.exitCode = result.status === "ok" ? 0 : 2;
+  } catch {
+    console.log(
+      JSON.stringify({
+        status: "unavailable",
+        error: "Local health probe failed.",
+      }),
+    );
+    process.exitCode = 1;
+  }
 } else if (command === "backup")
   console.log(JSON.stringify(await backupPersistent(path, arg)));
 else if (command === "restore")

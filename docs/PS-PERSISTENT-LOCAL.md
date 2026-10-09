@@ -44,6 +44,8 @@ pnpm ps:persistent suspend /absolute/private/ps-local-state
 pnpm ps:persistent resume /absolute/private/ps-local-state
 ```
 
+The read-only [health command](PS-OPERATIONS-HEALTH.md) can inspect the running process without acquiring its lock.
+
 These maintenance commands require the serving process to be stopped and acquire the same directory lock. Suspension persists across restart. It does not erase credentials, revoke already issued files, invalidate historical receipts or stop public observation. Production incident, rotation and restore policy requires separate review.
 
 ## Validation and remaining gates
