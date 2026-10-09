@@ -1,10 +1,10 @@
 {
-  "recordedAt": "2026-10-09T12:13:02.006511+00:00",
+  "recordedAt": "2026-10-09T14:11:12.619027+00:00",
   "baseline": "b89cf61c3961b55f8fff5631a72c1c5740bfd3d7",
   "scope": "Read-only health for the persistent local issuer, separate monitoring capability and bounded CLI probe. No production custody, remote telemetry, admission change or deployment.",
   "verification": {
-    "focusedHealthTests": 14,
-    "combinedLocalTests": 264,
+    "focusedHealthTests": 15,
+    "combinedLocalTests": 265,
     "localMutationControls": 78,
     "newMutationControls": 5,
     "actualProcessKillLocations": 22,
@@ -12,7 +12,7 @@
     "frozenLabInstall": "passed",
     "format": "passed",
     "diff": "passed",
-    "docsLinks": 381
+    "docsLinks": 383
   },
   "inheritedEvidence": {
     "sourceHead": "3eabbf6b6da57dbb2473fb5e5a8cde85b9aa4741",
@@ -80,7 +80,7 @@
     "docs/PS-LOCAL-OPERATIONS.md": "f3604bca6ee23415948561ae56d7a43300e82bd4e32add0aaa86d5a4a1582c85",
     "docs/PS-LOCAL-STATE.md": "968b479f43de55830b5baea75383723758462c8e7b707edfaf9326e47a32ba80",
     "docs/PS-LOCAL-VAULT.md": "def91f28dba5db117ed08f5adef3e91a2675cfef3dd3b84fc771df19b5a27fa0",
-    "docs/PS-OPERATIONS-HEALTH.md": "0de93e2d1c8f9e579acd80ea1b2edca4e50dba16f92ac5a8ef35692cc47cf51b",
+    "docs/PS-OPERATIONS-HEALTH.md": "4ecd6d4f09afbf642b5ac65da5462034ef306287408dea72b7000015efa3ec37",
     "docs/PS-PERSISTENT-LOCAL.md": "273aa00585e039a006c9d46004cd11be5edb8d8aa8865b131721ceb4f8568fe9",
     "docs/PS-PRODUCT-INTERFACE.md": "4c12413f3a6824f000c9ccd730a78935f987169ff958250c93af9ff44cf9d7a1",
     "docs/PS-PUBLIC-PRESENTATION.md": "d4f8e1ba5e8d41faaba214a7c0521926511678b7a05d3e9f4687825bf2b5e355",
@@ -95,7 +95,7 @@
     "research/ps-browser-validation.json": "0a9a91462338c968f70788cf635a92612a38b37938e7f9a94ee53477281fa709",
     "research/ps-browser-vault-validation.json": "fbc8fc61c175dcf57fed3c3c0adf71f2f07721070b4eb7b66341bac93ae4ae26",
     "research/ps-image-validation.json": "afb40f783d0f6fd4e0de0832486895f4ff06a2039e5e773b7bc36d4b39f2a5cc",
-    "research/ps-lab/README.md": "1c471a0a998a08112feaaeb5c2b8d5649cd27180cbefb4d31dbb2d7b8a329247",
+    "research/ps-lab/README.md": "6b011769f9d69ca45505978daa342f25df917002a8d285f58824c5b824d3249e",
     "research/ps-lab/check-image-codec.ts": "32d47bd8b73cf2e9834a66c5a273c69085c683dd54e4e36f5f282e07e0bd8acc",
     "research/ps-lab/dependencies.json": "99cce11434b5092905556893959a424b02de55aef65800e739b4b88b0a12c66b",
     "research/ps-lab/generate.py": "9df749e0f591472fcc9e27595f0612e300b9c5686d2871b5790c2804ae0c1aa6",
@@ -114,8 +114,8 @@
     "research/ps-lab/local/engine.test.mjs": "5e1fd994a76f81716d5f087a8f6730f9b315687e4c08abe2729ace403a202d80",
     "research/ps-lab/local/fault-support.mjs": "d5a5658c8cd7da29e4b91f3edc0ab6c6112df0b6cd685a8b30043a8f11298a73",
     "research/ps-lab/local/health-probe.mjs": "a58f7237ffbc44df9e167d162a466c47f96f49072b773123148fcf35f9d52998",
-    "research/ps-lab/local/health.mjs": "7f13e9df7694f23bc41238ac5405cd62b7fedb0b726129c5e3f7e1f3d392a6b3",
-    "research/ps-lab/local/health.test.mjs": "ad2eda5906ed3dcdc4c3f60b1e31d4f642c222373e050914a424d61c45ba458d",
+    "research/ps-lab/local/health.mjs": "64a35c61fac258ba0db55bb4f942c239588b1492450044b274d5f029c9bf08de",
+    "research/ps-lab/local/health.test.mjs": "3b53052ec61cf6ea69b7d50139934e56a35b05ab76e9a7b1fe3f76129d533f22",
     "research/ps-lab/local/image-demo.mjs": "3974306ffbef1cbf7e1c953fdf75d4646b9841c68bf3487026be50eb35b68b9c",
     "research/ps-lab/local/image-fixtures.json": "5cace6daa1681b3ecdcbd26714d22dc15bdba2c30a03b9bd3633ab325bedf072",
     "research/ps-lab/local/image.mjs": "9d819877a93f3dbe6f16f70376ec9620b77c36adbdd60cf1bdf7870d5b8b3eb2",
@@ -318,12 +318,24 @@
     "tests/ps-wallet.test.ts": "d82a3baefb01380d43b742c6a297a444d2e9a21ea2a87f57a4e1dec0592010d3"
   },
   "localOutputSha256": {
-    "/private/tmp/zft-health-focused.tap": "85909472661b361c35e39960fecb5c020de20bc5d5efa2915668bd6167e1c3a2",
-    "/private/tmp/zft-health-local.tap": "eaf7012891a823d533fd070c7fd2d7329a0d355ca68176f1ed7c552d39c6821d",
-    "/private/tmp/zft-health-controls.log": "b14c116a85a8537cc9ae5c3a6ceec96624391cddcecf65482c1f8f04e6fc0463",
-    "/private/tmp/zft-health-release.tap": "69031c47848f316c8a0392b577b204ef8ba63cffc8340aea782b7c1f70956245",
     "/private/tmp/zft-health-install.log": "cb70f66b3a35024f4f59294eb9a58b6af31244dff91f9196a219eb5409037d48",
-    "/private/tmp/zft-health-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
-    "/private/tmp/zft-health-links.log": "303aa3b31fe02d4f46c2f92c21a8137e305fd9be1e8f2b20cae8d6f4e624ef5b"
+    "/private/tmp/zft-health-review-before.tap": "43fb6ef3549203caf82a2fe5b4ca2619d2230f21ddda3736139ad4a068d4cf0b",
+    "/private/tmp/zft-health-review-focused.tap": "f5e69e09f814fb9151efce4a5b501538da302878f558bbe6528a6d0d687c88e8",
+    "/private/tmp/zft-health-review-local.tap": "7f8596b5e9a7fbe7df570a919eaccd4350455e3d910c9c749df0a250499a1537",
+    "/private/tmp/zft-health-review-controls.log": "b14c116a85a8537cc9ae5c3a6ceec96624391cddcecf65482c1f8f04e6fc0463",
+    "/private/tmp/zft-health-review-release.tap": "eba2fe67b2f3e43851528107babbc0eac02b6eee121754376f6110cbf230455b",
+    "/private/tmp/zft-health-review-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "/private/tmp/zft-health-review-links.log": "eb2cc6331216319f3050cf4613ffa649c9bd0deb83338e62c2a1b1fd694fba9e"
+  },
+  "reviewFollowUp": {
+    "reviewedHead": "b9b9c32ef8b2ab758c014403b807e5d965f26af4",
+    "review": "https://github.com/0x3639/zft/pull/25#pullrequestreview-5471105332",
+    "findings": {
+      "4230946221": "Preserve the original descriptor startup error if best-effort temporary cleanup also fails. One test-only synchronous filesystem regression covers write/rename failures with successful/failed cleanup, error identity, cleanup attempts and no descriptor publication.",
+      "4230946256": "README current increment now points to health monitoring and this manifest; prior records explicitly historical."
+    },
+    "regression": "Named ERR_ASSERTION on the reviewed implementation; 15 focused and 265 combined tests pass after repair. No new hardware/crash acceptance or mutation control.",
+    "initialHeadCI": "Both verify jobs, both ps-profile jobs and Cloudflare preview passed for b9b9c32. The new fix requires fresh exact-head review and CI.",
+    "externalGates": "Independent crypto review and PS-OWN-01 remain open; no deployment approval."
   }
 }

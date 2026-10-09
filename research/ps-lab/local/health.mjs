@@ -125,12 +125,13 @@ export class HealthMonitor {
       writeExclusive(temporary, this.descriptor);
       renameSync(temporary, this.path);
       syncDirectory(lab.dir);
-    } finally {
+    } catch (error) {
       try {
         unlinkSync(temporary);
-      } catch (error) {
-        if (error.code !== "ENOENT") throw error;
+      } catch {
+        // Cleanup is best effort; preserve the original startup failure.
       }
+      throw error;
     }
   }
   authorized(req) {

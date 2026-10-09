@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import fs from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
 import {
   mkdtempSync,
   realpathSync,
@@ -23,7 +25,12 @@ import { backupPersistent, restorePersistent } from "./persistent-ops.mjs";
 import { startBrowserLab } from "./browser-server.mjs";
 import { Client } from "./client.mjs";
 import { probeHealth } from "./health-probe.mjs";
-import { MONITOR, MONITOR_FILE, HEALTH_BYTES } from "./health.mjs";
+import {
+  HealthMonitor,
+  MONITOR,
+  MONITOR_FILE,
+  HEALTH_BYTES,
+} from "./health.mjs";
 import * as p from "./profile.mjs";
 const cli = fileURLToPath(new URL("./persistent-cli.mjs", import.meta.url));
 const image = p.bytes(
@@ -539,4 +546,51 @@ test("probe enforces an absolute deadline even when peer trickles bytes", async 
   clearTimeout(guard);
   assert.equal(outcome, "rejected", "bounded complete response deadline");
   assert(performance.now() - start < 2000);
+});
+
+test("monitor startup preserves the original failure when temporary cleanup also fails", (t) => {
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), "zft-health-cleanup-")));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  // Test-only synchronous filesystem faults; no device-failure qualification.
+  for (const operation of ["writeFileSync", "renameSync"]) {
+    for (const cleanupFails of [false, true]) {
+      const original = Object.assign(new Error("injected " + operation), {
+        code: "EIO",
+      });
+      const cleanup = Object.assign(new Error("injected cleanup"), {
+        code: "EPERM",
+      });
+      const savedOperation = fs[operation],
+        savedUnlink = fs.unlinkSync;
+      let attempted;
+      try {
+        fs[operation] = () => {
+          throw original;
+        };
+        fs.unlinkSync = (path) => {
+          assert.equal(attempted, undefined, "one cleanup attempt");
+          attempted = path;
+          if (cleanupFails) throw cleanup;
+          return savedUnlink(path);
+        };
+        syncBuiltinESMExports();
+        assert.throws(
+          () => new HealthMonitor({ dir }, null, "http://127.0.0.1:12345"),
+          (error) => error === original,
+          "original monitor startup error survives cleanup",
+        );
+        assert.equal(typeof attempted, "string", "temporary cleanup attempted");
+        assert.equal(existsSync(attempted), cleanupFails, "cleanup outcome");
+        assert.equal(
+          existsSync(join(dir, MONITOR_FILE)),
+          false,
+          "failed descriptor unpublished",
+        );
+      } finally {
+        fs[operation] = savedOperation;
+        fs.unlinkSync = savedUnlink;
+        syncBuiltinESMExports();
+      }
+    }
+  }
 });
