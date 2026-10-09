@@ -1,5 +1,7 @@
 # Research and capability evidence
 
+Current local increment: [public PS presentation](../docs/PS-PUBLIC-PRESENTATION.md), with separate credential proof, optional wallet signing-key endorsement and issuer snapshot. [Current source evidence](ps-presentation-validation.json) records 230 local tests, 63 lab controls, 241 app tests and precise browser limits. The product-interface manifest is now historical.
+
 Observed 2026-10-04. Public services can change; rerun these checks before implementation/deployment.
 
 ## Sources

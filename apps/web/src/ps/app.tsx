@@ -1,3 +1,4 @@
+import PresentationControls from "./presentation-controls";
 import React, { useEffect, useRef, useState, type FormEvent } from "react";
 import { BrandLogo } from "../brand-logo";
 import { ThemeControl } from "../site-controls";
@@ -319,8 +320,8 @@ export default function PsApp() {
         <aside className="ps-warning">
           Local test issuer · public test keys · disposable artwork only.
           Stopping the server loses the issuer registry; saved files cannot
-          restore it. Your MetaMask wallet is not connected to these
-          credentials.
+          restore it. These PS credentials are managed here; they are not NFTs
+          in MetaMask’s inventory.
         </aside>
         <div className="ps-notice" role="status" aria-live="polite">
           {busy || message}
@@ -903,6 +904,14 @@ export default function PsApp() {
                         Download private bearer PNG
                       </button>
                     </details>
+                    <PresentationControls
+                      key={item.id}
+                      credential={item.id}
+                      bridge={bridge.current}
+                      busy={!!busy}
+                      active={active}
+                      run={run}
+                    />
                     <h2>Cancel exported copies</h2>
                     <p>
                       Swap to a fresh secret. This can race with a recipient’s

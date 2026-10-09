@@ -4,6 +4,8 @@ import { createServer } from "node:http";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import { join } from "node:path";
+import { PresentationApi, MAX_PRESENTATION_BODY } from "./presentation-api.mjs";
 import { BrowserLab, MAX_BODY } from "./browser-lab.mjs";
 import { parse } from "./profile.mjs";
 import { BrowserIssuer, MAX_CLIENT_BODY } from "./browser-client-api.mjs";
@@ -49,16 +51,20 @@ const headers = {
   "Content-Security-Policy":
     "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
 };
-export async function startBrowserLab({ product = false } = {}) {
+export async function startBrowserLab({
+  product = false,
+  productRoot = undefined,
+} = {}) {
   const served = new Map(assets);
   if (product)
-    for (const [url, asset] of productAssets()) {
+    for (const [url, asset] of productAssets(productRoot)) {
       assert(!served.has(url), "product asset collision");
       served.set(url, asset);
     }
   const lab = new BrowserLab();
   const browserIssuer = new BrowserIssuer(lab.issuer);
   const token = randomBytes(32).toString("hex");
+  let presentation;
   let origin,
     host,
     active = 0;
@@ -74,6 +80,53 @@ export async function startBrowserLab({ product = false } = {}) {
       const single = (name) => req.headersDistinct[name]?.length === 1;
       if (!single("host") || req.headers.host !== host)
         return reply(403, { error: "Loopback host required." });
+      if (product && req.method === "GET") {
+        if (req.url === "/ps/trust.json")
+          return reply(200, presentation.pins());
+        const publicPath =
+          /^\/ps\/(evidence|art|proof)\/([0-9a-f]{64})(\.png)?$/.exec(req.url);
+        if (publicPath) {
+          const [, kind, id, suffix] = publicPath;
+          if ((kind === "art") !== (suffix === ".png"))
+            return reply(404, { error: "Not found." });
+          const record = presentation.read(id);
+          if (!record) return reply(404, { error: "Not found." });
+          if (kind === "evidence") return reply(200, record);
+          if (kind === "art") {
+            res.writeHead(200, { "Content-Type": "image/png" });
+            return res.end(
+              Buffer.from(parse(record.wire, 150000).image, "hex"),
+            );
+          }
+          const title = "ZFT PS evidence · " + id.slice(0, 8);
+          const description =
+            "Public PS evidence with a timestamped issuer report. This is not a spend reservation or guaranteed current ownership.";
+          const head =
+            '<meta name="description" content="' +
+            description +
+            '"><meta property="og:title" content="' +
+            title +
+            '"><meta property="og:description" content="' +
+            description +
+            '"><meta property="og:image" content="' +
+            origin +
+            "/ps/art/" +
+            id +
+            '.png"><meta property="og:url" content="' +
+            origin +
+            "/ps/proof/" +
+            id +
+            '">';
+          const html = served
+            .get("/ps/")
+            .data.toString()
+            .replace(/<title>[^<]*<\/title>/, "<title>" + title + "</title>")
+            .replace(/<meta\s+name="description"[^>]*>/, "")
+            .replace("</head>", head + "</head>");
+          res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+          return res.end(html);
+        }
+      }
       const path = product ? req.url.split("?")[0] : req.url;
       const staticPath = product && productRoute(path) ? "/ps/" : path;
       if (req.method === "GET" && served.has(staticPath)) {
@@ -81,7 +134,12 @@ export async function startBrowserLab({ product = false } = {}) {
         res.writeHead(200, { "Content-Type": asset.type });
         return res.end(asset.data);
       }
-      if (!["/api", "/issuer"].includes(req.url) || req.method !== "POST")
+      if (
+        !(
+          product ? ["/api", "/issuer", "/presentation"] : ["/api", "/issuer"]
+        ).includes(req.url) ||
+        req.method !== "POST"
+      )
         return reply(404, { error: "Not found." });
       const authorization = req.headers.authorization;
       if (
@@ -115,7 +173,12 @@ export async function startBrowserLab({ product = false } = {}) {
         for await (const chunk of req) {
           size += chunk.length;
           assert(
-            size <= (req.url === "/issuer" ? MAX_CLIENT_BODY : MAX_BODY),
+            size <=
+              (req.url === "/issuer"
+                ? MAX_CLIENT_BODY
+                : req.url === "/presentation"
+                  ? MAX_PRESENTATION_BODY
+                  : MAX_BODY),
             "body bound",
           );
           chunks.push(chunk);
@@ -125,9 +188,11 @@ export async function startBrowserLab({ product = false } = {}) {
           ignoreBOM: true,
         }).decode(Buffer.concat(chunks));
         const result =
-          req.url === "/issuer"
-            ? browserIssuer.dispatch(parse(wire, MAX_CLIENT_BODY))
-            : lab.dispatch(parse(wire, MAX_BODY));
+          req.url === "/presentation"
+            ? await presentation.dispatch(parse(wire, MAX_PRESENTATION_BODY))
+            : req.url === "/issuer"
+              ? browserIssuer.dispatch(parse(wire, MAX_CLIENT_BODY))
+              : lab.dispatch(parse(wire, MAX_BODY));
         reply(200, result);
       } catch {
         // Never return assertion diffs, request bodies, passwords or credential material.
@@ -151,7 +216,15 @@ export async function startBrowserLab({ product = false } = {}) {
     });
     host = "127.0.0.1:" + server.address().port;
     origin = "http://" + host;
+    if (product)
+      presentation = new PresentationApi(
+        lab.issuer,
+        join(lab.dir, "presentations.db"),
+        origin,
+      );
   } catch (error) {
+    server.close();
+    presentation?.close();
     lab.close();
     throw error;
   }
@@ -165,6 +238,7 @@ export async function startBrowserLab({ product = false } = {}) {
         server.close(resolve);
         server.closeAllConnections();
       });
+      presentation?.close();
       lab.close();
     },
   };

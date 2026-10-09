@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.14.0",
   "scripts": {
     "test": "node --test verify.test.mjs paths.test.mjs",
-    "test:local": "node --experimental-sqlite --test local/engine.test.mjs local/recovery.test.mjs local/state.test.mjs local/state-recovery.test.mjs local/parser.test.mjs local/image.test.mjs local/vault.test.mjs local/browser.test.mjs local/web-vault.test.mjs local/web-client.test.mjs local/web-image.test.mjs local/product-assets.test.mjs",
+    "test:local": "node --experimental-sqlite --test local/engine.test.mjs local/recovery.test.mjs local/state.test.mjs local/state-recovery.test.mjs local/parser.test.mjs local/image.test.mjs local/vault.test.mjs local/browser.test.mjs local/web-vault.test.mjs local/web-client.test.mjs local/web-image.test.mjs local/product-assets.test.mjs local/presentation.test.mjs local/presentation-http.test.mjs",
     "demo:local": "node --experimental-sqlite local/demo.mjs",
     "demo:state": "node --experimental-sqlite local/state-demo.mjs",
     "demo:image": "node --experimental-sqlite local/image-demo.mjs",

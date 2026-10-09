@@ -1,3 +1,5 @@
+import { presentationContext } from "./presentation.mjs";
+import { showingChallenge } from "./state.mjs";
 // Browser-owned credential state. Only encrypted journals reach persistence.
 import assert from "./runtime.mjs";
 import * as p from "./profile.mjs";
@@ -276,6 +278,38 @@ export class BrowserClient {
       height: value.height,
       digest: p.hash(value.image),
     };
+  }
+  async observation(id, context, statusManifest, origin, chainId) {
+    const old = this.#credential(id),
+      epoch = this.#epoch;
+    presentationContext(
+      context,
+      this.#pinned.manifest,
+      statusManifest,
+      origin,
+      chainId,
+    );
+    assert.equal(context.h, old.credential.h, "observation selected asset");
+    const now = Math.floor(Date.now() / 1000);
+    assert(
+      now >= context.created_at && now < context.expires_at,
+      "observation expired",
+    );
+    const value = await inspectImage(p.bytes(old.asset));
+    this.#active(epoch);
+    return {
+      showing: p.showing(
+        old.credential,
+        context.wallet,
+        showingChallenge(context),
+        this.#pinned,
+      ),
+      image: p.hex(value.image),
+      image_sha256: p.hash(value.image),
+    };
+  }
+  publicAttribute(id) {
+    return this.#credential(id).credential.h;
   }
   async backup(digest, password) {
     const row = this.#row(digest),

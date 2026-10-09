@@ -309,3 +309,22 @@
     margin-left: 0;
   }
 }
+
+.ps-endorsement-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.ps-evidence dt {
+  font-weight: 700;
+  margin-top: 14px;
+}
+.ps-evidence dd {
+  margin: 4px 0 14px;
+  line-height: 1.6;
+}
+.ps-proof-controls {
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  padding-top: 8px;
+}

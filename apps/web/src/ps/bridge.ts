@@ -1,3 +1,16 @@
+export type PresentationReport = {
+  credentialValid: boolean;
+  walletSigningKeyValid?: boolean;
+  contractWalletChecked: boolean;
+  issuerReported: "spent" | "unspent";
+  observedAt: number;
+  expiresAt: number;
+  withinObservationInterval: boolean;
+  sequence: number;
+  imageSha256: string;
+  width: number;
+  height: number;
+};
 export type Operation = {
   digest: string;
   acknowledged: boolean;
@@ -23,6 +36,12 @@ export type Result = {
   id?: string;
   artwork?: Artwork;
   lost?: boolean;
+  presentation?: {
+    report: PresentationReport;
+    message?: string;
+    id?: string;
+    wire?: string;
+  };
 };
 export type Bootstrap = {
   manifest: { realm: string; [key: string]: unknown };

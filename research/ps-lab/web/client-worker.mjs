@@ -1,7 +1,14 @@
+import {
+  PRESENTATION,
+  verifyObservation,
+  verifyPresentation,
+  endorsementMessage,
+} from "./presentation.mjs";
 import { storageChecks } from "./client-checks.mjs";
 import { BrowserClient } from "./client.mjs";
 import { openStore, readSlot, writeSlot } from "./client-storage.mjs";
 import * as p from "./profile.mjs";
+let draft = null;
 let config,
   client = null,
   db = null,
@@ -11,9 +18,9 @@ let config,
 const active = (e) => {
   if (e !== epoch) throw new Error("locked");
 };
-async function api(body, e) {
+async function api(body, e, path = "/issuer") {
   active(e);
-  const r = await fetch("/issuer", {
+  const r = await fetch(path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -36,6 +43,7 @@ self.onmessage = async ({ data }) => {
     epoch++;
     client?.lock();
     client = null;
+    draft = null;
     token = null;
     db?.close();
     db = null;
@@ -54,6 +62,7 @@ self.onmessage = async ({ data }) => {
     if (action === "open" || action === "create") {
       client?.lock();
       client = null;
+      draft = null;
       token = data.token;
       if (!/^[0-9a-f]{64}$/.test(token)) throw new Error("launch capability");
       config = { manifest: data.manifest, id: data.clientId };
@@ -98,7 +107,90 @@ self.onmessage = async ({ data }) => {
       opened = null;
     } else {
       if (!client) throw new Error("locked");
-      if (action === "checks") {
+      if (action === "prepare-presentation") {
+        draft = null;
+        const pins = await api({ action: "bootstrap" }, e, "/presentation");
+        if (
+          p.canonical(pins.psManifest) !== p.canonical(config.manifest) ||
+          pins.origin !== self.location.origin
+        )
+          throw new Error("presentation trust mismatch");
+        const { context } = await api(
+          {
+            action: "prepare",
+            wallet: data.wallet,
+            chain_id: data.chainId,
+            h: client.publicAttribute(data.credential),
+          },
+          e,
+          "/presentation",
+        );
+        const proof = await client.observation(
+          data.credential,
+          context,
+          pins.statusManifest,
+          pins.origin,
+          data.chainId,
+        );
+        active(e);
+        const { receipt } = await api(
+          {
+            action: "observe",
+            challenge: context.challenge,
+            showing: proof.showing,
+          },
+          e,
+          "/presentation",
+        );
+        const value = {
+          format: PRESENTATION,
+          origin: pins.origin,
+          chain_id: data.chainId,
+          context,
+          ...proof,
+          receipt,
+          wallet_signature: null,
+        };
+        const wire = p.canonical(value);
+        const report = await verifyObservation(
+          wire,
+          pins.psManifest,
+          pins.statusManifest,
+          pins.origin,
+          Math.floor(Date.now() / 1000),
+          { requireFresh: true },
+        );
+        active(e);
+        draft = { value, pins };
+        result = {
+          presentation: { report, message: endorsementMessage(value) },
+        };
+      } else if (action === "publish-presentation") {
+        if (!draft) throw new Error("prepare presentation first");
+        const { value, pins } = draft;
+        const wire = p.canonical({
+          ...value,
+          wallet_signature: data.signature,
+        });
+        const report = await verifyPresentation(
+          wire,
+          pins.psManifest,
+          pins.statusManifest,
+          pins.origin,
+          Math.floor(Date.now() / 1000),
+          { requireFresh: true },
+        );
+        active(e);
+        const published = await api(
+          { action: "publish", wire },
+          e,
+          "/presentation",
+        );
+        if (published.id !== p.hash(wire))
+          throw new Error("published content ID mismatch");
+        result = { presentation: { report, id: published.id, wire } };
+        draft = null;
+      } else if (action === "checks") {
         const row = await readSlot(db, config.manifest, config.id);
         active(e);
         result = {

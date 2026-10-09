@@ -15,6 +15,56 @@ import { spawnSync } from "node:child_process";
 const lab = fileURLToPath(new URL("../", import.meta.url));
 const controls = [
   {
+    name: "public image loses signed asset binding",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "public evidence rejects cross-asset images even with a fresh valid wallet signature",
+    edits: [
+      [
+        '  assert.equal(p.assetValue(image.image, ps), c.h, "presentation signed asset");',
+        "",
+      ],
+    ],
+  },
+  {
+    name: "public receipt signature skipped",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "public evidence rejects every substituted scope, context, signed body and proof field",
+    edits: [["    ed25519.verify(", "    true || ed25519.verify("]],
+  },
+  {
+    name: "wallet endorsement skipped",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "public evidence verifies the exact ERC-191 endorsement independently of credential validity",
+    edits: [
+      [
+        "walletSigningKeyValid = verifyEndorsement(",
+        "walletSigningKeyValid = true || verifyEndorsement(",
+      ],
+    ],
+  },
+  {
+    name: "expired evidence published",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "public evidence distinguishes anonymous credential proof from wallet signing key and expiry",
+    edits: [
+      ['  if (requireFresh) assert(inInterval, "presentation expired");', ""],
+    ],
+  },
+  {
+    name: "public origin replaced",
+    file: "presentation.mjs",
+    suite: "presentation.test.mjs",
+    test: "caller pins cannot be replaced by an imported public record",
+    edits: [
+      ['  assert.equal(v.origin, expectedOrigin, "presentation origin");', ""],
+    ],
+  },
+
+  {
     name: "unbound recovery capability",
     file: "profile.mjs",
     test: "recovery capability substitution invalidates the proof",

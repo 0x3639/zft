@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test, after } from "node:test";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+  readFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -575,7 +581,7 @@ test("browser client HTTP issuer requires loopback authorization and exact schem
 
 // Real Worker orchestration and HTTP; persistence is a serialized in-memory
 // adapter here. Actual IndexedDB transactions are separately exercised in-browser.
-async function worker(t, r) {
+async function worker(t, r, strictPng = false) {
   const { Worker } = await import("node:worker_threads");
   const workerDir = mkdtempSync(join(tmpdir(), "zft-client-worker-"));
   t.after(() => rmSync(workerDir, { recursive: true, force: true }));
@@ -596,7 +602,7 @@ async function worker(t, r) {
   const adapter = join(workerDir, "adapter.mjs");
   writeFileSync(
     adapter,
-    `import {parentPort} from 'node:worker_threads';const fetchOriginal=fetch;globalThis.fetch=(url,options)=>fetchOriginal(new URL(url,${JSON.stringify(r.origin)}),{...options,headers:{...options.headers,Origin:${JSON.stringify(r.origin)}}});globalThis.self={postMessage:value=>parentPort.postMessage(value)};await import('./web/client-worker.mjs');parentPort.on('message',data=>self.onmessage({data}));parentPort.postMessage({id:0,ok:true});`,
+    `${strictPng ? "import {StrictTestDecoder} from " + JSON.stringify(new URL("./web-image-test-support.mjs", import.meta.url).href) + ";globalThis.DecompressionStream=StrictTestDecoder;" : ""}import {parentPort} from 'node:worker_threads';const fetchOriginal=fetch;globalThis.fetch=(url,options)=>fetchOriginal(new URL(url,${JSON.stringify(r.origin)}),{...options,headers:{...options.headers,Origin:${JSON.stringify(r.origin)}}});globalThis.self={location:{origin:${JSON.stringify(r.origin)}},postMessage:value=>parentPort.postMessage(value)};await import('./web/client-worker.mjs');parentPort.on('message',data=>self.onmessage({data}));parentPort.postMessage({id:0,ok:true});`,
   );
   const w = new Worker(pathToFileURL(adapter)),
     seen = [],
@@ -723,4 +729,94 @@ test("browser client authenticated journal cannot replace inner trust or identit
       ),
     );
   }
+});
+
+// This is a Node Worker + strict test decoder + mock persistence integration,
+// not native browser/IndexedDB/extension acceptance.
+test("browser worker publishes verified public evidence through actual HTTP without exposing bearer authority", async (t) => {
+  const root = mkdtempSync(join(tmpdir(), "zft-public-worker-assets-"));
+  mkdirSync(join(root, "assets"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  writeFileSync(
+    join(root, "index.html"),
+    "<html><head></head><body></body></html>",
+  );
+  const r = await startBrowserLab({ product: true, productRoot: root });
+  t.after(() => r.close());
+  const { send, seen } = await worker(t, r, true);
+  const image = p.bytes(
+    JSON.parse(readFileSync(new URL("./image-fixtures.json", import.meta.url)))
+      .images[0].pngHex,
+  );
+  assert(
+    (
+      await send("create", {
+        token: r.token,
+        manifest: r.lab.manifest,
+        clientId: p.randomHex(16),
+        password,
+      })
+    ).ok,
+  );
+  const minted = await send("mint-image", { bytes: image });
+  assert(minted.ok);
+  const digest = minted.result.digest;
+  const backup = await send("backup", { digest, password });
+  assert(backup.ok);
+  assert(
+    (await send("acknowledge", { digest, wire: backup.result.wire, password }))
+      .ok,
+  );
+  const submitted = await send("submit", { digest });
+  assert(submitted.ok);
+  const credential = submitted.result.state.credentials[0].id;
+  const prepared = await send("prepare-presentation", {
+    credential,
+    wallet: "00".repeat(20),
+    chainId: 0,
+  });
+  assert(prepared.ok, JSON.stringify(prepared));
+  assert.equal(prepared.result.presentation.report.credentialValid, true);
+  const published = await send("publish-presentation", { signature: null });
+  assert(published.ok, JSON.stringify(published));
+  const { id, wire, report } = published.result.presentation;
+  assert.equal(id, p.hash(wire));
+  assert.equal(report.walletSigningKeyValid, false);
+  assert.equal(
+    (await (await fetch(r.origin + "/ps/evidence/" + id)).json()).wire,
+    wire,
+  );
+  const vault = LocalVault.open(
+    backup.result.wire,
+    password,
+    r.lab.manifest,
+    backup.result.id,
+  );
+  const pending = p.parse(vault.read(vault.list()[0].id).wire, 300000);
+  const output = JSON.stringify(seen);
+  for (const secret of [password, pending.secret, pending.capability])
+    assert(!output.includes(secret));
+  for (const c of r.lab.clients.values())
+    assert.equal(
+      c.db.prepare("SELECT COUNT(*) AS n FROM credentials").get().n,
+      0,
+    );
+  assert.equal(
+    (await send("publish-presentation", { signature: null })).ok,
+    false,
+  );
+  assert(
+    (
+      await send("prepare-presentation", {
+        credential,
+        wallet: "00".repeat(20),
+        chainId: 0,
+      })
+    ).ok,
+  );
+  await send("lock");
+  assert.equal(
+    (await send("publish-presentation", { signature: null })).ok,
+    false,
+  );
 });

@@ -1463,10 +1463,15 @@ if (import.meta.hot) import.meta.hot.data.root = root;
 const psRoute =
   location.pathname === "/ps" || location.pathname.startsWith("/ps/");
 const PsApp = React.lazy(() => import("./ps/app"));
+const PsPublicPage = React.lazy(() => import("./ps/public-page"));
 root.render(
   psRoute ? (
     <React.Suspense fallback={<p>Opening PS collection…</p>}>
-      <PsApp />
+      {location.pathname.startsWith("/ps/proof/") ? (
+        <PsPublicPage />
+      ) : (
+        <PsApp />
+      )}
     </React.Suspense>
   ) : (
     <App />
