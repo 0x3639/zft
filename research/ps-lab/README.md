@@ -1,6 +1,8 @@
 # Isolated PS research lab
 
-Current local increment: [PS key-envelope contract](../../docs/PS-KEY-ENVELOPE.md), with 22 focused tests and eight mutation controls for encrypted records, pinned scalar identity and bounded wrap/unwrap failures. [Current evidence](../ps-key-envelope-validation.json) keeps all earlier manifests historical. The serving issuer still uses its original plaintext storage; this adapter is isolated.
+Current local increment: [create-only encrypted PS key file](../../docs/PS-KEY-FILE.md). [Current evidence](../ps-key-file-validation.json) records 22 focused tests, seven new mutation controls and seven new process-kill boundaries. The final record is never overwritten; uncertain completion retains it for explicit inspection. This isolated library does not change the serving issuer, session storage or release gates.
+
+Previous local increment: [PS key envelope](../../docs/PS-KEY-ENVELOPE.md). [Historical envelope evidence](../ps-key-envelope-validation.json) records the encrypted scalar representation and injected wrap/unwrap failures.
 
 Previous local increment: [provider-neutral status signer contract](../../docs/PS-STATUS-SIGNER-CONTRACT.md), with 20 focused local tests and five new mutation controls. It does not call a cloud provider or replace the serving issuer. [Historical evidence](../ps-status-signer-validation.json) preserves earlier manifests as historical.
 

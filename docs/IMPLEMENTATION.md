@@ -357,4 +357,9 @@ From merged PR #26, the [status signer experiment](PS-STATUS-SIGNER-CONTRACT.md)
 
 ## Local encrypted PS key record
 
-Merged PR #27 (`f69b830`) is the baseline for the [key-envelope experiment](PS-KEY-ENVELOPE.md). It adds fresh-key AES-256-GCM records, caller-pinned scope, inner scalar/manifest checks, injected wrapping, denied/late unwrap handling and a disposable process-restart issuer check. [Current evidence](../research/ps-key-envelope-validation.json) records the affected tests and eight mutation controls. No serving issuer, database, session-secret, backup or status-key storage changes are included. Provider custody, durable integration, independent C1/C4 and PS-OWN-01 remain open.
+Merged PR #27 (`f69b830`) is the baseline for the [key-envelope experiment](PS-KEY-ENVELOPE.md). It adds fresh-key AES-256-GCM records, caller-pinned scope, inner scalar/manifest checks, injected wrapping, denied/late unwrap handling and a disposable process-restart issuer check. [Historical envelope evidence](../research/ps-key-envelope-validation.json) records the affected tests and eight mutation controls. No serving issuer, database, session-secret, backup or status-key storage changes are included. Provider custody, durable integration, independent C1/C4 and PS-OWN-01 remain open.
+
+
+## Local encrypted PS key file
+
+Merged PR #28 (`0259f76`) is the baseline for [create-only key-file storage](PS-KEY-FILE.md). It validates wrap/unwrap before writing, syncs an exclusive private ciphertext temporary file, publishes without replacement, then syncs both directory transitions. Callers must pin a ciphertext digest when opening; postpublication failures return an explicit uncertain result and preserve the final file. [Current evidence](../research/ps-key-file-validation.json) records races, filesystem faults, seven actual SIGKILL boundaries and seven new mutation controls. The issuer, original plaintext storage and prior adapters remain unchanged. Provider qualification, durable issuer integration, session protection and independent review are still open.
