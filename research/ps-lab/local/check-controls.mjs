@@ -15,6 +15,60 @@ import { spawnSync } from "node:child_process";
 const lab = fileURLToPath(new URL("../", import.meta.url));
 const controls = [
   {
+    name: "missing persistent registry silently recreated",
+    file: "persistent.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent startup rejects missing database instead of silently creating a fresh registry",
+    edits: [["for (const f of FILES)", "for (const f of [])"]],
+  },
+  {
+    name: "unsafe persistent key permissions accepted",
+    file: "persistent.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent startup rejects unsafe permissions symlinks and changed private trust",
+    edits: [["        (s.mode & 0o077) === 0 &&", ""]],
+  },
+  {
+    name: "persistent process lock bypassed",
+    file: "persistent.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent exclusive ownership rejects a second server and refuses to steal a live lock",
+    edits: [
+      [
+        'import assert from "node:assert/strict";',
+        'import assert from "node:assert/strict";\nimport {existsSync} from "node:fs";',
+      ],
+      [
+        "this.lock = acquire(dir);",
+        "this.lock = existsSync(join(dir, 'run.lock')) ? readPrivate(join(dir, 'run.lock')) : acquire(dir);",
+      ],
+    ],
+  },
+  {
+    name: "committed public receipt discarded",
+    file: "persistent-public.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent observation returns the committed receipt after interruption before API return",
+    edits: [["receipt: r.receipt,", "receipt: null,"]],
+  },
+  {
+    name: "persistent operation admission skipped",
+    file: "persistent-api.mjs",
+    suite: "persistent.test.mjs",
+    test: "persistent operation cap rejects new work while exact authorized response remains recoverable",
+    edits: [
+      [
+        '      assert(\n        this.issuer.counts().operations < LIMITS.operations,\n        "local operation cap",\n      );',
+        "",
+      ],
+      [
+        '    assert(\n      this.issuer.counts().operations < LIMITS.operations,\n      "local operation cap",\n    );',
+        "",
+      ],
+    ],
+  },
+
+  {
     name: "public image loses signed asset binding",
     file: "presentation.mjs",
     suite: "presentation.test.mjs",

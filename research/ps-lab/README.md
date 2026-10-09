@@ -1,6 +1,8 @@
 # Isolated PS research lab
 
-Current local increment: [public PS presentation](../../docs/PS-PUBLIC-PRESENTATION.md), with separate credential proof, optional wallet signing-key endorsement and issuer snapshot. [Current source evidence](../ps-presentation-validation.json) records 230 local tests, 63 lab controls, 241 app tests and precise browser limits. The product-interface manifest is now historical.
+Current local increment: [persistent issuer](../../docs/PS-PERSISTENT-LOCAL.md). [Current evidence](../ps-persistent-validation.json) records 242 local tests, 68 controls and 22 actual process-kill locations. Earlier manifests, including product/public presentation, remain historical. No hosted release or production key-custody claim.
+
+Previous local increment: [public PS presentation](../../docs/PS-PUBLIC-PRESENTATION.md), with separate credential proof, optional wallet signing-key endorsement and issuer snapshot. [Historical presentation evidence](../ps-presentation-validation.json) records 230 local tests, 63 lab controls, 241 app tests and precise browser limits. The product-interface manifest is now historical.
 
 The reference fixtures use public test keys and deterministic proof nonces. **Never issue assets with this code.** This is the first C1 fixture set for the [reference-core profile](../../docs/PS-CRYPTOGRAPHIC-PROFILE.md), not the app SDK, an issuer service or a cryptographic audit.
 

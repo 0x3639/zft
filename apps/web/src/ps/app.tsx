@@ -229,6 +229,14 @@ export default function PsApp() {
     const timer = setInterval(() => {
       if (unlocked.current && Date.now() - lastTouch.current >= 300000) lock();
     }, 1000);
+    // A stable-origin launch link can navigate only the fragment of an open tab.
+    const launch = () => {
+      if (/^#[0-9a-f]{64}$/.test(location.hash)) {
+        lock();
+        location.reload();
+      }
+    };
+    window.addEventListener("hashchange", launch);
     window.addEventListener("popstate", pop);
     window.addEventListener("pagehide", lock);
     document.addEventListener("visibilitychange", hidden);
@@ -237,6 +245,7 @@ export default function PsApp() {
     return () => {
       abort.abort();
       clearInterval(timer);
+      window.removeEventListener("hashchange", launch);
       window.removeEventListener("popstate", pop);
       window.removeEventListener("pagehide", lock);
       document.removeEventListener("visibilitychange", hidden);
@@ -318,10 +327,11 @@ export default function PsApp() {
       </nav>
       <main className="ps-main">
         <aside className="ps-warning">
-          Local test issuer · public test keys · disposable artwork only.
-          Stopping the server loses the issuer registry; saved files cannot
-          restore it. These PS credentials are managed here; they are not NFTs
-          in MetaMask’s inventory.
+          {boot?.mode?.kind === "persistent-local"
+            ? "Persistent local research issuer · generated private keys and local registry retained across restarts. Back up the issuer separately; browser recovery files cannot restore its database. Test artwork only."
+            : "Local test issuer · public test keys · disposable artwork only. Stopping the server loses the issuer registry; saved files cannot restore it."}{" "}
+          These PS credentials are managed here; they are not NFTs in MetaMask’s
+          inventory.
         </aside>
         <div className="ps-notice" role="status" aria-live="polite">
           {busy || message}
@@ -380,7 +390,8 @@ export default function PsApp() {
             </form>
             <p className="ps-muted">
               Use a test password. This issuer permits eight operations per
-              browser copy and 24 completed operations overall.
+              browser copy and {boot?.mode?.operationLimit ?? 24} completed
+              operations overall.
             </p>
           </section>
         )}

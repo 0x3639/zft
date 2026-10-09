@@ -7,6 +7,8 @@ import { pathToFileURL } from "node:url";
 import { join } from "node:path";
 import { PresentationApi, MAX_PRESENTATION_BODY } from "./presentation-api.mjs";
 import { BrowserLab, MAX_BODY } from "./browser-lab.mjs";
+import { PersistentLab } from "./persistent.mjs";
+import { PersistentBrowserIssuer } from "./persistent-api.mjs";
 import { parse } from "./profile.mjs";
 import { BrowserIssuer, MAX_CLIENT_BODY } from "./browser-client-api.mjs";
 import { productAssets, productRoute } from "./product-assets.mjs";
@@ -54,17 +56,34 @@ const headers = {
 export async function startBrowserLab({
   product = false,
   productRoot = undefined,
+  persistentDir = undefined,
 } = {}) {
+  assert(!persistentDir || product, "persistent mode requires product UI");
   const served = new Map(assets);
+  if (persistentDir)
+    for (const key of [
+      "/",
+      "/app.js",
+      "/style.css",
+      "/vault/",
+      "/client/",
+      "/vault/style.css",
+    ])
+      served.delete(key);
   if (product)
     for (const [url, asset] of productAssets(productRoot)) {
       assert(!served.has(url), "product asset collision");
       served.set(url, asset);
     }
-  const lab = new BrowserLab();
-  const browserIssuer = new BrowserIssuer(lab.issuer);
+  const lab = persistentDir
+    ? new PersistentLab(persistentDir)
+    : new BrowserLab();
+  const browserIssuer = persistentDir
+    ? new PersistentBrowserIssuer(lab)
+    : new BrowserIssuer(lab.issuer);
   const token = randomBytes(32).toString("hex");
-  let presentation;
+  let presentation,
+    ready = false;
   let origin,
     host,
     active = 0;
@@ -76,6 +95,7 @@ export async function startBrowserLab({
         res.writeHead(status, { "Content-Type": "application/json" });
         res.end(JSON.stringify(value));
       };
+      if (!ready) return reply(503, { error: "Local issuer starting." });
       // Duplicate security headers are rejected even when Node coalesces them.
       const single = (name) => req.headersDistinct[name]?.length === 1;
       if (!single("host") || req.headers.host !== host)
@@ -136,7 +156,11 @@ export async function startBrowserLab({
       }
       if (
         !(
-          product ? ["/api", "/issuer", "/presentation"] : ["/api", "/issuer"]
+          persistentDir
+            ? ["/issuer", "/presentation"]
+            : product
+              ? ["/api", "/issuer", "/presentation"]
+              : ["/api", "/issuer"]
         ).includes(req.url) ||
         req.method !== "POST"
       )
@@ -212,7 +236,7 @@ export async function startBrowserLab({
   try {
     await new Promise((resolve, reject) => {
       server.once("error", reject);
-      server.listen(0, "127.0.0.1", resolve);
+      server.listen(persistentDir ? lab.config.port : 0, "127.0.0.1", resolve);
     });
     host = "127.0.0.1:" + server.address().port;
     origin = "http://" + host;
@@ -221,7 +245,12 @@ export async function startBrowserLab({
         lab.issuer,
         join(lab.dir, "presentations.db"),
         origin,
+        persistentDir
+          ? { privateKey: lab.statusPrivateKey, durable: true }
+          : {},
       );
+    if (persistentDir) await presentation.validateRecords();
+    ready = true;
   } catch (error) {
     server.close();
     presentation?.close();

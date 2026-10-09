@@ -19,7 +19,8 @@
     "deploy:contract": "tsx scripts/deploy-contract.ts",
     "deploy": "pnpm build && wrangler deploy --config wrangler.devnet.jsonc --env=",
     "format": "prettier --write 'apps/**/*.{ts,tsx,css,html}' 'packages/**/*.{ts,json}' 'scripts/*.{ts,mjs}' 'tests/*.ts' package.json tsconfig.json vitest.config.ts wrangler.devnet.jsonc",
-    "ps:local": "pnpm build && node --experimental-sqlite research/ps-lab/local/browser-server.mjs --product"
+    "ps:local": "pnpm build && node --experimental-sqlite research/ps-lab/local/browser-server.mjs --product",
+    "ps:persistent": "node --experimental-sqlite research/ps-lab/local/persistent-cli.mjs"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "5.3.0",

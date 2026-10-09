@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { generateKeyPairSync, createPublicKey } from "node:crypto";
 import * as p from "./profile.mjs";
+import { durablePublic } from "./persistent-public.mjs";
 import { StateIssuer, StateObserver, stateManifest } from "./state.mjs";
 import {
   presentationAudience,
@@ -14,25 +15,65 @@ export class PresentationApi {
     issuer,
     path,
     origin,
-    { now = () => Math.floor(Date.now() / 1000) } = {},
+    {
+      now = () => Math.floor(Date.now() / 1000),
+      privateKey = generateKeyPairSync("ed25519").privateKey,
+      durable = false,
+    } = {},
   ) {
     this.ps = issuer.pinned.manifest;
     this.origin = origin;
     this.now = now;
     this.requests = new Map();
     this.records = new Map();
-    const { privateKey } = generateKeyPairSync("ed25519");
     const raw = createPublicKey(privateKey)
       .export({ type: "spki", format: "der" })
       .subarray(-32)
       .toString("hex");
     this.status = stateManifest(this.ps, raw);
     this.observer = new StateObserver(path, this.ps, this.status, { now });
-    this.signer = new StateIssuer(issuer, this.status, privateKey, { now });
+    try {
+      this.signer = new StateIssuer(issuer, this.status, privateKey, { now });
+      if (durable) Object.assign(this, durablePublic(this.observer));
+    } catch (e) {
+      this.observer.close();
+      throw e;
+    }
   }
   close() {
     this.observer.close();
   }
+  async validateRecords() {
+    assert(
+      this.requests.size <= 64 && this.records.size <= 64,
+      "public store cap",
+    );
+    for (const [id, r] of this.records.entries()) {
+      p.bytes(id, 32);
+      assert.equal(p.hash(r.wire), id, "stored publication hash");
+      assert(
+        Number.isSafeInteger(r.publishedAt) && r.publishedAt >= 0,
+        "publication time",
+      );
+      await verifyPresentation(
+        r.wire,
+        this.ps,
+        this.status,
+        this.origin,
+        this.now(),
+      );
+      const v = p.parse(r.wire, PRESENTATION_LIMIT),
+        known = this.requests.get(v.context.challenge);
+      assert(
+        known &&
+          known.receipt === v.receipt &&
+          known.showing === v.showing &&
+          known.chain_id === v.chain_id,
+        "stored publication observation",
+      );
+    }
+  }
+
   pins() {
     return {
       psManifest: this.ps,

@@ -44,6 +44,11 @@ export type Result = {
   };
 };
 export type Bootstrap = {
+  mode?: {
+    kind: "persistent-local";
+    operationLimit: number;
+    sessionLimit: number;
+  };
   manifest: { realm: string; [key: string]: unknown };
   clients: Record<string, string>;
   fixtures: { asset: string; width: number; height: number }[];

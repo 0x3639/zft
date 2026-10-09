@@ -135,9 +135,9 @@ export default function PublicPsPage() {
       </header>
       <main className="ps-main">
         <aside className="ps-warning">
-          Local research issuer with public test keys. The public link contains
-          artwork and evidence, never a bearer file. Independent cryptographic
-          review is pending.
+          Local research issuer. Verify its trust and test-only scope. The
+          public link contains artwork and evidence, never a bearer file.
+          Independent cryptographic review is pending.
         </aside>
         <h1>Public artwork evidence</h1>
         <p>
