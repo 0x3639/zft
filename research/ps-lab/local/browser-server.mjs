@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 import { BrowserLab, MAX_BODY } from "./browser-lab.mjs";
 import { parse } from "./profile.mjs";
 import { BrowserIssuer, MAX_CLIENT_BODY } from "./browser-client-api.mjs";
+import { productAssets, productRoute } from "./product-assets.mjs";
 import { browserModules } from "../web/modules.mjs";
 const assets = new Map(
   [
@@ -46,9 +47,15 @@ const headers = {
   "Cross-Origin-Resource-Policy": "same-origin",
   "X-Frame-Options": "DENY",
   "Content-Security-Policy":
-    "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+    "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
 };
-export async function startBrowserLab() {
+export async function startBrowserLab({ product = false } = {}) {
+  const served = new Map(assets);
+  if (product)
+    for (const [url, asset] of productAssets()) {
+      assert(!served.has(url), "product asset collision");
+      served.set(url, asset);
+    }
   const lab = new BrowserLab();
   const browserIssuer = new BrowserIssuer(lab.issuer);
   const token = randomBytes(32).toString("hex");
@@ -67,8 +74,10 @@ export async function startBrowserLab() {
       const single = (name) => req.headersDistinct[name]?.length === 1;
       if (!single("host") || req.headers.host !== host)
         return reply(403, { error: "Loopback host required." });
-      if (req.method === "GET" && assets.has(req.url)) {
-        const asset = assets.get(req.url);
+      const path = product ? req.url.split("?")[0] : req.url;
+      const staticPath = product && productRoute(path) ? "/ps/" : path;
+      if (req.method === "GET" && served.has(staticPath)) {
+        const asset = served.get(staticPath);
         res.writeHead(200, { "Content-Type": asset.type });
         return res.end(asset.data);
       }
@@ -150,7 +159,7 @@ export async function startBrowserLab() {
     origin,
     token,
     lab,
-    url: origin + "/#" + token,
+    url: origin + (product ? "/ps/#" : "/#") + token,
     close: async () => {
       await new Promise((resolve) => {
         server.close(resolve);
@@ -164,7 +173,9 @@ if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
-  const running = await startBrowserLab();
+  const running = await startBrowserLab({
+    product: process.argv.includes("--product"),
+  });
   console.log(
     "Disposable PS browser lab — test keys only. Stopping deletes issuer and client state.",
   );

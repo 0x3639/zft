@@ -1,10 +1,10 @@
 # PS independent review packet
 
-Updated October 8, 2026, against merged PR #21 baseline `2a2bc7119386dd103b4799cc132a0ffec7011b8a` plus isolated browser credential execution. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
+Updated October 9, 2026, against merged PR #23 baseline `673f89dba48a3222be02894ad659a62fe6e58aad` plus the local product interface. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
 
 ## Freeze the reviewed revision
 
-Record the exact commit under review and verify its signature. [Current browser-artwork evidence](../research/ps-browser-artwork-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
+Record the exact commit under review and verify its signature. Development increments are temporarily unsigned locally at the user’s request; the unpublished series must be signed and every signature verified before this external handoff. [Current product-interface evidence](../research/ps-product-interface-validation.json) lists source hashes and unchanged baseline artifacts; historical manifests apply to their own revisions. Do not update mismatching hashes just to make a check pass.
 
 ```sh
 git rev-parse HEAD
@@ -12,7 +12,7 @@ git verify-commit HEAD
 python3 - <<'PY'
 import hashlib, json
 from pathlib import Path
-v = json.loads(Path('research/ps-browser-artwork-validation.json').read_text())
+v = json.loads(Path('research/ps-product-interface-validation.json').read_text())
 for name, expected in v['sourceSha256'].items():
     assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
 print('source hashes match')
@@ -87,3 +87,8 @@ Existing evidence: six focused engine regressions passed on `9b83f87` on October
 Browser credential review additionally covers the [client protocol/storage boundary](PS-BROWSER-CLIENT.md), generated proof execution, complete encrypted working journals, both outer and decrypted identity pins, exact saved-file acknowledgment, compare-and-swap completion, serialized Worker actions and loopback-only issuer interface. Existing reference/local proof equations are unchanged. Challenge authenticated but inconsistent journals, competing stale tabs, locked asynchronous completions, response loss, recovery replay and any path that sends bearer secrets to Node or revives spent authority. PS-OWN-01 remains open.
 
 Browser artwork review covers the [portable PNG decoder boundary](PS-BROWSER-ARTWORK.md#browser-decompression-boundary), exact generated envelope adaptation, caller input ownership, private/public outputs and lock checks. Challenge native trailing-stream behavior across engines, internal decoder allocation, same-author Node/browser agreement and the UI distinction between a viewable stale image and successfully refreshed authority. Actual desktop PNG download/claim/cancel acceptance does not close PS-OWN-01 or qualify phones.
+
+
+## Product interface boundary
+
+Review the [React interface](PS-PRODUCT-INTERFACE.md), [bridge](../apps/web/src/ps/bridge.ts) and [fixed asset loader](../research/ps-lab/local/product-assets.mjs) for origin/capability scope, private/public output separation, late Worker replies, recovery gating and meaningful user labels. This interface preserves the existing credential Worker and transcripts; it does not authenticate a wallet or provide a fresh issuer observation. The [release sequence](PS-RELEASE-PLAN.md) separates implementation from independent review and device/hosting acceptance.

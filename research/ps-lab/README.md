@@ -65,3 +65,8 @@ The console's **Browser client** link runs mint/claim/cancel proofs in a dedicat
 ## Browser artwork
 
 The same client now validates normalized PNG inputs, claims private PNGs and displays selected artwork using public image bytes only. Explicit private downloads carry plaintext bearer authority; public downloads preserve only the original image. Existing encrypted recovery gates apply to mint/claim/cancel. See [workflow, strict decoder boundary and acceptance](../../docs/PS-BROWSER-ARTWORK.md) and [current evidence](../ps-browser-artwork-validation.json). Automated tests use a strict Node decoder adapter; actual browser checks exercise native decompression. There is no general image normalizer, phone qualification or independent cryptographic review.
+
+
+## ZFT product interface
+
+Run `pnpm ps:local` from the repository root to build and open the real React `/ps/` interface on a disposable loopback issuer. It adds collection/item routes and JPG/PNG preparation over the existing browser Worker. Root dependencies must already be installed. See [workflow and limits](../../docs/PS-PRODUCT-INTERFACE.md), [release sequence](../../docs/PS-RELEASE-PLAN.md) and [current evidence](../ps-product-interface-validation.json). The lab suite now contains 218 tests and 58 controls; root verification separately contains 235 tests and three bridge controls. Earlier records above describe their historical slices.
