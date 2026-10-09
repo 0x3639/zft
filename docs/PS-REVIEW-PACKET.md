@@ -1,10 +1,10 @@
 # PS independent review packet
 
-Updated October 9, 2026, against merged PR #26 baseline `19d4c35af70d17c9df85206c37cbed64f8e11b0c` plus the isolated status-signer contract. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
+Updated October 9, 2026, against merged PR #27 baseline `f69b8302ab44ab30c22c9126584f88e5718616f7` plus the isolated PS key-envelope contract. **Independent reviewer: unassigned. Review result: pending.** This packet organizes the handoff; neither its author, test counts, curve-backend comparisons nor CodeRabbit constitute independent cryptographic validation.
 
 ## Freeze the reviewed revision
 
-Record the exact commit under review and verify its signature. The five development increments were batch-signed with verified signatures before [PR #24](https://github.com/0x3639/zft/pull/24). Review fixes must also be signed. [Current release evidence](../research/ps-status-signer-validation.json) lists current source hashes; [operations evidence](../research/ps-operations-validation.json) and other historical manifests apply only to their own revisions. Do not update mismatching hashes just to make a check pass.
+Record the exact commit under review and verify its signature. The five development increments were batch-signed with verified signatures before [PR #24](https://github.com/0x3639/zft/pull/24). Review fixes must also be signed. [Current release evidence](../research/ps-key-envelope-validation.json) lists current source hashes; [operations evidence](../research/ps-operations-validation.json) and other historical manifests apply only to their own revisions. Do not update mismatching hashes just to make a check pass.
 
 ```sh
 git rev-parse HEAD
@@ -12,7 +12,7 @@ git verify-commit HEAD
 python3 - <<'PY'
 import hashlib, json
 from pathlib import Path
-v = json.loads(Path('research/ps-status-signer-validation.json').read_text())
+v = json.loads(Path('research/ps-key-envelope-validation.json').read_text())
 for name, expected in v['sourceSha256'].items():
     assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, name
 print('source hashes match')
@@ -27,6 +27,7 @@ The main evidence manifest cannot hash itself or name its own eventual commit. T
 | --- | --- | --- |
 | Reference core | [Frozen profile](PS-CRYPTOGRAPHIC-PROFILE.md), [source observation snapshot](../research/ps-reference-2026-10-06.json) | Distinguish observed client transcripts from derived issuer equations and added cross-group policy; no live server or license equivalence claim |
 | Fixture implementation | [Python generator](../research/ps-lab/generate.py), [JS verifier](../research/ps-lab/verify.mjs), [vectors](../research/ps-lab/vectors.json), [dependency inventory](../research/ps-lab/dependencies.json) | Re-derive equations, encodings, group/subgroup constraints, challenge framing, nonce assumptions and negative cases without relying solely on same-author fixtures |
+| Isolated PS key record | [Envelope contract](PS-KEY-ENVELOPE.md), [implementation](../research/ps-lab/local/key-envelope.mjs) | Exact scope and AEAD framing, fresh-key/nonce lifecycle, authenticated inner scalar validation, wrapping provider trust and cancellation limits; no serving-issuer integration |
 | Local credential protocol | [Profile and persistence specification](PS-LOCAL-ENGINE.md), [profile.mjs](../research/ps-lab/local/profile.mjs) | Scope/realm/keyset, session/base/purpose, asset equality, owner knowledge, fresh destination, recovery-capability and showing-context binding |
 | State transitions | [Issuer](../research/ps-lab/local/issuer.mjs), [client](../research/ps-lab/local/client.mjs), [store](../research/ps-lab/local/store.mjs) | Atomic unique spend/reservation plus exact response; acknowledged complete backup; verify before saving replacement; retry/recovery and competing claims |
 | Signed observations | [State profile](PS-LOCAL-STATE.md), [state.mjs](../research/ps-lab/local/state.mjs) | Separate pinned Ed25519 key, exact PS showing challenge, time/audience/sequence binding, one-use observer persistence, explicit rollback/equivocation limits |

@@ -25,3 +25,9 @@ Keep the v1 protocol/data, frozen PS reference artifacts and historical evidence
 PR #25 merged at `f3bb3bfcb8d4e60344a33dfaea6fd5d5bf3a0c27` after clean exact-head review and CI/preview. The [hosting/custody proposal](PS-HOSTING-CUSTODY-DESIGN.md) then merged in PR #26 at `19d4c35af70d17c9df85206c37cbed64f8e11b0c`, also with clean exact-head review and checks. Provider, reviewer and resource choices remain pending.
 
 The next local increment implements the [status signer contract](PS-STATUS-SIGNER-CONTRACT.md): raw Ed25519 request/response validation, pinned-key verification, owned message bytes, bounded async lifecycle and selected compatibility tests. It has no private-key loader, cloud access or live issuer integration. Protected storage, qualified PS secret operations and durable asynchronous signing remain subsequent engineering; none of the seven release gates is promoted by this adapter.
+
+## Key-envelope experiment after PR #27
+
+PR #27 merged at `f69b8302ab44ab30c22c9126584f88e5718616f7` after clean exact-head CodeRabbit and green CI/preview on signed head `50dd3baa991b48ea966c0a329908ab07a54b89bf`. The [next local experiment](PS-KEY-ENVELOPE.md) defines the encrypted record for long-lived PS scalars and tests injected wrapping/unwrap failures. It leaves the existing issuer and every historical manifest intact.
+
+Next work remains qualified secret execution, actual provider identity/permissions, durable asynchronous integration, protected session state and whole backups, hosted admission/fencing/retention/alerts, target devices and independent review. Provider/account/region/budget/operator and reviewer are unassigned; neither this record format nor its merge authorizes resources, migration or staging.
