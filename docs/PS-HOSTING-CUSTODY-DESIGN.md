@@ -1,5 +1,7 @@
 # PS hosting and key-custody proposal
 
+**Historical issuer hosting proposal.** The user selected Cloudflare for application hosting and then accepted the October 10, 2026 [shielded ZVM plan](SHIELDED-ZVM-PLAN.md). The AWS and managed issuer-key recommendation below is no longer an implementation target. Cloudflare support services must be replaceable and must not hold user spending keys. This document remains a record of the earlier issuer experiment.
+
 Status: proposed, October 9, 2026. Engineering baseline: merged [PR #25](https://github.com/0x3639/zft/pull/25), `f3bb3bfcb8d4e60344a33dfaea6fd5d5bf3a0c27`; its reviewed implementation head is `0963bf06602260a08934a8a1ff847beaef4d351a`. Their tracked trees are identical. This document defines the next implementation work; it does not select an account, provision resources, approve custody or authorize staging. Provider documentation was checked on the date above.
 
 ## Recommendation and decisions still needed

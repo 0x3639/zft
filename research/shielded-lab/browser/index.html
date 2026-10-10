@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Shielded ownership — local proof trial</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">ZFT / LOCAL RESEARCH</p>
+      <h1>Proofs stay on your device.</h1>
+      <p class="intro">
+        A browser trial of shielded ownership. This page uses disposable, public
+        test notes and verifies every proving artifact before loading it.
+      </p>
+      <section>
+        <h2>Run a proof</h2>
+        <p>
+          Creation binds an image and its metadata to a note. Spending proves a
+          valid note exists, preserves its asset, and moves authority to a new
+          secret.
+        </p>
+        <div class="actions">
+          <button id="create">Test creation</button
+          ><button id="spend">Test spend</button
+          ><button id="cancel" disabled>Cancel</button>
+        </div>
+        <p id="status" role="status" aria-live="polite">
+          Loading pinned test artifacts…
+        </p>
+        <pre id="results">No proofs run yet.</pre>
+      </section>
+      <aside>
+        <h2>Local experiment</h2>
+        <p>
+          No user files, wallet connection or public transactions. This browser
+          test does not qualify mobile devices, production setup or independent
+          privacy review.
+        </p>
+        <p>
+          Closing or cancelling terminates the proving worker. Proving occurs in
+          browser memory; the local server serves public artifacts only.
+        </p>
+      </aside>
+    </main>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

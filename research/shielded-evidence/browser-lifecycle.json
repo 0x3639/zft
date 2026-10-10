@@ -1,0 +1,80 @@
+{
+  "format": "zft-shielded-browser-lifecycle-v1",
+  "recordedAt": "2026-10-10T23:30:33.233Z",
+  "scope": "Actual Codex desktop browser, two same-origin tabs, one disposable loopback Anvil; independent Node recovery process; no public deployment or real assets",
+  "pins": {
+    "format": "zft-shielded-local-deployment-v1",
+    "chainId": "31337",
+    "genesisHash": "0xa0ef68349231e8ebdf6d526d1713200273973ca18866ff47f5ce2daf8442de18",
+    "deploymentBlock": "6",
+    "system": "groth16",
+    "contracts": {
+      "hasher": {
+        "address": "0x3e6df1395fc6a2ba7980383f2451a4ac211e58ab",
+        "codeHash": "0x354b26999e434f8256d168395315e1f51fc15bf49bf2e6bb58fc549bd597e7da"
+      },
+      "creationVerifier": {
+        "address": "0xf0bda441dd5e14905be1ca45151b1ea1caffdc0d",
+        "codeHash": "0x9d77aab61a8932db004ec5151c572c90cbc3b4775a65c26e8b06b21db07f9a34"
+      },
+      "creationAdapter": {
+        "address": "0xb6d3371ca26da1720a7e1fd8b9710a05542cadc2",
+        "codeHash": "0xeeef40f98d9d6cbc690e9b2eca643232190c62d30aa9a997d1299eb76468df92"
+      },
+      "spendVerifier": {
+        "address": "0x8c58c3ea4d23183d3141a9f9d7df3c07fbc6d1e5",
+        "codeHash": "0xefa15f287d249d8dadf1054015ea7da0e73bf3096da02a946c78caacac661670"
+      },
+      "spendAdapter": {
+        "address": "0xa7e419e0caef86d361c8c1d09b96c11b48bb94e3",
+        "codeHash": "0xcc656654ea60309f8bfb25d343d3de3fc13d176e74007d01d1f0e56275ada783"
+      },
+      "registry": {
+        "address": "0x8a32f4dd7426c6bf8d7ee2c05c9320ab0e8f14c7",
+        "codeHash": "0x9aed0c7041877c678999db32950e70a283c4655acf944e41dddc35c99926203b"
+      }
+    },
+    "artifacts": {
+      "createWasm": "0x61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+      "spendWasm": "0xd36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37",
+      "createKey": "0xa25ab6213c9de01ea79f6fdc2c5ab904a58239600a96bc996c6f38a08dbcb362",
+      "spendKey": "0x827493284ff35e56cbbae6808051f568a77085ebe1d8c2aedef4edf6a68a431c",
+      "createVerificationKey": "0x6531fc41cdfb0424a24a81dcf515cf307a2cbbd7b5b265f00c94cbf188bf4aab",
+      "spendVerificationKey": "0x5159b388c55010929054d9d8ca652b7f33fe24e7fe27211cfb9a19d02eb54114"
+    }
+  },
+  "browserProvingMs": {
+    "creation": 670,
+    "spend": 2530
+  },
+  "observations": {
+    "recoveryReselectedBeforeEachSubmission": true,
+    "creationAccepted": true,
+    "claimAccepted": true,
+    "oldBearerClaimRejected": true,
+    "reloadPreservedDestination": true,
+    "nodeRecoveryRecreatedBearer": true,
+    "browserBearerMatchesSavedDestination": true,
+    "publicImageContainsOnlyCanonicalPixelChunks": true,
+    "originalOperation": "historical",
+    "recipientOperation": "observed"
+  },
+  "testedBundleHashes": {
+    "research/shielded-lab/build/client/index.html": "0xa9d3d1a75660945aba5bb116909fd1def99c91e622bedad6c4dcace3debea4ba",
+    "research/shielded-lab/build/client/assets/ccip-CjvIlgDJ.js": "0xb367421c2b58a2136dcf352ec454c9c637166713181784452dca2ddacae1987e",
+    "research/shielded-lab/build/client/assets/index-B9lU1nTe.js": "0xc03e2dc7523b32ae185a1d107436639790cd2fa275cd8bc992f6eab3f7c96b47",
+    "research/shielded-lab/build/client/assets/index-BO81ugLd.css": "0x6f53eb9224bca52d723a0674b3927fc140722c55b24bf5052c9437ea6c30dea6"
+  },
+  "screenshot": {
+    "path": "research/shielded-evidence/browser-recovered.jpg",
+    "sha256": "0x69b6a8fb3936afd1fe21f1965033c84ca45272206750401cf0bd2e43a8fa813d"
+  },
+  "limitations": [
+    "Same-origin tabs share IndexedDB; not independent operators",
+    "Single desktop observations, no actual phone/Firefox/MetaMask qualification",
+    "Timing excludes artifact download/hash and is not a resource budget",
+    "Later source refinements to historical-state presentation and Blob cleanup are covered separately, not retroactively included in this bundle trial",
+    "Download automation events/temp-artifact API timed out; ordinary downloads and user-authorized reselection worked",
+    "No keys, passwords, bearer files or encrypted recovery contents included in this evidence"
+  ]
+}

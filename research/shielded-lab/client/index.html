@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ZFT · Local shielded client</title>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">ZFT / SHIELDED OWNERSHIP</p>
+        <h1>Your picture.<br />Your keys.</h1>
+        <p class="intro">
+          An isolated local candidate. Spending secrets stay in this browser and
+          your recovery files. This session uses disposable contracts and test
+          funds.
+        </p>
+      </header>
+      <div class="connection">
+        <span id="connection">Checking local deployment…</span
+        ><button id="pins" disabled>Save deployment pins</button>
+      </div>
+      <div class="grid">
+        <section>
+          <h2>1 · Prepare</h2>
+          <p>
+            Create a new picture or import a shielded bearer picture to claim it
+            into a fresh secret.
+          </p>
+          <label
+            >Picture
+            <input id="picture" type="file" accept="image/png,image/jpeg"
+          /></label>
+          <label
+            >Name
+            <input
+              id="name"
+              maxlength="256"
+              placeholder="Name your picture" /></label
+          ><label
+            >Description
+            <textarea id="description" maxlength="4096" rows="2"></textarea>
+          </label>
+          <label
+            >Recovery password
+            <input
+              id="password"
+              type="password"
+              minlength="12"
+              autocomplete="new-password"
+              placeholder="At least 12 characters"
+          /></label>
+          <div class="actions">
+            <button id="create" disabled>Prepare creation</button
+            ><button id="claim" disabled>Prepare claim</button>
+          </div>
+          <p class="hint">
+            A bearer picture can be spent by anyone who has a copy. A successful
+            claim replaces that authority; the old file remains a historical
+            copy.
+          </p>
+        </section>
+        <section>
+          <h2>2 · Save recovery</h2>
+          <p>
+            Save the encrypted record, then select that saved file again.
+            Submission stays locked until it matches.
+          </p>
+          <button id="save" disabled>Download recovery</button
+          ><label
+            >Select saved recovery
+            <input id="ack" disabled type="file" accept=".json"
+          /></label>
+          <div class="actions">
+            <button id="prove" disabled>Generate proof locally</button
+            ><button id="cancel" disabled>Cancel proof</button>
+          </div>
+          <button id="submit" disabled>Submit with test funds</button>
+          <p class="hint">
+            Cancellation stops the local worker. A submitted transaction cannot
+            be cancelled here. After a lost response, observe the saved
+            operation before retrying.
+          </p>
+        </section>
+      </div>
+      <section class="wide">
+        <h2>3 · Observe and export</h2>
+        <p id="status" role="status" aria-live="polite">
+          Choose a picture to begin.
+        </p>
+        <div class="actions">
+          <button id="observe" disabled>Observe chain</button
+          ><button id="bearer" disabled>Download bearer picture</button
+          ><button id="public" disabled>Download public image</button>
+        </div>
+        <div id="exports" aria-label="Prepared exports"></div>
+        <div class="result">
+          <img id="preview" alt="Verified public artwork preview" hidden />
+          <pre id="details"></pre>
+        </div>
+      </section>
+      <section class="wide">
+        <h2>Recover or resume</h2>
+        <p>
+          Enter the recovery password above and select your encrypted record.
+          Recovery restores the same destination; it does not generate a
+          replacement secret.
+        </p>
+        <label
+          >Encrypted recovery file
+          <input id="recover" disabled type="file" accept=".json"
+        /></label>
+        <div id="inventory"></div>
+      </section>
+      <footer>
+        Experimental Groth16 setup and local EVM only. “Observed” means a result
+        at a checked block from the selected RPC, not qualified finality or
+        current ownership. No central mint, recovery override, hosted activation
+        or production privacy claim.
+      </footer>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

@@ -1,6 +1,8 @@
 # Research and capability evidence
 
-Current candidate: [consolidated protected PS service](../docs/PS-CONSOLIDATED-CANDIDATE.md). The separate service composes encrypted key/session/backup storage, asynchronous issuer/status commits, authenticated HTTP, exact recovery and stopped restore/rotation. [Current evidence](ps-consolidated-validation.json) tracks the final candidate. Earlier key-file and other validation records are historical. Real provider/backend qualification, independent review, device acceptance and staging approval remain pending.
+Active direction, October 10, 2026: [shielded ZVM ownership](../docs/SHIELDED-ZVM-PLAN.md), with user-held secrets and contract-enforced spends. The [local candidate](../docs/SHIELDED-ZVM-FEASIBILITY.md) now has real creation/spend proofs, a contract-enforced lifecycle, tree rollover and browser recovery. Its [current validation record](shielded-validation.json) records 21 tests, 16 mutation controls and the remaining independent, device, setup and staging gates. Existing PS evidence does not qualify this construction.
+
+Historical completed candidate: [consolidated PS service](../docs/PS-CONSOLIDATED-CANDIDATE.md), merged in PR #30. [Its validation record](ps-consolidated-validation.json) applies to the pinned research revision, including encrypted issuer/session/backup storage and local recovery. This issuer service is no longer the release target. All prior validation JSON files remain unchanged; their recorded source hashes are not refreshed for the shielded candidate.
 
 Previous local increment: [PS key envelope](../docs/PS-KEY-ENVELOPE.md). [Historical envelope evidence](ps-key-envelope-validation.json) records the encrypted scalar representation and injected wrap/unwrap failures.
 

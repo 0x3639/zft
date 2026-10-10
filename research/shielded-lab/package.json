@@ -1,0 +1,25 @@
+{
+  "name": "zft-shielded-research",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {
+    "test": "node --import tsx --test --test-concurrency=1 test/*.test.mjs",
+    "build:circuits": "node scripts/build-circuits.mjs",
+    "probe": "node scripts/probe-runtime.mjs",
+    "build:contracts": "node scripts/build-contracts.mjs",
+    "benchmark": "node scripts/benchmark.mjs",
+    "setup": "node scripts/setup.mjs",
+    "test:controls": "node scripts/check-circuit-controls.mjs && node scripts/check-state-controls.mjs",
+    "build:client": "node scripts/build-client.mjs",
+    "client:local": "node --import tsx scripts/client-server.mjs"
+  },
+  "devDependencies": {
+    "@noble/hashes": "2.4.0",
+    "circomlib": "2.0.5",
+    "circomlibjs": "0.1.7",
+    "snarkjs": "0.7.6",
+    "solc": "0.8.30",
+    "viem": "2.57.2"
+  }
+}

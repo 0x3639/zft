@@ -1,0 +1,53 @@
+{
+  "format": "zft-shielded-circuit-controls-v1",
+  "controls": [
+    {
+      "name": "nullifier-relation",
+      "baseline": "rejects-adversarial-witness",
+      "mutation": "named-assertion-failed",
+      "scope": "Witness generation plus R1CS checking; not an independent security proof"
+    },
+    {
+      "name": "old-secret-nullifier",
+      "baseline": "rejects-adversarial-witness",
+      "mutation": "named-assertion-failed",
+      "scope": "Witness generation plus R1CS checking; not an independent security proof"
+    },
+    {
+      "name": "root-relation",
+      "baseline": "rejects-adversarial-witness",
+      "mutation": "named-assertion-failed",
+      "scope": "Witness generation plus R1CS checking; not an independent security proof"
+    },
+    {
+      "name": "successor-relation",
+      "baseline": "rejects-adversarial-witness",
+      "mutation": "named-assertion-failed",
+      "scope": "Witness generation plus R1CS checking; not an independent security proof"
+    },
+    {
+      "name": "asset-preservation",
+      "baseline": "rejects-adversarial-witness",
+      "mutation": "named-assertion-failed",
+      "scope": "Witness generation plus R1CS checking; not an independent security proof"
+    },
+    {
+      "name": "path-boolean",
+      "baseline": "rejects-adversarial-witness",
+      "mutation": "named-assertion-failed",
+      "scope": "Witness generation plus R1CS checking; not an independent security proof"
+    },
+    {
+      "name": "asset-range",
+      "baseline": "rejects-adversarial-witness",
+      "mutation": "named-assertion-failed",
+      "scope": "Witness generation plus R1CS checking; not an independent security proof"
+    },
+    {
+      "name": "secret-zero",
+      "baseline": "rejects-adversarial-witness",
+      "mutation": "named-assertion-failed",
+      "scope": "Witness generation plus R1CS checking; not an independent security proof"
+    }
+  ]
+}

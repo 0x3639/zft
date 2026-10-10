@@ -1,0 +1,150 @@
+{
+  "format": "zft-shielded-local-benchmark-v1",
+  "scope": "Five desktop samples per circuit/system; local Anvil only; not mobile or live ZVM qualification",
+  "runs": [
+    {
+      "format": "zft-shielded-desktop-prover-v1",
+      "name": "create",
+      "system": "groth16",
+      "node": "v22.12.0",
+      "arch": "arm64",
+      "platform": "darwin",
+      "samples": [
+        {
+          "milliseconds": 334.4859170000001,
+          "rssBytes": 295763968
+        },
+        {
+          "milliseconds": 148.83887500000014,
+          "rssBytes": 351109120
+        },
+        {
+          "milliseconds": 157.22325,
+          "rssBytes": 356646912
+        },
+        {
+          "milliseconds": 151.981,
+          "rssBytes": 362201088
+        },
+        {
+          "milliseconds": 370.2504170000002,
+          "rssBytes": 348684288
+        }
+      ],
+      "maxRssKiB": 358912,
+      "proofBytes": 256,
+      "verifierGas": "235758",
+      "calldataBytes": 388,
+      "keyBytes": 1018518,
+      "wasmBytes": 2307311
+    },
+    {
+      "format": "zft-shielded-desktop-prover-v1",
+      "name": "create",
+      "system": "plonk",
+      "node": "v22.12.0",
+      "arch": "arm64",
+      "platform": "darwin",
+      "samples": [
+        {
+          "milliseconds": 7678.011792,
+          "rssBytes": 505135104
+        },
+        {
+          "milliseconds": 7660.540083000002,
+          "rssBytes": 381468672
+        },
+        {
+          "milliseconds": 7306.990458,
+          "rssBytes": 506937344
+        },
+        {
+          "milliseconds": 7277.385708000002,
+          "rssBytes": 493387776
+        },
+        {
+          "milliseconds": 7484.282291999996,
+          "rssBytes": 446988288
+        }
+      ],
+      "maxRssKiB": 624656,
+      "proofBytes": 768,
+      "verifierGas": "297651",
+      "calldataBytes": 900,
+      "keyBytes": 33323232,
+      "wasmBytes": 2307311
+    },
+    {
+      "format": "zft-shielded-desktop-prover-v1",
+      "name": "spend",
+      "system": "groth16",
+      "node": "v22.12.0",
+      "arch": "arm64",
+      "platform": "darwin",
+      "samples": [
+        {
+          "milliseconds": 702.483666,
+          "rssBytes": 513359872
+        },
+        {
+          "milliseconds": 468.9667079999999,
+          "rssBytes": 539820032
+        },
+        {
+          "milliseconds": 483.6257909999997,
+          "rssBytes": 537509888
+        },
+        {
+          "milliseconds": 480.2963749999999,
+          "rssBytes": 529793024
+        },
+        {
+          "milliseconds": 481.9212499999999,
+          "rssBytes": 532529152
+        }
+      ],
+      "maxRssKiB": 549968,
+      "proofBytes": 256,
+      "verifierGas": "236142",
+      "calldataBytes": 388,
+      "keyBytes": 4619114,
+      "wasmBytes": 3252315
+    },
+    {
+      "format": "zft-shielded-desktop-prover-v1",
+      "name": "spend",
+      "system": "plonk",
+      "node": "v22.12.0",
+      "arch": "arm64",
+      "platform": "darwin",
+      "samples": [
+        {
+          "milliseconds": 56858.517958,
+          "rssBytes": 670957568
+        },
+        {
+          "milliseconds": 54378.714292000004,
+          "rssBytes": 802340864
+        },
+        {
+          "milliseconds": 58393.60745800001,
+          "rssBytes": 731922432
+        },
+        {
+          "milliseconds": 57736.452624999976,
+          "rssBytes": 814825472
+        },
+        {
+          "milliseconds": 57227.08562499998,
+          "rssBytes": 740163584
+        }
+      ],
+      "maxRssKiB": 1237856,
+      "proofBytes": 768,
+      "verifierGas": "298764",
+      "calldataBytes": 900,
+      "keyBytes": 265279552,
+      "wasmBytes": 3252315
+    }
+  ]
+}
