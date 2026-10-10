@@ -1,6 +1,6 @@
 # PS release preflight and external gates
 
-**Historical PS candidate gates.** The active release direction is now the October 10, 2026 [shielded ZVM plan](SHIELDED-ZVM-PLAN.md). This checklist, `ps:release-check` and the PS evidence template continue to describe the earlier issuer candidate only. Their pending approvals remain pending; they cannot approve the new protocol. Create separate exact-candidate evidence and gates when the shielded implementation exists.
+**Historical PS candidate gates.** The active release direction is now the October 10, 2026 [shielded ZVM plan](SHIELDED-ZVM-PLAN.md). This checklist, `ps:release-check` and the PS evidence template continue to describe the earlier issuer candidate only. Their pending approvals remain pending; they cannot approve the new protocol. The separate [shielded validation record](../research/shielded-validation.json) records the current local candidate and its open gates. Any shielded release requires evidence and approvals for its exact signed source, circuits, verifier/setup artifacts and deployment configuration; implementation existence or these historical PS checks cannot satisfy that requirement.
 
 This is preparation for step 7, not a release authorization. The [sequence](PS-RELEASE-PLAN.md) now has local product, public evidence, persistent issuer and offline restore increments. Independent review, production key/operations design, target device acceptance and isolated staging approval remain open. PS is still loopback-only; these changes have not been deployed to devnet or apex.
 

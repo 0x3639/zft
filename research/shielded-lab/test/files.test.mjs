@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { encode } from "fast-png";
+import { pbkdf2Sync, createDecipheriv, createCipheriv } from "node:crypto";
 import { createProfile, canonical, parseCanonical, digest } from "../core.mjs";
 import {
   normalizeImage,
@@ -186,4 +187,55 @@ test("completed transfer becomes historical when its destination is spent", () =
     }).state,
     "historical",
   );
+});
+
+test("recovery uses exactly 600000 iterations and rejects authenticated other-cost records", async () => {
+  const password = "disposable hardened recovery fixture";
+  const record = operation(p, {
+    image: normalized.bytes,
+    source: old,
+    destination: next,
+    pins,
+  });
+  const sealed = await sealRecovery(record, password);
+  const { ciphertext, ...header } = parseCanonical(sealed, 21000000);
+  assert.equal(
+    header.iterations,
+    600000,
+    "Recovery export must record the exact hardened work factor",
+  );
+  const salt = Buffer.from(header.salt, "base64url");
+  const iv = Buffer.from(header.iv, "base64url");
+  const encrypted = Buffer.from(ciphertext, "base64url");
+  // Separate Node crypto API checks the actual derivation, not just the header.
+  const key = pbkdf2Sync(password, salt, 600000, 32, "sha256");
+  const decipher = createDecipheriv("aes-256-gcm", key, iv);
+  decipher.setAAD(Buffer.from(canonical(header)));
+  decipher.setAuthTag(encrypted.subarray(-16));
+  const plaintext = Buffer.concat([
+    decipher.update(encrypted.subarray(0, -16)),
+    decipher.final(),
+  ]);
+  assert.deepEqual(JSON.parse(plaintext.toString("utf8")), record);
+  assert.deepEqual((await openRecovery(sealed, password, p, d)).record, record);
+  for (const iterations of [310000, 600001]) {
+    const other = { ...header, iterations };
+    const otherKey = pbkdf2Sync(password, salt, iterations, 32, "sha256");
+    const cipher = createCipheriv("aes-256-gcm", otherKey, iv);
+    cipher.setAAD(Buffer.from(canonical(other)));
+    const bytes = Buffer.concat([
+      cipher.update(Buffer.from(canonical(record))),
+      cipher.final(),
+      cipher.getAuthTag(),
+    ]);
+    const authentic = canonical({
+      ...other,
+      ciphertext: bytes.toString("base64url"),
+    });
+    await assert.rejects(
+      openRecovery(authentic, password, p, d),
+      /Recovery could not be authenticated/,
+      "Other work factors must reject even with authentic ciphertext",
+    );
+  }
 });

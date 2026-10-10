@@ -4,19 +4,19 @@
   "baseline": "d91d15d909873614de607ce18a164d8c96484022",
   "scope": "One isolated end-user-custody shielded ownership candidate: exact image/metadata/asset binding, creation/spend circuits, immutable registry with global nullifiers and tree rollover, client-owned picture/recovery/journal, local browser/CLI, read-only ZVM verifier probes and reproducible experimental CI. No central mint, hosted app switch, public deployment or production qualification.",
   "verification": {
-    "localTests": 21,
+    "localTests": 22,
     "circuitMutationControls": 8,
     "stateMutationControls": 8,
     "legacyPreflightTests": 9,
     "fullDepthRollover": "65536-leaf client tree plus real Groth16 proof from the closed tree",
     "stateFixture": "73 appends in reduced-depth registry with accepting verifier, state semantics only",
     "browserLifecycle": "Actual desktop browser creation, saved-file reselection, second-tab fresh-secret claim, old-bearer rejection and reload recovery; independent Node process verifies recovered bearer and public PNG chunks",
-    "browserTrialScope": "The exact tested bundle hashes are in browser-lifecycle.json. Later historical-state, Blob cleanup and acknowledgement refinements have passing tests/build but are not retroactively part of that browser trial.",
+    "browserTrialScope": "The exact tested bundle hashes are in browser-lifecycle.json. Later historical-state, Blob cleanup, acknowledgement and 600000-iteration recovery refinements have passing tests/build but are not retroactively part of that browser trial.",
     "runtimeProbe": "Selected BN254 calls and four generated verifier valid/invalid cases via read-only ZVM state override at the recorded block; no public transaction",
     "frozenInstall": "passed",
     "clientBuild": "passed, large-bundle advisory retained",
     "format": "passed for new/changed code and new feasibility document; existing compact roadmap tables retained",
-    "documentationLinks": 513,
+    "documentationLinks": 515,
     "existingAppAndPsSuites": "Locally inherited from merged PR30; existing CI reruns all app, v1, PS local/reference/service checks on the new PR. No fresh local production/device acceptance claimed.",
     "newActualProcessKillLocations": 0
   },
@@ -42,28 +42,28 @@
     "Encrypted IndexedDB and saved-file acknowledgement do not prove hardware durability. Browser worker is not a sandbox against compromised delivered JavaScript; no constant-time/zeroization claim.",
     "Desktop timings exclude parts of the workflow; chain replay and image normalization are not bounded whole-operation device qualification. Local creation authorization uses a disposable browser fee account and expires after one hour.",
     "Two browser tabs share an origin/journal. Earlier exact browser bundle evidence does not qualify subsequent source refinements or independent operators.",
-    "All baseline files outside the documented patch and all22 prior validation manifests are byte-preserved. This current manifest excludes itself; the signed Git tree pins it.",
+    "All baseline files outside the documented patch and all 22 prior validation manifests are byte-preserved. This current manifest excludes itself; the signed Git tree pins it.",
     "Historical PS issuer/service remains unchanged and is not the selected ownership authority. Existing v1 app and deployed Worker remain unchanged."
   ],
   "sourceSha256": {
     ".github/workflows/shielded.yml": "7cf7e6f474eeb3d64f1cd1d94852bc8a3783f8ac3307441ed133937840ef9b9c",
-    "README.md": "d7f1d5b00b52a5cc044f9ee04c0218aa96b929dc1d06dcf1793ef38ffe3bc0c2",
+    "README.md": "3b8e8e571c5253a75e89f8561e07d4df33628cec294291ea88b98eafd2b7ec71",
     "circuits/shielded/create.circom": "f7007ba862c0d3144de0fef17bd479bbd042b3e8fc2afae64c4fa2fd3320ee50",
     "circuits/shielded/note.circom": "6cd40903795cbc013263487616714fb6f10b63d3f3f8c436a6c709f0ce59977d",
     "circuits/shielded/spend.circom": "66b1aa201ebfccf53e54837ec45933315cec1e7af6f4c0a9605de131989c07de",
     "contracts/shielded/ShieldedRegistry.sol": "d4f65135d8b18ae0f807fe6ee47d6f1f803ffacac98c56655bae22a5d012a7b2",
     "contracts/shielded/VerifierAdapter.sol": "5116b5860643852b07e47bc617672703fc7232bb6264573ca5601e6ab95357c2",
-    "docs/FUNCTIONAL-SPEC.md": "2ab8f67dd3bf96461a0be3af09aec8494b2e6e25a999b93af8af7d09b81c18fe",
+    "docs/FUNCTIONAL-SPEC.md": "4ea9d69a6a7697695442ef0610151bc166625c09b0fb38580e08ab3d2f01e403",
     "docs/IMPLEMENTATION.md": "711a8e148a544ea38cbbd784e7906636f2fafdba2fbb5735288c2f8fd71b080a",
     "docs/PS-CONSOLIDATED-CANDIDATE.md": "af28ca4f4172b6f13e6c982a585fd397d9a6ac30eb1a3667baf0569bae7c1158",
     "docs/PS-CREDENTIAL-PROTOCOL.md": "9f443f4916f43bfd4dd6e586929e7de872c9f326ab461747c2ae9aba65bcc306",
     "docs/PS-HOSTING-CUSTODY-DESIGN.md": "a1a889755501298d9d90124948fd9e318188c804ee22a5005e9294f2680b21f7",
     "docs/PS-RELEASE-PLAN.md": "50f1c21bcd0d57c639386a226ffb344872e8c3060825e8a71b54d03530ccb668",
-    "docs/PS-RELEASE-PREFLIGHT.md": "e5d9e3b9fbdc3cfae831acf699092affb3651dfba9ef4a67c2b649e33731c68d",
-    "docs/SHIELDED-ZVM-FEASIBILITY.md": "c3f46484173eafe06318214b83c7eff527614f284daad30878dfef9c46d21511",
+    "docs/PS-RELEASE-PREFLIGHT.md": "3069a7a449132fd14186f610e9405a22df4d8d97bed014f0f181e9a18e801ed8",
+    "docs/SHIELDED-ZVM-FEASIBILITY.md": "9f44502b05749cd9c39b52e8338df58967d772666ed50bf0b31eb4b438a28276",
     "docs/SHIELDED-ZVM-IMPLEMENTATION.md": "ca138241824b954123c8a5adbd3a805ca1fcb057955749b04e74230a2535e339",
     "docs/SHIELDED-ZVM-PLAN.md": "cafe3c7c78648eb911cb24c937fdc810691e250a2d2a9d785e21dc02d8ae1fca",
-    "docs/SHIELDED-ZVM-PROTOCOL.md": "8ee523ac861725ddfe3993e20cdd9667cbef6a5003fe93594ed179f1ff192e35",
+    "docs/SHIELDED-ZVM-PROTOCOL.md": "83f287e105fc940612a03439a027871000e020b2931b45f25bb6e73d1324d3a1",
     "research/EVIDENCE.md": "2c8ce7e35be28010148278fb5504a8de90bedb2858457b648f66050cd938403c",
     "research/ps-lab/README.md": "212690463470614ac6236ba491e57fd93ca9ebfef035b73170079d581b1e0c0c",
     "research/shielded-evidence/browser-lifecycle.json": "72c9f512a9788234b5f4ca8a79a2d2af0c7387e3e518a2e3a7210eb0046d73b4",
@@ -91,7 +91,7 @@
     "research/shielded-lab/package.json": "c3c5559d0786f279c90174684c482318ef35ed9db0f68ce3724a7c1cf4ec0444",
     "research/shielded-lab/pnpm-lock.yaml": "777e0de27f78ea27747252af2f4f8868565a497c28230c4e5ab3a37a16a06399",
     "research/shielded-lab/prover.mjs": "c24d1fa384ab0be8c17974b6e7b06843bdabcd17682dbfb6ca4dfa536ad340a5",
-    "research/shielded-lab/recovery.mjs": "73cf187c6faa9d0058e713f958e5021a172ccc50f8b2fa77dd8b3b2d03b35625",
+    "research/shielded-lab/recovery.mjs": "b9572d83d0cba3260e174cefc99042d25b5d4ec4bd450b883075ca39a48af30b",
     "research/shielded-lab/scripts/benchmark-worker.mjs": "9ee3deab22af000aed864f4f6d1eff2b04e9d4aedbe08d83c7d441f08e2bbbc6",
     "research/shielded-lab/scripts/benchmark.mjs": "7c60a8b030c651126ceea1e9706f105676e83a8be5c446d6c7acca2b0f7d2f30",
     "research/shielded-lab/scripts/bootstrap.mjs": "8f84dfe14be0099da2ebec4799c6c5b37d7c054ecb3cf6456f57343c48bc7ead",
@@ -109,7 +109,7 @@
     "research/shielded-lab/scripts/setup.mjs": "d55cdfd47a1e0507daa07f14fcc749b68601d1abdea1021304a2d6070a7262b3",
     "research/shielded-lab/test/circuits.test.mjs": "d41127aad509731dce63228a73e9338fed72703cbcaeadc52e1d455bf2d9df5b",
     "research/shielded-lab/test/core.test.mjs": "9ebb5a0723856ee8a6cc8e749eb7e520192300bef5f41dddede93c4089dbe1b5",
-    "research/shielded-lab/test/files.test.mjs": "a2795bdb442299ff4a13561b3166d41f1f9d5c400746d90ae88f9c72015da0d2",
+    "research/shielded-lab/test/files.test.mjs": "ede4b076c7737857c40f1d673ec0e3ae141b3e01470aa60acf850e45b6ef5093",
     "research/shielded-lab/test/fixtures.mjs": "e8bfe82299a70984cd9a1600af801abe00722dcd3c65b140f1ecfdc741e165de",
     "research/shielded-lab/test/forest.test.mjs": "ebc3fcc3ec6da4dd2806381b16b0a88e3baaecf36ad7178e73056b78357b4690",
     "research/shielded-lab/test/lifecycle.test.mjs": "8a6ff87e8c735483a8be008545dda906492dd734a4932089e412f30831163dba",
@@ -734,6 +734,45 @@
     "documentationLinks": {
       "path": "/private/tmp/zft-shielded-current-links.log",
       "sha256": "053eab2a596dc71e86592a2ac2b98789d0f2aa1fd3741ed78572b6a84f8b8247"
+    },
+    "reviewRegressionBefore": {
+      "path": "/private/tmp/zft-shielded-review-before.tap",
+      "sha256": "d9ba0db1f0b27631adbe2c27635e36d8f8caa3007d4d5130199ec037ac38479d"
+    },
+    "reviewFocused": {
+      "path": "/private/tmp/zft-shielded-review-focused.tap",
+      "sha256": "dbf1d5b4b74d968e71f9bad660c994945b5d492e48e669e8677e5f3b035852f1"
+    },
+    "reviewCompleteTests": {
+      "path": "/private/tmp/zft-shielded-review-all.tap",
+      "sha256": "d733454aef1f56388bb351e2028b584203c20a5ffbeba86dd7a649f30cf8082b"
+    },
+    "reviewClientBuild": {
+      "path": "/private/tmp/zft-shielded-review-build.log",
+      "sha256": "668e948f91b56964b790ce7e8d657dbf224f2df1fa10a21c53e49f7291774a06"
+    },
+    "reviewPreflight": {
+      "path": "/private/tmp/zft-shielded-review-preflight.tap",
+      "sha256": "28ac11b9d14658fe898695a9470b61972ed5adfc180040c23db997760784c38d"
+    },
+    "reviewDocumentationLinks": {
+      "path": "/private/tmp/zft-shielded-review-links.log",
+      "sha256": "0d22452cfae2f1230c3b38c0af99265e7d078e70526a90f59f16869db8be85b4"
+    },
+    "reviewFormat": {
+      "path": "/private/tmp/zft-shielded-review-format.log",
+      "sha256": "a0b55880e2dd9f1eda4c4596ea7208331a678856b4bcea4a008232b50761dd57"
     }
+  },
+  "reviewFollowup": {
+    "reviewedHead": "639d0dc98bc00ec7d5eb0c3c7c6b611997e50cb0",
+    "reviewId": 5481233175,
+    "findingIds": [4239629439, 4239629441, 4239629450],
+    "recordedAt": "2026-10-10T23:56:26.852237+00:00",
+    "documentation": "Reconcile stale PS and SH1/SH2 wording with current local SH3/SH4 candidate and exact-source/artifact release gates; fix all 22 typo.",
+    "recovery": "One fixed 600000-iteration PBKDF2-HMAC-SHA256 constant controls derivation, header and exact parser. Before-fix regression fails named ERR_ASSERTION; separate Node crypto decrypts new exports and authentic 310000/600001 records reject.",
+    "compatibility": "Experimental profile not frozen or deployed. Earlier disposable browser exports are preserved and readable at initial signed head; no real-asset migration. Earlier browser trial does not qualify new KDF cost.",
+    "checks": "22 complete local tests, 5 focused file tests, 9 legacy preflight tests, browser build, format/diff and 515 local documentation links pass. Initial 8 circuit and 8 state controls remain applicable to unchanged circuit/contract/control sources; new PR CI reruns all.",
+    "outputScope": "Original nine outputs describe initial candidate checks. Seven review-prefixed outputs record this follow-up; reviewRegressionBefore is the intended counterfactual failure."
   }
 }

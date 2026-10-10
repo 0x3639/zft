@@ -110,6 +110,10 @@ The local state machine distinguishes prepared, submitted, uncertain, observed, 
 
 Restore from a user-held record in a fresh client and rebuild witnesses from public events. No provider account, backup server decryption key or trusted mint is required. Locally encrypted vault/backup records protect at-rest copies under a user-held password/key; they do not revoke older exported bearer files. Compromised application JavaScript can read secrets while unlocked. A Web Worker protects responsiveness, not authority from the application itself.
 
+The experimental `zft-shielded-recovery-aes256gcm-v1` envelope requires exactly PBKDF2-HMAC-SHA256 with 600,000 iterations, a fresh 16-byte salt, AES-256-GCM with a fresh 12-byte IV and a 16-byte tag, and the canonical header as authenticated additional data. The derivation, recorded header and parser share the same fixed work factor; other counts reject, including otherwise authentic records. This adopts the current [OWASP PBKDF2 work-factor recommendation](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2) for the existing browser-native KDF, while password strength and target-device performance still require qualification. It is not a production security approval.
+
+PR31 review raised the work factor from the earlier disposable 310,000-iteration trial before this experimental profile is frozen. This candidate intentionally rejects those old test exports; they remain untouched and readable using the original signed test revision `639d0dc`. No deployed or real-asset recovery format is migrated, and the earlier browser trial does not qualify the new KDF cost.
+
 ## Disclosure and deferred showing
 
 | Surface                        | Visible data                                                                              |

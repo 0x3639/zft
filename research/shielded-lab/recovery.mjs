@@ -10,6 +10,7 @@ import {
 import { validatePins, pinDeployment } from "./chain.mjs";
 const encoder = new TextEncoder(),
   decoder = new TextDecoder("utf-8", { fatal: true });
+const RECOVERY_ITERATIONS = 600000;
 const MAX_PLAINTEXT = 15 * 1024 * 1024,
   MAX_CIPHERTEXT = 21 * 1024 * 1024;
 export function base64(bytes) {
@@ -134,7 +135,7 @@ async function key(password, salt, usage) {
     ["deriveKey"],
   );
   return crypto.subtle.deriveKey(
-    { name: "PBKDF2", hash: "SHA-256", salt, iterations: 310000 },
+    { name: "PBKDF2", hash: "SHA-256", salt, iterations: RECOVERY_ITERATIONS },
     material,
     { name: "AES-GCM", length: 256 },
     false,
@@ -149,7 +150,7 @@ export async function sealRecovery(record, password) {
   const header = {
     format: "zft-shielded-recovery-aes256gcm-v1",
     kdf: "PBKDF2-SHA256",
-    iterations: 310000,
+    iterations: RECOVERY_ITERATIONS,
     salt: base64(salt),
     iv: base64(iv),
   };
@@ -174,7 +175,7 @@ export async function openRecovery(text, password, profile, deployment) {
     check(
       wrapped.format === "zft-shielded-recovery-aes256gcm-v1" &&
         wrapped.kdf === "PBKDF2-SHA256" &&
-        wrapped.iterations === 310000,
+        wrapped.iterations === RECOVERY_ITERATIONS,
     );
     const { ciphertext, ...header } = wrapped,
       salt = unbase64(wrapped.salt, 16),

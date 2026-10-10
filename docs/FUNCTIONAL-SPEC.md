@@ -14,7 +14,7 @@ For product interactions and route spellings, this revision supersedes conflicti
 
 A collector creates or receives a picture containing a disposable ownership key. Claiming rotates the token to a fresh key on ZVM. Sending or downloading a file alone does not transfer ownership. All holders of the current file can race to claim; a successful rotation invalidates previous copies. Public art, proof downloads, and social previews never contain this capability.
 
-The reference uses Pointcheval–Sanders credentials with a mint. The deployed ZFT v1 uses public ERC-721 ownership and signed possession statements. The new shielded target uses client-generated proofs and contract-enforced spends; it is a separate construction with its proof system, circuit and privacy guarantees still to be specified and qualified. Keep protocol versions explicit and existing v1 routes/files compatible. Neither byte-hash uniqueness nor a valid mint signature proves copyright or authorship of the depicted work.
+The reference uses Pointcheval–Sanders credentials with a mint. The deployed ZFT v1 uses public ERC-721 ownership and signed possession statements. The new shielded target uses client-generated proofs and contract-enforced spends; it is a separate experimental construction with a local protocol/circuit implementation; independent review and production privacy qualification remain open. Keep protocol versions explicit and existing v1 routes/files compatible. Neither byte-hash uniqueness nor a valid mint signature proves copyright or authorship of the depicted work.
 
 | Scope | Included functionality | State at baseline |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ The reference uses Pointcheval–Sanders credentials with a mint. The deployed Z
 | Extended collections | Independent avatar/cover uploads; curated collection pages | Profile media implemented; curated collections remain planned |
 | Sharing/recovery expansion | Encrypted claim links, optional link password, encrypted remote backup | Separate protocol/service work; reference help describes these |
 | Trading expansion | Listings, offers, acceptance, cancellation, purchases, settlement history | Reference browsing inspected; ZFT settlement design and exchange compatibility still require review |
-| Shielded ZVM ownership | User-held secrets, contract-enforced note spends, local proving and recovery, replaceable services | Next under SH1/SH2; no privacy or interoperability claim for existing v1 |
+| Shielded ZVM ownership | User-held secrets, contract-enforced note spends, local proving and recovery, replaceable services | Local SH3/SH4 candidate; SH1/SH2 acceptance gates remain open; no privacy or interoperability claim for existing v1 |
 | PS credential research | Isolated issuer-based lab and consolidated service candidate | Historical through PR #30; no hosted mint on the active release path |
 | Mainnet | Mainnet launch | Outside this devnet release |
 
@@ -313,7 +313,7 @@ The hosted SDK canaries and existing tests are evidence for their specific scope
 
 ## 14. Implementation sequence and remaining decisions
 
-Priority update, October 10, 2026: SH0–SH7 in [the roadmap](IMPLEMENTATION.md#roadmap-status) and the [shielded plan](SHIELDED-ZVM-PLAN.md) replace the earlier C0–C6 release path. SH1 protocol specification and SH2 ZVM/proving feasibility are next. Existing public v1 remains supported; its delivery sequence and unfinished acceptance are retained below.
+Priority update, October 10, 2026: SH0–SH7 in [the roadmap](IMPLEMENTATION.md#roadmap-status) and the [shielded plan](SHIELDED-ZVM-PLAN.md) replace the earlier C0–C6 release path. SH3 adversarial qualification and SH4 browser integration are the current focus, following the experimental SH1 protocol and selected SH2 feasibility results. Their independent review, setup/licensing, device and chain/finality acceptance gates remain open. Existing public v1 remains supported; its delivery sequence and unfinished acceptance are retained below.
 
 The [implementation roadmap](IMPLEMENTATION.md) is the live status/checklist and delivery log. The following list records the public v1 workstream; it does not put another public-token launch, legacy migration or marketplace ahead of the shielded milestone.
 
@@ -324,7 +324,7 @@ The [implementation roadmap](IMPLEMENTATION.md) is the live status/checklist and
 5. **Beta qualification:** browser/phone/recovery/operational tests and review; then separately review apex routing promotion. Acceptance A-TRANSFER, A-RECOVERY, A-OPERATIONS.
 6. **Expansion:** encrypted links/remote backup and live marketplace only after their protocol/custody reviews; continue reference owner-flow audit with an authorized disposable test collection.
 
-Open shielded decisions are the exact proof relation, note/asset encodings, proof system and setup, creation/provenance policy, showing/freshness and privacy model, witness availability, runtime limits/finality and independent submission/fee path. The [plan](SHIELDED-ZVM-PLAN.md#follow-up-decisions) assigns these to SH1/SH2. Independent review, target devices and staging approval remain acceptance dependencies. Source licensing and later collection, retention, backup and marketplace choices stay separately scoped. Cloudflare hosting, the existing design/domain and preservation of the public devnet implementation are settled direction.
+The [experimental profile](SHIELDED-ZVM-PROTOCOL.md) implements exact creation/spend relations, note/asset encodings and a provisional Groth16 choice. Open shielded acceptance includes independent review of those relations, production setup, showing/freshness and privacy qualification, witness availability, runtime limits/finality and independent submission/fee paths. The [plan](SHIELDED-ZVM-PLAN.md#follow-up-decisions) retains these SH1/SH2 gates while local SH3/SH4 work proceeds. Independent review, target devices and staging approval remain acceptance dependencies. Source licensing and later collection, retention, backup and marketplace choices stay separately scoped. Cloudflare hosting, the existing design/domain and preservation of the public devnet implementation are settled direction.
 
 ## 15. Public-parity milestone acceptance
 

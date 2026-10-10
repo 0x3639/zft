@@ -54,3 +54,9 @@ The public powers-of-tau files are checked against the [snarkjs published digest
 Circom/circomlib/circomlibjs/snarkjs distribution and derivative-artifact licensing must be resolved for the shipped application; the installed package declarations include GPL-3.0. This experiment does not change the repository's license or assert compatibility for a production bundle. Reproducing the public setup transcript, choosing an acceptable production phase-2 process and reviewing generated verifier/artifact provenance remain separate from checksum checks.
 
 Independent protocol/circuit/contract review, actual Firefox/iOS/Android and applicable wallet flows, independent chain access/finality, full hosted-service disappearance, and explicit isolated-devnet staging approval remain open. Public showing remains disabled because historical membership does not prove current unspent control. Existing v1 resources and all historical PS evidence are unchanged.
+
+## PR31 review follow-up
+
+Review of signed `639d0dc` found stale PS/SH1–SH2 milestone wording, a manifest typo, and an outdated PBKDF2 work factor. The active documentation now identifies the local SH3/SH4 candidate and ties future release acceptance to exact signed source, setup/verifier artifacts and deployment configuration. Historical PS gates remain historical.
+
+Recovery now uses exactly 600,000 PBKDF2-HMAC-SHA256 iterations through one shared constant. A regression first failed on the reviewed implementation with a named assertion; it then independently decrypted the new export through Node's separate crypto API and rejected authentic records using 310,000 or 600,001 iterations. The current parser does not accept a downgrade range. The earlier disposable browser exports and trial are preserved as historical evidence, not reclassified as acceptance of the new work factor. Actual target-device KDF performance remains open.
