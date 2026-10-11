@@ -1,0 +1,9 @@
+.source-footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+.source-footer a {
+  color: inherit;
+  text-decoration: underline;
+}

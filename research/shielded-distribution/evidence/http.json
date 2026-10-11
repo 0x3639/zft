@@ -1,0 +1,7 @@
+{
+  "scope": "Loopback HTTP through the existing static Worker handler; no remote deployment or chain request",
+  "filesWithExactHashAndHeaders": 154,
+  "headResponses": 4,
+  "negativeRoutes": 6,
+  "sourceLinksAndMainPageVerified": true
+}

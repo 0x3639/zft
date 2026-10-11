@@ -1,4 +1,5 @@
 import { build } from "vite";
+import { buildSources } from "./source-package.mjs";
 import {
   mkdirSync,
   readFileSync,
@@ -38,8 +39,24 @@ if (existsSync(output))
 mkdirSync(output, { recursive: true });
 const publicDir = resolve(output, "public"),
   ui = resolve(publicDir, "shielded");
+const modules = new Set();
+function recordModules(output) {
+  for (const chunk of output)
+    if (chunk.type === "chunk")
+      for (const name of Object.keys(chunk.modules)) modules.add(name);
+}
 const result = await build({
   configFile: false,
+  worker: {
+    plugins: () => [
+      {
+        name: "record-worker-source",
+        generateBundle(_options, bundle) {
+          recordModules(Object.values(bundle));
+        },
+      },
+    ],
+  },
   root: here,
   base: "/shielded/",
   publicDir: false,
@@ -53,10 +70,11 @@ const result = await build({
   },
   build: { outDir: ui, emptyOutDir: false, target: "es2022", sourcemap: false },
 });
-const modules = new Set();
-for (const chunk of result.output ?? [])
-  if (chunk.type === "chunk")
-    for (const name of Object.keys(chunk.modules)) modules.add(name);
+recordModules(result.output ?? []);
+if (
+  !modules.has(resolve(root, "research/shielded-lab/browser/prover-worker.js"))
+)
+  throw Error("Proof worker source graph was not captured");
 const licenses = new Map();
 for (const module of [
   ...modules,
@@ -123,7 +141,16 @@ for (const artifact of artifacts) {
   mkdirSync(dirname(destination), { recursive: true });
   writeFileSync(destination, artifact.bytes, { flag: "wx" });
 }
+const sourcePackage = buildSources({
+  modules,
+  root,
+  destination: resolve(ui, "source"),
+  uiOnly,
+});
 const types = {
+  ".gz": "application/gzip",
+  ".txt": "text/plain; charset=utf-8",
+  ".md": "text/plain; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -205,5 +232,7 @@ console.log(
     bytes: Object.values(files).reduce((sum, e) => sum + e.bytes, 0),
     artifacts: artifacts.length,
     noticePackages: licenses.size,
+    sourcePackages: sourcePackage.packages,
+    sourceFiles: sourcePackage.projectFiles,
   }),
 );

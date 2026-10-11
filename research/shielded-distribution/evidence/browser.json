@@ -1,0 +1,38 @@
+{
+  "format": "zft-shielded-source-browser-v1",
+  "browser": "Codex in-app Chromium",
+  "transport": "Loopback static preview",
+  "scope": "Source/license page and app-to-source navigation only. No deployment selection, RPC call, wallet, secret, proof, file-save dialog or chain transaction.",
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "horizontalOverflow": false
+  },
+  "checks": {
+    "sourcePageTitle": "ZFT shielded source and licenses",
+    "projectArchiveLinkVisible": true,
+    "GPLTextLinkVisible": true,
+    "backToAppNavigationPassed": true,
+    "appSourceLinkNavigationPassed": true,
+    "scopedWarningsOrErrors": 0,
+    "tabClosed": true,
+    "noticeLinks": 51
+  },
+  "publicSha256": {
+    "/shielded/index.html": "0x065ddd02e683364b5bff7c2f981855b2de773749d717565d2815f9ed1f8649fb",
+    "/shielded/source/index.html": "0xbd02bbe4a0fa5f60e20a68c5a8fcd8a94b5e2866244e9a73e6218a0e667f3dbc",
+    "/shielded/source/page.css": "0x5c0f2141b8d88ef31c84fa77c52e8ea72aed96ed441fa5d734d670d80251eb9a"
+  },
+  "limits": [
+    "One browser, default viewport; not Firefox/iOS/Android or real-wallet acceptance.",
+    "Archive bytes/hash/header checks were performed separately over local HTTP, not native browser download dialogs."
+  ],
+  "earlierTrial": {
+    "viewport": {
+      "width": 595,
+      "height": 816,
+      "horizontalOverflow": false
+    },
+    "scope": "Same source-page layout before three additional upstream notices; not a claim about final bytes."
+  }
+}

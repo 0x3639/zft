@@ -36,6 +36,7 @@ jobs:
         run: node --test research/shielded-devnet/*.test.mjs
       - name: Validate isolated static test host
         run: |
-          node --test research/shielded-host/host.test.mjs
+          node --test research/shielded-host/host.test.mjs research/shielded-host/source-package.test.mjs
           pnpm exec tsc --noEmit --project research/shielded-host/tsconfig.json
+          node research/shielded-host/prepare-sources.mjs
           node research/shielded-host/build.mjs --ui-only
