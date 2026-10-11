@@ -8,7 +8,7 @@ ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for C
 
 [zft.foo](https://zft.foo/) still displays the design prototype at its root. Its `/art/*` and `/metadata/*` routes now serve the real contract's immutable public media. The review app has an isolated sponsor account and Cloudflare storage.
 
-**Next milestone: shielded ownership on ZVM.** The [accepted plan](docs/SHIELDED-ZVM-PLAN.md) keeps spending secrets with users, moves double-spend enforcement into a contract and makes Cloudflare services replaceable. The [isolated local candidate](research/shielded-lab/README.md) includes real proofs, file claims and encrypted browser recovery; the [opt-in app integration](docs/SHIELDED-APP-INTEGRATION.md) adds local user-held-key routes. Integrated browser end-to-end and production qualification remain open. The public v1 app and assets are preserved. The PS issuer lab remains historical research. [Roadmap](docs/IMPLEMENTATION.md).
+**Next milestone: shielded ownership on ZVM.** The [accepted plan](docs/SHIELDED-ZVM-PLAN.md) keeps spending secrets with users, moves double-spend enforcement into a contract and makes Cloudflare services replaceable. The [isolated local candidate](research/shielded-lab/README.md) includes real proofs, file claims and encrypted browser recovery; the [opt-in app integration](docs/SHIELDED-APP-INTEGRATION.md) adds local user-held-key routes. The [desktop browser lifecycle](docs/SHIELDED-BROWSER-ACCEPTANCE.md) now passes on the recorded local build; target wallets/devices and production qualification remain open. The public v1 app and assets are preserved. The PS issuer lab remains historical research. [Roadmap](docs/IMPLEMENTATION.md).
 
 Repository: [0x3639/zft](https://github.com/0x3639/zft).
 
