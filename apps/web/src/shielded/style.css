@@ -1,0 +1,125 @@
+.shielded-app main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 24px 72px;
+}
+.shielded-app .shielded-intro {
+  max-width: 760px;
+  margin-bottom: 32px;
+}
+.shielded-app h1 {
+  font-size: clamp(2rem, 5vw, 3.7rem);
+  line-height: 1.06;
+  margin: 14px 0 20px;
+}
+.shielded-app p {
+  line-height: 1.55;
+}
+.shielded-app .shielded-card,
+.shielded-app .shielded-connection {
+  border: 1px solid var(--border, #425345);
+  border-radius: 14px;
+  padding: 24px;
+  margin: 20px 0;
+}
+.shielded-app label {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+.shielded-app input:not([type="file"]),
+.shielded-app textarea {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--border, #607060);
+  border-radius: 8px;
+  font: inherit;
+}
+.shielded-app input[type="file"] {
+  max-width: 100%;
+  padding: 8px 0;
+}
+.shielded-app .shielded-password {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.shielded-app .shielded-password label {
+  flex: 1;
+  min-width: 240px;
+  margin-bottom: 0;
+}
+.shielded-app .shielded-result {
+  display: flex;
+  gap: 24px;
+  align-items: start;
+}
+.shielded-app .shielded-result img {
+  width: 160px;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.shielded-app .shielded-result > div {
+  min-width: 0;
+}
+.shielded-app .shielded-hash {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+}
+.shielded-app .actions,
+.shielded-app .shielded-inventory {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+}
+.shielded-app .hint {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+.shielded-app section[aria-label="Prepared downloads"] a {
+  display: block;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.shielded-app button[aria-current="page"] {
+  border-color: var(--accent, #8dff75);
+}
+.shielded-app footer {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.shielded-app .header-inner {
+  flex-wrap: wrap;
+}
+@media (max-width: 700px) {
+  .shielded-app main {
+    padding: 24px 16px 48px;
+  }
+  .shielded-app .shielded-card,
+  .shielded-app .shielded-connection {
+    padding: 16px;
+  }
+  .shielded-app .shielded-result {
+    flex-direction: column;
+  }
+  .shielded-app header nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+  .shielded-app .network-bar {
+    align-items: start;
+    gap: 8px;
+  }
+  .shielded-app .shielded-password label {
+    min-width: 100%;
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "format": "zft-shielded-app-browser-evidence-v1",
+  "recordedAt": "2026-10-11T01:17:02.185726+00:00",
+  "baseline": "694e20f1e4668d99c6b7c7a6917eb2f54360b16a",
+  "environment": "Codex in-app desktop Chromium, disposable local Anvil; injected test-only browser fee wallet, not MetaMask",
+  "completed": [
+    "Current build: collection/create/receive/recovery route navigation",
+    "Current build: revealed nonempty disposable password becomes empty and masked on Lock",
+    "Current build: 390x844 and 1440x1000 viewports have matching document/viewport widths, screenshots retained",
+    "Earlier pre-cleanup build: selected deployment/code verification, browser disposable fee account connection, image normalization, creation authorization, encrypted journal preparation, recovery export link"
+  ],
+  "downloadLimitation": "Link activation (Playwright and native) plus waitForEvent(download) and downloadMedia did not yield a saved file. Targeted generated filename absent from Downloads. Native-browser fallback was interrupted by user/app state guard. No bypass of acknowledgement. No Downloads originals modified or removed.",
+  "notQualified": [
+    "Integrated browser saved-file reselection/proof/transaction/receive/reload recovery",
+    "Real MetaMask, Firefox, iOS or Android",
+    "Independent operators or service-disappearance acceptance",
+    "Production setup, finality, performance or privacy"
+  ],
+  "currentSourceSha256": {
+    "apps/web/src/shielded/app.tsx": "c048eb8a86f3d5442dc060a02fe59595bee9f59f03e9a464432b3fd692020776",
+    "apps/web/src/shielded/environment.d.ts": "124b6b561ec83147ddbf0210ec53392ae392becfe019b715a324881576e705a7",
+    "apps/web/src/shielded/prover.ts": "bd8340470dec20f276c8db8c09fd1edcf15d339d89b97f7f7743b5afd07a615f",
+    "apps/web/src/shielded/style.css": "d848ec25668e1cc25446e1b1624609f14aab6df7909e868ea6bebb0fe6913475",
+    "packages/shielded/client.d.mts": "8391b13448b95888972c1951aa8cd58155c13314807327ee30557a7a18f8b777",
+    "packages/shielded/client.mjs": "25d89249382495aab33865e0533019f96256b6bc7a3e97812d3f8ebe9b266a23",
+    "packages/shielded/config.mjs": "472d38479b4c160562c420a17ae2182671ebaf0ade70880f202320e7ad3d62dd",
+    "packages/shielded/wallet.mjs": "5bb27dadab2eb990921f3a6b954341755b73cb5fa041c9ca6a1f6a4e8dd39671"
+  },
+  "currentBundleSha256": {
+    "assets/app-D4_Tnm6q.js": "3335e33056294e3158483d768a9df4c45429864c169254cf64517cfc7f08c2f3",
+    "assets/app-DPORASvt.js": "10c8737a2be0683a96a2377166476845efbeed4962417d49e3f717a46205ffb0",
+    "assets/app-DY-FZFup.css": "4c5b0591a83161d555daad7645b88cf8ac826c709d9629e43c98f5f3597519a4",
+    "assets/brand/gallery.css": "8536d59f0ad09dcda6d3ef16cbb8ba1d980e4380b0f253fc123a0bb5f1863b7b",
+    "assets/brand/index.html": "fe246bedcd082b3ce6625f2ce244ed9ba17bfea60000e2fa23ae89cabbb86979",
+    "assets/ccip-BX__KXt2.js": "6a208c1c8fea2c9404f702d13f12405d3541279171b96f05bc8d62f606aa7e21",
+    "assets/image.worker-DgMGLEkW.js": "2c071c61c3919da64f12e62b459f350e2e7b93ff5a1dfeae220ff05d48c2bc0c",
+    "assets/index-BRTUnpRe.js": "d125ca566e8c461a21ee6456c37ee5a011d2a498dc061fb99bfa573c0edb71c3",
+    "assets/index-DriarjF6.css": "1698a3eb74d41386ae5de0a47b6d1a7c3f73db451a73d1f23c1f74a35b1e2dc7",
+    "assets/profile-image.worker-CNW6LBNq.js": "b52771d027356ca2a630e15723eaa3a7cd19b45e80b9aa16a62103090a16a37a",
+    "assets/prover-worker-CcqVfSsz.js": "e52b2b51be6bd44f1890243dac6dbe50bcbb1b69930bc60fd53a96b8700a851d",
+    "assets/public-page-Bg9AmNGZ.js": "a51d8b6778bd1d34e7a89ae5f7a7dc5fc06096fd808b09fc9090dd46e84c9132",
+    "assets/style-BO4GJHcs.js": "4a40aa22817941a04b47c8a47026443317ab70883aab3bc2ce7fe12290051bf5",
+    "assets/style-DOE6yhe5.css": "341184fbdbb905361974218387cb94ca5b4f168370190a6eb57aa28af625d596",
+    "index.html": "515534dce575d99f488fc75d924ebeae15c9fef81596ed110cba00e35498d48c"
+  },
+  "screenshots": {
+    "mobile.png": "af873f930d33d89481b68c119bf520e838a768f27d4adc3d20c6c0352aa7e2ac",
+    "desktop.png": "bb50b59316b2a79b86bb1802cd2f3f1f5ce7cdb1fa3b8c4d156bd7b63c3bc460"
+  },
+  "scope": "Exact current build hashes qualify the lock/routes/layout observations only. Earlier preparation trial predates Blob replacement and revealed-password clearing changes and is not an end-to-end acceptance claim."
+}
