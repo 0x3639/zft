@@ -1,0 +1,228 @@
+{
+  "scope": "Build module package metadata and top-level notice files, plus the pinned prebuilt snarkjs bundle package. Not a complete transitive provenance or redistribution approval.",
+  "packages": [
+    {
+      "name": "@fontsource/jetbrains-mono",
+      "version": "5.3.0",
+      "declaredLicense": "OFL-1.1",
+      "repository": "git+https://github.com/fontsource/font-files.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b"
+        }
+      ]
+    },
+    {
+      "name": "@fontsource/space-grotesk",
+      "version": "5.3.0",
+      "declaredLicense": "OFL-1.1",
+      "repository": "git+https://github.com/fontsource/font-files.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x18a4de52385f6b988782639d5d0cc1326e5a8c2de9a7f01d7b20d9aedcc60943"
+        }
+      ]
+    },
+    {
+      "name": "@noble/curves",
+      "version": "1.9.1",
+      "declaredLicense": "MIT",
+      "repository": "git+https://github.com/paulmillr/noble-curves.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+        }
+      ]
+    },
+    {
+      "name": "@noble/hashes",
+      "version": "1.8.0",
+      "declaredLicense": "MIT",
+      "repository": "git+https://github.com/paulmillr/noble-hashes.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+        }
+      ]
+    },
+    {
+      "name": "@noble/hashes",
+      "version": "2.4.0",
+      "declaredLicense": "MIT",
+      "repository": "git+https://github.com/paulmillr/noble-hashes.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+        }
+      ]
+    },
+    {
+      "name": "abitype",
+      "version": "1.2.3",
+      "declaredLicense": "MIT",
+      "repository": "wevm/abitype",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0xe7f5360a60628940fee8653802d7221d2b9575e26268be2a3a2fdbc04aa84321"
+        }
+      ]
+    },
+    {
+      "name": "circomlibjs",
+      "version": "0.1.7",
+      "declaredLicense": "GPL-3.0",
+      "repository": "git+https://github.com/iden3/circomlibjs.git",
+      "notices": []
+    },
+    {
+      "name": "fast-png",
+      "version": "8.0.0",
+      "declaredLicense": "MIT",
+      "repository": "git+https://github.com/image-js/fast-png.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x47ec9747cf2c470a505fcb20f3ec2ff2e60ea4febaf2e1e7041a24fc369fac3c"
+        }
+      ]
+    },
+    {
+      "name": "ffjavascript",
+      "version": "0.2.63",
+      "declaredLicense": "GPL-3.0",
+      "repository": "https://github.com/iden3/ffjavascript.git",
+      "notices": [
+        {
+          "file": "COPYING",
+          "sha256": "0xd95c74a62d14f13ebfbc8c1783c315e2ed2389e80048b264bdeddb8114dee945"
+        }
+      ]
+    },
+    {
+      "name": "fflate",
+      "version": "0.8.3",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/101arrowz/fflate",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x0a1df3a083d0c010560aa342e87959c8c1070e6fd54545741f083f22d0c8b551"
+        }
+      ]
+    },
+    {
+      "name": "iobuffer",
+      "version": "6.0.1",
+      "declaredLicense": "MIT",
+      "repository": "git+https://github.com/image-js/iobuffer.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x1c22118fd112e8c394a5ec0598d2e2dfcdc19b3e1055ac3eaccdb2522b777335"
+        }
+      ]
+    },
+    {
+      "name": "jpeg-js",
+      "version": "0.4.4",
+      "declaredLicense": "BSD-3-Clause",
+      "repository": "https://github.com/eugeneware/jpeg-js",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0xc0a8512eabe960492fefd4f287523eb3b5ca1518ca37ef0ec83344cd7f089cb8"
+        }
+      ]
+    },
+    {
+      "name": "ox",
+      "version": "0.14.45",
+      "declaredLicense": "MIT",
+      "repository": "wevm/ox",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x84ecb61c470de66e88a79c7d0ee8ce068e743693a4c249017545b4c8d4f9984d"
+        }
+      ]
+    },
+    {
+      "name": "react-dom",
+      "version": "19.2.0",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/facebook/react.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0xda6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+        }
+      ]
+    },
+    {
+      "name": "react",
+      "version": "19.2.0",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/facebook/react.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0xda6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+        }
+      ]
+    },
+    {
+      "name": "scheduler",
+      "version": "0.27.0",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/facebook/react.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0xda6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+        }
+      ]
+    },
+    {
+      "name": "snarkjs",
+      "version": "0.7.6",
+      "declaredLicense": "GPL-3.0",
+      "repository": "https://github.com/iden3/snarkjs.git",
+      "notices": [
+        {
+          "file": "COPYING",
+          "sha256": "0xd95c74a62d14f13ebfbc8c1783c315e2ed2389e80048b264bdeddb8114dee945"
+        }
+      ]
+    },
+    {
+      "name": "viem",
+      "version": "2.57.2",
+      "declaredLicense": "MIT",
+      "repository": "https://github.com/wevm/viem.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x091d17ae5f625ffeb381e7109daaf6c492dd32502d612d8ecd24e2ddf6d16b74"
+        }
+      ]
+    },
+    {
+      "name": "zod",
+      "version": "3.25.76",
+      "declaredLicense": "MIT",
+      "repository": "git+https://github.com/colinhacks/zod.git",
+      "notices": [
+        {
+          "file": "LICENSE",
+          "sha256": "0x3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8"
+        }
+      ]
+    }
+  ]
+}

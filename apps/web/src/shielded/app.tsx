@@ -29,7 +29,10 @@ async function text(file: File | undefined, max: number) {
     await bytes(file, max),
   );
 }
-export default function ShieldedApp() {
+type TestHost = { configuration: string; brand: React.ReactNode };
+export default function ShieldedApp({
+  testHost,
+}: { testHost?: TestHost } = {}) {
   const [page, setPage] = useState<Page>(currentPage),
     [state, setState] = useState<Snapshot>(),
     [busy, setBusy] = useState(""),
@@ -107,6 +110,26 @@ export default function ShieldedApp() {
       if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
     };
   }, []);
+  async function selectDeployment(configuration: string | Promise<string>) {
+    const g = generation.current;
+    const selectedText = await configuration;
+    if (g !== generation.current) return;
+    const c = await createShieldedClient({
+      text: selectedText,
+      origin: location.origin,
+      prover: browserProver(),
+    });
+    if (g !== generation.current) {
+      c.close();
+      return;
+    }
+    sdk.current = c;
+    setConfigId(c.configurationId);
+    setReady(true);
+    setNotice(
+      "Configuration and deployed code checked. This RPC observation is not a finality guarantee.",
+    );
+  }
   async function refresh() {
     const c = sdk.current;
     if (!c) return;
@@ -174,12 +197,16 @@ export default function ShieldedApp() {
       </a>
       <div className="network-bar">
         <span className="text-ledger">SHIELDED / EXPERIMENTAL</span>
-        <span>User-held keys · selected test deployment</span>
+        <span>
+          {testHost
+            ? "ZVM devnet · disposable test assets only"
+            : "User-held keys · selected test deployment"}
+        </span>
       </div>
       <header>
         <div className="header-inner">
-          <a href="/" className="wordmark">
-            <BrandLogo />
+          <a href={testHost ? "/shielded" : "/"} className="wordmark">
+            {testHost?.brand ?? <BrandLogo />}
           </a>
           <nav aria-label="Shielded navigation">
             {pages.map((p) => (
@@ -205,9 +232,11 @@ export default function ShieldedApp() {
             <button className={btn} onClick={lock}>
               Lock
             </button>
-            <a href="/" className={btn}>
-              Public v1
-            </a>
+            {!testHost && (
+              <a href="/" className={btn}>
+                Public v1
+              </a>
+            )}
           </div>
         </div>
       </header>
@@ -233,37 +262,49 @@ export default function ShieldedApp() {
           className="shielded-connection"
           aria-label="Deployment and wallet"
         >
-          <label>
-            Selected deployment configuration
-            <input
-              aria-label="Selected deployment configuration"
-              type="file"
-              accept=".json"
-              disabled={!!busy || ready}
-              onChange={(e) => {
-                const f = e.currentTarget.files?.[0];
-                void run("Checking deployment", async () => {
-                  const g = generation.current,
-                    c = await createShieldedClient({
-                      text: await text(f, 16384),
-                      origin: location.origin,
-                      prover: browserProver(),
-                    });
-                  if (g !== generation.current) {
-                    c.close();
-                    return;
-                  }
-                  sdk.current = c;
-                  setConfigId(c.configurationId);
-                  setReady(true);
-                  setNotice(
-                    "Configuration and deployed code checked. This RPC observation is not a finality guarantee.",
+          {testHost ? (
+            <div>
+              <p>
+                Use the selected ZVM devnet contracts. Your wallet pays test
+                fees; spending secrets remain on this device.
+              </p>
+              <button
+                className={btn}
+                disabled={!!busy || ready}
+                onClick={() =>
+                  void run("Checking deployment", () =>
+                    selectDeployment(testHost.configuration),
+                  )
+                }
+              >
+                Use ZVM devnet
+              </button>
+              <a
+                className={btn}
+                href="/shielded/config.json"
+                download="zft-devnet-config.json"
+              >
+                Save public configuration
+              </a>
+            </div>
+          ) : (
+            <label>
+              Selected deployment configuration
+              <input
+                aria-label="Selected deployment configuration"
+                type="file"
+                accept=".json"
+                disabled={!!busy || ready}
+                onChange={(e) => {
+                  const f = e.currentTarget.files?.[0];
+                  void run("Checking deployment", () =>
+                    selectDeployment(text(f, 16384)),
                   );
-                });
-                e.currentTarget.value = "";
-              }}
-            />
-          </label>
+                  e.currentTarget.value = "";
+                }}
+              />
+            </label>
+          )}
           {ready && (
             <>
               <p className="shielded-hash">
@@ -301,8 +342,9 @@ export default function ShieldedApp() {
             </>
           )}
           <p className="hint">
-            Use configuration and artifact hashes from a source you trust. No
-            deployment is selected automatically. Lock before changing it.
+            {testHost
+              ? "This host selects only ZVM devnet. Keep the public configuration to verify the deployment and proof files."
+              : "Use configuration and artifact hashes from a source you trust. No deployment is selected automatically. Lock before changing it."}
           </p>
         </section>
         <div className="shielded-password">
@@ -670,17 +712,18 @@ export default function ShieldedApp() {
         </section>
       </main>
       <footer>
-        <BrandLogo />
+        {testHost?.brand ?? <BrandLogo />}
         <p>
-          Experimental shielded ownership. Independent review, production setup,
-          target devices and staging remain open.
+          {testHost
+            ? "Disposable devnet experiment. Independent review and device acceptance remain open."
+            : "Experimental shielded ownership. Independent review, production setup, target devices and staging remain open."}
         </p>
         <p>
           Public artwork and fee accounts can identify activity. “Observed”
           describes a checked block; it does not prove finality or private
           current ownership.
         </p>
-        <a href="/">Return to public v1</a>
+        {!testHost && <a href="/">Return to public v1</a>}
       </footer>
     </div>
   );
