@@ -10,6 +10,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { canonical } from "../shielded-lab/core.mjs";
+import { parseConfiguration } from "../../packages/shielded/config.mjs";
 import {
   selectedConfiguration,
   readArtifacts,
@@ -55,6 +56,64 @@ test("selection rejects changed RPC, chain, genesis, registry and noncanonical c
     assert.throws(() => selectedConfiguration(canonical(c)));
   }
   assert.throws(() => selectedConfiguration(text + "\n"));
+});
+test("selection rejects valid canonical changes to every contract and artifact pin", () => {
+  const approved = JSON.parse(text),
+    cases = [];
+  function variant(name, mutate) {
+    const c = structuredClone(approved);
+    mutate(c);
+    const changed = canonical(c);
+    // These are internally consistent configs; syntax validation alone must accept them.
+    assert.doesNotThrow(() => parseConfiguration(changed, ORIGIN), name);
+    cases.push([name, changed]);
+  }
+  for (const name of Object.keys(approved.pins.contracts)) {
+    variant(name + " address", (c) => {
+      c.pins.contracts[name].address = "0x" + "12".repeat(20);
+    });
+    variant(name + " code hash", (c) => {
+      c.pins.contracts[name].codeHash = "0x" + "13".repeat(32);
+    });
+  }
+  for (const name of Object.keys(approved.artifacts)) {
+    variant(name + " hash", (c) => {
+      c.artifacts[name].sha256 = "0x" + "14".repeat(32);
+      if (name !== "library") {
+        const [kind, type] = name.split("-");
+        const key =
+          kind +
+          { wasm: "Wasm", key: "Key", verificationKey: "VerificationKey" }[
+            type
+          ];
+        c.pins.artifacts[key] = c.artifacts[name].sha256;
+      }
+    });
+    variant(name + " length", (c) => {
+      c.artifacts[name].bytes += 1;
+    });
+    variant(name + " path", (c) => {
+      c.artifacts[name].url += "-other";
+    });
+  }
+  variant("deployment block", (c) => {
+    c.pins.deploymentBlock = "137405";
+  });
+  const accepted = [];
+  for (const [name, changed] of cases) {
+    try {
+      selectedConfiguration(changed);
+      accepted.push(name);
+    } catch (error) {
+      assert.equal(error.message, "Unselected devnet configuration", name);
+    }
+  }
+  assert.deepEqual(
+    accepted,
+    [],
+    "packaging must reject every unselected configuration",
+  );
+  assert.deepEqual(selectedConfiguration(text), approved);
 });
 test("artifact packaging checks every exact byte pin and never replaces missing material", () => {
   const directory = mkdtempSync(join(tmpdir(), "zft-host-artifacts-"));
