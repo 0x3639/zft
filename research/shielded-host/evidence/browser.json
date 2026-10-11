@@ -1,0 +1,41 @@
+{
+  "format": "zft-shielded-host-browser-v1",
+  "recordedAt": "2026-10-11T11:05:50.672504+00:00",
+  "browser": "Codex in-app Chromium",
+  "scope": "Final local static package; read-only verification against actual selected ZVM devnet. No fee wallet, signatures, new proof/submission, download/recovery or phone acceptance.",
+  "origin": "loopback HTTP preview",
+  "rpc": "https://devnet.zenon.foo/zvm/rpc",
+  "chainId": 7340469,
+  "registry": "0x94bd9f5181a28120f2a02cb5cbc276b641ad6da0",
+  "configurationSha256": "0x9a1a07626e19c3174c2c8261495f54b2603a4fee0b79fb2bc0096b6eaa803559",
+  "checks": {
+    "deploymentCodeVerified": true,
+    "explicitSelection": true,
+    "otherNetworkSelectorAbsent": true,
+    "creationCollectionNavigation": true,
+    "lockClearsSelection": true,
+    "allBrandImagesLoaded": true,
+    "onlyCorrectThemeLogosVisible": true,
+    "consoleErrors": 0,
+    "viewport": {
+      "width": 595,
+      "height": 816,
+      "scrollWidth": 595
+    },
+    "transactions": 0,
+    "walletConnected": false,
+    "newUserSecretsCreated": false
+  },
+  "sourceSha256": {
+    "apps/web/src/shielded/app.tsx": "dcc9e2858bf08e49c20644326ea943eca089eeb429d26109f52a4ee1507c99d3",
+    "research/shielded-host/entry.tsx": "1c31a7476cc44bece1817ee2e0ee48eceec49eb154dc437e49828a0f6e1cea51",
+    "research/shielded-host/index.html": "b229b2ccd68e5d13e246d6c12e1af9ccff2bf21cd155b469dd55a76874e6b49c",
+    "research/shielded-host/worker.mjs": "b08adb3e4c6bb980bfc677030f5683e205601211f84d9659f4330774aefd46b7",
+    "research/shielded-host/preview.mjs": "5daec218cabd80feb6ea27c89d4ea71eb2b3d6dd70a9d9f9216c052b26777945",
+    "research/shielded-devnet/evidence/app-config.json": "9a1a07626e19c3174c2c8261495f54b2603a4fee0b79fb2bc0096b6eaa803559"
+  },
+  "packageSha256": "dba8c1499e33b856497892341735fa9d33201ee5551ac1742ccabf64a332036d",
+  "screenshotSha256": "0ca54c89105f66bfce3215b82c57989739f655b33148214910c6ec12e6014964",
+  "historicalCorrection": "A preliminary screenshot exposed both footer logos. The isolated brand wrapper was corrected, rebuilt, reloaded and checked before this final evidence.",
+  "postTrialRefinement": "After this screenshot, Worker asset-fetch/cancellation exceptions were sanitized to the same fixed503 response and unit-tested/dry-run checked. Public package bytes and ordinary serving path unchanged. This error-path refinement is not retroactively part of the browser trial."
+}

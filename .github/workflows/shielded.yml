@@ -34,3 +34,8 @@ jobs:
       - run: node research/shielded-app/check-builds.mjs
       - name: Validate devnet runner offline boundaries
         run: node --test research/shielded-devnet/*.test.mjs
+      - name: Validate isolated static test host
+        run: |
+          node --test research/shielded-host/host.test.mjs
+          pnpm exec tsc --noEmit --project research/shielded-host/tsconfig.json
+          node research/shielded-host/build.mjs --ui-only

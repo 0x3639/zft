@@ -1,3 +1,5 @@
+Current app preparation: the [isolated static devnet package](../docs/SHIELDED-DEVNET-APP.md) and [validation record](shielded-host-validation.json) add a selected-deployment UI, exact artifact packaging, read-only Worker boundary and local browser verification against the actual devnet. Hosting is not activated; prior devnet transaction evidence and all historical manifests are unchanged.
+
 # Research and capability evidence
 
 Current environment: user-selected `devnet.zenon.foo` only. The [devnet validation preparation](../docs/SHIELDED-DEVNET-VALIDATION.md) records read-only primitive/verifier checks, six approved devnet contract deployments, and real creation/claim transactions with consumed-bearer rejection and fresh-process recovery. All nine transactions stayed below the approved 1 devnet ZNN fee cap. The [current devnet validation manifest](shielded-devnet-validation.json) preserves all earlier records. Production ZVM is not an assumed target; prior local/browser records retain their original scope.

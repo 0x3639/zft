@@ -1,0 +1,224 @@
+{
+  "format": "zft-shielded-host-http-v1",
+  "scope": "Local adapter exercising the Worker handler; not a live Cloudflare deployment",
+  "files": 43,
+  "bytes": 14832838,
+  "negativeRoutes": 5,
+  "entries": [
+    {
+      "path": "/shielded/assets/ccip-DP5gHUaI.js",
+      "bytes": 2888,
+      "sha256": "0xfe57bbbc6f7b6036ba8d0a4b28ad321e2f1a5474b5391e58019941f3a76b0dd4"
+    },
+    {
+      "path": "/shielded/assets/index-DnFjn5Rv.js",
+      "bytes": 2571467,
+      "sha256": "0x16ea07a13e31668a6668bf9642bd1a7b69ec1fc1a0f8a2f1c9147859572c038d"
+    },
+    {
+      "path": "/shielded/assets/index-z4XeSN_G.css",
+      "bytes": 56296,
+      "sha256": "0x573dcdf981360680e1233c829bce0a431f0930ed2e750a5d8b3a094f244f8252"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-cyrillic-400-normal-BEIGL1Tu.woff2",
+      "bytes": 5328,
+      "sha256": "0x522f5827308102a9c0ea7860b5a11306043610ecf03d150ba32056a06e8c56e2"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-cyrillic-400-normal-ugxPyKxw.woff",
+      "bytes": 6976,
+      "sha256": "0x67c9cc7864b4940dbfb246c7b452c1de8e96f140f334d363fcdd87dbfeadab72"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-greek-400-normal-B9oWc5Lo.woff",
+      "bytes": 5664,
+      "sha256": "0x09f89e8369d7745ac5fe92e62a9ea13f66f40fd95b5495fac014c54b3a1ca6cc"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-greek-400-normal-C190GLew.woff2",
+      "bytes": 4228,
+      "sha256": "0x365b7a8eaff022b13ed0561fde3890a04a30507d773ecd5adb3aca8e766a285c"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-latin-400-normal-6-qcROiO.woff",
+      "bytes": 27496,
+      "sha256": "0x658b9ee07b0249cf910a8d6f3d812d46c962bae81d7379a0355b1db35c61586f"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2",
+      "bytes": 21168,
+      "sha256": "0x14425ba9c695763c1547f48a206b7aa60350a33ae23de09f0407877f3fcd89eb"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-latin-ext-400-normal-Bc8Ftmh3.woff2",
+      "bytes": 7336,
+      "sha256": "0x505dfba8ecbe77e82765f36d317ed7ef4ac42719dc5f4ae68d1c483fd22d0d14"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-latin-ext-400-normal-fXTG6kC5.woff",
+      "bytes": 10128,
+      "sha256": "0xe7131bbf591e1ed9b74e44e162f6a39affa00ac21654cb683585d085733f6355"
+    },
+    {
+      "path": "/shielded/assets/jetbrains-mono-vietnamese-400-normal-CqNFfHCs.woff",
+      "bytes": 5372,
+      "sha256": "0x1dfe0f740fa86409034058e49474b01126ae9ea8c1ecda905917b90d57f03b00"
+    },
+    {
+      "path": "/shielded/assets/prover-worker-CcqVfSsz.js",
+      "bytes": 1688,
+      "sha256": "0xe52b2b51be6bd44f1890243dac6dbe50bcbb1b69930bc60fd53a96b8700a851d"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-400-normal-BnQMeOim.woff",
+      "bytes": 17004,
+      "sha256": "0xd3fcfce61e3792f35b7c95c2f7f4f26c8d19c93998c03ad77d7bf0cd6d334e35"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-400-normal-CJ-V5oYT.woff2",
+      "bytes": 13388,
+      "sha256": "0x65fd17fcbd2e2f522940b5f67ead3d23329e02891aa5495e74d11a499c0b0673"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-500-normal-CNSSEhBt.woff",
+      "bytes": 16988,
+      "sha256": "0xaa3f2941f6db6ca253c9f55bb173e1a1ade690dcc50e501119814a4414027df3"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-500-normal-lFbtlQH6.woff2",
+      "bytes": 13312,
+      "sha256": "0x1b1a8131d9edf975d9decee81e2f2bf504812f7a4f498e5500f28a613e22e64c"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-700-normal-CwsQ-cCU.woff",
+      "bytes": 16416,
+      "sha256": "0x145016049aa47932e2d116f70151edc5a53df894cb367514c52ea2d11289bee7"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-700-normal-RjhwGPKo.woff2",
+      "bytes": 12840,
+      "sha256": "0x35f8aec56cfd5cbfdb03cc68733a54a0b05bb3617ffcd5fd332badc0b045ca55"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-ext-400-normal-CfP_5XZW.woff2",
+      "bytes": 12256,
+      "sha256": "0xa6658ce608a36f9ece7a65842725deebeb5f01df2debeb696b79c8536bf2ddc8"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-ext-400-normal-DRPE3kg4.woff",
+      "bytes": 16788,
+      "sha256": "0x41c5af675d526f6df3941159158f9eb6e75ac2903f0834e479205cbccccb6dfc"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-ext-500-normal-3dgZTiw9.woff",
+      "bytes": 16788,
+      "sha256": "0xb1faf7147e8b2fd11385c78412b2ba9d120645e68336ec9982d2e0f645accd7a"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-ext-500-normal-DUe3BAxM.woff2",
+      "bytes": 12272,
+      "sha256": "0xed7e064eda944f88ce2f40101ec20e214004decdf5c0b9ad9219ae21be2dbf13"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-ext-700-normal-BQnZhY3m.woff2",
+      "bytes": 11992,
+      "sha256": "0x7ce350b706d79c955ebf91314295f39fa82999f980b7e9beee743c2f3580a15e"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-latin-ext-700-normal-HVCqSBdx.woff",
+      "bytes": 16460,
+      "sha256": "0x215b0cac2778da21525aab1d204b59b4261099b64afd010864f73ec9613ec5ba"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-vietnamese-400-normal-B7xT_GF5.woff2",
+      "bytes": 4296,
+      "sha256": "0x4e7fc2191af9ee0b3c0bf285beb6ec2a1fcfb02695f0eb7cb5f75c600df0e4b0"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-vietnamese-400-normal-BIWiOVfw.woff",
+      "bytes": 5728,
+      "sha256": "0x48f21f0daa88ba31d169375c535c9eae4d2d9d24201fa75799b2ca6244557e3b"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-vietnamese-500-normal-BTqKIpxg.woff",
+      "bytes": 5716,
+      "sha256": "0xff7d1c4604ba397e816ac21f0bb3ff9fa871f6ef71e023bd75e9fe9bb6aaaba3"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-vietnamese-500-normal-BmEvtly_.woff2",
+      "bytes": 4324,
+      "sha256": "0xd5eb999d825de1ad0c6f81ccca6958906f3288d1368106a71fa16f4b36b57933"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-vietnamese-700-normal-DMty7AZE.woff2",
+      "bytes": 4204,
+      "sha256": "0x96a6d0a746a024bfbcc0b09ed15278755070d73b686e6856458dd0ca8f5d772a"
+    },
+    {
+      "path": "/shielded/assets/space-grotesk-vietnamese-700-normal-Duxec5Rn.woff",
+      "bytes": 5588,
+      "sha256": "0x10bc4d15c6fded3cb97fc0f36ceb55c7273133e5f9de9b5504a9f4e1171ba812"
+    },
+    {
+      "path": "/shielded/brand/dark.svg",
+      "bytes": 1654,
+      "sha256": "0xcbbf272da8075ba03e3572af3377de6e96fdafb7f169f9759b2e7a9100c52123"
+    },
+    {
+      "path": "/shielded/brand/favicon.svg",
+      "bytes": 202,
+      "sha256": "0x3aba2d0f5dd6a41c5f45040e0168f59a08d25fcd31bd74f1e782d474b4c12b44"
+    },
+    {
+      "path": "/shielded/brand/light.svg",
+      "bytes": 1654,
+      "sha256": "0x34e8f97ebf2866a317b0c9170ae1711b8e6cf2e63d4ebe7b37c9918ab40c7191"
+    },
+    {
+      "path": "/shielded/config.json",
+      "bytes": 2798,
+      "sha256": "0x9a1a07626e19c3174c2c8261495f54b2603a4fee0b79fb2bc0096b6eaa803559"
+    },
+    {
+      "path": "/shielded/index.html",
+      "bytes": 634,
+      "sha256": "0xeb9eaf83d95ab23349425ac118eeea182204f7bc6b66a23e84ddd541eefe8430"
+    },
+    {
+      "path": "/shielded-assets/create-key",
+      "bytes": 1018518,
+      "sha256": "0xa25ab6213c9de01ea79f6fdc2c5ab904a58239600a96bc996c6f38a08dbcb362"
+    },
+    {
+      "path": "/shielded-assets/create-verificationKey",
+      "bytes": 3741,
+      "sha256": "0x6531fc41cdfb0424a24a81dcf515cf307a2cbbd7b5b265f00c94cbf188bf4aab"
+    },
+    {
+      "path": "/shielded-assets/create-wasm",
+      "bytes": 2307311,
+      "sha256": "0x61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a"
+    },
+    {
+      "path": "/shielded-assets/snarkjs.min.js",
+      "bytes": 688758,
+      "sha256": "0x3f61bbd9ac0a10173902eaef65b510fa4e9a2c057f759c7f18a6d0446b20fd06"
+    },
+    {
+      "path": "/shielded-assets/spend-key",
+      "bytes": 4619114,
+      "sha256": "0x827493284ff35e56cbbae6808051f568a77085ebe1d8c2aedef4edf6a68a431c"
+    },
+    {
+      "path": "/shielded-assets/spend-verificationKey",
+      "bytes": 3744,
+      "sha256": "0x5159b388c55010929054d9d8ca652b7f33fe24e7fe27211cfb9a19d02eb54114"
+    },
+    {
+      "path": "/shielded-assets/spend-wasm",
+      "bytes": 3252315,
+      "sha256": "0xd36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37"
+    }
+  ]
+}
