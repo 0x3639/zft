@@ -70,7 +70,7 @@ Open `http://127.0.0.1:4173/design/`. The prototype contains the homepage, galle
 - Solidity with OpenZeppelin ERC-721/EIP-712/ECDSA and Foundry verification.
 - ZVM devnet `7340469`; RPC `https://devnet.zenon.foo/zvm/rpc`.
 
-Dependencies are pinned in `pnpm-lock.yaml`; the devnet deployment is pinned in `packages/protocol/deployment.json`. Project source remains UNLICENSED pending the license decision. The app domain is **zft.foo**.
+Dependencies are pinned in `pnpm-lock.yaml`; the devnet deployment is pinned in `packages/protocol/deployment.json`. The ZFT-owned shielded client and required source/build files listed in [the scoped license](SHIELDED-LICENSE.md) are GPL-3.0-only. This is not a repository-wide grant; third-party licenses and brand exclusions remain intact. See [source downloads and reconstruction](docs/SHIELDED-SOURCE-DISTRIBUTION.md). The app domain is **zft.foo**.
 
 Frontend direction: NonFungible Cash’s page structure and flows with the [Zenon design system](https://github.com/digitalSloth/zenon-design-system). The prototype includes pinned MIT-licensed theme CSS/assets with attribution in `design/vendor/zenon/NOTICE.md`.
 

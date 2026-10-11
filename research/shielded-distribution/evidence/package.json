@@ -1,0 +1,42 @@
+{
+  "publicFiles": 154,
+  "publicBytes": 58625787,
+  "largestFile": 19211231,
+  "projectFiles": 68,
+  "physicalProjectInputs": 28,
+  "packages": 53,
+  "installedPackageFiles": 15553,
+  "packageArchiveFiles": 15570,
+  "noticeFiles": 51,
+  "upstreamSupplements": 17,
+  "priorPublicFilesByteIdentical": 39,
+  "javascript": [
+    {
+      "original": "/shielded/assets/ccip-DP5gHUaI.js",
+      "current": "/shielded/assets/ccip-C7-U5GAk.js",
+      "byteIdentical": false,
+      "identicalExceptHashedAssetReferences": true
+    },
+    {
+      "original": "/shielded/assets/index-DnFjn5Rv.js",
+      "current": "/shielded/assets/index-Di8tEo39.js",
+      "byteIdentical": false,
+      "identicalExceptHashedAssetReferences": true
+    },
+    {
+      "original": "/shielded/assets/prover-worker-CcqVfSsz.js",
+      "current": "/shielded/assets/prover-worker-CcqVfSsz.js",
+      "byteIdentical": true,
+      "identicalExceptHashedAssetReferences": true
+    },
+    {
+      "original": "/shielded-assets/snarkjs.min.js",
+      "current": "/shielded-assets/snarkjs.min.js",
+      "byteIdentical": true,
+      "identicalExceptHashedAssetReferences": true
+    }
+  ],
+  "independentArchiveParser": "Python tarfile; exact names/bytes/hashes, regular files only, no filesystem extraction API",
+  "reconstructionUsesExistingLockedDependencyTrees": true,
+  "allPublicHashesVerified": true
+}

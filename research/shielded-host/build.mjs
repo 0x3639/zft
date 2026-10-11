@@ -1,4 +1,5 @@
 import { build } from "vite";
+import { buildSources, publicAssetType } from "./source-package.mjs";
 import {
   mkdirSync,
   readFileSync,
@@ -8,7 +9,7 @@ import {
   existsSync,
   lstatSync,
 } from "node:fs";
-import { resolve, dirname, extname } from "node:path";
+import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   selectedConfiguration,
@@ -38,8 +39,24 @@ if (existsSync(output))
 mkdirSync(output, { recursive: true });
 const publicDir = resolve(output, "public"),
   ui = resolve(publicDir, "shielded");
+const modules = new Set();
+function recordModules(output) {
+  for (const chunk of output)
+    if (chunk.type === "chunk")
+      for (const name of Object.keys(chunk.modules)) modules.add(name);
+}
 const result = await build({
   configFile: false,
+  worker: {
+    plugins: () => [
+      {
+        name: "record-worker-source",
+        generateBundle(_options, bundle) {
+          recordModules(Object.values(bundle));
+        },
+      },
+    ],
+  },
   root: here,
   base: "/shielded/",
   publicDir: false,
@@ -53,10 +70,11 @@ const result = await build({
   },
   build: { outDir: ui, emptyOutDir: false, target: "es2022", sourcemap: false },
 });
-const modules = new Set();
-for (const chunk of result.output ?? [])
-  if (chunk.type === "chunk")
-    for (const name of Object.keys(chunk.modules)) modules.add(name);
+recordModules(result.output ?? []);
+if (
+  !modules.has(resolve(root, "research/shielded-lab/browser/prover-worker.js"))
+)
+  throw Error("Proof worker source graph was not captured");
 const licenses = new Map();
 for (const module of [
   ...modules,
@@ -123,15 +141,12 @@ for (const artifact of artifacts) {
   mkdirSync(dirname(destination), { recursive: true });
   writeFileSync(destination, artifact.bytes, { flag: "wx" });
 }
-const types = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".woff": "font/woff",
-  ".woff2": "font/woff2",
-  ".svg": "image/svg+xml",
-  ".json": "application/json",
-};
+const sourcePackage = buildSources({
+  modules,
+  root,
+  destination: resolve(ui, "source"),
+  uiOnly,
+});
 const files = {};
 let javascript = "";
 function walk(directory) {
@@ -149,11 +164,7 @@ function walk(directory) {
     files[url] = {
       bytes: bytes.length,
       sha256: SHA256(bytes),
-      type:
-        types[extname(path)] ??
-        (url.endsWith("-wasm")
-          ? "application/wasm"
-          : "application/octet-stream"),
+      type: publicAssetType(url),
     };
     if (path.endsWith(".js")) javascript += bytes.toString("utf8");
   }
@@ -205,5 +216,7 @@ console.log(
     bytes: Object.values(files).reduce((sum, e) => sum + e.bytes, 0),
     artifacts: artifacts.length,
     noticePackages: licenses.size,
+    sourcePackages: sourcePackage.packages,
+    sourceFiles: sourcePackage.projectFiles,
   }),
 );
