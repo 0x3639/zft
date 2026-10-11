@@ -1,12 +1,12 @@
 # ZFT complete website functional specification
 
-Revision 13 · 2026-10-06 · reference audit, implementation, and remaining work.
+Revision 14 · 2026-10-10 · existing v1 behavior and accepted shielded ZVM direction.
 
 This is the central specification for reproducing NonFungible Cash's website functionality with the Zenon design system and ZVM ownership. It covers the full intended product, including deferred features. It is **not a declaration that every feature is implemented or every reference operation has been tested**. The [reference action ledger](REFERENCE-AUDIT.md) records actual clicks, results, and unverified flows. The [hosted alpha runbook](DEVNET-ALPHA.md) records what is deployed.
 
 The original audit baseline was `53eb78b`. The public-profile/proof/sharing implementation now adds Collection-first profiles, contextual unlock, Network dialogs, explicit published-epoch history, independent proof checks, thumbnail-backed OG cards, and wallet connection. Wallet/file custody transitions, wallet-backed identity, direct wallet mint/receive, and optional browser password protection are implemented. R2 collection/NFT discovery and the live-data homepage are implemented. R3 Everyone/Following and profile activity are implemented with a separate public action journal and verified block times. R4 profile media and R5 Basics/Technical help with distinct sharing metadata are implemented. Real wallet/device acceptance remains unfinished. Live alpha: [devnet.zft.foo](https://devnet.zft.foo/). Intended app domain: **zft.foo**. The apex root currently serves the design prototype. Do not promote it merely because this specification is complete.
 
-The user has prioritized matching the reference's PS/BLS12-381 credential cryptography. [The PS proposal](PS-CREDENTIAL-PROTOCOL.md) governs that new design work and its C0–C6 acceptance; it does not change current endpoints or deployed ownership. MetaMask remains the public profile identity. Whether future credentials are off-chain mint instruments or retain ordinary wallet-visible ZVM NFT custody is an explicit design decision before public integration.
+The user selected **shielded ownership enforced by a ZVM contract**, with end-user-held spending secrets and Cloudflare providing replaceable application services, on October 10, 2026. The [shielded plan](SHIELDED-ZVM-PLAN.md) governs SH0–SH7 and supersedes the hosted PS mint as the next release path. Keep the existing public ERC-721 contract, assets and recovery flows unchanged. A new public-token launch, legacy import and marketplace expansion are outside the initial shielded milestone.
 
 For product interactions and route spellings, this revision supersedes conflicting draft text in older documents. The frozen codec, deployed manifest, contract source, and current API schemas remain authoritative for existing files and transactions. [SPEC](SPEC.md), [CONTRACTS](CONTRACTS.md), [ARCHITECTURE](ARCHITECTURE.md), [PAGES-AND-SHARING](PAGES-AND-SHARING.md), and [MARKETPLACE](MARKETPLACE.md) supply the detailed protocol, infrastructure, sharing, and expansion designs. Proposed schema additions below require versioned implementation and review; they do not silently change the deployed protocol.
 
@@ -14,7 +14,7 @@ For product interactions and route spellings, this revision supersedes conflicti
 
 A collector creates or receives a picture containing a disposable ownership key. Claiming rotates the token to a fresh key on ZVM. Sending or downloading a file alone does not transfer ownership. All holders of the current file can race to claim; a successful rotation invalidates previous copies. Public art, proof downloads, and social previews never contain this capability.
 
-The reference uses Pointcheval–Sanders credentials and describes private transfers. The deployed ZFT v1 uses public ERC-721 ownership and signed possession statements; it is not cryptographically equivalent. Requested PS parity is now the next design/prototype milestone under C0–C6. Continue explaining each protocol's actual guarantees and keep existing v1 routes/files compatible. Neither byte-hash uniqueness nor a valid mint signature proves copyright or authorship of the depicted work.
+The reference uses Pointcheval–Sanders credentials with a mint. The deployed ZFT v1 uses public ERC-721 ownership and signed possession statements. The new shielded target uses client-generated proofs and contract-enforced spends; it is a separate experimental construction with a local protocol/circuit implementation; independent review and production privacy qualification remain open. Keep protocol versions explicit and existing v1 routes/files compatible. Neither byte-hash uniqueness nor a valid mint signature proves copyright or authorship of the depicted work.
 
 | Scope | Included functionality | State at baseline |
 | --- | --- | --- |
@@ -23,10 +23,13 @@ The reference uses Pointcheval–Sanders credentials and describes private trans
 | Extended collections | Independent avatar/cover uploads; curated collection pages | Profile media implemented; curated collections remain planned |
 | Sharing/recovery expansion | Encrypted claim links, optional link password, encrypted remote backup | Separate protocol/service work; reference help describes these |
 | Trading expansion | Listings, offers, acceptance, cancellation, purchases, settlement history | Reference browsing inspected; ZFT settlement design and exchange compatibility still require review |
-| PS credential protocol | Reviewed PS/BLS12-381 construction, issuer/custody choice and isolated prototype | Design next under C0–C6; no parity or anonymity claim for deployed v1 |
+| Shielded ZVM ownership | User-held secrets, contract-enforced note spends, local proving and recovery, replaceable services | Local SH3/SH4 candidate; SH1/SH2 acceptance gates remain open; no privacy or interoperability claim for existing v1 |
+| PS credential research | Isolated issuer-based lab and consolidated service candidate | Historical through PR #30; no hosted mint on the active release path |
 | Mainnet | Mainnet launch | Outside this devnet release |
 
 ## 2. Identities, sessions, and route contract
+
+The ownership, wallet custody and route behavior below describes the existing **public v1** product. Shielded notes will have separate versioned authority and local inventory under [SH4](SHIELDED-ZVM-PLAN.md#file-and-browser-lifecycle); a connected wallet or public profile does not automatically hold a note or reveal a holding. Do not implement the new flow by reinterpreting v1 token IDs, files or owner fields.
 
 The **profile identity** signs publication and social requests. An **item owner** is either an external wallet or a separate disposable file key. A **creator** is immutable mint provenance. A **collector** is an optional public profile bound to an ownership epoch. A **local collection** is the private vault's inventory. A **curated collection** groups public items and is not another ERC-721 deployment. Never infer a recipient's profile from an on-chain address alone.
 
@@ -310,9 +313,9 @@ The hosted SDK canaries and existing tests are evidence for their specific scope
 
 ## 14. Implementation sequence and remaining decisions
 
-Priority update after PR #10: C0–C6 in [the roadmap](IMPLEMENTATION.md#ps-credential-work) now put PS credential design and an isolated prototype ahead of further protocol expansion. The sequence below describes the v1 delivery plan and its remaining acceptance. Resolve the issuer/native-NFT custody tradeoff and applicable release gates before apex promotion.
+Priority update, October 10, 2026: SH0–SH7 in [the roadmap](IMPLEMENTATION.md#roadmap-status) and the [shielded plan](SHIELDED-ZVM-PLAN.md) replace the earlier C0–C6 release path. SH3 adversarial qualification and SH4 browser integration are the current focus, following the experimental SH1 protocol and selected SH2 feasibility results. Their independent review, setup/licensing, device and chain/finality acceptance gates remain open. Existing public v1 remains supported; its delivery sequence and unfinished acceptance are retained below.
 
-The [implementation roadmap](IMPLEMENTATION.md) is the live status/checklist and delivery log. Wallet custody is the current priority following the user’s direction; the public-site sequence below remains the order for the remaining parity work.
+The [implementation roadmap](IMPLEMENTATION.md) is the live status/checklist and delivery log. The following list records the public v1 workstream; it does not put another public-token launch, legacy migration or marketplace ahead of the shielded milestone.
 
 1. **Profile semantics and navigation:** Collection first; correct counts/links; contextual unlock and guest intent; Network dialog; mobile menu; persistent theme/lookup. Acceptance A-NAV, A-PROFILE.
 2. **Proof and historical detail:** two-face card, independent checks, safe downloads, retained public epochs, historical membership guard and unique share identity. Acceptance A-ITEM, A-PROOF, historical A-SHARE.
@@ -321,7 +324,7 @@ The [implementation roadmap](IMPLEMENTATION.md) is the live status/checklist and
 5. **Beta qualification:** browser/phone/recovery/operational tests and review; then separately review apex routing promotion. Acceptance A-TRANSFER, A-RECOVERY, A-OPERATIONS.
 6. **Expansion:** encrypted links/remote backup and live marketplace only after their protocol/custody reviews; continue reference owner-flow audit with an authorized disposable test collection.
 
-Open decisions start with the PS issuer/custody architecture, ordinary MetaMask NFT expectations and the exact reviewed cryptographic profile; other decisions are the source license; exact historical-publication retention/removal policy; whether portable profile endorsements are mandatory for beta; curated-collection scope; remote-backup/link protocol; and marketplace integration/settlement asset. The visual direction, corrected domain, Cloudflare hosting, and real devnet implementation are already authorized. Do not reopen those merely because earlier draft documents call them proposals.
+The [experimental profile](SHIELDED-ZVM-PROTOCOL.md) implements exact creation/spend relations, note/asset encodings and a provisional Groth16 choice. Open shielded acceptance includes independent review of those relations, production setup, showing/freshness and privacy qualification, witness availability, runtime limits/finality and independent submission/fee paths. The [plan](SHIELDED-ZVM-PLAN.md#follow-up-decisions) retains these SH1/SH2 gates while local SH3/SH4 work proceeds. Independent review, target devices and staging approval remain acceptance dependencies. Source licensing and later collection, retention, backup and marketplace choices stay separately scoped. Cloudflare hosting, the existing design/domain and preservation of the public devnet implementation are settled direction.
 
 ## 15. Public-parity milestone acceptance
 

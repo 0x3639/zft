@@ -8,11 +8,13 @@ ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for C
 
 [zft.foo](https://zft.foo/) still displays the design prototype at its root. Its `/art/*` and `/metadata/*` routes now serve the real contract's immutable public media. The review app has an isolated sponsor account and Cloudflare storage.
 
+**Next milestone: shielded ownership on ZVM.** The [accepted plan](docs/SHIELDED-ZVM-PLAN.md) keeps spending secrets with users, moves double-spend enforcement into a contract and makes Cloudflare services replaceable. The [isolated local candidate](research/shielded-lab/README.md) includes real proofs, file claims and encrypted browser recovery; production qualification and integration remain open. The public v1 app and assets are preserved. The PS issuer lab remains historical research. [Roadmap](docs/IMPLEMENTATION.md).
+
 Repository: [0x3639/zft](https://github.com/0x3639/zft).
 
 ## Review the project
 
-The current protocol milestone follows the merged [PS credential proposal](docs/PS-CREDENTIAL-PROTOCOL.md), addressing the requested Pointcheval–Sanders/BLS12-381 parity. It proposes an isolated mint-based prototype and explicitly separates credential custody from MetaMask identity and native ERC-721 holdings. The [C1 reference-core lab](docs/PS-CRYPTOGRAPHIC-PROFILE.md) adds exact encodings and differential fixtures for local review. The deployed alpha continues to use public ERC-721 ownership; no PS migration or deployment is implied.
+Historical research followed the merged [PS credential proposal](docs/PS-CREDENTIAL-PROTOCOL.md), addressing the requested Pointcheval–Sanders/BLS12-381 parity. That superseded proposal described an isolated mint-based prototype and separated credential custody from MetaMask identity and native ERC-721 holdings. The [C1 reference-core lab](docs/PS-CRYPTOGRAPHIC-PROFILE.md) adds exact encodings and differential fixtures for local review. The deployed alpha continues to use public ERC-721 ownership; no PS migration or deployment is implied.
 
 Track delivery in the [implementation roadmap](docs/IMPLEMENTATION.md), including completed milestones, discovery delivery, wallet/device work and remaining acceptance gates. Start with the [complete website functional specification](docs/FUNCTIONAL-SPEC.md) and [reference action audit](docs/REFERENCE-AUDIT.md). They cover routes, controls, dialogs, ownership states, downloads, recovery, discovery/social features, marketplace scope, OG sharing, and acceptance criteria. The audit distinguishes exercised public actions from owner/payment flows still unverified.
 

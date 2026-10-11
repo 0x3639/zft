@@ -1,0 +1,133 @@
+{
+  "scope": "Disposable same-author development setup; never approved for production",
+  "runs": [
+    {
+      "format": "zft-shielded-experimental-setup-v1",
+      "scope": "Disposable local setup; no independent contribution or production approval",
+      "ptauBlake2b512": "982372c867d229c236091f767e703253249a9b432c1710b4f326306bfa2428a17b06240359606cfe4d580b10a5a1f63fbed499527069c18ae17060472969ae6e",
+      "compilation": {
+        "version": "circom compiler 2.2.3",
+        "compilerSha256": "e006332b3fe225f11c3b87bd2debbf5d7f568d6efbde25e5a6a12cd6988c8ecb",
+        "artifacts": {
+          "create.r1cs": "1ecd3f91f289925eae9ccb72f1e7189492265e141957f136cdbfb2bf2c847adf",
+          "create_js/create.wasm": "61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+          "spend.r1cs": "a5fbe7523fd19d569a24f2cbe67eac5baac917bc404f464a6f9ddf05de11a288",
+          "spend_js/spend.wasm": "d36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37"
+        }
+      },
+      "name": "create",
+      "system": "groth16",
+      "milliseconds": 8951.751166999999,
+      "artifacts": {
+        "create-groth16.zkey": {
+          "sha256": "a25ab6213c9de01ea79f6fdc2c5ab904a58239600a96bc996c6f38a08dbcb362",
+          "bytes": 1018518
+        },
+        "create-groth16.vkey.json": {
+          "sha256": "6531fc41cdfb0424a24a81dcf515cf307a2cbbd7b5b265f00c94cbf188bf4aab",
+          "bytes": 3741
+        },
+        "create-groth16.sol": {
+          "sha256": "3d403bf8d44c1010479c1fb909e9b7b583f6c580542a3574eb35819d4b857bee",
+          "bytes": 8224
+        }
+      }
+    },
+    {
+      "format": "zft-shielded-experimental-setup-v1",
+      "scope": "Disposable local setup; no independent contribution or production approval",
+      "ptauBlake2b512": "982372c867d229c236091f767e703253249a9b432c1710b4f326306bfa2428a17b06240359606cfe4d580b10a5a1f63fbed499527069c18ae17060472969ae6e",
+      "compilation": {
+        "version": "circom compiler 2.2.3",
+        "compilerSha256": "e006332b3fe225f11c3b87bd2debbf5d7f568d6efbde25e5a6a12cd6988c8ecb",
+        "artifacts": {
+          "create.r1cs": "1ecd3f91f289925eae9ccb72f1e7189492265e141957f136cdbfb2bf2c847adf",
+          "create_js/create.wasm": "61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+          "spend.r1cs": "a5fbe7523fd19d569a24f2cbe67eac5baac917bc404f464a6f9ddf05de11a288",
+          "spend_js/spend.wasm": "d36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37"
+        }
+      },
+      "name": "create",
+      "system": "plonk",
+      "milliseconds": 1683.8127919999988,
+      "artifacts": {
+        "create-plonk.zkey": {
+          "sha256": "f419eda55671129e411b92bc51e8c164a386bf8fed11313e80d5fa0695b14f27",
+          "bytes": 33323232
+        },
+        "create-plonk.vkey.json": {
+          "sha256": "1392828c603baf2ce1521c2ffb56b70662df45c4565ee36c472f17c57eee7eef",
+          "bytes": 2145
+        },
+        "create-plonk.sol": {
+          "sha256": "a218fcff3b447ed364f02e5a64061347eeba5a3036d5777ffb26ea484a038b38",
+          "bytes": 34789
+        }
+      }
+    },
+    {
+      "format": "zft-shielded-experimental-setup-v1",
+      "scope": "Disposable local setup; no independent contribution or production approval",
+      "ptauBlake2b512": "982372c867d229c236091f767e703253249a9b432c1710b4f326306bfa2428a17b06240359606cfe4d580b10a5a1f63fbed499527069c18ae17060472969ae6e",
+      "compilation": {
+        "version": "circom compiler 2.2.3",
+        "compilerSha256": "e006332b3fe225f11c3b87bd2debbf5d7f568d6efbde25e5a6a12cd6988c8ecb",
+        "artifacts": {
+          "create.r1cs": "1ecd3f91f289925eae9ccb72f1e7189492265e141957f136cdbfb2bf2c847adf",
+          "create_js/create.wasm": "61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+          "spend.r1cs": "a5fbe7523fd19d569a24f2cbe67eac5baac917bc404f464a6f9ddf05de11a288",
+          "spend_js/spend.wasm": "d36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37"
+        }
+      },
+      "name": "spend",
+      "system": "groth16",
+      "milliseconds": 34879.691583,
+      "artifacts": {
+        "spend-groth16.zkey": {
+          "sha256": "827493284ff35e56cbbae6808051f568a77085ebe1d8c2aedef4edf6a68a431c",
+          "bytes": 4619114
+        },
+        "spend-groth16.vkey.json": {
+          "sha256": "5159b388c55010929054d9d8ca652b7f33fe24e7fe27211cfb9a19d02eb54114",
+          "bytes": 3744
+        },
+        "spend-groth16.sol": {
+          "sha256": "dca8841f82eafa1648babdd71b024f3fbefbd3859f98505ef9df7accf5499d22",
+          "bytes": 8227
+        }
+      }
+    },
+    {
+      "format": "zft-shielded-experimental-setup-v1",
+      "scope": "Disposable local setup; no independent contribution or production approval",
+      "ptauBlake2b512": "6247a3433948b35fbfae414fa5a9355bfb45f56efa7ab4929e669264a0258976741dfbe3288bfb49828e5df02c2e633df38d2245e30162ae7e3bcca5b8b49345",
+      "compilation": {
+        "version": "circom compiler 2.2.3",
+        "compilerSha256": "e006332b3fe225f11c3b87bd2debbf5d7f568d6efbde25e5a6a12cd6988c8ecb",
+        "artifacts": {
+          "create.r1cs": "1ecd3f91f289925eae9ccb72f1e7189492265e141957f136cdbfb2bf2c847adf",
+          "create_js/create.wasm": "61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+          "spend.r1cs": "a5fbe7523fd19d569a24f2cbe67eac5baac917bc404f464a6f9ddf05de11a288",
+          "spend_js/spend.wasm": "d36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37"
+        }
+      },
+      "name": "spend",
+      "system": "plonk",
+      "milliseconds": 18284.525875,
+      "artifacts": {
+        "spend-plonk.zkey": {
+          "sha256": "ad6cb34e60c42ec434edc3228df21b45102a37890417913d833ad89158da422d",
+          "bytes": 265279552
+        },
+        "spend-plonk.vkey.json": {
+          "sha256": "e983dbd5f48ff11ded40c6bce9a4ebfa8c5a76ea2ab46405fca8ca27eccf4042",
+          "bytes": 2146
+        },
+        "spend-plonk.sol": {
+          "sha256": "d978c1ea89bd45c465b5c94c83a77847083a61cc354d1dc85827da466e9a2242",
+          "bytes": 34968
+        }
+      }
+    }
+  ]
+}

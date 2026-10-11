@@ -1,5 +1,13 @@
 # PS release sequence
 
+**Historical issuer release sequence.** On October 10, 2026, the user accepted the [shielded ZVM plan](SHIELDED-ZVM-PLAN.md): user-held spending secrets, contract-enforced double-spend prevention and replaceable Cloudflare services. SH0–SH7 in the [roadmap](IMPLEMENTATION.md) is now the active sequence. The issuer steps below retain their original scope and incomplete gates; they do not authorize continued mint hosting, managed issuer keys or deployment. Cloudflare is selected for the application, and the older AWS/provider-selection discussion is historical.
+
+PR #30 merged at `d91d15d909873614de607ce18a164d8c96484022` after review and checks on signed `6f4f374196f782c5448c21fe8eae0fe4a4c00e79`. Its local candidate is preserved as research. Historical validation manifests remain pinned to their recorded sources; these planning changes do not renew that acceptance.
+
+## Earlier issuer sequence
+
+Everything below records the earlier C0–C6 program and its acceptance at the time. The [new plan's publication policy](SHIELDED-ZVM-PLAN.md#publication-and-evidence-policy) carries forward the user's consolidated-branch, unsigned-checkpoint and final-signing workflow.
+
 The user authorized completing each engineering step, committing it, and continuing to the next. Baseline: merged PR #23, `673f89dba48a3222be02894ad659a62fe6e58aad`. This sequence refines [C1–C6](IMPLEMENTATION.md#ps-credential-work); it does not mark external review or device acceptance complete.
 
 | Step | Deliverable and exit evidence | Status |

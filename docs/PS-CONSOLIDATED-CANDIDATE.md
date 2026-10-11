@@ -1,5 +1,7 @@
 # Consolidated PS service candidate
 
+**Completed local research, superseded as the release target.** [PR #30](https://github.com/0x3639/zft/pull/30) merged at `d91d15d909873614de607ce18a164d8c96484022`. The October 10, 2026 [shielded ZVM plan](SHIELDED-ZVM-PLAN.md) now governs further engineering. The implementation and evidence below remain intact; they do not establish the security of a shielded circuit or authorize an issuer deployment.
+
 User direction, October 9, 2026: complete the remaining authorized engineering on one local branch, checkpoint with unsigned development commits, then sign the final history and submit one consolidated PR. This supersedes the earlier per-increment signing/PR cadence. Use `git -c commit.gpgsign=false commit` for unpublished checkpoints; do not change global signing settings. Preserve an unsigned backup branch before final signing and verify the final tree and expected signer. Never rewrite published history, merge automatically or deploy an issuer.
 
 Baseline: merged PR #29, `23df3222f9b3bd280b9947846eb78ba96d3d069c`, reviewed signed head `f981ce208356cba320096825771c770b5444bb5b`. Development branch: `feat/ps-consolidated-candidate`. The consolidated work is published in [PR #30](https://github.com/0x3639/zft/pull/30).

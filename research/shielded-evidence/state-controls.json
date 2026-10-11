@@ -1,0 +1,46 @@
+{
+  "format": "zft-shielded-state-controls-v1",
+  "scope": "Reduced-depth registry with deliberately accepting verifier: EVM state checks only, not cryptographic acceptance",
+  "controls": [
+    {
+      "name": "closed-root",
+      "baseline": "passed",
+      "mutation": "named-assertion-failed"
+    },
+    {
+      "name": "spent-nullifier",
+      "baseline": "passed",
+      "mutation": "named-assertion-failed"
+    },
+    {
+      "name": "commitment-unique",
+      "baseline": "passed",
+      "mutation": "named-assertion-failed"
+    },
+    {
+      "name": "root-required",
+      "baseline": "passed",
+      "mutation": "named-assertion-failed"
+    },
+    {
+      "name": "creator-signature",
+      "baseline": "passed",
+      "mutation": "named-assertion-failed"
+    },
+    {
+      "name": "image-unique",
+      "baseline": "passed",
+      "mutation": "named-assertion-failed"
+    },
+    {
+      "name": "reveal-delay",
+      "baseline": "passed",
+      "mutation": "named-assertion-failed"
+    },
+    {
+      "name": "commit-expiry",
+      "baseline": "passed",
+      "mutation": "named-assertion-failed"
+    }
+  ]
+}

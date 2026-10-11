@@ -1,5 +1,7 @@
 # ZFT PS credential protocol proposal
 
+**Historical PS research proposal.** The October 10, 2026 [shielded ZVM plan](SHIELDED-ZVM-PLAN.md) supersedes option A below as the next product direction. The new target places spend enforcement on ZVM and keeps spending secrets with users; it requires a separate proof system and protocol. Preserve this PS design and its unfinished review gates as research, without continuing a hosted mint or claiming PS interoperability.
+
 Design for review · October 6, 2026 · baseline `f0a4065` after PR #10.
 
 ZFT should prototype Pointcheval–Sanders (PS) credentials on BLS12-381 to address the requested cryptographic parity with NonFungible Cash. The proposed prototype uses an off-chain issuer and an authoritative spent-credential registry. MetaMask remains the public profile identity. ZVM continues to secure the existing ERC-721 alpha; it does not become the authority for the prototype's PS credentials.

@@ -1,0 +1,92 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #edf4f5;
+  background: #11191d;
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 68px 24px;
+}
+h1 {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  letter-spacing: -0.05em;
+  line-height: 1.06;
+  max-width: 650px;
+  margin: 20px 0;
+}
+h2 {
+  font-size: 1.1rem;
+}
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  color: #80dfb0;
+}
+.intro {
+  font-size: 1.15rem;
+  max-width: 650px;
+  color: #b8c5c9;
+  line-height: 1.6;
+}
+section {
+  border: 1px solid #355057;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 36px 0 24px;
+  background: #19252a;
+}
+section p,
+aside p {
+  line-height: 1.6;
+  color: #c2d1d5;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0;
+}
+button {
+  border: 1px solid #6aa589;
+  background: #a5ecc5;
+  color: #0d2820;
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+#cancel {
+  background: transparent;
+  color: #edf4f5;
+  border-color: #61777e;
+}
+#status {
+  min-height: 26px;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+  color: #80dfb0;
+  margin: 16px 0 0;
+}
+aside {
+  max-width: 710px;
+  font-size: 0.9rem;
+}
+aside h2 {
+  color: #c1ccd0;
+}

@@ -1,0 +1,53 @@
+{
+  "scope": "One actual Codex in-app desktop browser trial, public deterministic fixtures; not device or memory qualification",
+  "date": "2026-10-10",
+  "worker": "Groth16 singleThread:true",
+  "creationMilliseconds": 572,
+  "spendMilliseconds": 2624,
+  "publicInputsEach": 4,
+  "localProofVerification": true,
+  "cancelWorkerObserved": true,
+  "artifactPins": {
+    "create-wasm": {
+      "url": "/artifacts/create-wasm",
+      "sha256": "0x61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+      "bytes": 2307311
+    },
+    "create-key": {
+      "url": "/artifacts/create-key",
+      "sha256": "0xa25ab6213c9de01ea79f6fdc2c5ab904a58239600a96bc996c6f38a08dbcb362",
+      "bytes": 1018518
+    },
+    "create-verificationKey": {
+      "url": "/artifacts/create-verificationKey",
+      "sha256": "0x6531fc41cdfb0424a24a81dcf515cf307a2cbbd7b5b265f00c94cbf188bf4aab",
+      "bytes": 3741
+    },
+    "spend-wasm": {
+      "url": "/artifacts/spend-wasm",
+      "sha256": "0xd36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37",
+      "bytes": 3252315
+    },
+    "spend-key": {
+      "url": "/artifacts/spend-key",
+      "sha256": "0x827493284ff35e56cbbae6808051f568a77085ebe1d8c2aedef4edf6a68a431c",
+      "bytes": 4619114
+    },
+    "spend-verificationKey": {
+      "url": "/artifacts/spend-verificationKey",
+      "sha256": "0x5159b388c55010929054d9d8ca652b7f33fe24e7fe27211cfb9a19d02eb54114",
+      "bytes": 3744
+    },
+    "library": {
+      "url": "/vendor/snarkjs.min.js",
+      "sha256": "0x3f61bbd9ac0a10173902eaef65b510fa4e9a2c057f759c7f18a6d0446b20fd06",
+      "bytes": 688758
+    }
+  },
+  "notes": [
+    "Timings exclude artifact download and initial hashing.",
+    "No mobile, Firefox, Safari or MetaMask claim.",
+    "Browser memory was not measured.",
+    "Test page and its local server were closed after inspection."
+  ]
+}
