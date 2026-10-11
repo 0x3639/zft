@@ -1,0 +1,20 @@
+{
+  "format": "zft-shielded-browser-export-check-v1",
+  "recoveryDecryption": "Node PBKDF2 and AES-GCM APIs, followed by unchanged operation validation",
+  "creationMatchesOriginalBearer": true,
+  "claimSourceMatchesOriginalBearer": true,
+  "claimDestinationMatchesSuccessorBearer": true,
+  "freshSecretAndRandomness": true,
+  "assetAndMetadataPreserved": true,
+  "publicImageExact": true,
+  "imageSha256": "0x01e98b6b858659a35f9a7617fa8698161136b06559ab62711449a225a4cb9611",
+  "scope": "Offline equality and authentication for selected exports; no chain freshness, browser execution, independent review or memory-erasure claim",
+  "fileSha256": {
+    "configuration": "0x9b9ff5b02bc5de8498c62355f24ffad872d3d00a6b078bc611c007dfeeec03aa",
+    "creationRecovery": "0x89533d3d86ab319e80350ecc038e6e018a69a6a2582a94f4c5b03e6b00ae5a38",
+    "claimRecovery": "0xaa23fb3e945bef67a0f79bf1bd144842bfd7ab889760deb35bd87242832ce5b5",
+    "originalBearer": "0xf61a59368f51e0f272a01e841b29b0570ca43afd332a35c0d6fdac67bb427ce4",
+    "successorBearer": "0xb9dda193b97db8ede2cf522c5d5291d1d70ab559c3282ef156e3d788d7d2e431",
+    "publicImage": "0x01e98b6b858659a35f9a7617fa8698161136b06559ab62711449a225a4cb9611"
+  }
+}

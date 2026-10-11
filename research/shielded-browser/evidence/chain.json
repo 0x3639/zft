@@ -1,0 +1,12 @@
+{
+  "format": "zft-shielded-browser-chain-check-v1",
+  "originalSpent": true,
+  "destinationPublished": true,
+  "destinationUnspent": true,
+  "successorMatchesRecovery": true,
+  "block": {
+    "number": "11",
+    "hash": "0x4288c58c81d45e89f7baebcf3b65ad3e1e8fcd49823f24f36669ce9514b9abb2"
+  },
+  "scope": "Same disposable Anvil chain, separately rechecked read; not independent chain/finality qualification"
+}

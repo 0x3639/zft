@@ -1,0 +1,22 @@
+[
+  {
+    "case": "public-image-as-bearer",
+    "rejected": true,
+    "outputSanitized": true
+  },
+  {
+    "case": "old-bearer-as-successor",
+    "rejected": true,
+    "outputSanitized": true
+  },
+  {
+    "case": "creation-as-claim",
+    "rejected": true,
+    "outputSanitized": true
+  },
+  {
+    "case": "wrong-password",
+    "rejected": true,
+    "outputSanitized": true
+  }
+]

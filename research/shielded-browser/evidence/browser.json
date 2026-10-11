@@ -1,0 +1,148 @@
+{
+  "format": "zft-shielded-browser-lifecycle-v1",
+  "recordedAt": "2026-10-11T09:44:46.672671+00:00",
+  "baseline": "05d26554219650798d09b4779cf0d9d77660dcd4",
+  "environment": {
+    "creationAndClaim": "Brave 151.1.93.138 on macOS, native file save/open dialogs",
+    "freshJournalAndReload": "Codex in-app desktop Chromium, separate browser storage",
+    "chain": "Disposable local Anvil chain 31337",
+    "wallet": "Injected disposable browser fee wallet, not MetaMask",
+    "password": "Disposable random test password entered locally; no real credentials"
+  },
+  "completed": [
+    "Brave: configuration and runtime verification, public fee-wallet connection, image normalization and creation authorization",
+    "Brave: encrypted creation recovery downloaded through native Save dialog and exact file reselected; proof/submission disabled before acknowledgement",
+    "Brave: actual worker creation proofs, explicit commitment then two-block advance then reveal; creation observed",
+    "Brave: original bearer and public image saved through native dialogs",
+    "Brave: original bearer imported, fresh claim authority prepared, claim recovery saved and reselected, actual worker spend proof and transaction observed",
+    "Brave: successor bearer saved separately; repeat preparation with original bearer rejected by generic fixed error",
+    "In-app browser: empty deployment journal confirmed, saved claim recovery imported without connecting a fee wallet; proving/submission disabled pending observation and saved-file verification",
+    "In-app browser: public chain observation resolved the same claim to observed; reload required configuration/password/unlock and a new explicit observation",
+    "Fresh Node process: Node crypto decryption plus unchanged operation validation and bearer parsing matched creation/source/destination exactly; fresh secret/randomness and unchanged asset/metadata; public bytes exactly canonical artwork",
+    "Separate read of same local chain: original nullifier spent, expected successor published and unspent at rechecked block 11",
+    "Offline verifier rejected four mismatched selections with fixed output and no private operands"
+  ],
+  "limitations": [
+    "Single operator, one machine and one local chain; separate browser storage is not independent-operator or service-disappearance acceptance",
+    "Brave was used for file download/reselection and submission. In-app browser was used for import, observation and reload; its previously blocked download path remains unqualified",
+    "Brave reload cleared the session, but user activity moved to another page before restoration; completed reload recovery is the separate in-app-browser trial",
+    "No actual MetaMask, Firefox, iOS, Android, production setup, live ZVM submission/finality, process-kill or hardware durability acceptance",
+    "No latency or memory budget measurements; old recovery/bearer copies can race; RPC observation is not finality",
+    "Test wallet funds only public addresses and mines local blocks; no production keys, assets, hosted service or deployment changed",
+    "Private exports and password remain local test material and are excluded from evidence; hashes do not reproduce their random secret bytes or prove browser execution by themselves"
+  ],
+  "sourceSha256": {
+    "apps/web/src/shielded/app.tsx": "c048eb8a86f3d5442dc060a02fe59595bee9f59f03e9a464432b3fd692020776",
+    "apps/web/src/shielded/environment.d.ts": "124b6b561ec83147ddbf0210ec53392ae392becfe019b715a324881576e705a7",
+    "apps/web/src/shielded/prover.ts": "bd8340470dec20f276c8db8c09fd1edcf15d339d89b97f7f7743b5afd07a615f",
+    "apps/web/src/shielded/style.css": "d848ec25668e1cc25446e1b1624609f14aab6df7909e868ea6bebb0fe6913475",
+    "packages/shielded/client.d.mts": "8391b13448b95888972c1951aa8cd58155c13314807327ee30557a7a18f8b777",
+    "packages/shielded/client.mjs": "25d89249382495aab33865e0533019f96256b6bc7a3e97812d3f8ebe9b266a23",
+    "packages/shielded/config.mjs": "472d38479b4c160562c420a17ae2182671ebaf0ade70880f202320e7ad3d62dd",
+    "packages/shielded/wallet.mjs": "5bb27dadab2eb990921f3a6b954341755b73cb5fa041c9ca6a1f6a4e8dd39671",
+    "research/shielded-app/local-server.mjs": "658678b9fcd8855216a3dbaff2725f62ed9e579db3c9448fd73be247ec0beaa0",
+    "research/shielded-app/browser-wallet.mjs": "70115814976bf9cb3d9f2d37c2355bfb7c33ac0282adae272e54e315c12f1e44"
+  },
+  "bundleSha256": {
+    "assets/app-D4_Tnm6q.js": "3335e33056294e3158483d768a9df4c45429864c169254cf64517cfc7f08c2f3",
+    "assets/app-DPORASvt.js": "10c8737a2be0683a96a2377166476845efbeed4962417d49e3f717a46205ffb0",
+    "assets/app-DY-FZFup.css": "4c5b0591a83161d555daad7645b88cf8ac826c709d9629e43c98f5f3597519a4",
+    "assets/brand/gallery.css": "8536d59f0ad09dcda6d3ef16cbb8ba1d980e4380b0f253fc123a0bb5f1863b7b",
+    "assets/brand/index.html": "fe246bedcd082b3ce6625f2ce244ed9ba17bfea60000e2fa23ae89cabbb86979",
+    "assets/ccip-BX__KXt2.js": "6a208c1c8fea2c9404f702d13f12405d3541279171b96f05bc8d62f606aa7e21",
+    "assets/image.worker-DgMGLEkW.js": "2c071c61c3919da64f12e62b459f350e2e7b93ff5a1dfeae220ff05d48c2bc0c",
+    "assets/index-BRTUnpRe.js": "d125ca566e8c461a21ee6456c37ee5a011d2a498dc061fb99bfa573c0edb71c3",
+    "assets/index-DriarjF6.css": "1698a3eb74d41386ae5de0a47b6d1a7c3f73db451a73d1f23c1f74a35b1e2dc7",
+    "assets/profile-image.worker-CNW6LBNq.js": "b52771d027356ca2a630e15723eaa3a7cd19b45e80b9aa16a62103090a16a37a",
+    "assets/prover-worker-CcqVfSsz.js": "e52b2b51be6bd44f1890243dac6dbe50bcbb1b69930bc60fd53a96b8700a851d",
+    "assets/public-page-Bg9AmNGZ.js": "a51d8b6778bd1d34e7a89ae5f7a7dc5fc06096fd808b09fc9090dd46e84c9132",
+    "assets/style-BO4GJHcs.js": "4a40aa22817941a04b47c8a47026443317ab70883aab3bc2ce7fe12290051bf5",
+    "assets/style-DOE6yhe5.css": "341184fbdbb905361974218387cb94ca5b4f168370190a6eb57aa28af625d596",
+    "index.html": "515534dce575d99f488fc75d924ebeae15c9fef81596ed110cba00e35498d48c"
+  },
+  "evidenceSha256": {
+    "chain.json": "358e37a736f553965c914a6fbaefa3c456668a7eb325cd3d13f6771bb6edd5a8",
+    "exports.json": "8b99e6264f1199a4cb81c3eaa4fbe0e12f034f34dda94f92461070f5252b6734",
+    "negative.json": "a599c13858ceeabbfa4493d81588cdc2fac290b64b175a26a8d097888112f400",
+    "reload-recovered.png": "f8f50eab1ba48416a7eb26cb7ab0cc7dce3736f06a0886d20d37c27016f05dd5"
+  },
+  "selectedDeploymentPins": {
+    "artifacts": {
+      "createKey": "0xa25ab6213c9de01ea79f6fdc2c5ab904a58239600a96bc996c6f38a08dbcb362",
+      "createVerificationKey": "0x6531fc41cdfb0424a24a81dcf515cf307a2cbbd7b5b265f00c94cbf188bf4aab",
+      "createWasm": "0x61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+      "spendKey": "0x827493284ff35e56cbbae6808051f568a77085ebe1d8c2aedef4edf6a68a431c",
+      "spendVerificationKey": "0x5159b388c55010929054d9d8ca652b7f33fe24e7fe27211cfb9a19d02eb54114",
+      "spendWasm": "0xd36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37"
+    },
+    "chainId": "31337",
+    "contracts": {
+      "creationAdapter": {
+        "address": "0xf11de8b4869c7288d94fe821608311581a542161",
+        "codeHash": "0x3405066a0d494e42f755fa6307eba51019ebc0e6e1d497240d1ff3fb36cb83eb"
+      },
+      "creationVerifier": {
+        "address": "0x63cd9baae7322e99cbeaa685727f6a0db443d5e2",
+        "codeHash": "0x9d77aab61a8932db004ec5151c572c90cbc3b4775a65c26e8b06b21db07f9a34"
+      },
+      "hasher": {
+        "address": "0xcbb27083a9a0306f2312ea596fe3d1b94aaf443c",
+        "codeHash": "0x354b26999e434f8256d168395315e1f51fc15bf49bf2e6bb58fc549bd597e7da"
+      },
+      "registry": {
+        "address": "0xe6cfa228538e580793dda4e184babd1302a288bf",
+        "codeHash": "0x701d63f2f7ee49a45facee69cabd28a0a79bf850267ab07db87c3c4bc51d7743"
+      },
+      "spendAdapter": {
+        "address": "0x2e50e8ddba4ab456e2c38956b7555cdff1bb35da",
+        "codeHash": "0x7fd2b2a3ee48cb1b1858d2113c4da7c4e3ac72ee3c25eb85f4d9408784ec2e82"
+      },
+      "spendVerifier": {
+        "address": "0x19d8c655467946ce8bd5b339afa7c78537a78d7e",
+        "codeHash": "0xefa15f287d249d8dadf1054015ea7da0e73bf3096da02a946c78caacac661670"
+      }
+    },
+    "deploymentBlock": "6",
+    "format": "zft-shielded-local-deployment-v1",
+    "genesisHash": "0x90dbf2c71818c7606f7a1618a0bf2a39a9589d92221460f2e15a429e66df7cea",
+    "system": "groth16"
+  },
+  "selectedArtifacts": {
+    "create-key": {
+      "bytes": 1018518,
+      "sha256": "0xa25ab6213c9de01ea79f6fdc2c5ab904a58239600a96bc996c6f38a08dbcb362",
+      "url": "/shielded-assets/create-key"
+    },
+    "create-verificationKey": {
+      "bytes": 3741,
+      "sha256": "0x6531fc41cdfb0424a24a81dcf515cf307a2cbbd7b5b265f00c94cbf188bf4aab",
+      "url": "/shielded-assets/create-verificationKey"
+    },
+    "create-wasm": {
+      "bytes": 2307311,
+      "sha256": "0x61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+      "url": "/shielded-assets/create-wasm"
+    },
+    "library": {
+      "bytes": 688758,
+      "sha256": "0x3f61bbd9ac0a10173902eaef65b510fa4e9a2c057f759c7f18a6d0446b20fd06",
+      "url": "/shielded-assets/snarkjs.min.js"
+    },
+    "spend-key": {
+      "bytes": 4619114,
+      "sha256": "0x827493284ff35e56cbbae6808051f568a77085ebe1d8c2aedef4edf6a68a431c",
+      "url": "/shielded-assets/spend-key"
+    },
+    "spend-verificationKey": {
+      "bytes": 3744,
+      "sha256": "0x5159b388c55010929054d9d8ca652b7f33fe24e7fe27211cfb9a19d02eb54114",
+      "url": "/shielded-assets/spend-verificationKey"
+    },
+    "spend-wasm": {
+      "bytes": 3252315,
+      "sha256": "0xd36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37",
+      "url": "/shielded-assets/spend-wasm"
+    }
+  },
+  "cleanup": "Both trial tabs closed; native browser returned to its prior tab. Only the disposable local trial server and its child chain were stopped. No Downloads originals changed."
+}
