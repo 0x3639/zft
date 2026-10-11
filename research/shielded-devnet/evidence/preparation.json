@@ -1,0 +1,158 @@
+{
+  "format": "zft-shielded-devnet-preparation-v1",
+  "recordedAt": "2026-10-11T10:10:59.082Z",
+  "rpc": "https://devnet.zenon.foo/zvm/rpc",
+  "chainId": "7340469",
+  "genesisHash": "0x2a55e0b69e552a105d559e99b12e0cae28d6e07a3c7a9f264a1543a040ef8ea4",
+  "block": {
+    "number": "0x21874",
+    "hash": "0x7ab5b64eea5c37fd90a34c1235393833463f11d8be291367ae5474e0fa821481"
+  },
+  "feeAccount": "0x2adeC7860E6e2Dc02877c429cd0f8EAE55aefDcE",
+  "contracts": [
+    {
+      "name": "hasher",
+      "address": "0xc9824722021e95e15ced67e00500589e44dd3289",
+      "nonce": 0,
+      "constructorArgs": [],
+      "initCodeSha256": "c153f8ce90f19e7e7f9af1029dff4297e1659e2fcdc51ae0764059e3b0ab3031",
+      "initCodeBytes": 9755,
+      "runtimeKeccak256": "0x354b26999e434f8256d168395315e1f51fc15bf49bf2e6bb58fc549bd597e7da",
+      "runtimeBytes": 9743,
+      "estimatedGas": "2175413",
+      "gas": "2610496",
+      "gasPrice": "50002400000",
+      "maxFeeWei": "130531065190400000"
+    },
+    {
+      "name": "creationVerifier",
+      "address": "0x2b2230fadb9368808531b23144974c4e5fa7aea5",
+      "nonce": 1,
+      "constructorArgs": [],
+      "initCodeSha256": "6c81a399e3d26b397ee360a728033f7f46b65a088597067416c6ca4ecd02497d",
+      "initCodeBytes": 1664,
+      "runtimeKeccak256": "0x9d77aab61a8932db004ec5151c572c90cbc3b4775a65c26e8b06b21db07f9a34",
+      "runtimeBytes": 1636,
+      "estimatedGas": "411331",
+      "gas": "493598",
+      "gasPrice": "50002400000",
+      "maxFeeWei": "24681084635200000"
+    },
+    {
+      "name": "creationAdapter",
+      "address": "0x068c40ba0fc2fe80f4eacdd1d22df8c69a749542",
+      "nonce": 2,
+      "constructorArgs": ["0x2b2230fadb9368808531b23144974c4e5fa7aea5", false],
+      "initCodeSha256": "b2f17f9e85b1f03f2fb433448148946a6cc2d9252d97508e0a9e93dc86295065",
+      "initCodeBytes": 1755,
+      "runtimeKeccak256": "0xc5aa84e1b82dfd70b6d0ffefb0b2c1675c4afec37332bafa91c625c181c1f09b",
+      "runtimeBytes": 1419,
+      "estimatedGas": "369613",
+      "gas": "443536",
+      "gasPrice": "50002400000",
+      "maxFeeWei": "22177864486400000"
+    },
+    {
+      "name": "spendVerifier",
+      "address": "0xb25fda52beb688a1c703aa8ab23796540e1565c2",
+      "nonce": 3,
+      "constructorArgs": [],
+      "initCodeSha256": "596d08c3645d6277cd235ad16414ea2f5a995182bd895ed19754a51a4fc53c3b",
+      "initCodeBytes": 1664,
+      "runtimeKeccak256": "0xefa15f287d249d8dadf1054015ea7da0e73bf3096da02a946c78caacac661670",
+      "runtimeBytes": 1636,
+      "estimatedGas": "411331",
+      "gas": "493598",
+      "gasPrice": "50002400000",
+      "maxFeeWei": "24681084635200000"
+    },
+    {
+      "name": "spendAdapter",
+      "address": "0x899341433e981e4e7b14af100ecf20fc6db0a31a",
+      "nonce": 4,
+      "constructorArgs": ["0xb25fda52beb688a1c703aa8ab23796540e1565c2", false],
+      "initCodeSha256": "7315a9fc24ae987bedea6aa67633004cf63f0daa44c56d1a0e084819f937424f",
+      "initCodeBytes": 1755,
+      "runtimeKeccak256": "0xaf58facba6deb89938f538c0675fdce3da420d60d69f1ac1840309bc6db322a6",
+      "runtimeBytes": 1419,
+      "estimatedGas": "369613",
+      "gas": "443536",
+      "gasPrice": "50002400000",
+      "maxFeeWei": "22177864486400000"
+    },
+    {
+      "name": "registry",
+      "address": "0x94bd9f5181a28120f2a02cb5cbc276b641ad6da0",
+      "nonce": 5,
+      "constructorArgs": [
+        "0xc9824722021e95e15ced67e00500589e44dd3289",
+        "0x068c40ba0fc2fe80f4eacdd1d22df8c69a749542",
+        "0x899341433e981e4e7b14af100ecf20fc6db0a31a"
+      ],
+      "initCodeSha256": "6086ec7b8a0eb4118170c703a966c35cbc1c8f3b1c3b1fa8e66ede11d13be6c4",
+      "initCodeBytes": 9031,
+      "runtimeKeccak256": "0xa719853449801df07b0d02a1f0150cbb9cafa3c7f712cff1fd9ef76afcfba6b8",
+      "runtimeBytes": 7215,
+      "estimatedGas": "2879109",
+      "gas": "3454931",
+      "gasPrice": "50002400000",
+      "maxFeeWei": "172754841834400000"
+    }
+  ],
+  "totalMaxDeploymentFeeWei": "397003805268000000",
+  "sourceSha256": {
+    "contracts/shielded/ShieldedRegistry.sol": "d4f65135d8b18ae0f807fe6ee47d6f1f803ffacac98c56655bae22a5d012a7b2",
+    "contracts/shielded/VerifierAdapter.sol": "5116b5860643852b07e47bc617672703fc7232bb6264573ca5601e6ab95357c2",
+    "circuits/shielded/create.circom": "f7007ba862c0d3144de0fef17bd479bbd042b3e8fc2afae64c4fa2fd3320ee50",
+    "circuits/shielded/spend.circom": "66b1aa201ebfccf53e54837ec45933315cec1e7af6f4c0a9605de131989c07de",
+    "research/shielded-lab/package.json": "c3c5559d0786f279c90174684c482318ef35ed9db0f68ce3724a7c1cf4ec0444",
+    "research/shielded-lab/pnpm-lock.yaml": "777e0de27f78ea27747252af2f4f8868565a497c28230c4e5ab3a37a16a06399"
+  },
+  "artifactsSha256": {
+    "contracts.json": "c761b3e89c4e80857e192e0d6e5ca6d42ad74e3458b809737029d8158b8fa3b8",
+    "compile.json": "052b93f4843844f67aba10c50707ceb314d0e77d89b2d91cf88aa0565d40ce67",
+    "create-groth16.setup.json": "189a6068a14752bdb81ad49957485a4e48ac6008e7e5c4145bf2194eec92af80",
+    "spend-groth16.setup.json": "bd7620792a3c2b17a0a3494dc2812712eca7a8deaef25359f9cdafbe2dab3498",
+    "create-groth16.zkey": "a25ab6213c9de01ea79f6fdc2c5ab904a58239600a96bc996c6f38a08dbcb362",
+    "spend-groth16.zkey": "827493284ff35e56cbbae6808051f568a77085ebe1d8c2aedef4edf6a68a431c",
+    "create_js/create.wasm": "61b9a6b78a3b048410db69363ebcc88e8244da73ebf2ba8ee986d2b50360542a",
+    "spend_js/spend.wasm": "d36f2ecfb25b254a3b34f57dd461559c3137a7e47490189253754b61c019dd37"
+  },
+  "compiledBundleSha256": "c761b3e89c4e80857e192e0d6e5ca6d42ad74e3458b809737029d8158b8fa3b8",
+  "simulatedRelationships": [
+    {
+      "contract": "creationAdapter",
+      "functionName": "verifier",
+      "passed": true
+    },
+    {
+      "contract": "spendAdapter",
+      "functionName": "verifier",
+      "passed": true
+    },
+    {
+      "contract": "registry",
+      "functionName": "hasher",
+      "passed": true
+    },
+    {
+      "contract": "registry",
+      "functionName": "creationVerifier",
+      "passed": true
+    },
+    {
+      "contract": "registry",
+      "functionName": "spendVerifier",
+      "passed": true
+    },
+    {
+      "contract": "registry",
+      "functionName": "domain",
+      "passed": true
+    }
+  ],
+  "transactionsSent": 0,
+  "scope": "Read-only constructor simulations and estimates using temporary state overrides. No faucet, funding, signing, broadcast, deployment, receipt or finality acceptance. Runtime hashes include proposed constructor immutables; storage effects were not persisted.",
+  "next": "Explicit isolated devnet deployment authorization; recheck identity, nonce, code, artifacts, fees and simulation immediately before sending. Existing v1 and hosted app unchanged.",
+  "setup": "Existing disposable Groth16 keys. Valueless devnet experiments only; not a production ceremony."
+}

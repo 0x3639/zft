@@ -1,0 +1,100 @@
+{
+  "format": "zft-shielded-devnet-fees-v1",
+  "recordedAt": "2026-10-11T10:26:10.366Z",
+  "transactions": [
+    {
+      "label": "deploy-hasher",
+      "hash": "0x5d9c66e60d0074d68b85fc6c210ee5336490b32189b8a9396ad0cf766f75aafc",
+      "nonce": 0,
+      "blockNumber": "137389",
+      "blockHash": "0x1009c98678aac83a2456f35c0cbbd462e18e2a8e128efb9deced71bb17fd17e6",
+      "gasUsed": "2157126",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "107861477102400000"
+    },
+    {
+      "label": "deploy-creationverifier",
+      "hash": "0xe2906e68bfe5bce980263eff54d8b34f1dc7775cfeb22533c1daad9abc776150",
+      "nonce": 1,
+      "blockNumber": "137392",
+      "blockHash": "0x4e3e482500f954f815912fd43057561df0ba7a9e7c899ebba9a3dd93d14805cb",
+      "gasUsed": "406934",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "20347676641600000"
+    },
+    {
+      "label": "deploy-creationadapter",
+      "hash": "0x41787fb619d0d82772b555c5647ff9b46175944d49dedfd3cd9ca33f34fb046b",
+      "nonce": 2,
+      "blockNumber": "137395",
+      "blockHash": "0xcb8c6646c28f04c99cb6c697486e7a8939051c6c60ffac392e1f2a1fe5a039bd",
+      "gasUsed": "365545",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "18278127308000000"
+    },
+    {
+      "label": "deploy-spendverifier",
+      "hash": "0x3a50c1d531e32ef707f463dcf719b64ad89b28d6f395b59005a63c905cb5d430",
+      "nonce": 3,
+      "blockNumber": "137398",
+      "blockHash": "0x55304786f068435e6cc7ab34bb59a561c218a10263c1572b0e33c367a8613f2c",
+      "gasUsed": "406934",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "20347676641600000"
+    },
+    {
+      "label": "deploy-spendadapter",
+      "hash": "0xa3239ec887b355956cc32ec6220bb6e07a6b91d147fa5a97134233e939a9caf2",
+      "nonce": 4,
+      "blockNumber": "137401",
+      "blockHash": "0xfedefb814cb824aac8c8921b5946f2b80fe8fbc529b0f1543a2ae41b35fcf94b",
+      "gasUsed": "365545",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "18278127308000000"
+    },
+    {
+      "label": "deploy-registry",
+      "hash": "0x2ce75fd2a95ee55d97faa330b2dab0f9248eb50896220e72dbc353916e2f4efe",
+      "nonce": 5,
+      "blockNumber": "137404",
+      "blockHash": "0xfa9f70d528b8a5048d74a0caf4ea50caeea7e1aa6bf71add10c45587a6012e50",
+      "gasUsed": "2855281",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "142770902674400000"
+    },
+    {
+      "label": "creation-commit",
+      "hash": "0xad2633d46f52cf6223255ab1cdebf4e3a95ee1eab4ba8a2c0c5afdb91ce7336c",
+      "nonce": 6,
+      "blockNumber": "137408",
+      "blockHash": "0x6e5de3ff9562e4e5e74e467acf399ff89d5df840c3a5baa216dc5f5fd81f154a",
+      "gasUsed": "45650",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "2282609560000000"
+    },
+    {
+      "label": "creation-reveal",
+      "hash": "0xd5535b2b6cdc22e317b708852b7e50fe6bcef620e34a2cca7059a64ebd187a00",
+      "nonce": 7,
+      "blockNumber": "137411",
+      "blockHash": "0xe15d8e675768c17c487132e920ce0d97c3d7ef1aa524ea0c0ed0fa735ac86940",
+      "gasUsed": "1039917",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "51998345800800000"
+    },
+    {
+      "label": "fresh-secret-claim",
+      "hash": "0x3c8ce26202a19f0c87ad6435371dc450002607af43b3979435d65b8af73dace2",
+      "nonce": 8,
+      "blockNumber": "137414",
+      "blockHash": "0x16fd6d23cce2d07b28ea61042ac2abf9c68df683d58e36e8a9845022106ace72",
+      "gasUsed": "972033",
+      "effectiveGasPrice": "50002400000",
+      "feeWei": "48603982879200000"
+    }
+  ],
+  "totalFeeWei": "430768925916000000",
+  "maxReservedFeeWei": "521586884968800000",
+  "approvedCapWei": "1000000000000000000",
+  "scope": "Nine devnet receipts rechecked by number/hash through the same RPC. Actual fees, not a finality or pricing guarantee."
+}
