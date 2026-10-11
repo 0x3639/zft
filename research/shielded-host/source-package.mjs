@@ -7,10 +7,35 @@ import {
   writeFileSync,
   existsSync,
 } from "node:fs";
-import { resolve, dirname, relative, sep } from "node:path";
+import { resolve, dirname, relative, sep, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
+
+const types = {
+  ".gz": "application/gzip",
+  ".txt": "text/plain; charset=utf-8",
+  ".md": "text/plain; charset=utf-8",
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".svg": "image/svg+xml",
+  ".json": "application/json",
+};
+// Only preserved extensionless notices receive the text fallback; proof keys stay binary.
+export function publicAssetType(url) {
+  const extension = extname(url);
+  return (
+    types[extension] ??
+    (url.endsWith("-wasm")
+      ? "application/wasm"
+      : !extension && url.startsWith("/shielded/source/notices/")
+        ? "text/plain; charset=utf-8"
+        : "application/octet-stream")
+  );
+}
 
 export const digest = (bytes) =>
   createHash("sha256").update(bytes).digest("hex");

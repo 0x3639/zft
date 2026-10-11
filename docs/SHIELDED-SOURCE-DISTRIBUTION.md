@@ -51,3 +51,9 @@ Current validation is recorded in [shielded-distribution-validation.json](../res
 Validation covers source-scope enforcement, package/hash mismatch rejection, archive safety and deterministic reconstruction, public download/header behavior, full/UI-only builds and unchanged proof/configuration bytes. All earlier evidence manifests remain historical and unchanged.
 
 No new chain transaction, hosted activation, actual wallet/device trial or independent review is implied. Remaining acceptance includes independent protocol/circuit/contract review and source/build reproduction, real MetaMask/Firefox/iOS/Android budgets, second-operator service-disappearance and independently qualified devnet finality, plus explicit approval to activate the concrete `devnet.zft.foo/shielded` host. RPC remains `https://devnet.zenon.foo/zvm/rpc`. No production or mainnet release is proposed.
+
+## PR review follow-up
+
+The initial PR38 package classified extensionless `LICENSE` and `COPYING` notices as `application/octet-stream`, so browsers downloaded them instead of displaying their text. The builder now assigns `text/plain; charset=utf-8` only to extensionless files under `/shielded/source/notices/`. Existing extension mappings, gzip archives, WASM and binary proof keys retain their types; Worker `nosniff` remains enabled.
+
+A check of the reviewed package fails with a named assertion for this defect. The regression covers GET/HEAD notice responses, path boundaries and binary artifacts. Rebuilt full/UI packages, every public HTTP response and source-only reconstruction are rechecked. The earlier browser record retains its original hashes and scope; it does not qualify the new notice response behavior or rebuilt source archive.

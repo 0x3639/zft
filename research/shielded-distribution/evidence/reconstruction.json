@@ -3,6 +3,6 @@
   "assetManifestByteIdentical": true,
   "scope": "Fresh source-only temporary tree; existing frozen dependency trees and exact selected public artifacts reused; no upstream bundle/compiler or random setup reproduction.",
   "uiOnlyFiles": 147,
-  "uiOnlyBytes": 46730577,
+  "uiOnlyBytes": 46732296,
   "priorReconstructionFailure": "Missing separately bundled prover-worker.js; preserved log; corrected archive and graph capture pass."
 }

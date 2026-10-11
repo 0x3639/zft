@@ -23,6 +23,7 @@ import {
   verifySupplement,
   projectRoot,
   modulePackage,
+  publicAssetType,
 } from "./source-package.mjs";
 import { handle, ORIGIN } from "./worker.mjs";
 
@@ -246,5 +247,47 @@ test("nested module-type metadata does not hide the owning package identity", ()
     assert.equal(modulePackage(join(pkg, "esm/main.js")).id, "fixture@1.0.0");
   } finally {
     rmSync(root, { recursive: true });
+  }
+});
+
+test("extensionless notice responses display as text without changing binary artifacts", async () => {
+  const selections = [
+    [
+      "/shielded/source/notices/vendor-zenon/LICENSE",
+      "text/plain; charset=utf-8",
+    ],
+    ["/shielded/source/notices/fixture@1/COPYING", "text/plain; charset=utf-8"],
+    [
+      "/shielded/source/notices/fixture@1/NOTICE.md",
+      "text/plain; charset=utf-8",
+    ],
+    ["/shielded/source/notices/fixture@1/extra.gz", "application/gzip"],
+    [
+      "/shielded/source/notices/fixture@1/unknown.bin",
+      "application/octet-stream",
+    ],
+    ["/shielded/source/notices-other/LICENSE", "application/octet-stream"],
+    ["/shielded/source/zft-shielded-source.tar.gz", "application/gzip"],
+    ["/shielded-assets/create-wasm", "application/wasm"],
+    ["/shielded-assets/create-key", "application/octet-stream"],
+  ];
+  for (const [path, expected] of selections) {
+    const files = { [path]: { bytes: 7, type: publicAssetType(path) } };
+    const env = { ASSETS: { fetch: async () => new Response("fixture") } };
+    for (const method of ["GET", "HEAD"]) {
+      const response = await handle(
+        new Request(ORIGIN + path, { method }),
+        env,
+        { files },
+      );
+      assert.equal(response.status, 200);
+      assert.equal(
+        response.headers.get("content-type"),
+        expected,
+        "extensionless license notices must display as plain text while binary artifacts retain their type",
+      );
+      assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+      assert.equal(await response.text(), method === "HEAD" ? "" : "fixture");
+    }
   }
 });

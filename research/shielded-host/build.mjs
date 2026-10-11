@@ -1,5 +1,5 @@
 import { build } from "vite";
-import { buildSources } from "./source-package.mjs";
+import { buildSources, publicAssetType } from "./source-package.mjs";
 import {
   mkdirSync,
   readFileSync,
@@ -9,7 +9,7 @@ import {
   existsSync,
   lstatSync,
 } from "node:fs";
-import { resolve, dirname, extname } from "node:path";
+import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   selectedConfiguration,
@@ -147,18 +147,6 @@ const sourcePackage = buildSources({
   destination: resolve(ui, "source"),
   uiOnly,
 });
-const types = {
-  ".gz": "application/gzip",
-  ".txt": "text/plain; charset=utf-8",
-  ".md": "text/plain; charset=utf-8",
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".woff": "font/woff",
-  ".woff2": "font/woff2",
-  ".svg": "image/svg+xml",
-  ".json": "application/json",
-};
 const files = {};
 let javascript = "";
 function walk(directory) {
@@ -176,11 +164,7 @@ function walk(directory) {
     files[url] = {
       bytes: bytes.length,
       sha256: SHA256(bytes),
-      type:
-        types[extname(path)] ??
-        (url.endsWith("-wasm")
-          ? "application/wasm"
-          : "application/octet-stream"),
+      type: publicAssetType(url),
     };
     if (path.endsWith(".js")) javascript += bytes.toString("utf8");
   }
