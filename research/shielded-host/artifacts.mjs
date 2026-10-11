@@ -2,8 +2,8 @@ import { readFileSync, lstatSync } from "node:fs";
 import { resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { parseConfiguration } from "../../packages/shielded/config.mjs";
-export const ORIGIN = "https://devnet.zenon.foo";
-export const RPC = ORIGIN + "/zvm/rpc";
+export const ORIGIN = "https://devnet.zft.foo";
+export const RPC = "https://devnet.zenon.foo/zvm/rpc";
 export const REGISTRY = "0x94bd9f5181a28120f2a02cb5cbc276b641ad6da0";
 // Exact canonical PR34 configuration, checked against merged 6c9d0d before selection.
 const CONFIGURATION_SHA256 =

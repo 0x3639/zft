@@ -1,4 +1,4 @@
-export const ORIGIN = "https://devnet.zenon.foo";
+export const ORIGIN = "https://devnet.zft.foo";
 const pages = new Set([
   "/shielded",
   "/shielded/",
