@@ -67,8 +67,8 @@
     "docs/SHIELDED-BROWSER-ACCEPTANCE.md": "bb61201fc783cdb5e0f50e786a2fe53c8d82eacfd4441cad06564d6717163135",
     "docs/SHIELDED-DEVNET-VALIDATION.md": "0b9dba7d1768799f4bd3694f500b9d9c098db979ce46b7e153177e26ad7e491c",
     "docs/SHIELDED-ZVM-FEASIBILITY.md": "9f44502b05749cd9c39b52e8338df58967d772666ed50bf0b31eb4b438a28276",
-    "docs/SHIELDED-ZVM-IMPLEMENTATION.md": "47f2bf257779f30a73486b693fefa8f4642b3555b477cc491794725b93e7622f",
-    "docs/SHIELDED-ZVM-PLAN.md": "06b83d2066260acce626e0abcfc0135774edd4d269a60f7d68764519ea7139b0",
+    "docs/SHIELDED-ZVM-IMPLEMENTATION.md": "0b121e2086815a9ab02f1b5381cc053c67b041798cfb766cc343930ce2712777",
+    "docs/SHIELDED-ZVM-PLAN.md": "17d39649171bbb0c67ea8229946e100ec8954748dbb98de62fc745fda84f59bc",
     "docs/SHIELDED-ZVM-PROTOCOL.md": "83f287e105fc940612a03439a027871000e020b2931b45f25bb6e73d1324d3a1",
     "package.json": "e3cdd393c9380a40b52c86402dc3e1a36d53df2612dafd734b3cd0b4cfbcceea",
     "packages/shielded/client.d.mts": "8391b13448b95888972c1951aa8cd58155c13314807327ee30557a7a18f8b777",
@@ -847,6 +847,16 @@
     "/private/tmp/zft-shielded-devnet-lifecycle.log": "7135ac2044ef5b91383aae4de7d67a6bd591666f1b23615ee3798050a8c2cb07",
     "/private/tmp/zft-shielded-devnet-offline-final.tap": "eb39d27d5de15ff558be584dd5d1edb5974d874a67591ec7ef356de2093e1a41",
     "/private/tmp/zft-shielded-devnet-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
-    "/private/tmp/zft-shielded-devnet-links-final.log": "dd175883e042961aacc7a1ea5f7fc365e85ed78b429682237b14ed19879edd64"
+    "/private/tmp/zft-shielded-devnet-links-final.log": "dd175883e042961aacc7a1ea5f7fc365e85ed78b429682237b14ed19879edd64",
+    "/private/tmp/zft-shielded-devnet-review-links.log": "dd175883e042961aacc7a1ea5f7fc365e85ed78b429682237b14ed19879edd64",
+    "/private/tmp/zft-shielded-devnet-review-format.log": "6e31f96be620d43acf92c25b2e930a959b52f377398c3e73b7118c0f048c42f3"
+  },
+  "reviewFollowup": {
+    "review": "https://github.com/0x3639/zft/pull/34#pullrequestreview-5482981353",
+    "reviewedHead": "45cce8e39d9bcabc11b845dea41e89a1b11b0861",
+    "recordedAt": "2026-10-11T10:43:01.786201+00:00",
+    "finding": "Older implementation and SH2 summaries still described pre-deployment evidence.",
+    "resolution": "Both summaries now include isolated devnet deployments and transactions while preserving independent validation and hosted release gates. No runtime or transaction evidence changed.",
+    "validation": "Both changed Markdown documents parsed and passed whitespace checks with existing table layout preserved; git diff --check and 562 documentation links pass. Unchanged runtime tests remain inherited from initial-head checks."
   }
 }
