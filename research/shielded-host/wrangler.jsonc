@@ -12,8 +12,6 @@
     "not_found_handling": "none",
     "run_worker_first": true,
   },
-  "routes": [
-    { "pattern": "devnet.zenon.foo/shielded*", "zone_name": "zenon.foo" },
-  ],
+  "routes": [{ "pattern": "devnet.zft.foo/shielded*", "zone_name": "zft.foo" }],
   "observability": { "enabled": false },
 }

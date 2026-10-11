@@ -10,7 +10,12 @@ import {
 } from "node:fs";
 import { resolve, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { selectedConfiguration, readArtifacts, SHA256 } from "./artifacts.mjs";
+import {
+  selectedConfiguration,
+  readArtifacts,
+  SHA256,
+  ORIGIN,
+} from "./artifacts.mjs";
 const here = dirname(fileURLToPath(import.meta.url)),
   root = resolve(here, "../..");
 const uiOnly = process.argv.slice(2).join(" ") === "--ui-only";
@@ -168,8 +173,8 @@ for (const marker of [
 const report = {
   format: "zft-shielded-static-package-v1",
   deployable: !uiOnly,
-  origin: "https://devnet.zenon.foo",
-  route: "devnet.zenon.foo/shielded*",
+  origin: ORIGIN,
+  route: new URL(ORIGIN).hostname + "/shielded*",
   configurationSha256: SHA256(configText),
   files,
 };

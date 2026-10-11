@@ -1,0 +1,76 @@
+{
+  "format": "zft-shielded-host-origin-evidence-v1",
+  "recordedAt": "2026-10-11T12:06:51.624110+00:00",
+  "baseline": "c44352f14cdd09382803300195e70be6074255b5",
+  "app": {
+    "origin": "https://devnet.zft.foo",
+    "route": "devnet.zft.foo/shielded*",
+    "zone": "zft.foo",
+    "candidateWorker": "zft-shielded-devnet-test",
+    "deployed": false
+  },
+  "blockchain": {
+    "rpc": "https://devnet.zenon.foo/zvm/rpc",
+    "configurationSha256": "0x9a1a07626e19c3174c2c8261495f54b2603a4fee0b79fb2bc0096b6eaa803559",
+    "configurationUnchanged": true
+  },
+  "readOnlyHostingInspection": {
+    "checkedAt": "2026-10-11T11:49:16.638937+00:00",
+    "zftZoneActiveAndAccessible": true,
+    "customDomain": "devnet.zft.foo",
+    "existingService": "zft-devnet",
+    "listedRoutes": ["zft.foo/art/*", "zft.foo/metadata/*"],
+    "candidateWorkerHttpStatus": 404,
+    "dnsReadHttpStatus": 403,
+    "zenonZonesAccessible": 0,
+    "limits": "Point-in-time read-only observations, not write authorization or a guarantee that deployment will succeed. Recheck before separately approved activation."
+  },
+  "regression": {
+    "before": "Named ERR_ASSERTION: the shielded app must be served from the ZFT devnet host (404 instead of 200).",
+    "afterHostTests": 7,
+    "checks": [
+      "ZFT origin accepted; ASSETS uses ZFT origin.",
+      "RPC domain, apex and unrelated origin rejected without ASSETS access.",
+      "External ZVM RPC retained in selected configuration and CSP."
+    ]
+  },
+  "packages": {
+    "candidate": {
+      "publicFiles": 43,
+      "publicBytes": 14832838,
+      "publicBytesUnchanged": true,
+      "reportChangedFields": ["origin", "route"],
+      "dependencyInventoryAndNoticesUnchanged": true,
+      "configurationSha256": "0x9a1a07626e19c3174c2c8261495f54b2603a4fee0b79fb2bc0096b6eaa803559",
+      "manifestSha256": "5f3d8c76aca28627e3a3e31842f5eca05e8d1e616e7dd2cdcbd71c5443625d38"
+    },
+    "ui-check": {
+      "publicFiles": 36,
+      "publicBytes": 2939337,
+      "publicBytesUnchanged": true,
+      "reportChangedFields": ["origin", "route"],
+      "dependencyInventoryAndNoticesUnchanged": true,
+      "configurationSha256": "0x9a1a07626e19c3174c2c8261495f54b2603a4fee0b79fb2bc0096b6eaa803559",
+      "manifestSha256": "190c38efbd1cd7ad9a044f379b821b973efbb869299fb2a9fce3a84883d17ff2"
+    }
+  },
+  "workerDryRun": {
+    "passed": true,
+    "bindings": ["ASSETS"],
+    "uploadKiB": 11.35,
+    "deployed": false
+  },
+  "rpcProbe": {
+    "origin": "https://devnet.zft.foo",
+    "methods": ["OPTIONS", "POST eth_chainId"],
+    "httpStatus": 403,
+    "boundedError": "error code: 1010",
+    "limits": "Command-line Cloudflare rejection; neither browser CORS acceptance nor RPC outage is established. No transaction."
+  },
+  "limits": [
+    "No new browser, wallet, proof, chain transaction, device, crash or independent acceptance.",
+    "Earlier browser/package evidence remains historical at its recorded hashes and origin proposal.",
+    "No DNS, route, Worker or resource changed.",
+    "Source/dependency redistribution decision and explicit hosted activation remain open."
+  ]
+}

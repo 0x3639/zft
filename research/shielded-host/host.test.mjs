@@ -115,6 +115,41 @@ test("selection rejects valid canonical changes to every contract and artifact p
   );
   assert.deepEqual(selectedConfiguration(text), approved);
 });
+test("static app belongs to ZFT while the selected blockchain RPC stays on ZVM", async () => {
+  const a = assets();
+  const selected = selectedConfiguration(text);
+  assert.equal(selected.rpc, "https://devnet.zenon.foo/zvm/rpc");
+  const response = await handle(
+    new Request("https://devnet.zft.foo/shielded"),
+    a,
+    manifest,
+  );
+  assert.equal(
+    response.status,
+    200,
+    "the shielded app must be served from the ZFT devnet host",
+  );
+  assert.equal(new URL(a.calls[0].url).origin, "https://devnet.zft.foo");
+  assert.equal(new URL(a.calls[0].url).pathname, "/shielded/index.html");
+  for (const origin of [
+    "https://devnet.zenon.foo",
+    "https://zft.foo",
+    "https://example.org",
+  ])
+    assert.equal(
+      (await handle(new Request(origin + "/shielded"), a, manifest)).status,
+      404,
+    );
+  assert.equal(
+    a.calls.length,
+    1,
+    "other origins must not reach the assets binding",
+  );
+  assert.match(
+    response.headers.get("content-security-policy"),
+    /connect-src 'self' https:\/\/devnet\.zenon\.foo\/zvm\/rpc/,
+  );
+});
 test("artifact packaging checks every exact byte pin and never replaces missing material", () => {
   const directory = mkdtempSync(join(tmpdir(), "zft-host-artifacts-"));
   const c = JSON.parse(text);
