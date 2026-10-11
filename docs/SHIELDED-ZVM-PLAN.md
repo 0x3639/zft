@@ -1,5 +1,7 @@
 # Shielded ZVM ownership plan
 
+**Current environment, October 11, 2026:** chain-backed validation is limited to `devnet.zenon.foo` and ZVM devnet. Follow the [devnet validation plan](SHIELDED-DEVNET-VALIDATION.md). Production/mainnet acceptance remains future work; no production ZVM availability is assumed. Offline tests remain local. The user authorized six isolated devnet contracts and their disposable mint/claim/recovery experiment under a 1 devnet ZNN fee cap; that lifecycle now passes. Hosted app activation and broader release acceptance are separate.
+
 Accepted direction · October 10, 2026 · implementation baseline: merged [PR #30](https://github.com/0x3639/zft/pull/30), `d91d15d909873614de607ce18a164d8c96484022`.
 
 The next ZFT milestone is user-held, shielded ownership enforced by a ZVM contract. The client holds the spending secrets and generates proofs; the contract verifies authorized transitions and prevents a note from being spent twice. Cloudflare hosts the application and replaceable support services. A central PS mint, issuer signing key, or service-maintained ownership database is not part of this target.

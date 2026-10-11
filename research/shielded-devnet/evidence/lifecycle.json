@@ -1,0 +1,130 @@
+{
+  "format": "zft-shielded-devnet-lifecycle-v1",
+  "recordedAt": "2026-10-11T10:25:01.047Z",
+  "rpc": "https://devnet.zenon.foo/zvm/rpc",
+  "registry": "0x94bd9f5181a28120f2a02cb5cbc276b641ad6da0",
+  "assetId": "0x332a9abef1bd4c73152119399b65a8357fa4d59c47d13ba8cf576e79a39bee8b",
+  "imageSha256": "0x866f1147c7fbe69fea12325f31e39c6d0e1724c8ccf38fbf684e59ea2c58ac28",
+  "creationObserved": true,
+  "recoveryReselectedBeforeEachSubmission": true,
+  "freshAuthority": true,
+  "originalDestinationRetained": true,
+  "sourceConsumed": true,
+  "successorUnspent": true,
+  "negativeCalls": [
+    {
+      "name": "reveal-before-commit",
+      "rpcCode": 3,
+      "rejected": true,
+      "scope": "Read-only eth_call; no reverted transaction was broadcast"
+    },
+    {
+      "name": "unknown-root",
+      "rpcCode": 3,
+      "rejected": true,
+      "scope": "Read-only eth_call; no reverted transaction was broadcast"
+    },
+    {
+      "name": "changed-nullifier",
+      "rpcCode": 3,
+      "rejected": true,
+      "scope": "Read-only eth_call; no reverted transaction was broadcast"
+    },
+    {
+      "name": "changed-output",
+      "rpcCode": 3,
+      "rejected": true,
+      "scope": "Read-only eth_call; no reverted transaction was broadcast"
+    },
+    {
+      "name": "consumed-exact-proof",
+      "rpcCode": 3,
+      "rejected": true,
+      "scope": "Read-only eth_call; no reverted transaction was broadcast"
+    },
+    {
+      "name": "competing-proof-from-consumed-bearer",
+      "rpcCode": 3,
+      "rejected": true,
+      "scope": "Read-only eth_call; no reverted transaction was broadcast"
+    }
+  ],
+  "recovery": {
+    "format": "zft-shielded-devnet-recovery-v1",
+    "rpc": "https://devnet.zenon.foo/zvm/rpc",
+    "state": "observed",
+    "originalDestinationRetained": true,
+    "destinationCommitment": "13092821602066291118286657917804247865851677021614008686442800277971888830847",
+    "leaves": 2,
+    "block": {
+      "number": "137416",
+      "hash": "0xc6b6b1b93c0dba2f48ff54fe6575c0318a41bc9f13a28ea48148044941e22794"
+    },
+    "feeWalletRequired": false,
+    "scope": "Fresh process, same operator and RPC; public event reconstruction from saved user-held authority. Not independent finality or a second-operator drill."
+  },
+  "transactions": [
+    {
+      "label": "deploy-hasher",
+      "hash": "0x5d9c66e60d0074d68b85fc6c210ee5336490b32189b8a9396ad0cf766f75aafc",
+      "nonce": 0,
+      "maxFeeWei": "130531065190400000"
+    },
+    {
+      "label": "deploy-creationverifier",
+      "hash": "0xe2906e68bfe5bce980263eff54d8b34f1dc7775cfeb22533c1daad9abc776150",
+      "nonce": 1,
+      "maxFeeWei": "24681084635200000"
+    },
+    {
+      "label": "deploy-creationadapter",
+      "hash": "0x41787fb619d0d82772b555c5647ff9b46175944d49dedfd3cd9ca33f34fb046b",
+      "nonce": 2,
+      "maxFeeWei": "22177864486400000"
+    },
+    {
+      "label": "deploy-spendverifier",
+      "hash": "0x3a50c1d531e32ef707f463dcf719b64ad89b28d6f395b59005a63c905cb5d430",
+      "nonce": 3,
+      "maxFeeWei": "24681084635200000"
+    },
+    {
+      "label": "deploy-spendadapter",
+      "hash": "0xa3239ec887b355956cc32ec6220bb6e07a6b91d147fa5a97134233e939a9caf2",
+      "nonce": 4,
+      "maxFeeWei": "22177864486400000"
+    },
+    {
+      "label": "deploy-registry",
+      "hash": "0x2ce75fd2a95ee55d97faa330b2dab0f9248eb50896220e72dbc353916e2f4efe",
+      "nonce": 5,
+      "maxFeeWei": "172754841834400000"
+    },
+    {
+      "label": "creation-commit",
+      "hash": "0xad2633d46f52cf6223255ab1cdebf4e3a95ee1eab4ba8a2c0c5afdb91ce7336c",
+      "nonce": 6,
+      "maxFeeWei": "2762032571200000"
+    },
+    {
+      "label": "creation-reveal",
+      "hash": "0xd5535b2b6cdc22e317b708852b7e50fe6bcef620e34a2cca7059a64ebd187a00",
+      "nonce": 7,
+      "maxFeeWei": "62963322094400000"
+    },
+    {
+      "label": "fresh-secret-claim",
+      "hash": "0x3c8ce26202a19f0c87ad6435371dc450002607af43b3979435d65b8af73dace2",
+      "nonce": 8,
+      "maxFeeWei": "58857725035200000"
+    }
+  ],
+  "maxReservedFeeWei": "521586884968800000",
+  "exports": {
+    "creationRecovery": "0x71841fd6281ec1a0a98e835dbb41d14a0c4dc1c8f182a72a09b31a2701e8750d",
+    "claimRecovery": "0x044b70111efed8cd0b355bc157f17687843b21f1a6a9c3c56bee060d4f311a02",
+    "originalBearer": "0xd21d41e58644d96e7fc6d5220c31de145c726cc900ac5339c443992e92a6c3f6",
+    "successorBearer": "0xd2a12ababd231b98656da28e47c1d5a4664d3c7404eabe79fdc69f3a641fe10f"
+  },
+  "scope": "Actual ZVM devnet transactions using disposable local client secrets and fee wallet, saved-file readback, real proofs and fresh-process recovery. RPC inclusion observations; not MetaMask/browser/mobile, independent operator/finality, malicious RPC, actual transport loss or production qualification."
+}

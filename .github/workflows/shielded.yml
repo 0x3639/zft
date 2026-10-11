@@ -32,3 +32,5 @@ jobs:
         run: node --import tsx --test --test-concurrency=1 research/shielded-app/test/*.test.mjs
       - run: node research/shielded-app/check-controls.mjs
       - run: node research/shielded-app/check-builds.mjs
+      - name: Validate devnet runner offline boundaries
+        run: node --test research/shielded-devnet/*.test.mjs
