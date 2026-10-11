@@ -60,7 +60,7 @@
     "docs/PS-HOSTING-CUSTODY-DESIGN.md": "a1a889755501298d9d90124948fd9e318188c804ee22a5005e9294f2680b21f7",
     "docs/PS-RELEASE-PLAN.md": "50f1c21bcd0d57c639386a226ffb344872e8c3060825e8a71b54d03530ccb668",
     "docs/PS-RELEASE-PREFLIGHT.md": "3069a7a449132fd14186f610e9405a22df4d8d97bed014f0f181e9a18e801ed8",
-    "docs/SHIELDED-APP-INTEGRATION.md": "87ca7d4a18db5e3d72da6e3a8e9f8567f2490e7ad59d48aea36c794f88d1222c",
+    "docs/SHIELDED-APP-INTEGRATION.md": "4e329d526924f71cfddf5780e4dddb56d220f9aa0f344953a2f8ec5c67ff9df1",
     "docs/SHIELDED-ZVM-FEASIBILITY.md": "9f44502b05749cd9c39b52e8338df58967d772666ed50bf0b31eb4b438a28276",
     "docs/SHIELDED-ZVM-IMPLEMENTATION.md": "863ecb912d6a73b6c4cb6aea78324e164456e74f155d0d60e855bafd298cf493",
     "docs/SHIELDED-ZVM-PLAN.md": "62bd4d108750d8d3353fffcc669c87cce24b96b31907c5aecbf959568e0748bf",
@@ -795,6 +795,15 @@
     "/private/tmp/zft-shielded-app-client.tap": "a32e6260a5fac9c2c04770a3352f1590f048f351cb3feb648ffcc832249b5e54",
     "/private/tmp/zft-shielded-app-client-second.tap": "e523635f254f4983600a6c346d08af49a72da8556ba1e89f704603a87f943870",
     "/private/tmp/zft-shielded-app-links.log": "5d103349783c4fd2f170842215172643cee0e5e94df861e3c8f7c088fee95a46",
-    "/private/tmp/zft-shielded-app-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    "/private/tmp/zft-shielded-app-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "/private/tmp/zft-shielded-app-review-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "/private/tmp/zft-shielded-app-review-links.log": "5d103349783c4fd2f170842215172643cee0e5e94df861e3c8f7c088fee95a46"
+  },
+  "reviewFollowup": {
+    "reviewedHead": "f156aac34af0aec21e8370ab368c0849356706c6",
+    "formalReview": 5481477774,
+    "finding": 4239852353,
+    "correction": "Artifact byte count documentation now states an exact positive count at most32MiB, matching Number.isInteger(a.bytes), a.bytes>0 and a.bytes<=32*1024*1024 in unchanged parseConfiguration. No runtime change.",
+    "verification": "Documentation formatting, diff and528links pass. All prior runtime tests apply to unchanged code; new PR CI reruns on this fix."
   }
 }
