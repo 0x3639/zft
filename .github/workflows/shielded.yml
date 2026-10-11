@@ -28,3 +28,7 @@ jobs:
       - run: node research/shielded-lab/scripts/check-circuit-controls.mjs
       - run: node research/shielded-lab/scripts/check-state-controls.mjs
       - run: node research/shielded-lab/scripts/build-client.mjs
+      - name: Validate shielded app integration
+        run: node --import tsx --test --test-concurrency=1 research/shielded-app/test/*.test.mjs
+      - run: node research/shielded-app/check-controls.mjs
+      - run: node research/shielded-app/check-builds.mjs

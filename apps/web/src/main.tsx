@@ -1362,6 +1362,7 @@ function App() {
             <Link to="/explore">Explore</Link>
             <Link to="/activity">Activity</Link>
             <Link to="/how-it-works">How it works</Link>
+            {__SHIELDED_CANDIDATE__ && <a href="/shielded">Shielded</a>}
           </nav>
           <div className="actions">
             <ThemeControl />
@@ -1405,6 +1406,7 @@ function App() {
             <Link to="/wallet">Wallet</Link>
             <Link to="/activity">Activity</Link>
             <Link to="/how-it-works">How it works</Link>
+            {__SHIELDED_CANDIDATE__ && <a href="/shielded">Shielded</a>}
             <Link to="/mint">Mint a picture</Link>
             <Link to="/claim">Receive a file</Link>
             <Link to="/collection">My files</Link>
@@ -1464,8 +1466,26 @@ const psRoute =
   location.pathname === "/ps" || location.pathname.startsWith("/ps/");
 const PsApp = React.lazy(() => import("./ps/app"));
 const PsPublicPage = React.lazy(() => import("./ps/public-page"));
+const shieldedRoute =
+  location.pathname === "/shielded" ||
+  location.pathname.startsWith("/shielded/");
+const ShieldedApp = __SHIELDED_CANDIDATE__
+  ? React.lazy(() => import("./shielded/app"))
+  : undefined;
 root.render(
-  psRoute ? (
+  shieldedRoute ? (
+    ShieldedApp ? (
+      <React.Suspense fallback={<p>Opening shielded collection…</p>}>
+        <ShieldedApp />
+      </React.Suspense>
+    ) : (
+      <main>
+        <h1>Shielded candidate unavailable</h1>
+        <p>This build has no shielded deployment enabled.</p>
+        <a href="/">Return to public v1</a>
+      </main>
+    )
+  ) : psRoute ? (
     <React.Suspense fallback={<p>Opening PS collection…</p>}>
       {location.pathname.startsWith("/ps/proof/") ? (
         <PsPublicPage />
