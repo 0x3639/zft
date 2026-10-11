@@ -1,4 +1,4 @@
-Current app preparation: the [isolated static devnet package](../docs/SHIELDED-DEVNET-APP.md) and [validation record](shielded-host-validation.json) add a selected-deployment UI, exact artifact packaging, read-only Worker boundary and local browser verification against the actual devnet. Hosting is not activated; prior devnet transaction evidence and all historical manifests are unchanged.
+Current packaging follow-up: the [complete configuration pin](../docs/SHIELDED-DEVNET-APP.md#pr-review-follow-up) and [current validation record](shielded-host-pins-validation.json) reject internally consistent changes to the selected deployment and proof artifacts. This fixes the open review finding from merged PR35. The [original app preparation record](shielded-host-validation.json) and all earlier manifests remain historical and unchanged; public package bytes are unchanged and hosting remains inactive.
 
 # Research and capability evidence
 
@@ -36,16 +36,16 @@ Observed 2026-10-04. Public services can change; rerun these checks before imple
 
 JSON-RPC: `https://devnet.zenon.foo/zvm/rpc`.
 
-| Check | Observed result |
-| --- | --- |
-| `eth_chainId` | `0x7001b5` / 7340469 |
-| `web3_clientVersion` | `reth/v1.10.2-8e3b5e6/x86_64-unknown-linux-gnu` |
-| Explorer NoM chain | 69 |
-| Explorer finality parameter | 6 momentums |
-| Existing collection ERC-165 ERC-721 query | True for both collections below |
-| BLS G1/G2 addition and single-point MSM | Expected nonzero generator results |
-| BLS pairing of generators | False, as expected |
-| BLS pairing cancellation with opposite G1 points | True, as expected |
+| Check                                            | Observed result                                 |
+| ------------------------------------------------ | ----------------------------------------------- |
+| `eth_chainId`                                    | `0x7001b5` / 7340469                            |
+| `web3_clientVersion`                             | `reth/v1.10.2-8e3b5e6/x86_64-unknown-linux-gnu` |
+| Explorer NoM chain                               | 69                                              |
+| Explorer finality parameter                      | 6 momentums                                     |
+| Existing collection ERC-165 ERC-721 query        | True for both collections below                 |
+| BLS G1/G2 addition and single-point MSM          | Expected nonzero generator results              |
+| BLS pairing of generators                        | False, as expected                              |
+| BLS pairing cancellation with opposite G1 points | True, as expected                               |
 
 Existing collection addresses observed in the node’s public `/zvm/api/info` metadata:
 

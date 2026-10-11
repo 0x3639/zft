@@ -5,6 +5,9 @@ import { parseConfiguration } from "../../packages/shielded/config.mjs";
 export const ORIGIN = "https://devnet.zenon.foo";
 export const RPC = ORIGIN + "/zvm/rpc";
 export const REGISTRY = "0x94bd9f5181a28120f2a02cb5cbc276b641ad6da0";
+// Exact canonical PR34 configuration, checked against merged 6c9d0d before selection.
+const CONFIGURATION_SHA256 =
+  "0x9a1a07626e19c3174c2c8261495f54b2603a4fee0b79fb2bc0096b6eaa803559";
 export const SHA256 = (bytes) =>
   "0x" + createHash("sha256").update(bytes).digest("hex");
 export const sources = Object.freeze({
@@ -23,7 +26,8 @@ export function selectedConfiguration(text) {
     c.pins.chainId !== "7340469" ||
     c.pins.genesisHash !==
       "0x2a55e0b69e552a105d559e99b12e0cae28d6e07a3c7a9f264a1543a040ef8ea4" ||
-    c.pins.contracts.registry.address !== REGISTRY
+    c.pins.contracts.registry.address !== REGISTRY ||
+    SHA256(text) !== CONFIGURATION_SHA256
   )
     throw Error("Unselected devnet configuration");
   return c;
