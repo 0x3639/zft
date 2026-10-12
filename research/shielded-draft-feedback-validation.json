@@ -1,6 +1,6 @@
 {
   "baseline": "0d6825a6114ac1711d02b8323bb0a2b337293aea",
-  "recordedAt": "2026-10-12T12:57:32.356623+00:00",
+  "recordedAt": "2026-10-12T13:05:15.759646+00:00",
   "scope": "Save draft feedback only; no deployed release or user data inspection. Manifest excludes itself and is pinned by its signed Git tree.",
   "checks": {
     "appTests": 305,
@@ -19,7 +19,8 @@
     "packageReconstruction": "154 public assets and manifest byte-identical",
     "http": "154 assets, 6 HEAD, 6 negatives, hashes/types/security headers",
     "shieldedWorker": "dry-run only",
-    "browser": "see evidence/browser.json"
+    "browser": "see evidence/browser.json",
+    "ciTestIsolation": "7 focused tests pass without optional shielded-lab dependencies; baseline fails the reachable-button assertion; all 305 app tests and root types pass."
   },
   "changedFiles": {
     "apps/web/src/shielded/app.tsx": {
@@ -31,8 +32,8 @@
       "sha256": "59ff4683d642a7f54a5f8e326a9d50ecc016b6f9a1699d6ae99dfd56a2e808f6"
     },
     "docs/SHIELDED-DRAFT-FEEDBACK.md": {
-      "bytes": 3852,
-      "sha256": "284c6da5d6b2f3c15013f234e691c4538d095e1bf9a91750cd723f7d6d79c500"
+      "bytes": 4052,
+      "sha256": "fc1a740a2b9a0b48e0379db31102bdaa14e9cbd938e18e6ff6c860fe202ac7dc"
     },
     "research/shielded-app/browser-wallet.mjs": {
       "bytes": 3050,
@@ -79,8 +80,8 @@
       "sha256": "4562ebb88b9315fecbbf3f6ac952310c5c3c3a7cba9cf7605e8bddc3f661c0d6"
     },
     "tests/shielded-experience.test.ts": {
-      "bytes": 5671,
-      "sha256": "115b6b3e6b84bf970aee329238a49c4ce3d7b42acd3241fcda7cf16a7119efa4"
+      "bytes": 6086,
+      "sha256": "63e2dd8cd426b2f0bdf055ed9120ad929e5ac4da5b4b147c60c360894943a660"
     }
   },
   "unchangedBaselineFiles": {
@@ -3897,6 +3898,26 @@
     "reconstruction.log": {
       "bytes": 3995,
       "sha256": "f65b7f28ee1f0fbfc724163955a1d6e737446f30beff91f1b0193dd921875201"
+    },
+    "ci-verify.log": {
+      "bytes": 32100,
+      "sha256": "2ff25be2ee84ed1fbf0b7ec68e07072db4efe866c328bd2d44f53bfbbe83a91a"
+    },
+    "clean-tests.log": {
+      "bytes": 339,
+      "sha256": "ae78ec8ad876f9444e38a4159ea8b0db5885b76c688b0bc992186b8e0895b3bd"
+    },
+    "clean-before.log": {
+      "bytes": 2074,
+      "sha256": "3c45ccc8f1fc68368cbf17f065f2196837c1bf6944b8555f8619830e17dc8766"
+    },
+    "ci-fix-types.log": {
+      "bytes": 99,
+      "sha256": "b25d99b66a753ba41fbf30382e01b030de41dc9f86246e6aa9baa038c523f109"
+    },
+    "tests-ci-fix.log": {
+      "bytes": 6107,
+      "sha256": "1f6bdb81a75686cc371ad2c85ee4105b34665bc5a44db8ef85808e8b83341841"
     }
   },
   "packageManifest": {

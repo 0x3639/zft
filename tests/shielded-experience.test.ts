@@ -10,6 +10,16 @@ import {
   stageDescription,
   type Selection,
 } from "../apps/web/src/shielded/experience";
+// Static UI coverage must run without the optional shielded-lab install.
+// The browser trial and isolated controller suite exercise the real client.
+vi.mock("../packages/shielded/client.mjs", () => ({
+  createShieldedClient: () => {
+    throw new Error("Static rendering must not open a shielded client");
+  },
+  connectWallet: () => {
+    throw new Error("Static rendering must not connect a wallet");
+  },
+}));
 const picture = (overrides: Partial<Selection> = {}): Selection => ({
   id: "saved",
   kind: "create",
