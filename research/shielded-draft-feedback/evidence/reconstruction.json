@@ -1,0 +1,5 @@
+{
+  "publicFiles": 154,
+  "allPublicFilesAndManifestByteIdentical": true,
+  "scope": "Independent archive parsing and source-only reconstruction using frozen installed dependencies, upstream supplements and existing exact proving artifacts; not trusted setup or upstream bundle reproduction."
+}

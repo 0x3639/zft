@@ -1,0 +1,58 @@
+{
+  "baseline": "0d6825a6114ac1711d02b8323bb0a2b337293aea",
+  "environment": "Codex in-app Chromium, disposable loopback app, generated JPEG, local Anvil 31337 and injected test fee wallet.",
+  "before": {
+    "missingFileAlertTop": -496.9375,
+    "missingFileAlertBottom": -447.34375,
+    "saveButtonTop": 341.59375,
+    "viewportHeight": 720,
+    "result": "Error above the viewport while Save draft remained visible and unchanged."
+  },
+  "after": {
+    "missingFileAlertTop": 341.5,
+    "missingFileAlertBottom": 366.296875,
+    "saveButtonTop": 382.296875,
+    "viewportHeight": 720
+  },
+  "passed": [
+    "Missing collection, short/absent password, absent wallet, absent file and blank name each produce local instructions on Save draft",
+    "Generated JPEG and empty description reach the signature step",
+    "Paused signature displays Preparing your draft and disabled Saving draft button in viewport",
+    "Rejected signature focuses a visible error and retains the entered title and chosen JPEG",
+    "Explicit retry followed by disposable signature approval saves one draft and automatically shows recovery download and next step",
+    "No proof or creation transaction requested",
+    "Lock clears password and download URLs",
+    "390x844 error visible without horizontal overflow",
+    "Final standalone package shows missing-collection feedback; generating a password returns its notice to the password controls",
+    "Both browser trials have no scoped console warnings/errors"
+  ],
+  "trialSources": {
+    "apps/web/src/shielded/experience.ts": {
+      "bytes": 4145,
+      "sha256": "59ff4683d642a7f54a5f8e326a9d50ecc016b6f9a1699d6ae99dfd56a2e808f6"
+    },
+    "research/shielded-app/browser-wallet.mjs": {
+      "bytes": 3050,
+      "sha256": "c586ecf06545ba3390d971d78bf6ac2b75743ab8b67d4ec4eb584304c548a67e"
+    },
+    "research/shielded-app/local-server.mjs": {
+      "bytes": 9442,
+      "sha256": "ddfdd8dd952430bf5449bf3cc7aa61ace85125d3ed9b8ce3777b2c3b9637d996"
+    }
+  },
+  "trialAppSource": {
+    "bytes": 48388,
+    "sha256": "78d38d2fcbb90aec2938fb00a0869a633f4e11e19237a6fd5ec57c4dd57d6b6a"
+  },
+  "finalPackagedAppSource": {
+    "bytes": 48411,
+    "sha256": "7121521512784bd5a5f3ceeecbe36a140c46c7dbe78226d33c6901a49f58fede"
+  },
+  "limits": [
+    "The original user image, browser journal and wallet were not inspected, so the exact reason their attempt did not finish is unconfirmed.",
+    "Injected disposable signing is not a real MetaMask acceptance test. No live transaction or public gallery write occurred.",
+    "Full disposable draft trial preceded only the tell() notice-routing reset; that final adjustment was verified separately in the final standalone browser package.",
+    "Recovery download readiness was checked; no new recovery export was downloaded or reselected in this trial."
+  ],
+  "cleanup": "Disposable tabs locked and closed, viewport reset; test servers stopped."
+}

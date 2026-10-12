@@ -30,6 +30,20 @@ window.ethereum = {
     }
     if (method === "eth_chainId") return "0x7a69";
     if (method === "eth_signTypedData_v4") {
+      if (document.getElementById("test-pause-signature").checked) {
+        const approve = document.getElementById("test-approve-signature"),
+          reject = document.getElementById("test-reject-signature");
+        await new Promise((yes, no) => {
+          const finish = (accepted) => {
+            approve.disabled = reject.disabled = true;
+            approve.onclick = reject.onclick = null;
+            accepted ? yes() : no(new Error("Disposable signature declined"));
+          };
+          approve.disabled = reject.disabled = false;
+          approve.onclick = () => finish(true);
+          reject.onclick = () => finish(false);
+        });
+      }
       const { domain, types, primaryType, message } = JSON.parse(params[1]);
       delete types.EIP712Domain;
       return account.signTypedData({ domain, types, primaryType, message });

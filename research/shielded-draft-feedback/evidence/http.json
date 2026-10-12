@@ -1,0 +1,34 @@
+{
+  "origin": "http://127.0.0.1:60871",
+  "publicFiles": 154,
+  "publicBytes": 58629937,
+  "allPayloadHashesTypesAndSecurityHeadersMatch": true,
+  "headResponses": 6,
+  "negativeResponses": [
+    {
+      "path": "/shielded/source/missing",
+      "status": 404
+    },
+    {
+      "path": "/shielded/source/index.html?changed=1",
+      "status": 404
+    },
+    {
+      "path": "/shielded/source/%69ndex.html",
+      "status": 404
+    },
+    {
+      "path": "/shielded/index.html",
+      "status": 404
+    },
+    {
+      "path": "/shielded/missing",
+      "status": 404
+    },
+    {
+      "path": "/shielded-assets/missing",
+      "status": 404
+    }
+  ],
+  "scope": "GET/HEAD against the final packaged worker handler and local asset binding; no live chain calls or transactions."
+}

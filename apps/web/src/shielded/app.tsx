@@ -10,8 +10,14 @@ import {
   type Provider,
 } from "../../../../packages/shielded/client.mjs";
 import { browserProver } from "./prover";
-import { nextAction, savedStatus, stageDescription } from "./experience";
+import {
+  nextAction,
+  savedStatus,
+  stageDescription,
+  draftProblem,
+} from "./experience";
 import "./style.css";
+const savingDraft = "Saving picture draft";
 const btn = "nom-btn nom-btn--default nom-btn--outline";
 const primary = btn + " nom-btn--primary";
 const short = (s: string) => s.slice(0, 10) + "…" + s.slice(-6);
@@ -47,6 +53,7 @@ export default function ShieldedApp({
   const [page, setPage] = useState<Page>(currentPage),
     [state, setState] = useState<Snapshot>(),
     [busy, setBusy] = useState(""),
+    [lastAction, setLastAction] = useState(""),
     [notice, setNotice] = useState(
       "Open your collection to see saved pictures and unfinished creations.",
     ),
@@ -74,9 +81,11 @@ export default function ShieldedApp({
     form = useRef<HTMLDivElement>(null),
     urls = useRef(new Map<string, string>()),
     pictureUrls = useRef(new Map<string, string>()),
-    selectedPanel = useRef<HTMLElement>(null);
+    selectedPanel = useRef<HTMLElement>(null),
+    draftFeedback = useRef<HTMLParagraphElement>(null);
   const pass = () => password.current?.value ?? "";
   const tell = (message: string) => {
+    setLastAction("");
     setError(false);
     setNotice(message);
   };
@@ -105,6 +114,7 @@ export default function ShieldedApp({
     setReady(false);
     setState(undefined);
     setBusy("");
+    setLastAction("");
     setAccount("");
     setConfigId("");
     setComposer(true);
@@ -133,6 +143,7 @@ export default function ShieldedApp({
     const pop = () => {
         setPage(currentPage());
         setComposer(true);
+        setLastAction("");
       },
       hide = () => lock();
     window.addEventListener("popstate", pop);
@@ -153,6 +164,7 @@ export default function ShieldedApp({
     history.pushState({}, "", paths(next));
     setPage(next);
     setComposer(true);
+    setLastAction("");
     window.scrollTo(0, 0);
   }
   async function refresh() {
@@ -167,12 +179,14 @@ export default function ShieldedApp({
   async function run(
     label: string,
     action: (alive: () => boolean) => Promise<void>,
+    failure?: () => string,
   ) {
     if (running.current) return;
     const g = generation.current,
       alive = () => g === generation.current;
     running.current = true;
     setBusy(label);
+    setLastAction(label);
     setError(false);
     try {
       await action(alive);
@@ -180,7 +194,8 @@ export default function ShieldedApp({
       if (alive()) {
         setError(true);
         setNotice(
-          `${label} could not finish. Your saved pictures have not been deleted. Check your connection, password, selected file and wallet network. If you submitted a transaction, check its status before retrying.`,
+          failure?.() ??
+            `${label} could not finish. Your saved pictures have not been deleted. Check your connection, password, selected file and wallet network. If you submitted a transaction, check its status before retrying.`,
         );
       }
     } finally {
@@ -197,6 +212,68 @@ export default function ShieldedApp({
         });
       }
     }
+  }
+  useEffect(() => {
+    if (lastAction === savingDraft && error && composer) {
+      draftFeedback.current?.focus({ preventScroll: true });
+      draftFeedback.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [lastAction, error, notice, composer]);
+  async function saveDraft() {
+    if (running.current) return;
+    const problem = draftProblem({
+      ready,
+      passwordLength: pass().length,
+      create: page === "create",
+      account,
+      fileSize: file.current?.files?.[0]?.size,
+      name: title.current?.value ?? "",
+      description: description.current?.value ?? "",
+    });
+    if (problem) {
+      setLastAction(savingDraft);
+      setError(true);
+      setNotice(problem);
+      return;
+    }
+    let saved = false;
+    await run(
+      savingDraft,
+      async (alive) => {
+        clearExports();
+        const c = sdk.current!;
+        if (page === "create")
+          await c.prepareCreate(
+            await bytes(file.current?.files?.[0], 10 * 1024 * 1024),
+            title.current?.value ?? "",
+            description.current?.value ?? "",
+            pass(),
+          );
+        else
+          await c.prepareClaim(
+            await bytes(file.current?.files?.[0], 11 * 1024 * 1024),
+            pass(),
+          );
+        if (!alive()) return;
+        saved = true;
+        setComposer(false);
+        if (page === "create") {
+          const draft = (await c.snapshot()).selected;
+          if (draft) publicCreations.current.add(draft.assetId);
+        }
+        await prepareRecovery(c, alive);
+        if (alive())
+          tell(
+            "Draft saved. Next, download the recovery file and select that saved file. Your ZFT is not on devnet yet.",
+          );
+      },
+      () =>
+        saved
+          ? "Your draft was saved, but its recovery download could not be prepared. Use Prepare recovery download on the saved picture below."
+          : page === "create"
+            ? "Draft preparation could not finish. Your file and text are still here. Check MetaMask for a signature request, reconnect your fee wallet if needed, and try a supported PNG or JPG image (up to 10 MiB and 24 megapixels)."
+            : "Draft preparation could not finish. Check that you selected the original bearer PNG for this devnet and that your connection is working. Your selected file is still here.",
+    );
   }
   async function selectDeployment(
     configuration: string | Promise<string>,
@@ -542,13 +619,19 @@ export default function ShieldedApp({
             Unlock saved pictures
           </button>
         </section>
-        <p
-          className={`callout${error ? " error" : ""}`}
-          role={error ? "alert" : "status"}
-          aria-live="polite"
-        >
-          {busy ? `${busy}…` : notice}
-        </p>
+        {!(
+          (page === "create" || page === "claim") &&
+          composer &&
+          lastAction === savingDraft
+        ) && (
+          <p
+            className={`callout${error ? " error" : ""}`}
+            role={error ? "alert" : "status"}
+            aria-live="polite"
+          >
+            {busy ? `${busy}…` : notice}
+          </p>
+        )}
         {page === "collection" && (
           <section className="shielded-card" aria-label="Your saved pictures">
             <div className="shielded-section-heading">
@@ -724,45 +807,33 @@ export default function ShieldedApp({
               This saves a draft and recovery file first. It does not finish
               creation or receipt on devnet.
             </p>
+            {lastAction === savingDraft && (
+              <p
+                id="draft-feedback"
+                ref={draftFeedback}
+                tabIndex={-1}
+                className={`callout${error ? " error" : ""}`}
+                role={error ? "alert" : "status"}
+                aria-live={error ? "assertive" : "polite"}
+              >
+                {busy === savingDraft
+                  ? page === "create"
+                    ? "Preparing your draft… Open MetaMask when it asks you to sign the public creation details. This signature does not send a transaction. Keep this page open."
+                    : "Checking your bearer picture and saving an encrypted draft… Keep this page open."
+                  : notice}
+              </p>
+            )}
             <button
               className={primary}
-              disabled={
-                !ready ||
-                !!busy ||
-                needsPassword ||
-                (page === "create" && !account)
+              disabled={!!busy}
+              aria-describedby={
+                lastAction === savingDraft ? "draft-feedback" : undefined
               }
-              onClick={() =>
-                void run("Saving picture draft", async (alive) => {
-                  clearExports();
-                  const c = sdk.current!;
-                  if (page === "create")
-                    await c.prepareCreate(
-                      await bytes(file.current?.files?.[0], 10 * 1024 * 1024),
-                      title.current?.value ?? "",
-                      description.current?.value ?? "",
-                      pass(),
-                    );
-                  else
-                    await c.prepareClaim(
-                      await bytes(file.current?.files?.[0], 11 * 1024 * 1024),
-                      pass(),
-                    );
-                  if (!alive()) return;
-                  if (page === "create") {
-                    const draft = (await c.snapshot()).selected;
-                    if (draft) publicCreations.current.add(draft.assetId);
-                  }
-                  setComposer(false);
-                  await prepareRecovery(c, alive);
-                  if (alive())
-                    tell(
-                      "Draft saved. Next, download the recovery file and select that saved file. Your ZFT is not on devnet yet.",
-                    );
-                })
-              }
+              onClick={() => void saveDraft()}
             >
-              Save draft and prepare recovery
+              {busy === savingDraft
+                ? "Saving draft…"
+                : "Save draft and prepare recovery"}
             </button>
             {!ready && <p>Open your collection first.</p>}
             {needsPassword && (
