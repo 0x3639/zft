@@ -9,6 +9,7 @@
     "apps/web/src/brand-logo.tsx",
     "apps/web/src/inactivity.ts",
     "apps/web/src/shielded/app.tsx",
+    "apps/web/src/shielded/experience.ts",
     "apps/web/src/shielded/prover.ts",
     "apps/web/src/shielded/style.css",
     "apps/web/src/site-controls.tsx",

@@ -1,0 +1,6 @@
+{
+  "publicFilesReconstructed": 154,
+  "assetManifestIdentical": true,
+  "standaloneTypes": true,
+  "limits": "Fresh project source tree; reuses existing frozen dependencies, source supplements and exact disposable proving artifacts. No upstream/compiler/setup reproduction."
+}

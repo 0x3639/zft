@@ -170,7 +170,7 @@ function walk(directory) {
   }
 }
 walk(publicDir);
-for (const marker of ["zft-shielded-app-config-v1", "Use ZVM devnet"])
+for (const marker of ["zft-shielded-app-config-v1", "Open my collection"])
   if (!javascript.includes(marker)) throw Error("Missing app build marker");
 for (const marker of [
   "/test/fund",

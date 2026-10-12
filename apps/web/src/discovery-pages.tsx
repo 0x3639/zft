@@ -344,7 +344,7 @@ export function Discovery(props: Props) {
               to={nfts ? "/mint" : "/settings/profile"}
               className={primary}
             >
-              {nfts ? "Mint a picture" : "Create your collection"}
+              {nfts ? "Mint a picture" : "Create a public profile"}
             </RouteLink>
           )}
         </div>
@@ -444,30 +444,34 @@ export function Home(
           <p>
             Pictures with ownership you can pass on.
             <br />
-            Start with your wallet. Make a file when it’s time to share.
+            Create a shielded picture. Find it in your browser’s collection.
           </p>
           <div className="actions">
-            <RouteLink
-              nav={props.nav}
-              to="/settings/profile"
-              className={primary}
-            >
-              Create your collection ↗
-            </RouteLink>
+            <a href="/shielded/create" className={primary}>
+              Create a ZFT ↗
+            </a>
+            <a href="/shielded" className={btn}>
+              My shielded collection
+            </a>
             <RouteLink nav={props.nav} to="/how-it-works" className={btn}>
-              How it works
+              Older wallet guide
             </RouteLink>
           </div>
           <p className="hero-note">
-            <RouteLink nav={props.nav} to="/claim">
-              Receive a picture
-            </RouteLink>
+            <a href="/shielded/claim">Receive a ZFT</a>
             <span aria-hidden="true"> · </span>
-            <RouteLink nav={props.nav} to="/recovery">
-              Restore a collection
+            <a href="/shielded/recovery">Find or recover a ZFT</a>
+          </p>
+          <p className="hint">
+            Shielded pictures are saved in your browser and recovery files. The
+            public gallery below shows older wallet ZFTs.{" "}
+            <RouteLink to="/wallet" nav={props.nav}>
+              Open older wallet collection
             </RouteLink>
+            .
           </p>
           <p className="text-ledger">
+            Older wallet app:{" "}
             {props.sponsorEnabled
               ? "Sponsored on ZVM devnet · subject to availability and limits"
               : "ZVM devnet · sponsorship currently unavailable"}
@@ -489,7 +493,7 @@ export function Home(
         <div className="section-heading">
           <div>
             <p className="text-ledger">People with an eye</p>
-            <h2>Collections worth a look.</h2>
+            <h2>Public profiles worth a look.</h2>
           </div>
           <RouteLink to="/explore" nav={props.nav}>
             See all collections ↗
@@ -529,7 +533,7 @@ export function Home(
         <div className="section-heading">
           <div>
             <p className="text-ledger">Just minted</p>
-            <h2>Fresh from the network.</h2>
+            <h2>From the older wallet collection.</h2>
           </div>
           <RouteLink to="/explore/nfts" nav={props.nav}>
             Browse all NFTs ↗
@@ -624,9 +628,7 @@ export function Home(
         )}
       </section>
       <section className="home-explanation">
-        <p className="text-ledger">
-          A small file. A different kind of collection.
-        </p>
+        <p className="text-ledger">Older wallet and file collection</p>
         <h2>
           Make it yours.
           <br />
@@ -663,7 +665,7 @@ export function Home(
           ))}
         </div>
         <RouteLink to="/how-it-works" nav={props.nav}>
-          See how ownership works ↗
+          See how older wallet ownership works ↗
         </RouteLink>
       </section>
       <section className="home-closing">
@@ -674,15 +676,13 @@ export function Home(
           Give it a future.
         </h2>
         <div className="actions">
-          <RouteLink to="/settings/profile" nav={props.nav} className={primary}>
-            Create your collection ↗
-          </RouteLink>
-          <RouteLink to="/mint" nav={props.nav} className={btn}>
-            Mint a picture
-          </RouteLink>
-          <RouteLink to="/recovery" nav={props.nav}>
-            Restore a collection
-          </RouteLink>
+          <a href="/shielded/create" className={primary}>
+            Create a ZFT ↗
+          </a>
+          <a href="/shielded" className={btn}>
+            My shielded collection
+          </a>
+          <a href="/shielded/recovery">Find or recover a ZFT</a>
         </div>
       </section>
     </>

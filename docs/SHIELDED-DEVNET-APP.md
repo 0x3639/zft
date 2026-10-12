@@ -1,5 +1,7 @@
 # Shielded devnet static app candidate
 
+Current status: the PR38 source package was explicitly activated at `https://devnet.zft.foo/shielded` on October 11, 2026. [Activation and usability evidence](SHIELDED-USABILITY.md) supersedes the undeployed status in the historical preparation sections below. The new usability candidate remains undeployed.
+
 This package prepares the existing shielded interface for the user-selected ZVM devnet. It is **built and tested locally, not activated on Cloudflare**. The original package was prepared against merged PR34, `6c9d0d007445603ffe9f664351697e64d0fafc5b`; its [validation record](../research/shielded-host-validation.json) is historical and unchanged. The [configuration-pinning record](../research/shielded-host-pins-validation.json) preserves the PR36 repair. The [historical host-origin validation record](../research/shielded-host-origin-validation.json) covers the app/RPC separation against merged PR36, `c44352f14cdd09382803300195e70be6074255b5`.
 
 ## Selected deployment and interface

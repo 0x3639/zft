@@ -1,0 +1,36 @@
+{
+  "recordedAt": "2026-10-11T17:07:40.887166+00:00",
+  "status": "deployed and verified",
+  "authorization": "User explicitly said: Approve this exact deployment",
+  "url": "https://devnet.zft.foo/shielded",
+  "worker": "zft-shielded-devnet-test",
+  "route": "devnet.zft.foo/shielded*",
+  "versionId": "2fdad056-c24f-44e9-bc85-fcff6b0e348a",
+  "routeId": "08750b3090524c89ac522ff43ff7f2d7",
+  "signedCommit": "e8785e8acf46eea907053d78dcdf95a691b0bab3",
+  "mergedCommit": "67223bc6a961fcdc86321c92e1d33bb9f4db6599",
+  "matchingGitTree": "4424c756b96a734415cdb40525eefdc3cfb774ca",
+  "verification": {
+    "publicFiles": 154,
+    "publicBytes": 58625787,
+    "securityHeaders": true,
+    "headResponses": 6,
+    "negativeRoutes": 6,
+    "existingHomeStatus": 200,
+    "sourceNavigation": true,
+    "browserReadOnlyDevnetVerification": true,
+    "configurationSha256": "0x9a1a07626e19c3174c2c8261495f54b2603a4fee0b79fb2bc0096b6eaa803559",
+    "onlyAssetsBinding": true,
+    "workersDevAndPreviewsDisabled": true,
+    "existingRoutesAndCustomDomainPreserved": true,
+    "verificationTabClosed": true
+  },
+  "limits": [
+    "No new wallet, key, password, proof, recovery-file, phone or transaction trial.",
+    "Browser checks use one in-app Chromium instance and the selected RPC; not independent finality or a second-operator drill.",
+    "Extensionless notice headers and bytes verified over HTTPS; in-app notice click left the tab unchanged, so inline rendering is not qualified there.",
+    "Python urllib requests received403; standard curl HTTPS verification and normal browser verification passed. No gateway or DNS setting was changed.",
+    "Independent protocol/circuit/contract review and reproduction, real MetaMask/Firefox/iOS/Android, resource budgets and other recorded devnet acceptance remain open."
+  ],
+  "scope": "Historical explicit PR38 activation; this usability candidate is undeployed."
+}

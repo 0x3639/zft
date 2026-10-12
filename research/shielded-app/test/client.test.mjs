@@ -343,3 +343,100 @@ test("wallet RPC must match pinned genesis and code before authorization", () =>
       0,
     );
   }));
+test("saved pictures remain discoverable after reopen without selecting or sending anything", () =>
+  fixture(async ({ evm, create }) => {
+    const indexedDB = new IDBFactory(),
+      a = await create({ indexedDB });
+    await wallet(a, evm);
+    await a.prepareCreate(
+      picture(),
+      "Find me after reload",
+      "Saved draft",
+      password,
+    );
+    const before = await a.snapshot(),
+      id = before.selected.id;
+    a.close();
+    const reopened = await create({ indexedDB });
+    assert.equal(
+      typeof reopened.inspect,
+      "function",
+      "gallery must inspect encrypted saved pictures without selecting them",
+    );
+    const listing = await reopened.snapshot();
+    assert.equal(listing.selected, null);
+    assert.equal(listing.operations[0].id, id);
+    const preview = await reopened.inspect(id, password);
+    assert.equal(preview.name, "Find me after reload");
+    assert.deepEqual(preview.image, before.selected.image);
+    assert.deepEqual(
+      Object.keys(preview).sort(),
+      ["id", "image", "name"],
+      "gallery exposes no spending secret or recovery material",
+    );
+    assert.deepEqual(
+      await reopened.snapshot(),
+      listing,
+      "gallery inspection must not change selection or journal state",
+    );
+    await assert.rejects(
+      reopened.inspect(id, "wrong but sufficiently long password"),
+    );
+    assert.deepEqual(await reopened.snapshot(), listing);
+  }));
+test("creation progress distinguishes lost reservation response, waiting, reveal and completed picture", () =>
+  fixture(async ({ evm, create }) => {
+    const indexedDB = new IDBFactory(),
+      a = await create({ indexedDB }),
+      provider = await wallet(a, evm);
+    await a.prepareCreate(
+      picture(),
+      "Two explicit transactions",
+      "Never call a reservation created",
+      password,
+    );
+    await acknowledge(a);
+    await a.prove();
+    assert.equal(
+      (await a.snapshot()).selected.creationProgress?.phase,
+      "commit",
+      "creation progress must identify the first transaction before submission",
+    );
+    provider.afterSend(() => {
+      throw Error("Disposable response loss");
+    });
+    await assert.rejects(a.submit(password));
+    const uncertain = await a.snapshot(),
+      id = uncertain.selected.id;
+    assert.equal(uncertain.selected.state, "uncertain");
+    a.close();
+    const b = await create({ indexedDB });
+    await b.unlock(id, password);
+    assert.equal((await b.snapshot()).selected.needsObservation, true);
+    assert.equal(await b.observe(password), "unobserved");
+    assert.deepEqual((await b.snapshot()).selected.creationProgress, {
+      phase: "waiting",
+      blocksRemaining: 2,
+    });
+    await assert.rejects(
+      b.prove(),
+      "must not generate a reveal proof while the reservation is still waiting",
+    );
+    await evm.mine(2);
+    await b.observe(password);
+    assert.equal(
+      (await b.snapshot()).selected.creationProgress.phase,
+      "reveal",
+    );
+    await wallet(b, evm);
+    await b.prove();
+    assert.equal((await b.submit(password)).state, "observed");
+    const c = await create({ indexedDB });
+    assert.equal(
+      (await c.inspect(id, password)).name,
+      "Two explicit transactions",
+    );
+    await c.unlock(id, password);
+    await c.observe(password);
+    assert.equal((await c.snapshot()).selected.state, "observed");
+  }));
