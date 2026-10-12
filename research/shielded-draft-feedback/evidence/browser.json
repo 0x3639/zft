@@ -54,5 +54,21 @@
     "Full disposable draft trial preceded only the tell() notice-routing reset; that final adjustment was verified separately in the final standalone browser package.",
     "Recovery download readiness was checked; no new recovery export was downloaded or reselected in this trial."
   ],
-  "cleanup": "Disposable tabs locked and closed, viewport reset; test servers stopped."
+  "cleanup": "Disposable tabs locked and closed, viewport reset; test servers stopped.",
+  "fixtureReviewFollowUp": {
+    "reviewedCommit": "7c5e5fb84c390b5850cad46273b1ca031932fe16",
+    "change": "Reject a second paused test signature before it can replace the first request handlers. Both approval and rejection settle the original request and allow another request afterward.",
+    "tests": "2 Node regressions fail with the handler-replacement assertion before the guard and pass afterward; default/opt-in build boundaries pass.",
+    "scope": "Disposable fixture only; production app and packaged payloads are unchanged. Prior browser trial hashes remain unchanged.",
+    "sources": {
+      "research/shielded-app/browser-wallet.mjs": {
+        "bytes": 3177,
+        "sha256": "a4c301be243d05c2ce366e20eebdb11232c050d3c680ae092ce2389ea2214e33"
+      },
+      "research/shielded-app/test/browser-wallet.test.mjs": {
+        "bytes": 3433,
+        "sha256": "9b1846524b02390deacdaa578b20097d1247bbc2a2c8e584c0f4a502bc4443d6"
+      }
+    }
+  }
 }

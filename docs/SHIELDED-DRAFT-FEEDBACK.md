@@ -25,6 +25,8 @@ node --test research/shielded-host/host.test.mjs research/shielded-host/source-p
 node research/shielded-app/check-builds.mjs
 ```
 
+Two additional fixture regressions cover overlapping paused signatures: the second request is rejected without replacing the first handlers, and approval/rejection both release the controls for another request. Both tests fail before the guard and pass afterward. This review follow-up does not change the production package.
+
 For the disposable browser trial, run `node --import tsx research/shielded-app/local-server.mjs` after the opt-in build. Its Pause test signatures, Approve test signature and Reject test signature controls are fixture-only and excluded from production. Use generated fixtures on its fresh loopback origin, never user recovery files. Preserve existing generated host packages before rebuilding.
 
 The correction is tested but not deployed. Independent device/MetaMask qualification and the existing finality/recovery acceptance gates remain open.

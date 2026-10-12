@@ -1,6 +1,6 @@
 {
   "baseline": "0d6825a6114ac1711d02b8323bb0a2b337293aea",
-  "recordedAt": "2026-10-12T13:05:15.759646+00:00",
+  "recordedAt": "2026-10-12T13:15:48.419116+00:00",
   "scope": "Save draft feedback only; no deployed release or user data inspection. Manifest excludes itself and is pinned by its signed Git tree.",
   "checks": {
     "appTests": 305,
@@ -20,7 +20,8 @@
     "http": "154 assets, 6 HEAD, 6 negatives, hashes/types/security headers",
     "shieldedWorker": "dry-run only",
     "browser": "see evidence/browser.json",
-    "ciTestIsolation": "7 focused tests pass without optional shielded-lab dependencies; baseline fails the reachable-button assertion; all 305 app tests and root types pass."
+    "ciTestIsolation": "7 focused tests pass without optional shielded-lab dependencies; baseline fails the reachable-button assertion; all 305 app tests and root types pass.",
+    "fixtureSignatureOverlapTests": 2
   },
   "changedFiles": {
     "apps/web/src/shielded/app.tsx": {
@@ -32,24 +33,28 @@
       "sha256": "59ff4683d642a7f54a5f8e326a9d50ecc016b6f9a1699d6ae99dfd56a2e808f6"
     },
     "docs/SHIELDED-DRAFT-FEEDBACK.md": {
-      "bytes": 4052,
-      "sha256": "fc1a740a2b9a0b48e0379db31102bdaa14e9cbd938e18e6ff6c860fe202ac7dc"
+      "bytes": 4379,
+      "sha256": "df96de784eb1016a0dd16bb839c15024c5357c6463796467ed5b71d5f8f62672"
     },
     "research/shielded-app/browser-wallet.mjs": {
-      "bytes": 3050,
-      "sha256": "c586ecf06545ba3390d971d78bf6ac2b75743ab8b67d4ec4eb584304c548a67e"
+      "bytes": 3177,
+      "sha256": "a4c301be243d05c2ce366e20eebdb11232c050d3c680ae092ce2389ea2214e33"
     },
     "research/shielded-app/local-server.mjs": {
       "bytes": 9442,
       "sha256": "ddfdd8dd952430bf5449bf3cc7aa61ace85125d3ed9b8ce3777b2c3b9637d996"
+    },
+    "research/shielded-app/test/browser-wallet.test.mjs": {
+      "bytes": 3433,
+      "sha256": "9b1846524b02390deacdaa578b20097d1247bbc2a2c8e584c0f4a502bc4443d6"
     },
     "research/shielded-draft-feedback/evidence/before.jpg": {
       "bytes": 62276,
       "sha256": "7263b9c46184248848b198c2c1a95e1a235b665501e9acb11c016170d750ae99"
     },
     "research/shielded-draft-feedback/evidence/browser.json": {
-      "bytes": 2930,
-      "sha256": "34832226feea6624ba91752d8091b06c12689f8c877b0bf5b057b4f342e6a8a2"
+      "bytes": 3890,
+      "sha256": "3769e1cc46a8dd7f8a33523e3f0f9b72471ddc9f888cfa69f9cd3c80a5e9c3c6"
     },
     "research/shielded-draft-feedback/evidence/http.json": {
       "bytes": 781,
@@ -3918,6 +3923,18 @@
     "tests-ci-fix.log": {
       "bytes": 6107,
       "sha256": "1f6bdb81a75686cc371ad2c85ee4105b34665bc5a44db8ef85808e8b83341841"
+    },
+    "wallet-before.tap": {
+      "bytes": 1895,
+      "sha256": "e523c318098c3ff23177b4729c4a71947da2714c9fb24688e4d3b4dc7132b76f"
+    },
+    "wallet-after.tap": {
+      "bytes": 524,
+      "sha256": "0ed6bda4bb73f663166b49bd3b479720bc58744c81474f7b9a2a530f763d2add"
+    },
+    "wallet-boundaries.log": {
+      "bytes": 8380,
+      "sha256": "e01a2093cc98cd960bf2d592c7896b207f6e5e858ce6053c603cfb1c35d17122"
     }
   },
   "packageManifest": {

@@ -33,6 +33,8 @@ window.ethereum = {
       if (document.getElementById("test-pause-signature").checked) {
         const approve = document.getElementById("test-approve-signature"),
           reject = document.getElementById("test-reject-signature");
+        if (approve.onclick || reject.onclick)
+          throw new Error("A disposable signature request is already pending");
         await new Promise((yes, no) => {
           const finish = (accepted) => {
             approve.disabled = reject.disabled = true;
