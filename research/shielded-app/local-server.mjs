@@ -16,7 +16,10 @@ import { startAnvil, lab } from "../shielded-lab/evm-test.mjs";
 import { deployFixture } from "../shielded-lab/local-fixture.mjs";
 import { canonical } from "../shielded-lab/core.mjs";
 import { configuration } from "./test/support.mjs";
-import { shieldedGallery } from "../../apps/api/shielded-gallery.ts";
+import {
+  galleryError,
+  shieldedGallery,
+} from "../../apps/api/shielded-gallery.ts";
 import { publicStore } from "./public-store.mjs";
 const dir = fileURLToPath(new URL("./", import.meta.url)),
   temp = mkdtempSync(join(tmpdir(), "zft-shielded-app-demo-"));
@@ -228,9 +231,13 @@ try {
         "content-security-policy": `default-src 'none'; script-src 'self' blob: 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' ${evm.url}; style-src 'self'; font-src 'self'; img-src 'self' blob: data:; base-uri 'none'; frame-ancestors 'none'`,
       });
       res.end(req.method === "HEAD" ? undefined : file.bytes);
-    } catch {
-      if (!res.headersSent) reject();
-      else res.destroy();
+    } catch (error) {
+      if (res.headersSent) res.destroy();
+      else if (req.url?.startsWith("/api/shielded/gallery")) {
+        const response = galleryError(error);
+        res.writeHead(response.status, Object.fromEntries(response.headers));
+        res.end(Buffer.from(await response.arrayBuffer()));
+      } else reject();
     }
   });
   server.requestTimeout = 10000;

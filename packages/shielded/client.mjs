@@ -4,6 +4,7 @@ import {
   encodeAbiParameters,
   recoverTypedDataAddress,
   parseAbiItem,
+  decodeEventLog,
 } from "viem";
 import {
   createProfile,
@@ -43,6 +44,9 @@ const randomHex = () =>
   Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) =>
     b.toString(16).padStart(2, "0"),
   ).join("");
+const createdEvent = parseAbiItem(
+  "event Created(bytes32 indexed assetId, bytes32 indexed imageHash, bytes32 metadataHash, address indexed creator, uint256 commitment)",
+);
 // Transport/prover are trusted injected code. This controller never sends private inputs to RPC or wallet.
 export async function createShieldedClient({
   text,
@@ -500,39 +504,99 @@ export async function createShieldedClient({
     exportPublication: () =>
       run(async () => {
         selected();
+        const row = await currentRow();
         check(
           record.kind === "create" &&
             !needsObservation &&
-            (await currentRow()).state === "observed",
+            row.state === "observed",
         );
         const note = record.destination;
         profile.validate(note, deployment);
         const head = await verifyDeployment(client, pins);
-        const matches = [];
-        // Recover public provenance even when the wallet's successful response was lost.
-        for (
-          let from = BigInt(pins.deploymentBlock);
-          from <= head.number;
-          from += 1000n
-        ) {
-          const logs = await client.getLogs({
-            address: deployment.registry,
-            event: parseAbiItem(
-              "event Created(bytes32 indexed assetId, bytes32 indexed imageHash, bytes32 metadataHash, address indexed creator, uint256 commitment)",
-            ),
-            args: { assetId: note.assetId, imageHash: note.imageHash },
-            fromBlock: from,
-            toBlock: from + 999n < head.number ? from + 999n : head.number,
-            strict: true,
+        let matches = [];
+        // A saved successful receipt avoids rescanning chain history on every upload retry.
+        for (const hash of [...row.transactionHashes].reverse()) {
+          let receipt;
+          try {
+            receipt = await client.getTransactionReceipt({ hash });
+          } catch (error) {
+            if (error.name === "TransactionReceiptNotFoundError") continue;
+            throw error;
+          }
+          if (receipt.status !== "success") continue;
+          check(receipt.transactionHash === hash);
+          matches = receipt.logs.flatMap((log) => {
+            if (log.address.toLowerCase() !== deployment.registry) return [];
+            try {
+              const { args } = decodeEventLog({
+                abi: [createdEvent],
+                data: log.data,
+                topics: log.topics,
+                strict: true,
+              });
+              return args.assetId === note.assetId &&
+                args.imageHash === note.imageHash
+                ? [{ ...log, args }]
+                : [];
+            } catch {
+              return [];
+            }
           });
-          matches.push(...logs);
           check(matches.length <= 1);
+          if (matches.length) break;
+        }
+        const scan = async (first, last) => {
+          const found = [];
+          for (let from = first; from <= last; from += 1000n) {
+            found.push(
+              ...(await client.getLogs({
+                address: deployment.registry,
+                event: createdEvent,
+                args: { assetId: note.assetId, imageHash: note.imageHash },
+                fromBlock: from,
+                toBlock: from + 999n < last ? from + 999n : last,
+                strict: true,
+              })),
+            );
+            check(found.length <= 1);
+          }
+          return found;
+        };
+        if (!matches.length) {
+          // Lost responses and restored backups retain the authorization's public commit window.
+          const at = (functionName, args) =>
+            client.readContract({
+              address: deployment.registry,
+              abi: transactionAbi,
+              functionName,
+              args,
+              blockNumber: head.number,
+            });
+          const commitment = await at("commitmentDigest", [
+              authorizationArgs(record.creation.authorization),
+              record.creation.salt,
+            ]),
+            committed = await at("creationCommits", [commitment]);
+          if (committed !== 0n)
+            matches = await scan(
+              committed + 2n,
+              committed + 256n < head.number ? committed + 256n : head.number,
+            );
+          // An older backup can predate same-destination authorization renewal.
+          if (!matches.length)
+            matches = await scan(BigInt(pins.deploymentBlock), head.number);
         }
         const log = matches[0];
         check(
           matches.length === 1 &&
             !log.removed &&
-            /^0x[0-9a-f]{64}$/.test(log.transactionHash),
+            /^0x[0-9a-f]{64}$/.test(log.transactionHash) &&
+            log.blockNumber >= BigInt(pins.deploymentBlock) &&
+            log.blockNumber <= head.number,
+        );
+        check(
+          (await client.getBlock({ blockNumber: log.blockNumber })).hash ===
+            log.blockHash,
         );
         check(
           log.args.metadataHash === note.metadataHash &&

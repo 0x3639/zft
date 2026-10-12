@@ -63,6 +63,18 @@ async function wallet(c, evm) {
   c.setWallet(w);
   return provider;
 }
+function recordRpc(t) {
+  const calls = [],
+    original = globalThis.fetch;
+  t.mock.method(globalThis, "fetch", async (input, init) => {
+    const body =
+      init?.body ??
+      (input instanceof Request ? await input.clone().text() : undefined);
+    if (body) calls.push(JSON.parse(body));
+    return original(input, init);
+  });
+  return calls;
+}
 async function acknowledge(c) {
   const recovery = await c.exportRecovery();
   await c.acknowledge(recovery, password);
@@ -443,7 +455,7 @@ test("creation progress distinguishes lost reservation response, waiting, reveal
     assert.equal((await c.snapshot()).selected.state, "observed");
   }));
 
-test("public gallery finds a completed creation after lost response without exporting custody material", () =>
+test("public gallery finds a completed creation after lost response without exporting custody material", (t) =>
   fixture(async ({ evm, deployed, create }) => {
     const indexedDB = new IDBFactory(),
       a = await create({ indexedDB }),
@@ -485,11 +497,24 @@ test("public gallery finds a completed creation after lost response without expo
       "Reopening does not assert creation",
     );
     assert.equal(await b.observe(password), "observed");
+    for (let n = 0; n < 20; n++) await evm.mine(100);
+    const calls = recordRpc(t);
     const before = await b.snapshot();
     let body;
     await assert.doesNotReject(async () => {
       body = await b.exportPublication();
     }, "A completed public export must succeed without a journal write");
+    const ranges = calls.filter((call) => call.method === "eth_getLogs");
+    assert.equal(
+      ranges.length,
+      1,
+      "Lost responses scan only the creation commit window",
+    );
+    assert.ok(
+      BigInt(ranges[0].params[0].toBlock) -
+        BigInt(ranges[0].params[0].fromBlock) <=
+        254n,
+    );
     assert.deepEqual(
       await b.snapshot(),
       before,
@@ -545,4 +570,26 @@ test("public gallery finds a completed creation after lost response without expo
       "Retry must not add another ZFT",
     );
     assert.deepEqual(await b.snapshot(), before);
+  }));
+
+test("publication uses a saved creation receipt without scanning historical logs", (t) =>
+  fixture(async ({ evm, create }) => {
+    const c = await create();
+    await mint(c, evm);
+    for (let n = 0; n < 20; n++) await evm.mine(100);
+    const before = await c.snapshot(),
+      calls = recordRpc(t);
+    const body = await c.exportPublication();
+    assert.ok(
+      calls.some(
+        (call) =>
+          call.method === "eth_getTransactionReceipt" &&
+          call.params[0] === body.transactionHash,
+      ),
+    );
+    assert.equal(
+      calls.filter((call) => call.method === "eth_getLogs").length,
+      0,
+    );
+    assert.deepEqual(await c.snapshot(), before);
   }));

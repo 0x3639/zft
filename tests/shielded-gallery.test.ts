@@ -7,7 +7,8 @@ import {
   sha256,
   type Hex,
 } from "viem";
-import { shieldedGallery } from "../apps/api/shielded-gallery";
+import { galleryError, shieldedGallery } from "../apps/api/shielded-gallery";
+import { HttpError } from "../apps/api/http";
 import {
   publicAssetId,
   publicationSchema,
@@ -297,7 +298,7 @@ describe("shielded public gallery boundary", () => {
       expect(f.objects.size).toBe(0);
     },
   );
-  it("hides orphaned creations on listing, detail and image reads", async () => {
+  it("hides orphaned creation claims while public picture bytes remain available", async () => {
     const f = fixture(),
       data = f.publication();
     await f.gallery.publish(data);
@@ -306,9 +307,49 @@ describe("shielded public gallery boundary", () => {
     await expect(f.gallery.item(data.assetId)).rejects.toMatchObject({
       status: 409,
     });
+    expect(await f.gallery.image(data.assetId)).toEqual(source());
+  });
+  it("serves hash-checked public pictures without RPC, including during an outage", async () => {
+    const f = fixture(),
+      data = f.publication();
+    await f.gallery.publish(data);
+    for (const call of Object.values(f.rpc)) {
+      call.mockClear();
+      call.mockRejectedValue(Error("RPC offline"));
+    }
+    expect(await f.gallery.image(data.assetId)).toEqual(source());
+    for (const call of Object.values(f.rpc))
+      expect(call).not.toHaveBeenCalled();
+    const key = [...f.objects.keys()].find((key) => key.includes("/images/"))!;
+    f.objects.set(key, new Uint8Array([1, 2, 3]));
     await expect(f.gallery.image(data.assetId)).rejects.toMatchObject({
       status: 409,
     });
+    f.objects.delete(key);
+    await expect(f.gallery.image(data.assetId)).rejects.toMatchObject({
+      status: 404,
+    });
+  });
+  it("uses the same bounded JSON errors for local and production gallery requests", async () => {
+    for (const status of [404, 409]) {
+      const response = galleryError(
+        new HttpError(status, "Public gallery error"),
+      );
+      expect(response.status).toBe(status);
+      expect(response.headers.get("content-type")).toContain(
+        "application/json",
+      );
+      expect(response.headers.get("cache-control")).toBe("no-store");
+      expect(await response.json()).toEqual({ error: "Public gallery error" });
+    }
+    const invalid = publicationSchema.safeParse({ secret: "must not echo" });
+    if (invalid.success) throw Error("Invalid fixture accepted");
+    const bad = galleryError(invalid.error),
+      unavailable = galleryError(Error("private diagnostic"));
+    expect(bad.status).toBe(400);
+    expect(await bad.text()).not.toContain("secret");
+    expect(unavailable.status).toBe(503);
+    expect(await unavailable.text()).not.toContain("private diagnostic");
   });
   it("reports an RPC outage instead of silently returning an empty gallery", async () => {
     const f = fixture(),

@@ -1052,5 +1052,32 @@
       "bytes": 179234,
       "sha256": "186ac6385d0123d62c5c38a227f311ce648d1c06c42e70537734cb234d87a317"
     }
+  },
+  "reviewFollowUp": {
+    "reviewedCommit": "ce811b0e790f6d57701e321abf50c9ccb3c5777f",
+    "changes": [
+      "Remove obsolete wallet guidance from Recover",
+      "Share production JSON error mapping with local gallery server",
+      "Use saved receipt, then bounded commit window, then historical fallback for public provenance",
+      "Serve previously published hash-checked image bytes without RPC; listings and item pages retain current creation checks"
+    ],
+    "validation": [
+      "301 app tests",
+      "12 controller tests including saved-receipt and lost-response lookup bounds after 2000 local blocks",
+      "12 custody/publication mutation controls",
+      "Both lookup regressions fail on the prior committed client with assertion failures",
+      "Local HTTP missing item/image 404, simulated upload 503, invalid publication 400; all JSON",
+      "Both full and UI packages rebuilt; all 154 files, HTTP headers and source-only reconstruction verified"
+    ],
+    "limits": [
+      "Earlier lifecycle screenshots and lifecycleSources remain pinned to their actual tested bytes; no new browser lifecycle is claimed for this follow-up."
+    ],
+    "localHttp": {
+      "unpublishedItem": 404,
+      "unpublishedImage": 404,
+      "simulatedUploadOutage": 503,
+      "invalidPublication": 400,
+      "allErrorsJson": true
+    }
   }
 }

@@ -809,9 +809,7 @@ export default function ShieldedApp({
             />
             <p>
               No recovery file? Your item may still be saved in the browser
-              where you created it. Open My collection there. If you used the
-              old Mint page, check{" "}
-              <a href="/wallet">the older wallet collection</a>.
+              where you created it. Open My collection there.
             </p>
           </section>
         )}

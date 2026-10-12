@@ -1,14 +1,14 @@
 {
   "format": "zft-shielded-public-gallery-validation-v1",
-  "recordedAt": "2026-10-12T10:27:35.690371+00:00",
+  "recordedAt": "2026-10-12T10:46:58.855725+00:00",
   "baseline": "c91954c689208dbba6b84fb5c2d908ffce5384be",
   "branch": "feat/shielded-public-gallery",
   "release": "tested candidate; not deployed or merged",
   "scope": "Shielded-only public site and verified public artwork publication. Legacy UI/API removed; existing storage preserved.",
   "checks": {
-    "appTests": 299,
-    "focusedGalleryAndRoutesAndNavigation": 50,
-    "controllerTests": 11,
+    "appTests": 301,
+    "focusedGalleryAndRoutesAndNavigation": 52,
+    "controllerTests": 12,
     "mutationControls": 12,
     "hostAndSourceTests": 16,
     "legacyPreflight": 9,
@@ -17,10 +17,11 @@
     "defaultAndShieldedWorkerDryRuns": true,
     "fullAndUiPackageBuilds": true,
     "sourceReconstruction": {
-      "publicFilesReconstructed": 154,
-      "assetManifestIdentical": true,
-      "standaloneTypes": true,
-      "limits": "Fresh source tree using frozen existing dependencies, supplements and exact proof artifacts; no upstream compiler or trusted setup reproduction."
+      "sourceOnlyReconstruction": true,
+      "publicFilesIdentical": 154,
+      "manifestByteIdentical": true,
+      "reusesFrozenDependenciesAndExistingProofArtifacts": true,
+      "upstreamCompilerAndSetupReproduced": false
     },
     "http": {
       "publicFiles": 154,
@@ -29,12 +30,39 @@
       "hashesTypesAndSecurityHeaders": true,
       "extensionlessFiles": 50,
       "extensionlessNotices": 44
+    },
+    "reviewFollowUp": {
+      "reviewedCommit": "ce811b0e790f6d57701e321abf50c9ccb3c5777f",
+      "changes": [
+        "Remove obsolete wallet guidance from Recover",
+        "Share production JSON error mapping with local gallery server",
+        "Use saved receipt, then bounded commit window, then historical fallback for public provenance",
+        "Serve previously published hash-checked image bytes without RPC; listings and item pages retain current creation checks"
+      ],
+      "validation": [
+        "301 app tests",
+        "12 controller tests including saved-receipt and lost-response lookup bounds after 2000 local blocks",
+        "12 custody/publication mutation controls",
+        "Both lookup regressions fail on the prior committed client with assertion failures",
+        "Local HTTP missing item/image 404, simulated upload 503, invalid publication 400; all JSON",
+        "Both full and UI packages rebuilt; all 154 files, HTTP headers and source-only reconstruction verified"
+      ],
+      "limits": [
+        "Earlier lifecycle screenshots and lifecycleSources remain pinned to their actual tested bytes; no new browser lifecycle is claimed for this follow-up."
+      ],
+      "localHttp": {
+        "unpublishedItem": 404,
+        "unpublishedImage": 404,
+        "simulatedUploadOutage": 503,
+        "invalidPublication": 400,
+        "allErrorsJson": true
+      }
     }
   },
   "evidence": {
     "research/shielded-public-gallery/evidence/browser.json": {
-      "bytes": 50416,
-      "sha256": "deadacf076d65f72ea6877e6a585b42be6a5199224a793b742fc68589cea8b6e"
+      "bytes": 51766,
+      "sha256": "8f03d85cd0ae50b4ec9cdc3bfbeadef856dc1742e22fa2ff68c3ce65b470474f"
     },
     "research/shielded-public-gallery/evidence/detail-mobile.jpg": {
       "bytes": 57520,
@@ -58,15 +86,15 @@
     },
     "research/shielded-public-gallery/evidence/package.json": {
       "bytes": 169,
-      "sha256": "881aa77f47d397c47b689c89068f04c1bea93e4382543259553003d4738bb1d9"
+      "sha256": "87179339af661736c5ee26f0e3976c144c7f4c8c58b6526029a4a080356d7e42"
     },
     "research/shielded-public-gallery/evidence/packaged-create-desktop.jpg": {
       "bytes": 179234,
       "sha256": "186ac6385d0123d62c5c38a227f311ce648d1c06c42e70537734cb234d87a317"
     },
     "research/shielded-public-gallery/evidence/reconstruction.json": {
-      "bytes": 259,
-      "sha256": "9bbec4ecbe7b6b4e6b9a026371f977a6a0408bb728638f8afaff157d14b70dc3"
+      "bytes": 211,
+      "sha256": "6587bfcf9ea5d102c04bab25a705119888b1a9120b55818c5ce8f6a191aee577"
     }
   },
   "changedFiles": {
@@ -75,12 +103,12 @@
       "sha256": "5f0e475151a733fc35aeeb817bbad379920eedafda9aed517d3ca25857152b28"
     },
     "apps/api/index.ts": {
-      "bytes": 4877,
-      "sha256": "c8ca695369eba32836d7817e423f1b5947e23517e3dfb3da15b07d669434af50"
+      "bytes": 4456,
+      "sha256": "b1435d700bbc0bb24cbbe54c5bdf0066d3d77ce1ee850dd628cdb1291caf5d80"
     },
     "apps/api/shielded-gallery.ts": {
-      "bytes": 9232,
-      "sha256": "0a6907f8a1f0273ba0b1d1d265c239c92bda967bc2ec59951956a18b4405c544"
+      "bytes": 9857,
+      "sha256": "c3f9a3fa362f18bcbab8a2f1735e238837cc4f6d0d3a4a4edcd6645b48a075d7"
     },
     "apps/web/index.html": {
       "bytes": 1158,
@@ -116,8 +144,8 @@
       "deleted": true
     },
     "apps/web/src/shielded/app.tsx": {
-      "bytes": 46047,
-      "sha256": "d06609e8e3c18b45f7d6716230fc9b97f59dcc162f68e338f3d988fc2ecf1b8d"
+      "bytes": 45926,
+      "sha256": "e2eface880822f214b97c4fbb10033b97a81874f4f30f7947c6024a992079bc2"
     },
     "apps/web/src/styles.css": {
       "bytes": 7355,
@@ -133,16 +161,16 @@
       "deleted": true
     },
     "docs/SHIELDED-PUBLIC-GALLERY.md": {
-      "bytes": 6637,
-      "sha256": "d5356420fe4f19b8e2e0f3cabd2a51432d69e03957d6c4b5d228651ad71a8e5e"
+      "bytes": 7532,
+      "sha256": "ddda89779c41a611f504a92c52831b9bec2bb36a540bc13a88485e0cda452f4d"
     },
     "packages/shielded/client.d.mts": {
       "bytes": 2976,
       "sha256": "685ecdfdff2b5b6453a22df0c94e554f8a4bbd3a03ae5adf6e9acadf9f648859"
     },
     "packages/shielded/client.mjs": {
-      "bytes": 18396,
-      "sha256": "038426875644b077f9fc2932413ea12887a068ec6831ebb4b8e05467359268e0"
+      "bytes": 20862,
+      "sha256": "de33dfba12a577d1cc988e2a9e38a90f9becce6fe3414f73a4fff68cc71e77a6"
     },
     "packages/shielded/public.ts": {
       "bytes": 2292,
@@ -153,24 +181,24 @@
       "sha256": "9bb731508ead053b51806b52af9f951edcc59489d74a278900168b8aaa6a343e"
     },
     "research/shielded-app/local-server.mjs": {
-      "bytes": 8931,
-      "sha256": "b5f4329f11678b1b4552c1e9e2d8dde978b991b2656d9d2fc4a2f9c4096b2a0c"
+      "bytes": 9206,
+      "sha256": "67f6845f7041626dc58e76e043e79e865ecc53861eb0603827b2446b550aed7d"
     },
     "research/shielded-app/public-store.mjs": {
       "bytes": 1122,
       "sha256": "eb491c19bfb19793e1b42d6581a5ab2539305efa13c542043770776277101235"
     },
     "research/shielded-app/test/client.test.mjs": {
-      "bytes": 18664,
-      "sha256": "2b8f911f80c4f10318a5d3f94d8bb13bf43ba79fb61a6c8b11230085aa74bef9"
+      "bytes": 20108,
+      "sha256": "b97f86eb8fe5cde3ebf88a625137a66f5c9a12da1ec77b714752bf33ce826ea3"
     },
     "research/shielded-host/license-scope.json": {
       "bytes": 3404,
       "sha256": "42a43dba49a081b42b9911ff8d9c6e15f714af351258624a5d5c2351e9e0e475"
     },
     "research/shielded-public-gallery/evidence/browser.json": {
-      "bytes": 50416,
-      "sha256": "deadacf076d65f72ea6877e6a585b42be6a5199224a793b742fc68589cea8b6e"
+      "bytes": 51766,
+      "sha256": "8f03d85cd0ae50b4ec9cdc3bfbeadef856dc1742e22fa2ff68c3ce65b470474f"
     },
     "research/shielded-public-gallery/evidence/detail-mobile.jpg": {
       "bytes": 57520,
@@ -194,23 +222,23 @@
     },
     "research/shielded-public-gallery/evidence/package.json": {
       "bytes": 169,
-      "sha256": "881aa77f47d397c47b689c89068f04c1bea93e4382543259553003d4738bb1d9"
+      "sha256": "87179339af661736c5ee26f0e3976c144c7f4c8c58b6526029a4a080356d7e42"
     },
     "research/shielded-public-gallery/evidence/packaged-create-desktop.jpg": {
       "bytes": 179234,
       "sha256": "186ac6385d0123d62c5c38a227f311ce648d1c06c42e70537734cb234d87a317"
     },
     "research/shielded-public-gallery/evidence/reconstruction.json": {
-      "bytes": 259,
-      "sha256": "9bbec4ecbe7b6b4e6b9a026371f977a6a0408bb728638f8afaff157d14b70dc3"
+      "bytes": 211,
+      "sha256": "6587bfcf9ea5d102c04bab25a705119888b1a9120b55818c5ce8f6a191aee577"
     },
     "tests/shielded-experience.test.ts": {
       "bytes": 2942,
       "sha256": "bb9af69c079f3091b28631fc401ebc19d08d78c5f4013411bb318e996a0ae08e"
     },
     "tests/shielded-gallery.test.ts": {
-      "bytes": 13154,
-      "sha256": "653f8fbadcdd0ef8bec18eb799d3fa57c91bd8778ad9cb88e623a1165adf99b2"
+      "bytes": 15030,
+      "sha256": "044c825c8aee96e17d53751989c878998a8d809db1c24968c564ba55e66c4a78"
     },
     "tests/shielded-routes.test.ts": {
       "bytes": 3625,
@@ -3951,6 +3979,70 @@
     "format.log": {
       "bytes": 66,
       "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    },
+    "review-before-final.tap": {
+      "bytes": 2562,
+      "sha256": "3ee23d8b89c0dec858c4beb95171d9a77767b9eaea7200d8d9f94f2911be8fa1"
+    },
+    "review-client.tap": {
+      "bytes": 2986,
+      "sha256": "e3847fbbd80242dd533df572d3cec05b1e0efa53f1bfb0601688dec7a73f8a40"
+    },
+    "review-integration-final.tap": {
+      "bytes": 579,
+      "sha256": "35b9da5d355838038bccafa8a2b90c794e81a5f06bb67caaf87275782978cf98"
+    },
+    "review-controls.log": {
+      "bytes": 857,
+      "sha256": "19a7890eeba92fc0355228cc452c32598d5ad7fe958f572abbc85cc54d55b765"
+    },
+    "review-focused.log": {
+      "bytes": 6007,
+      "sha256": "c3d7d9fabaf61fa9fdff58af642e39a095ab9454d8c1e1502f30f021a1252b7e"
+    },
+    "review-types.log": {
+      "bytes": 99,
+      "sha256": "b25d99b66a753ba41fbf30382e01b030de41dc9f86246e6aa9baa038c523f109"
+    },
+    "review-host-types.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-boundaries.log": {
+      "bytes": 8380,
+      "sha256": "6c6018e540148f5de59d268ca66dcd765a5f925470dd16f03341cfd4537be544"
+    },
+    "review-default-build.log": {
+      "bytes": 2849,
+      "sha256": "24cfd029695444bfdf8b27d8b90bdedb2fc1c190f5e49c1004605d88ff04776d"
+    },
+    "review-worker.log": {
+      "bytes": 1126,
+      "sha256": "70f69f9de23d7d3bf42c19987db3041f6a9686a89c6439341123534991af40d0"
+    },
+    "review-shielded-worker.log": {
+      "bytes": 422,
+      "sha256": "a83362f90c693c89b986b8727550df47c33298a0580829e5e8a0457cabe1ae62"
+    },
+    "review-package-build.log": {
+      "bytes": 3995,
+      "sha256": "838ab7f141e2309ac06cf6046536b510d8f3ea2d34922ccf08922afd101856d9"
+    },
+    "review-ui-build.log": {
+      "bytes": 3964,
+      "sha256": "fbd3a2af17c3d0ee379372b3f83981593058f8a68c2fe2e7ddae92cfe1fc6799"
+    },
+    "review-reconstruction.log": {
+      "bytes": 3995,
+      "sha256": "82a56e40a988bcd690c092738e2f905c48901d8bb4b5ac86220decec5c0b976c"
+    },
+    "review-format.log": {
+      "bytes": 66,
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    },
+    "review-local-http.json": {
+      "bytes": 130,
+      "sha256": "55ae846cc5dc9b9dc0534b8754a60074e1814513878ca3a695797001e0e3b0b4"
     }
   },
   "limits": [

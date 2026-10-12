@@ -21,7 +21,26 @@ import {
   type GalleryItem,
   type GalleryPage,
 } from "../../packages/shielded/public";
-import { HttpError } from "./http";
+import { HttpError, json } from "./http";
+
+// Share the public error boundary with the disposable local acceptance server.
+export function galleryError(error: unknown) {
+  return json(
+    {
+      error:
+        error instanceof HttpError
+          ? error.message
+          : error instanceof z.ZodError
+            ? "Invalid public gallery data."
+            : "The gallery is temporarily unavailable. Please try again.",
+    },
+    error instanceof HttpError
+      ? error.status
+      : error instanceof z.ZodError
+        ? 400
+        : 503,
+  );
+}
 
 const abi = parseAbi([
   "event Created(bytes32 indexed assetId, bytes32 indexed imageHash, bytes32 metadataHash, address indexed creator, uint256 commitment)",
@@ -270,14 +289,15 @@ export function shieldedGallery(
       return result;
     },
     async image(id: string) {
-      const record = await stored(id),
-        head = await chain();
-      await checked(record, head);
+      const record = await stored(id);
+      // Public bytes are not a live creation claim. Listings and item pages recheck provenance.
+      requireMatch(
+        publicAssetId(record.metadata, pins.chainId, address) === id,
+      );
       const object = await bucket.get(imageKey(record.metadata.imageHash));
       if (!object) throw new HttpError(404, "Public picture is unavailable.");
       const bytes = new Uint8Array(await object.arrayBuffer());
       requireMatch(sha256(bytes) === record.metadata.imageHash);
-      await stable(head);
       return bytes;
     },
   };

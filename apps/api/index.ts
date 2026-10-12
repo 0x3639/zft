@@ -1,6 +1,5 @@
-import { z } from "zod";
 import { HttpError, json } from "./http";
-import { shieldedGallery } from "./shielded-gallery";
+import { galleryError, shieldedGallery } from "./shielded-gallery";
 import type { Env } from "./types";
 // Keep deployed Durable Object classes available for existing stored data. The public site no longer routes to them.
 export { Sponsor } from "./sponsor";
@@ -106,21 +105,7 @@ export default {
     try {
       response = await route(request, env);
     } catch (error) {
-      response = json(
-        {
-          error:
-            error instanceof HttpError
-              ? error.message
-              : error instanceof z.ZodError
-                ? "Invalid public gallery data."
-                : "The gallery is temporarily unavailable. Please try again.",
-        },
-        error instanceof HttpError
-          ? error.status
-          : error instanceof z.ZodError
-            ? 400
-            : 503,
-      );
+      response = galleryError(error);
     }
     const headers = new Headers(response.headers);
     headers.set("x-content-type-options", "nosniff");
