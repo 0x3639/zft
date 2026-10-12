@@ -72,6 +72,7 @@ export async function createShieldedClient({
     image,
     proof,
     creationProgress,
+    publicationHash,
     wallet,
     busy = false,
     closed = false,
@@ -134,6 +135,7 @@ export async function createShieldedClient({
     proof = undefined;
     creationProgress = undefined;
     needsObservation = mustObserve;
+    publicationHash = undefined;
   }
   async function save(next, bytes, password) {
     alive();
@@ -514,8 +516,16 @@ export async function createShieldedClient({
         profile.validate(note, deployment);
         const head = await verifyDeployment(client, pins);
         let matches = [];
+        const hashes = [
+          ...new Set([
+            ...row.transactionHashes,
+            ...(publicationHash ? [publicationHash] : []),
+          ]),
+        ].reverse();
+        // An in-memory public hint only: revalidate its receipt and discard it on failure.
+        publicationHash = undefined;
         // A saved successful receipt avoids rescanning chain history on every upload retry.
-        for (const hash of [...row.transactionHashes].reverse()) {
+        for (const hash of hashes) {
           let receipt;
           try {
             receipt = await client.getTransactionReceipt({ hash });
@@ -606,6 +616,8 @@ export async function createShieldedClient({
           (await client.getBlock({ blockNumber: head.number })).hash ===
             head.hash,
         );
+        alive();
+        publicationHash = log.transactionHash;
         let binary = "";
         for (let offset = 0; offset < image.length; offset += 8192)
           binary += String.fromCharCode(
@@ -630,6 +642,7 @@ export async function createShieldedClient({
       vault.close();
       record = undefined;
       creationProgress = undefined;
+      publicationHash = undefined;
       image = undefined;
       proof = undefined;
       wallet = undefined;

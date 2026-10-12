@@ -30,6 +30,8 @@ The local regression creates with real disposable Anvil contracts and proofs, lo
 
 Publication finds its public creation event from a saved successful receipt first. If that response was lost, it checks the authorization's commit window (at most 255 blocks). Only a restored older backup that predates same-destination renewal needs the historical fallback. Regressions advance the disposable chain by 2,000 blocks and require zero log queries with a saved receipt, or one bounded query after a lost response. Public image tests require zero RPC calls while retaining byte-hash checks. The local trial server shares production's JSON error mapping, preserving unpublished-item 404s and temporary-outage 503s.
 
+Once an export verifies a creation transaction, the client retains its public hash only in the current unlocked selection. Retrying publication revalidates that receipt without another historical scan. Selecting a record or locking clears the hint; the encrypted journal and recovery format are unchanged. A renewed-authorization regression restores the original backup, verifies the first historical lookup and receipt-only retry, and checks unchanged journal state plus cache clearing on selection.
+
 The browser trial exercises the notice, exact recovery download/reselection, both transactions, explicit waiting, automatic publication attempt, a deliberately failed upload, successful upload-only retry, homepage card and public detail. The final public build is also inspected on a separate loopback origin without an injected wallet, at desktop and narrow mobile sizes. Evidence records the exact tested source scope. No user's records or keys are inspected and no live transaction is submitted.
 
 Reproduction commands:

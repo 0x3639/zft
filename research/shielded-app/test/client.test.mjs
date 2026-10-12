@@ -593,3 +593,61 @@ test("publication uses a saved creation receipt without scanning historical logs
     );
     assert.deepEqual(await c.snapshot(), before);
   }));
+
+test("older backup publication retries reuse a verified session receipt without journal writes", (t) =>
+  fixture(async ({ evm, create }) => {
+    const c = await create();
+    await wallet(c, evm);
+    await c.prepareCreate(picture(), "Renewed public picture", "", password);
+    const original = await acknowledge(c);
+    await c.renewCreation(password);
+    await acknowledge(c);
+    await c.prove();
+    await c.submit(password);
+    await evm.mine(2);
+    await c.observe(password);
+    await c.prove();
+    await c.submit(password);
+    const restored = await create();
+    await restored.restore(original, password);
+    assert.equal(await restored.observe(password), "observed");
+    const before = await restored.snapshot(),
+      calls = recordRpc(t);
+    const first = await restored.exportPublication();
+    assert.ok(
+      calls.some((call) => call.method === "eth_getLogs"),
+      "The original backup requires the historical fallback",
+    );
+    calls.length = 0;
+    assert.deepEqual(await restored.exportPublication(), first);
+    assert.equal(
+      calls.filter((call) => call.method === "eth_getLogs").length,
+      0,
+      "Publication retries must not repeat the historical scan",
+    );
+    assert.ok(
+      calls.some(
+        (call) =>
+          call.method === "eth_getTransactionReceipt" &&
+          call.params[0] === first.transactionHash,
+      ),
+      "The cached hash must be revalidated against its receipt",
+    );
+    assert.deepEqual(
+      await restored.snapshot(),
+      before,
+      "The public hash hint must not alter the journal",
+    );
+    await restored.unlock(before.selected.id, password);
+    await restored.observe(password);
+    calls.length = 0;
+    assert.deepEqual(await restored.exportPublication(), first);
+    assert.ok(
+      calls.some((call) => call.method === "eth_getLogs"),
+      "Selecting a record clears the previous session hint",
+    );
+    restored.close();
+    await assert.rejects(restored.exportPublication(), {
+      message: MESSAGES.closed,
+    });
+  }));

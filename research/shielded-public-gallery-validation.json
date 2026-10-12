@@ -1,6 +1,6 @@
 {
   "format": "zft-shielded-public-gallery-validation-v1",
-  "recordedAt": "2026-10-12T10:46:58.855725+00:00",
+  "recordedAt": "2026-10-12T10:58:10.451829+00:00",
   "baseline": "c91954c689208dbba6b84fb5c2d908ffce5384be",
   "branch": "feat/shielded-public-gallery",
   "release": "tested candidate; not deployed or merged",
@@ -8,7 +8,7 @@
   "checks": {
     "appTests": 301,
     "focusedGalleryAndRoutesAndNavigation": 52,
-    "controllerTests": 12,
+    "controllerTests": 13,
     "mutationControls": 12,
     "hostAndSourceTests": 16,
     "legacyPreflight": 9,
@@ -57,12 +57,26 @@
         "invalidPublication": 400,
         "allErrorsJson": true
       }
+    },
+    "sessionCacheFollowUp": {
+      "reviewedCommit": "209dc78cbecbca194bcdf7c35595f18ba96c753b",
+      "change": "Public transaction hash cached only for the current unlocked selection; every use revalidates its receipt. Selection and lock clear the hint. No journal or recovery changes.",
+      "validation": [
+        "New older-backup retry regression fails with a named assertion before the fix",
+        "13 controller tests pass, including historical lookup followed by receipt-only retry, unchanged journal and clearing on selection",
+        "12 mutation controls pass",
+        "Build boundaries, standalone types and shielded Worker dry run pass",
+        "Rebuilt full/UI packages; all 154 payloads and manifest reproduce byte-identically; HTTP hashes/headers pass"
+      ],
+      "limits": [
+        "Original browser screenshots and their recorded source hashes are preserved; this small session-state follow-up uses automated controller and package validation."
+      ]
     }
   },
   "evidence": {
     "research/shielded-public-gallery/evidence/browser.json": {
-      "bytes": 51766,
-      "sha256": "8f03d85cd0ae50b4ec9cdc3bfbeadef856dc1742e22fa2ff68c3ce65b470474f"
+      "bytes": 52730,
+      "sha256": "94da6e45246942bb0251ea974a6323590555c91a8e79d8bfb0e93f6afcbd256a"
     },
     "research/shielded-public-gallery/evidence/detail-mobile.jpg": {
       "bytes": 57520,
@@ -86,7 +100,7 @@
     },
     "research/shielded-public-gallery/evidence/package.json": {
       "bytes": 169,
-      "sha256": "87179339af661736c5ee26f0e3976c144c7f4c8c58b6526029a4a080356d7e42"
+      "sha256": "c0bfee6cbb5ecdb67ee5093483119987ca9e9781f5409989a55be85cea65ca71"
     },
     "research/shielded-public-gallery/evidence/packaged-create-desktop.jpg": {
       "bytes": 179234,
@@ -161,16 +175,16 @@
       "deleted": true
     },
     "docs/SHIELDED-PUBLIC-GALLERY.md": {
-      "bytes": 7532,
-      "sha256": "ddda89779c41a611f504a92c52831b9bec2bb36a540bc13a88485e0cda452f4d"
+      "bytes": 8034,
+      "sha256": "cc7d7e6b96451ba011f2eb6f402dd4262d06b10a9330e9d77ed359a1bfc0ed23"
     },
     "packages/shielded/client.d.mts": {
       "bytes": 2976,
       "sha256": "685ecdfdff2b5b6453a22df0c94e554f8a4bbd3a03ae5adf6e9acadf9f648859"
     },
     "packages/shielded/client.mjs": {
-      "bytes": 20862,
-      "sha256": "de33dfba12a577d1cc988e2a9e38a90f9becce6fe3414f73a4fff68cc71e77a6"
+      "bytes": 21294,
+      "sha256": "bf4b3d8e279a81368974c959aced998f3e8a77e514da36b75ba2d7ca68abe5b0"
     },
     "packages/shielded/public.ts": {
       "bytes": 2292,
@@ -189,16 +203,16 @@
       "sha256": "eb491c19bfb19793e1b42d6581a5ab2539305efa13c542043770776277101235"
     },
     "research/shielded-app/test/client.test.mjs": {
-      "bytes": 20108,
-      "sha256": "b97f86eb8fe5cde3ebf88a625137a66f5c9a12da1ec77b714752bf33ce826ea3"
+      "bytes": 22146,
+      "sha256": "bf56880ec88413b9368bd1186c1875497c47d4cf38748de11192c76a49030b22"
     },
     "research/shielded-host/license-scope.json": {
       "bytes": 3404,
       "sha256": "42a43dba49a081b42b9911ff8d9c6e15f714af351258624a5d5c2351e9e0e475"
     },
     "research/shielded-public-gallery/evidence/browser.json": {
-      "bytes": 51766,
-      "sha256": "8f03d85cd0ae50b4ec9cdc3bfbeadef856dc1742e22fa2ff68c3ce65b470474f"
+      "bytes": 52730,
+      "sha256": "94da6e45246942bb0251ea974a6323590555c91a8e79d8bfb0e93f6afcbd256a"
     },
     "research/shielded-public-gallery/evidence/detail-mobile.jpg": {
       "bytes": 57520,
@@ -222,7 +236,7 @@
     },
     "research/shielded-public-gallery/evidence/package.json": {
       "bytes": 169,
-      "sha256": "87179339af661736c5ee26f0e3976c144c7f4c8c58b6526029a4a080356d7e42"
+      "sha256": "c0bfee6cbb5ecdb67ee5093483119987ca9e9781f5409989a55be85cea65ca71"
     },
     "research/shielded-public-gallery/evidence/packaged-create-desktop.jpg": {
       "bytes": 179234,
@@ -4043,6 +4057,42 @@
     "review-local-http.json": {
       "bytes": 130,
       "sha256": "55ae846cc5dc9b9dc0534b8754a60074e1814513878ca3a695797001e0e3b0b4"
+    },
+    "cache-before.tap": {
+      "bytes": 1196,
+      "sha256": "0d7eea3c6a3ff7c8f8c2823e2972313e1b6ba359ee177768ec772d38fbbcefec"
+    },
+    "cache-client.tap": {
+      "bytes": 3224,
+      "sha256": "0118ffc49c72416b8d7b09495f0eb14ffa577b5f8e28e08acd6e1aa1597183f4"
+    },
+    "cache-controls.log": {
+      "bytes": 857,
+      "sha256": "19a7890eeba92fc0355228cc452c32598d5ad7fe958f572abbc85cc54d55b765"
+    },
+    "cache-boundaries.log": {
+      "bytes": 8380,
+      "sha256": "7d8479074a7f2eed2641b1b195ffe9c3e0cdf02e493b5f179a76cd7cca03a3f2"
+    },
+    "cache-package-build.log": {
+      "bytes": 3995,
+      "sha256": "1f5a42b3cb1249e17fd7caf21682d2ff1c97dd8aed746b1a70ca0c78a73f6b60"
+    },
+    "cache-ui-build.log": {
+      "bytes": 3964,
+      "sha256": "3daef5f849db2c74d12d955ac5c2cde6df17793d39911ba51169117b07547c9f"
+    },
+    "cache-host-types.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cache-worker.log": {
+      "bytes": 422,
+      "sha256": "a83362f90c693c89b986b8727550df47c33298a0580829e5e8a0457cabe1ae62"
+    },
+    "cache-reconstruction.log": {
+      "bytes": 3995,
+      "sha256": "be3f7d047fed0aa8dd19ed20305c75e7bdcf0affcbd89d05457b90dc6c8f8535"
     }
   },
   "limits": [

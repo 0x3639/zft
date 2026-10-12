@@ -1079,5 +1079,19 @@
       "invalidPublication": 400,
       "allErrorsJson": true
     }
+  },
+  "sessionCacheFollowUp": {
+    "reviewedCommit": "209dc78cbecbca194bcdf7c35595f18ba96c753b",
+    "change": "Public transaction hash cached only for the current unlocked selection; every use revalidates its receipt. Selection and lock clear the hint. No journal or recovery changes.",
+    "validation": [
+      "New older-backup retry regression fails with a named assertion before the fix",
+      "13 controller tests pass, including historical lookup followed by receipt-only retry, unchanged journal and clearing on selection",
+      "12 mutation controls pass",
+      "Build boundaries, standalone types and shielded Worker dry run pass",
+      "Rebuilt full/UI packages; all 154 payloads and manifest reproduce byte-identically; HTTP hashes/headers pass"
+    ],
+    "limits": [
+      "Original browser screenshots and their recorded source hashes are preserved; this small session-state follow-up uses automated controller and package validation."
+    ]
   }
 }
