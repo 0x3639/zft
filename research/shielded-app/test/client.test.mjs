@@ -9,6 +9,8 @@ import { createProfile, canonical } from "../../shielded-lab/core.mjs";
 import { openRecovery } from "../../shielded-lab/recovery.mjs";
 import { pinDeployment } from "../../shielded-lab/chain.mjs";
 import { pngChunks } from "../../../packages/file-codec/index.ts";
+import { shieldedGallery } from "../../../apps/api/shielded-gallery.ts";
+import { publicStore } from "../public-store.mjs";
 import {
   createShieldedClient,
   parseConfiguration,
@@ -60,6 +62,18 @@ async function wallet(c, evm) {
     w = await connectWallet(provider, c.config.pins);
   c.setWallet(w);
   return provider;
+}
+function recordRpc(t) {
+  const calls = [],
+    original = globalThis.fetch;
+  t.mock.method(globalThis, "fetch", async (input, init) => {
+    const body =
+      init?.body ??
+      (input instanceof Request ? await input.clone().text() : undefined);
+    if (body) calls.push(JSON.parse(body));
+    return original(input, init);
+  });
+  return calls;
 }
 async function acknowledge(c) {
   const recovery = await c.exportRecovery();
@@ -439,4 +453,201 @@ test("creation progress distinguishes lost reservation response, waiting, reveal
     await c.unlock(id, password);
     await c.observe(password);
     assert.equal((await c.snapshot()).selected.state, "observed");
+  }));
+
+test("public gallery finds a completed creation after lost response without exporting custody material", (t) =>
+  fixture(async ({ evm, deployed, create }) => {
+    const indexedDB = new IDBFactory(),
+      a = await create({ indexedDB }),
+      provider = await wallet(a, evm);
+    await a.prepareCreate(
+      picture(),
+      "Visible shielded picture",
+      "Public by default",
+      password,
+    );
+    await assert.rejects(
+      a.exportPublication(),
+      "A local draft must stay out of the public gallery",
+    );
+    await acknowledge(a);
+    await a.prove();
+    await a.submit(password);
+    await assert.rejects(
+      a.exportPublication(),
+      "A reservation is not a creation",
+    );
+    await evm.mine(2);
+    await a.observe(password);
+    await a.prove();
+    provider.afterSend(() => {
+      throw Error("Disposable lost creation response");
+    });
+    await assert.rejects(a.submit(password));
+    const id = (await a.snapshot()).selected.id;
+    await assert.rejects(
+      a.exportPublication(),
+      "An uncertain submission must be observed first",
+    );
+    a.close();
+    const b = await create({ indexedDB });
+    await b.unlock(id, password);
+    await assert.rejects(
+      b.exportPublication(),
+      "Reopening does not assert creation",
+    );
+    assert.equal(await b.observe(password), "observed");
+    for (let n = 0; n < 20; n++) await evm.mine(100);
+    const calls = recordRpc(t);
+    const before = await b.snapshot();
+    let body;
+    await assert.doesNotReject(async () => {
+      body = await b.exportPublication();
+    }, "A completed public export must succeed without a journal write");
+    const ranges = calls.filter((call) => call.method === "eth_getLogs");
+    assert.equal(
+      ranges.length,
+      1,
+      "Lost responses scan only the creation commit window",
+    );
+    assert.ok(
+      BigInt(ranges[0].params[0].toBlock) -
+        BigInt(ranges[0].params[0].fromBlock) <=
+        254n,
+    );
+    assert.deepEqual(
+      await b.snapshot(),
+      before,
+      "Publication export must not change the encrypted record",
+    );
+    assert.deepEqual(Object.keys(body).sort(), [
+      "assetId",
+      "format",
+      "image",
+      "metadata",
+      "transactionHash",
+    ]);
+    assert.deepEqual(Object.keys(body.metadata).sort(), [
+      "canonicalizer",
+      "createdAt",
+      "creator",
+      "description",
+      "format",
+      "height",
+      "imageHash",
+      "mediaType",
+      "name",
+      "width",
+    ]);
+    assert.deepEqual(
+      new Uint8Array(Buffer.from(body.image, "base64")),
+      before.selected.image,
+    );
+    const recovery = await b.exportRecovery(),
+      opened = await openRecovery(
+        recovery,
+        password,
+        await createProfile(),
+        pinDeployment(deployed.pins),
+      );
+    for (const field of ["secret", "randomness"])
+      assert.ok(
+        !JSON.stringify(body).includes(opened.record.destination[field]),
+      );
+    const gallery = shieldedGallery(
+      publicStore(),
+      evm.client,
+      configuration(evm, deployed.pins),
+    );
+    const published = await gallery.publish(body);
+    assert.equal(published.assetId, before.selected.assetId);
+    assert.deepEqual((await gallery.list(null)).items, [published]);
+    assert.deepEqual(await gallery.image(body.assetId), before.selected.image);
+    await gallery.publish(body);
+    assert.equal(
+      (await gallery.list(null)).items.length,
+      1,
+      "Retry must not add another ZFT",
+    );
+    assert.deepEqual(await b.snapshot(), before);
+  }));
+
+test("publication uses a saved creation receipt without scanning historical logs", (t) =>
+  fixture(async ({ evm, create }) => {
+    const c = await create();
+    await mint(c, evm);
+    for (let n = 0; n < 20; n++) await evm.mine(100);
+    const before = await c.snapshot(),
+      calls = recordRpc(t);
+    const body = await c.exportPublication();
+    assert.ok(
+      calls.some(
+        (call) =>
+          call.method === "eth_getTransactionReceipt" &&
+          call.params[0] === body.transactionHash,
+      ),
+    );
+    assert.equal(
+      calls.filter((call) => call.method === "eth_getLogs").length,
+      0,
+    );
+    assert.deepEqual(await c.snapshot(), before);
+  }));
+
+test("older backup publication retries reuse a verified session receipt without journal writes", (t) =>
+  fixture(async ({ evm, create }) => {
+    const c = await create();
+    await wallet(c, evm);
+    await c.prepareCreate(picture(), "Renewed public picture", "", password);
+    const original = await acknowledge(c);
+    await c.renewCreation(password);
+    await acknowledge(c);
+    await c.prove();
+    await c.submit(password);
+    await evm.mine(2);
+    await c.observe(password);
+    await c.prove();
+    await c.submit(password);
+    const restored = await create();
+    await restored.restore(original, password);
+    assert.equal(await restored.observe(password), "observed");
+    const before = await restored.snapshot(),
+      calls = recordRpc(t);
+    const first = await restored.exportPublication();
+    assert.ok(
+      calls.some((call) => call.method === "eth_getLogs"),
+      "The original backup requires the historical fallback",
+    );
+    calls.length = 0;
+    assert.deepEqual(await restored.exportPublication(), first);
+    assert.equal(
+      calls.filter((call) => call.method === "eth_getLogs").length,
+      0,
+      "Publication retries must not repeat the historical scan",
+    );
+    assert.ok(
+      calls.some(
+        (call) =>
+          call.method === "eth_getTransactionReceipt" &&
+          call.params[0] === first.transactionHash,
+      ),
+      "The cached hash must be revalidated against its receipt",
+    );
+    assert.deepEqual(
+      await restored.snapshot(),
+      before,
+      "The public hash hint must not alter the journal",
+    );
+    await restored.unlock(before.selected.id, password);
+    await restored.observe(password);
+    calls.length = 0;
+    assert.deepEqual(await restored.exportPublication(), first);
+    assert.ok(
+      calls.some((call) => call.method === "eth_getLogs"),
+      "Selecting a record clears the previous session hint",
+    );
+    restored.close();
+    await assert.rejects(restored.exportPublication(), {
+      message: MESSAGES.closed,
+    });
   }));

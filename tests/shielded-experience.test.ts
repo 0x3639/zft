@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Home } from "../apps/web/src/discovery-pages";
+import { GalleryHome } from "../apps/web/src/gallery";
 import {
   nextAction,
   savedStatus,
@@ -64,19 +64,14 @@ describe("Finding and finishing shielded pictures", () => {
     expect(savedStatus("observed")).toBe("Observed on devnet");
   });
   it("homepage creation, receipt and recovery links enter shielded app with real navigation", () => {
-    const html = renderToStaticMarkup(
-      React.createElement(Home, {
-        nav: () => {},
-        onUnlock: () => {},
-        path: "/",
-        sponsorEnabled: false,
-        indexMessage: "",
-      }),
-    );
+    const html = renderToStaticMarkup(React.createElement(GalleryHome));
     expect(html.match(/href="\/shielded\/create"/g)).toHaveLength(2);
     for (const path of ["/shielded", "/shielded/claim", "/shielded/recovery"])
       expect(html).toContain(`href="${path}"`);
     expect(html).not.toContain("Create your collection");
-    expect(html).toContain("older wallet ZFTs");
+    expect(html).not.toContain("older wallet");
+    expect(html).not.toContain('href="/wallet"');
+    expect(html).not.toContain('href="/collection"');
+    expect(html).toContain("THE PUBLIC GALLERY");
   });
 });

@@ -82,6 +82,7 @@ export type ShieldedClient = {
   ): Promise<{ phase: string; state: string; hash: string }>;
   exportBearer(password: string): Promise<Uint8Array>;
   exportPublic(): Promise<Uint8Array>;
+  exportPublication(): Promise<import("./public").Publication>;
   cancelProof(): void;
   close(): void;
 };

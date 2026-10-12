@@ -3,6 +3,8 @@ import {
   http,
   encodeAbiParameters,
   recoverTypedDataAddress,
+  parseAbiItem,
+  decodeEventLog,
 } from "viem";
 import {
   createProfile,
@@ -42,6 +44,9 @@ const randomHex = () =>
   Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) =>
     b.toString(16).padStart(2, "0"),
   ).join("");
+const createdEvent = parseAbiItem(
+  "event Created(bytes32 indexed assetId, bytes32 indexed imageHash, bytes32 metadataHash, address indexed creator, uint256 commitment)",
+);
 // Transport/prover are trusted injected code. This controller never sends private inputs to RPC or wallet.
 export async function createShieldedClient({
   text,
@@ -67,6 +72,7 @@ export async function createShieldedClient({
     image,
     proof,
     creationProgress,
+    publicationHash,
     wallet,
     busy = false,
     closed = false,
@@ -129,6 +135,7 @@ export async function createShieldedClient({
     proof = undefined;
     creationProgress = undefined;
     needsObservation = mustObserve;
+    publicationHash = undefined;
   }
   async function save(next, bytes, password) {
     alive();
@@ -496,6 +503,135 @@ export async function createShieldedClient({
         selected();
         return new Uint8Array(image);
       }),
+    exportPublication: () =>
+      run(async () => {
+        selected();
+        const row = await currentRow();
+        check(
+          record.kind === "create" &&
+            !needsObservation &&
+            row.state === "observed",
+        );
+        const note = record.destination;
+        profile.validate(note, deployment);
+        const head = await verifyDeployment(client, pins);
+        let matches = [];
+        const hashes = [
+          ...new Set([
+            ...row.transactionHashes,
+            ...(publicationHash ? [publicationHash] : []),
+          ]),
+        ].reverse();
+        // An in-memory public hint only: revalidate its receipt and discard it on failure.
+        publicationHash = undefined;
+        // A saved successful receipt avoids rescanning chain history on every upload retry.
+        for (const hash of hashes) {
+          let receipt;
+          try {
+            receipt = await client.getTransactionReceipt({ hash });
+          } catch (error) {
+            if (error.name === "TransactionReceiptNotFoundError") continue;
+            throw error;
+          }
+          if (receipt.status !== "success") continue;
+          check(receipt.transactionHash === hash);
+          matches = receipt.logs.flatMap((log) => {
+            if (log.address.toLowerCase() !== deployment.registry) return [];
+            try {
+              const { args } = decodeEventLog({
+                abi: [createdEvent],
+                data: log.data,
+                topics: log.topics,
+                strict: true,
+              });
+              return args.assetId === note.assetId &&
+                args.imageHash === note.imageHash
+                ? [{ ...log, args }]
+                : [];
+            } catch {
+              return [];
+            }
+          });
+          check(matches.length <= 1);
+          if (matches.length) break;
+        }
+        const scan = async (first, last) => {
+          const found = [];
+          for (let from = first; from <= last; from += 1000n) {
+            found.push(
+              ...(await client.getLogs({
+                address: deployment.registry,
+                event: createdEvent,
+                args: { assetId: note.assetId, imageHash: note.imageHash },
+                fromBlock: from,
+                toBlock: from + 999n < last ? from + 999n : last,
+                strict: true,
+              })),
+            );
+            check(found.length <= 1);
+          }
+          return found;
+        };
+        if (!matches.length) {
+          // Lost responses and restored backups retain the authorization's public commit window.
+          const at = (functionName, args) =>
+            client.readContract({
+              address: deployment.registry,
+              abi: transactionAbi,
+              functionName,
+              args,
+              blockNumber: head.number,
+            });
+          const commitment = await at("commitmentDigest", [
+              authorizationArgs(record.creation.authorization),
+              record.creation.salt,
+            ]),
+            committed = await at("creationCommits", [commitment]);
+          if (committed !== 0n)
+            matches = await scan(
+              committed + 2n,
+              committed + 256n < head.number ? committed + 256n : head.number,
+            );
+          // An older backup can predate same-destination authorization renewal.
+          if (!matches.length)
+            matches = await scan(BigInt(pins.deploymentBlock), head.number);
+        }
+        const log = matches[0];
+        check(
+          matches.length === 1 &&
+            !log.removed &&
+            /^0x[0-9a-f]{64}$/.test(log.transactionHash) &&
+            log.blockNumber >= BigInt(pins.deploymentBlock) &&
+            log.blockNumber <= head.number,
+        );
+        check(
+          (await client.getBlock({ blockNumber: log.blockNumber })).hash ===
+            log.blockHash,
+        );
+        check(
+          log.args.metadataHash === note.metadataHash &&
+            log.args.creator.toLowerCase() === note.metadata.creator,
+        );
+        check(
+          (await client.getBlock({ blockNumber: head.number })).hash ===
+            head.hash,
+        );
+        alive();
+        publicationHash = log.transactionHash;
+        let binary = "";
+        for (let offset = 0; offset < image.length; offset += 8192)
+          binary += String.fromCharCode(
+            ...image.subarray(offset, offset + 8192),
+          );
+        // This is the entire publication boundary. Never spread a note or recovery record here.
+        return {
+          format: "zft-shielded-publication-v1",
+          assetId: note.assetId,
+          transactionHash: log.transactionHash,
+          metadata: JSON.parse(canonical(note.metadata)),
+          image: btoa(binary),
+        };
+      }),
     cancelProof() {
       prover.cancel?.();
     },
@@ -506,6 +642,7 @@ export async function createShieldedClient({
       vault.close();
       record = undefined;
       creationProgress = undefined;
+      publicationHash = undefined;
       image = undefined;
       proof = undefined;
       wallet = undefined;
