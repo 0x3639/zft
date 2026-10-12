@@ -3,6 +3,7 @@ import {
   http,
   encodeAbiParameters,
   recoverTypedDataAddress,
+  parseAbiItem,
 } from "viem";
 import {
   createProfile,
@@ -495,6 +496,65 @@ export async function createShieldedClient({
       run(async () => {
         selected();
         return new Uint8Array(image);
+      }),
+    exportPublication: () =>
+      run(async () => {
+        selected();
+        check(
+          record.kind === "create" &&
+            !needsObservation &&
+            (await currentRow()).state === "observed",
+        );
+        const note = record.destination;
+        profile.validate(note, deployment);
+        const head = await verifyDeployment(client, pins);
+        const matches = [];
+        // Recover public provenance even when the wallet's successful response was lost.
+        for (
+          let from = BigInt(pins.deploymentBlock);
+          from <= head.number;
+          from += 1000n
+        ) {
+          const logs = await client.getLogs({
+            address: deployment.registry,
+            event: parseAbiItem(
+              "event Created(bytes32 indexed assetId, bytes32 indexed imageHash, bytes32 metadataHash, address indexed creator, uint256 commitment)",
+            ),
+            args: { assetId: note.assetId, imageHash: note.imageHash },
+            fromBlock: from,
+            toBlock: from + 999n < head.number ? from + 999n : head.number,
+            strict: true,
+          });
+          matches.push(...logs);
+          check(matches.length <= 1);
+        }
+        const log = matches[0];
+        check(
+          matches.length === 1 &&
+            !log.removed &&
+            /^0x[0-9a-f]{64}$/.test(log.transactionHash),
+        );
+        check(
+          log.args.metadataHash === note.metadataHash &&
+            log.args.creator.toLowerCase() === note.metadata.creator,
+        );
+        check(
+          (await client.getBlock({ blockNumber: head.number })).hash ===
+            head.hash,
+        );
+        let binary = "";
+        for (let offset = 0; offset < image.length; offset += 8192)
+          binary += String.fromCharCode(
+            ...image.subarray(offset, offset + 8192),
+          );
+        // This is the entire publication boundary. Never spread a note or recovery record here.
+        return {
+          format: "zft-shielded-publication-v1",
+          assetId: note.assetId,
+          transactionHash: log.transactionHash,
+          metadata: JSON.parse(canonical(note.metadata)),
+          image: btoa(binary),
+        };
       }),
     cancelProof() {
       prover.cancel?.();

@@ -1,77 +1,44 @@
 # ZFT
 
-**Collect a picture. Send the file. Pass it on.**
+**Public pictures. Private spending keys.**
 
-ZFT is a bearer-file collectible app on Sol’s Zenoglyphs VM (ZVM), built for Cloudflare. A PNG carries a disposable ownership key. Claiming the file rotates ownership on-chain, invalidating previously exported copies. JPG and PNG inputs are normalized locally into canonical PNGs.
+ZFT is a shielded collectible app on Zenon ZVM devnet. The public site contains a gallery of completed shielded creations. Create, My collection, Receive and Recover use the existing user-held-key shielded client. A fee wallet signs creation and pays transaction fees; the spending keys stay in the browser’s encrypted collection and recovery files.
 
-**Status: hosted ZVM devnet alpha.** Try the real app at [devnet.zft.foo](https://devnet.zft.foo/). A connected wallet is the public profile identity and is required for new minting and profile actions, with no ZFT password or local-profile selector. File custody offers session-only keys or optional encrypted browser storage, with recovery saved before moving ownership. The app also includes export/cancel/recovery, wallet/file custody transitions, signed profiles with cropped avatars and covers, social actions, opt-in collection proofs, a D1 chain index, collection/NFT search and ranking, a homepage populated by real artwork, Everyone/Following and profile activity with verified timestamps, and page-specific PNG sharing images. [Setup and limitations](docs/DEVNET-ALPHA.md) describe the remaining beta gates, including actual MetaMask/phone acceptance.
+This source tree replaces the mixed legacy frontend. The old wallet/profile gallery, social feeds, profile editing and their public APIs are retired. Old stored data is left untouched and is not listed, migrated or backfilled. The historical contracts, research and private local demos remain for reproducibility.
 
-[zft.foo](https://zft.foo/) still displays the design prototype at its root. Its `/art/*` and `/metadata/*` routes now serve the real contract's immutable public media. The review app has an isolated sponsor account and Cloudflare storage.
+New creations are **public by default**, with a notice before creation: the sanitized picture, title, description and creator fee account are published after creation is observed. The gallery verifies the exact public content against the pinned shielded registry. It records creation provenance, not the current holder or guaranteed finality. Publication can be retried without another blockchain transaction.
 
-**Next milestone: shielded ownership on ZVM.** The [accepted plan](docs/SHIELDED-ZVM-PLAN.md) keeps spending secrets with users, moves double-spend enforcement into a contract and makes Cloudflare services replaceable. The [isolated local candidate](research/shielded-lab/README.md) includes real proofs, file claims and encrypted browser recovery; the [opt-in app integration](docs/SHIELDED-APP-INTEGRATION.md) adds local user-held-key routes. The [desktop browser lifecycle](docs/SHIELDED-BROWSER-ACCEPTANCE.md) now passes on the recorded local build; target wallets/devices and production qualification remain open. The [approved devnet experiment](docs/SHIELDED-DEVNET-VALIDATION.md) now passes creation, claim and fresh-process recovery on `devnet.zenon.foo`; no production ZVM availability is assumed. The [isolated devnet app package](docs/SHIELDED-DEVNET-APP.md) is prepared for separate hosting approval. The public v1 app and assets are preserved. The PS issuer lab remains historical research. [Roadmap](docs/IMPLEMENTATION.md).
+**Status: tested devnet candidate; separate release approval required.** The live app is [devnet.zft.foo](https://devnet.zft.foo/). This branch does not activate its new gallery or replace the live Workers. Real MetaMask/device qualification, independent review and resource/finality gates remain open. See the [shielded-only site contract](docs/SHIELDED-PUBLIC-GALLERY.md).
 
-Repository: [0x3639/zft](https://github.com/0x3639/zft).
-
-## Review the project
-
-Historical research followed the merged [PS credential proposal](docs/PS-CREDENTIAL-PROTOCOL.md), addressing the requested Pointcheval–Sanders/BLS12-381 parity. That superseded proposal described an isolated mint-based prototype and separated credential custody from MetaMask identity and native ERC-721 holdings. The [C1 reference-core lab](docs/PS-CRYPTOGRAPHIC-PROFILE.md) adds exact encodings and differential fixtures for local review. The deployed alpha continues to use public ERC-721 ownership; no PS migration or deployment is implied.
-
-Track delivery in the [implementation roadmap](docs/IMPLEMENTATION.md), including completed milestones, discovery delivery, wallet/device work and remaining acceptance gates. Start with the [complete website functional specification](docs/FUNCTIONAL-SPEC.md) and [reference action audit](docs/REFERENCE-AUDIT.md). They cover routes, controls, dialogs, ownership states, downloads, recovery, discovery/social features, marketplace scope, OG sharing, and acceptance criteria. The audit distinguishes exercised public actions from owner/payment flows still unverified.
-
-1. [Product and protocol specification](docs/SPEC.md)
-2. [Contract design and invariants](docs/CONTRACTS.md), [proposed Solidity interface](contracts/interfaces/IZFT.sol)
-3. [Frontend design and flows](docs/FRONTEND.md)
-4. [Cloudflare architecture, APIs, and operations](docs/ARCHITECTURE.md)
-5. [Live roadmap and remaining-work tracker](docs/IMPLEMENTATION.md)
-6. [Decisions for review](docs/REVIEW.md)
-7. [Research and devnet evidence](research/EVIDENCE.md)
-8. [Page parity and Open Graph specification](docs/PAGES-AND-SHARING.md)
-9. [Marketplace expansion design](docs/MARKETPLACE.md)
-10. [Prototype verification and screenshots](docs/VALIDATION.md)
-11. [Cloudflare prototype deployment](docs/DEPLOYMENT.md)
-12. [Supplied logo assets and branding rollout](docs/BRAND-ASSETS.md)
-
-For deployed behavior and operation, use [the implementation runbook](docs/DEVNET-ALPHA.md). The functional specification remains the full release target. Basics/Technical help and page-specific sharing are implemented. Curated-collection scope, social-platform preview acceptance, deeper operational fault tests, and actual two-browser/phone acceptance remain before beta. Private transfers, sales, and encrypted claim links remain separate work.
-
-## Run the real devnet app
+## Development and review
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build
-pnpm exec wrangler d1 migrations apply zft-local-index --config wrangler.devnet.jsonc --env local --local
-pnpm exec wrangler dev --config wrangler.devnet.jsonc --env local --port 8787
-# In a second terminal:
-pnpm dev
-```
-
-Open `http://localhost:5173`. Sponsorship requires a dedicated funded devnet key in `.dev.vars.local`; see the runbook. No item or recovery keys are uploaded to the Worker.
-
-```sh
 pnpm typecheck
 pnpm test
-pnpm contracts:test
+pnpm build
 pnpm worker:check
 ```
 
-## Preview the frontend
+The root build is the public gallery. It excludes the proof worker, recovery decoder and spending controller. The separately packaged `/shielded` client uses the same origin’s public gallery API after creation.
 
-No dependency installation is required:
+For a fully disposable local lifecycle with existing proof artifacts:
 
 ```sh
-python3 -m http.server 4173 --bind 127.0.0.1
+node research/shielded-app/check-builds.mjs
+node --import tsx research/shielded-app/local-server.mjs
 ```
 
-Open `http://127.0.0.1:4173/design/`. The prototype contains the homepage, gallery, public profiles, collection/sent/activity tabs, artwork details, marketplace design, mint, import/claim, send/cancel, and recovery flows. Its actions simulate product states and never submit a blockchain transaction. Uploaded images remain in memory in this prototype. Unique profile/item/home social-card templates are at `design/og-preview.html`.
+This prints a loopback URL and a temporary directory containing a sample picture and public deployment configuration. It uses local Anvil, generated disposable fee accounts and an in-memory public catalog. It never funds or sends a transaction on live devnet. The fixture can simulate one failed gallery upload with `ZFT_PUBLICATION_TEST_FAILURE=1`.
 
-## Implementation stack
+## Source and protocol
 
-- React, TypeScript, Vite, viem, IndexedDB, and browser Web Crypto.
-- Cloudflare Workers with Static Assets, R2, D1, and Durable Objects; Satori/resvg-WASM sharing images.
-- Solidity with OpenZeppelin ERC-721/EIP-712/ECDSA and Foundry verification.
-- ZVM devnet `7340469`; RPC `https://devnet.zenon.foo/zvm/rpc`.
+- [Shielded protocol](docs/SHIELDED-ZVM-PROTOCOL.md) and [accepted plan](docs/SHIELDED-ZVM-PLAN.md)
+- [User-held-key app integration](docs/SHIELDED-APP-INTEGRATION.md)
+- [Public gallery behavior and validation](docs/SHIELDED-PUBLIC-GALLERY.md)
+- [Separate shielded host](docs/SHIELDED-DEVNET-APP.md) and [source distribution](docs/SHIELDED-SOURCE-DISTRIBUTION.md)
+- [Historical usability validation](docs/SHIELDED-USABILITY.md) and [earlier evidence](research/EVIDENCE.md)
 
-Dependencies are pinned in `pnpm-lock.yaml`; the devnet deployment is pinned in `packages/protocol/deployment.json`. The ZFT-owned shielded client and required source/build files listed in [the scoped license](SHIELDED-LICENSE.md) are GPL-3.0-only. This is not a repository-wide grant; third-party licenses and brand exclusions remain intact. See [source downloads and reconstruction](docs/SHIELDED-SOURCE-DISTRIBUTION.md). The app domain is **zft.foo**.
+Contracts, circuits, recovery formats, dependency locks and the selected deployment are unchanged by the public gallery. The selected RPC is `https://devnet.zenon.foo/zvm/rpc`, chain ID `7340469`. Deployment pins are in [the selected app configuration](research/shielded-devnet/evidence/app-config.json).
 
-Frontend direction: NonFungible Cash’s page structure and flows with the [Zenon design system](https://github.com/digitalSloth/zenon-design-system). The prototype includes pinned MIT-licensed theme CSS/assets with attribution in `design/vendor/zenon/NOTICE.md`.
-
-The original inspiration is [NonFungible Cash](https://nonfungible.cash/). ZFT v1 recreates the bearer-file experience with public ownership rotation. It does not claim Cashu compatibility or NonFungible Cash’s transfer privacy.
+ZFT-owned shielded files listed in [the scoped license](SHIELDED-LICENSE.md) are GPL-3.0-only. Third-party licenses, earlier grants, brand marks and user artwork exclusions remain intact. The original interface reference is [NonFungible Cash](https://nonfungible.cash/); this app does not claim its protocol compatibility or privacy guarantees. Older ERC-721, PS and design documents describe historical implementations, not the current public site.

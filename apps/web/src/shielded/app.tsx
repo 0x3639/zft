@@ -58,9 +58,14 @@ export default function ShieldedApp({
     [downloads, setDownloads] = useState<Download[]>([]),
     [composer, setComposer] = useState(true),
     [passwordLength, setPasswordLength] = useState(0),
-    [passwordVisible, setPasswordVisible] = useState(false);
+    [passwordVisible, setPasswordVisible] = useState(false),
+    [publications, setPublications] = useState<
+      Record<string, "published" | "pending">
+    >({});
   const sdk = useRef<ShieldedClient | undefined>(undefined),
     generation = useRef(0),
+    publicCreations = useRef(new Set<string>()),
+    publicationRequest = useRef<AbortController | undefined>(undefined),
     running = useRef(false),
     password = useRef<HTMLInputElement>(null),
     file = useRef<HTMLInputElement>(null),
@@ -91,6 +96,9 @@ export default function ShieldedApp({
   }
   function lock() {
     generation.current++;
+    publicationRequest.current?.abort();
+    publicCreations.current.clear();
+    setPublications({});
     sdk.current?.close();
     sdk.current = undefined;
     running.current = false;
@@ -135,6 +143,7 @@ export default function ShieldedApp({
       window.removeEventListener("popstate", pop);
       window.removeEventListener("pagehide", hide);
       generation.current++;
+      publicationRequest.current?.abort();
       sdk.current?.close();
       urls.current.forEach(URL.revokeObjectURL);
       pictureUrls.current.forEach(URL.revokeObjectURL);
@@ -240,6 +249,46 @@ export default function ShieldedApp({
       "Save recovery file",
     );
   }
+  async function publish(alive: () => boolean) {
+    const c = sdk.current!,
+      selection = (await c.snapshot()).selected;
+    if (
+      !alive() ||
+      !selection ||
+      selection.kind !== "create" ||
+      selection.state !== "observed" ||
+      selection.needsObservation
+    )
+      return;
+    setPublications((old) => ({ ...old, [selection.assetId]: "pending" }));
+    try {
+      const data = await c.exportPublication();
+      if (!alive()) return;
+      const controller = new AbortController();
+      publicationRequest.current = controller;
+      const response = await fetch("/api/shielded/gallery", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(data),
+        signal: controller.signal,
+        credentials: "omit",
+      });
+      if (!response.ok) throw Error("Publication unavailable");
+      const result = (await response.json()) as { assetId?: string };
+      if (result.assetId !== selection.assetId)
+        throw Error("Publication mismatch");
+      if (!alive()) return;
+      setPublications((old) => ({ ...old, [selection.assetId]: "published" }));
+      tell(
+        "Your ZFT is created and its public picture is in the gallery. Keep your recovery file safe.",
+      );
+    } catch {
+      if (alive())
+        tell(
+          "Your ZFT was created. Gallery publication is pending. Use Publish to gallery to retry; this does not send a transaction or create another ZFT.",
+        );
+    }
+  }
   async function checkStatus(alive: () => boolean) {
     const result = await sdk.current!.observe(pass());
     if (!alive()) return;
@@ -250,6 +299,15 @@ export default function ShieldedApp({
           ? "Status checked. Follow the next step for this saved picture."
           : `Status checked: ${savedStatus(result)}.`,
     );
+    const current = (await sdk.current!.snapshot()).selected;
+    if (
+      alive() &&
+      current?.kind === "create" &&
+      result === "observed" &&
+      publicCreations.current.has(current.assetId) &&
+      publications[current.assetId] !== "published"
+    )
+      await publish(alive);
   }
   const selected = state?.selected,
     next = selected && nextAction(selected),
@@ -279,10 +337,13 @@ export default function ShieldedApp({
       </div>
       <header>
         <div className="header-inner">
-          <a href={testHost ? "/shielded" : "/"} className="wordmark">
+          <a href="/" className="wordmark">
             {testHost?.brand ?? <BrandLogo />}
           </a>
           <nav aria-label="Shielded navigation">
+            <a href="/" className={btn}>
+              Gallery
+            </a>
             {pages.map((p) => (
               <a
                 key={p}
@@ -329,9 +390,9 @@ export default function ShieldedApp({
                   : "Use the same browser and password, or restore an encrypted recovery file. Your MetaMask account alone cannot recover a shielded picture."}
           </p>
           <p className="hint">
-            Shielded ZFTs appear here, not in the older public gallery or
-            MetaMask’s NFT list. Your wallet pays fees; your saved keys control
-            the picture.
+            The gallery shows public artwork. This collection holds your private
+            recovery and spending controls. Your wallet pays fees; your saved
+            keys control the ZFT.
           </p>
         </section>
         <section className="shielded-connection" aria-label="Open collection">
@@ -522,10 +583,6 @@ export default function ShieldedApp({
                 >
                   Find or recover a ZFT
                 </a>
-                <p>
-                  <a href="/wallet">Check the older wallet collection</a> if you
-                  used the original Mint page.
-                </p>
               </div>
             ) : (
               <>
@@ -654,6 +711,15 @@ export default function ShieldedApp({
                 </label>
               </>
             )}
+            {page === "create" && (
+              <p className="shielded-public-notice">
+                <strong>Public by default.</strong> After creation finishes, the
+                gallery will show your picture, name, description and creator
+                fee account. Anyone can save the public image. Your spending
+                keys, bearer file, recovery file and password stay private. Do
+                not include private information in your artwork or description.
+              </p>
+            )}
             <p>
               This saves a draft and recovery file first. It does not finish
               creation or receipt on devnet.
@@ -683,6 +749,10 @@ export default function ShieldedApp({
                       pass(),
                     );
                   if (!alive()) return;
+                  if (page === "create") {
+                    const draft = (await c.snapshot()).selected;
+                    if (draft) publicCreations.current.add(draft.assetId);
+                  }
                   setComposer(false);
                   await prepareRecovery(c, alive);
                   if (alive())
@@ -918,6 +988,11 @@ export default function ShieldedApp({
                         tell(
                           "Your ZFT was observed on devnet and is in My collection. Keep your recovery file.",
                         );
+                        if (
+                          selected.kind === "create" &&
+                          publicCreations.current.has(selected.assetId)
+                        )
+                          await publish(alive);
                       } else
                         tell(
                           r.phase === "committed"
@@ -964,6 +1039,44 @@ export default function ShieldedApp({
                   public image is safe to share; the bearer picture gives its
                   holder the ability to claim your ZFT.
                 </p>
+                {selected.kind === "create" && (
+                  <div className="shielded-public-notice">
+                    {publications[selected.assetId] === "published" ? (
+                      <p>
+                        <a href={`/nft/${selected.assetId}`}>
+                          View your ZFT in the public gallery ↗
+                        </a>
+                      </p>
+                    ) : (
+                      <>
+                        <p>
+                          Publish this picture, name, description and creator
+                          fee account for everyone to see. Spending keys and
+                          recovery files stay private.
+                        </p>
+                        {publications[selected.assetId] === "pending" && (
+                          <p role="status">
+                            Created successfully. Gallery publication is
+                            pending.
+                          </p>
+                        )}
+                        <button
+                          className={primary}
+                          disabled={!!busy}
+                          onClick={() =>
+                            void run("Publishing public picture", publish)
+                          }
+                        >
+                          Publish to gallery
+                        </button>
+                        <p className="hint">
+                          Safe to retry. This only uploads the public artwork
+                          and does not send a transaction.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
                 <div className="actions">
                   <button
                     className={primary}
@@ -1096,8 +1209,7 @@ export default function ShieldedApp({
             >
               Restore from a recovery file
             </a>
-            <a href="/wallet">Check older wallet ZFTs</a>
-            <a href="/collection">Check older file ZFTs</a>
+            <a href="/">Browse the public gallery</a>
           </div>
         </aside>
       </main>
@@ -1107,7 +1219,7 @@ export default function ShieldedApp({
           Experimental devnet. Independent review and device acceptance remain
           open. Public artwork and fee accounts can identify activity.
         </p>
-        <a href="/">Public gallery and older app</a>
+        <a href="/">Public gallery</a>
       </footer>
     </div>
   );

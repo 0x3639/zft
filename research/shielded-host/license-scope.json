@@ -26,6 +26,7 @@
     "packages/shielded/client.d.mts",
     "packages/shielded/client.mjs",
     "packages/shielded/config.mjs",
+    "packages/shielded/public.ts",
     "packages/shielded/wallet.mjs",
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",

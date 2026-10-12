@@ -15,6 +15,20 @@ import assert from "node:assert/strict";
 const root = resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const controls = [
   [
+    "publication-allowlist",
+    "client.mjs",
+    'format: "zft-shielded-publication-v1",',
+    '...note, format: "zft-shielded-publication-v1",',
+    "public gallery finds",
+  ],
+  [
+    "publication-read-only",
+    "client.mjs",
+    'let binary = "";',
+    'await vault.beginSubmission(record.id); let binary = "";',
+    "public gallery finds",
+  ],
+  [
     "gallery-read-only",
     "client.mjs",
     "// Do not select, acknowledge, observe or write a record during gallery unlock.",
@@ -89,6 +103,7 @@ for (const [name, file, before, after, pattern] of controls) {
   const temp = mkdtempSync(join(tmpdir(), "zft-shielded-app-control-"));
   try {
     mkdirSync(join(temp, "packages"), { recursive: true });
+    symlinkSync(resolve(root, "apps"), join(temp, "apps"));
     mkdirSync(join(temp, "research"), { recursive: true });
     symlinkSync(resolve(root, "node_modules"), join(temp, "node_modules"));
     symlinkSync(
@@ -108,6 +123,10 @@ for (const [name, file, before, after, pattern] of controls) {
       resolve(root, "research/shielded-app/test"),
       join(temp, "research/shielded-app/test"),
       { recursive: true },
+    );
+    symlinkSync(
+      resolve(root, "research/shielded-app/public-store.mjs"),
+      join(temp, "research/shielded-app/public-store.mjs"),
     );
     writeFileSync(
       join(temp, "package.json"),

@@ -16,6 +16,8 @@ import { startAnvil, lab } from "../shielded-lab/evm-test.mjs";
 import { deployFixture } from "../shielded-lab/local-fixture.mjs";
 import { canonical } from "../shielded-lab/core.mjs";
 import { configuration } from "./test/support.mjs";
+import { shieldedGallery } from "../../apps/api/shielded-gallery.ts";
+import { publicStore } from "./public-store.mjs";
 const dir = fileURLToPath(new URL("./", import.meta.url)),
   temp = mkdtempSync(join(tmpdir(), "zft-shielded-app-demo-"));
 await build({
@@ -91,7 +93,10 @@ const evm = await startAnvil();
 let server, host;
 try {
   const f = await deployFixture(evm),
-    config = canonical(configuration(evm, f.pins));
+    selected = configuration(evm, f.pins),
+    config = canonical(selected),
+    gallery = shieldedGallery(publicStore(), evm.client, selected);
+  let failPublication = process.env.ZFT_PUBLICATION_TEST_FAILURE === "1";
   writeFileSync(join(temp, "config.json"), config, { mode: 0o600 });
   writeFileSync(
     join(temp, "picture.png"),
@@ -118,6 +123,60 @@ try {
     };
     try {
       if (req.headers.host !== host) return reject();
+      const url = new URL(req.url, `http://${host}`);
+      if (url.pathname.startsWith("/api/shielded/gallery")) {
+        let result,
+          type = "application/json";
+        if (url.pathname === "/api/shielded/gallery" && req.method === "POST") {
+          if (
+            req.headers.origin !== `http://${host}` ||
+            req.headers["content-type"] !== "application/json"
+          )
+            return reject();
+          const parts = [];
+          let size = 0;
+          for await (const part of req) {
+            size += part.length;
+            if (size > 14000000) return reject();
+            parts.push(part);
+          }
+          if (failPublication) {
+            failPublication = false;
+            res.writeHead(503, { "content-type": type });
+            res.end('{"error":"Disposable publication outage"}');
+            return;
+          }
+          result = await gallery.publish(JSON.parse(Buffer.concat(parts)));
+        } else if (
+          req.method === "GET" &&
+          url.pathname === "/api/shielded/gallery"
+        )
+          result = await gallery.list(url.searchParams.get("cursor"));
+        else {
+          const match =
+            /^\/api\/shielded\/gallery\/(0x[0-9a-f]{64})(\/image)?$/.exec(
+              url.pathname,
+            );
+          if (!match || req.method !== "GET") return reject();
+          if (match[2]) {
+            result = await gallery.image(match[1]);
+            type = "image/png";
+          } else result = await gallery.item(match[1]);
+        }
+        res.writeHead(200, {
+          "content-type": type,
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+        });
+        res.end(type === "image/png" ? result : JSON.stringify(result));
+        return;
+      }
+      if (
+        req.method === "GET" &&
+        (/^\/nft\/0x[0-9a-f]{64}$/.test(url.pathname) ||
+          url.pathname === "/how-it-works")
+      )
+        cache.set(req.url, html);
       if (req.method === "POST") {
         if (
           req.headers.origin !== `http://${host}` ||

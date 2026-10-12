@@ -9,6 +9,8 @@ import { createProfile, canonical } from "../../shielded-lab/core.mjs";
 import { openRecovery } from "../../shielded-lab/recovery.mjs";
 import { pinDeployment } from "../../shielded-lab/chain.mjs";
 import { pngChunks } from "../../../packages/file-codec/index.ts";
+import { shieldedGallery } from "../../../apps/api/shielded-gallery.ts";
+import { publicStore } from "../public-store.mjs";
 import {
   createShieldedClient,
   parseConfiguration,
@@ -439,4 +441,108 @@ test("creation progress distinguishes lost reservation response, waiting, reveal
     await c.unlock(id, password);
     await c.observe(password);
     assert.equal((await c.snapshot()).selected.state, "observed");
+  }));
+
+test("public gallery finds a completed creation after lost response without exporting custody material", () =>
+  fixture(async ({ evm, deployed, create }) => {
+    const indexedDB = new IDBFactory(),
+      a = await create({ indexedDB }),
+      provider = await wallet(a, evm);
+    await a.prepareCreate(
+      picture(),
+      "Visible shielded picture",
+      "Public by default",
+      password,
+    );
+    await assert.rejects(
+      a.exportPublication(),
+      "A local draft must stay out of the public gallery",
+    );
+    await acknowledge(a);
+    await a.prove();
+    await a.submit(password);
+    await assert.rejects(
+      a.exportPublication(),
+      "A reservation is not a creation",
+    );
+    await evm.mine(2);
+    await a.observe(password);
+    await a.prove();
+    provider.afterSend(() => {
+      throw Error("Disposable lost creation response");
+    });
+    await assert.rejects(a.submit(password));
+    const id = (await a.snapshot()).selected.id;
+    await assert.rejects(
+      a.exportPublication(),
+      "An uncertain submission must be observed first",
+    );
+    a.close();
+    const b = await create({ indexedDB });
+    await b.unlock(id, password);
+    await assert.rejects(
+      b.exportPublication(),
+      "Reopening does not assert creation",
+    );
+    assert.equal(await b.observe(password), "observed");
+    const before = await b.snapshot();
+    let body;
+    await assert.doesNotReject(async () => {
+      body = await b.exportPublication();
+    }, "A completed public export must succeed without a journal write");
+    assert.deepEqual(
+      await b.snapshot(),
+      before,
+      "Publication export must not change the encrypted record",
+    );
+    assert.deepEqual(Object.keys(body).sort(), [
+      "assetId",
+      "format",
+      "image",
+      "metadata",
+      "transactionHash",
+    ]);
+    assert.deepEqual(Object.keys(body.metadata).sort(), [
+      "canonicalizer",
+      "createdAt",
+      "creator",
+      "description",
+      "format",
+      "height",
+      "imageHash",
+      "mediaType",
+      "name",
+      "width",
+    ]);
+    assert.deepEqual(
+      new Uint8Array(Buffer.from(body.image, "base64")),
+      before.selected.image,
+    );
+    const recovery = await b.exportRecovery(),
+      opened = await openRecovery(
+        recovery,
+        password,
+        await createProfile(),
+        pinDeployment(deployed.pins),
+      );
+    for (const field of ["secret", "randomness"])
+      assert.ok(
+        !JSON.stringify(body).includes(opened.record.destination[field]),
+      );
+    const gallery = shieldedGallery(
+      publicStore(),
+      evm.client,
+      configuration(evm, deployed.pins),
+    );
+    const published = await gallery.publish(body);
+    assert.equal(published.assetId, before.selected.assetId);
+    assert.deepEqual((await gallery.list(null)).items, [published]);
+    assert.deepEqual(await gallery.image(body.assetId), before.selected.image);
+    await gallery.publish(body);
+    assert.equal(
+      (await gallery.list(null)).items.length,
+      1,
+      "Retry must not add another ZFT",
+    );
+    assert.deepEqual(await b.snapshot(), before);
   }));
