@@ -1,5 +1,7 @@
 # Shielded app integration candidate
 
+Current follow-up: [guided creation and discoverable saved pictures](SHIELDED-USABILITY.md) adds actual local in-app saved-file/reload acceptance and preserves the historical PR32/PR33 records below.
+
 This opt-in integration connects the zft.foo browser shell to the frozen [PR31 protocol candidate](SHIELDED-ZVM-PROTOCOL.md). End users generate and hold spending secrets. The selected registry enforces spends. No PS issuer, hosted key store, sponsor, profile service or recovery administrator participates. [Historical PR32 evidence](../research/shielded-app-validation.json) uses merged PR31 (`694e20f1e4668d99c6b7c7a6917eb2f54360b16a`) as its explicit baseline. The earlier [protocol evidence](../research/shielded-validation.json) is historical and unchanged.
 
 ## Scope and build boundary

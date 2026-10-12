@@ -1,0 +1,60 @@
+{
+  "scope": "Actual Codex in-app Chromium on disposable loopback, not MetaMask or live-chain transaction qualification",
+  "localChain": 31337,
+  "oneMachineOperator": true,
+  "sameJournalReloadAndRecovery": true,
+  "creationDraftRecoverySaveReselect": true,
+  "creationCommitWaitReveal": true,
+  "authorizationExpiredAndRenewedSameDestination": true,
+  "returnedToNamedCollection": true,
+  "reloadUnlockWithoutWallet": true,
+  "recoveryFileRestoreSameDestination": true,
+  "passwordsAndPreviewsClearedOnLock": true,
+  "screens": [
+    [1280, 720],
+    [390, 844]
+  ],
+  "horizontalOverflow": false,
+  "consoleWarningsErrors": 0,
+  "downloadEventSupported": false,
+  "downloadClickSavedFiles": true,
+  "generatedDownloadsReselected": 2,
+  "preexistingDownloadsTouched": false,
+  "sourceSha256": {
+    "apps/web/src/shielded/app.tsx": "3609be339184e9c7eefd0dad3feb4c3cb65926735895feeca55cbcf767ec896a",
+    "apps/web/src/shielded/experience.ts": "29c122cb6dfd18f65cddda8ee7505ebc451ca075e939623e6f71750ac6752287",
+    "apps/web/src/shielded/style.css": "07540a6f706ce910defe13b5718384959d572624616c474067ea5f77d47eea89",
+    "packages/shielded/client.mjs": "ad8a3bbaca24ccf84c71c379c263049d8680bdc2224e08981df5161e4e936aa6",
+    "research/shielded-app/local-server.mjs": "658678b9fcd8855216a3dbaff2725f62ed9e579db3c9448fd73be247ec0beaa0",
+    "research/shielded-app/browser-wallet.mjs": "70115814976bf9cb3d9f2d37c2355bfb7c33ac0282adae272e54e315c12f1e44"
+  },
+  "bundleSha256": {
+    "research/shielded-app/build/web/index.html": "d5bb1c99313c76a7a62f82b0498ed5b5f942af63df17ea67e5f88ddb3638f954",
+    "research/shielded-app/build/web/assets/profile-image.worker-CNW6LBNq.js": "b52771d027356ca2a630e15723eaa3a7cd19b45e80b9aa16a62103090a16a37a",
+    "research/shielded-app/build/web/assets/style-DOE6yhe5.css": "341184fbdbb905361974218387cb94ca5b4f168370190a6eb57aa28af625d596",
+    "research/shielded-app/build/web/assets/index-DriarjF6.css": "1698a3eb74d41386ae5de0a47b6d1a7c3f73db451a73d1f23c1f74a35b1e2dc7",
+    "research/shielded-app/build/web/assets/ccip-CRIQk4Am.js": "400e39d51b73c49cce033c0dd6203479c3de114508bb7491e9c8b549f57ce2a8",
+    "research/shielded-app/build/web/assets/app-DntAhxrn.js": "3f6a8b37b0450e5abfe80a564d1d4a18b4b55eb1e1d9d5f574832be4005d5aaa",
+    "research/shielded-app/build/web/assets/app-CDbA2h17.css": "d6813e03fbd64d2f5b6ac95416066c5df49784c9220d035a2de25511c369e0de",
+    "research/shielded-app/build/web/assets/style-kbKocoFL.js": "6ceb921d8584844f6622a4bc27e149b183e288829c6e20173c289a8bd865d39e",
+    "research/shielded-app/build/web/assets/image.worker-DgMGLEkW.js": "2c071c61c3919da64f12e62b459f350e2e7b93ff5a1dfeae220ff05d48c2bc0c",
+    "research/shielded-app/build/web/assets/app-nnk0qsV5.js": "82ca1463e6eab89f59711ac902c74250ddda7cbccc50e2db2a38c4b01f1078e9",
+    "research/shielded-app/build/web/assets/prover-worker-CcqVfSsz.js": "e52b2b51be6bd44f1890243dac6dbe50bcbb1b69930bc60fd53a96b8700a851d",
+    "research/shielded-app/build/web/assets/index-DLYJHb5Q.js": "f4b8d5c84ba8b814197b577e72da4bc32c7f5e7d75b13dc93160d63310dde8dc",
+    "research/shielded-app/build/web/assets/public-page-BLo8pVy0.js": "5cc727ceb834917808773d9ceb52c5fd984ec55db1e04ed60b9d8afe40543836",
+    "research/shielded-app/build/web/assets/brand/index.html": "fe246bedcd082b3ce6625f2ce244ed9ba17bfea60000e2fa23ae89cabbb86979",
+    "research/shielded-app/build/web/assets/brand/gallery.css": "8536d59f0ad09dcda6d3ef16cbb8ba1d980e4380b0f253fc123a0bb5f1863b7b"
+  },
+  "finalPackageTrial": {
+    "openCollectionAndVerifySelectedDevnet": true,
+    "emptyGuidanceAndCreateNavigation": true,
+    "walletConnected": false,
+    "liveTransactions": 0
+  },
+  "limits": [
+    "Generic opt-in application lifecycle; final selected-host byte check was separate.",
+    "Two positional hint words changed after lifecycle; final package browser trial includes them.",
+    "Old renewed backup remains as a separate saved record, with explicit last-observed status.",
+    "No independent operator/device/finality acceptance."
+  ]
+}

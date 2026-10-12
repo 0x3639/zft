@@ -93,7 +93,7 @@ Historical ZVM probes are evidence only for the runtime, date and inputs they re
 
 Use deliberate verifier/circuit/state-machine mutations to prove the relevant tests detect weakened constraints. Test passing, bot review and same-author implementations do not replace independent cryptographic review.
 
-The prepared devnet client now has an owner-approved [scoped GPL-3.0-only release](../SHIELDED-LICENSE.md) and [source/notice downloads with reconstruction evidence](SHIELDED-SOURCE-DISTRIBUTION.md). This completes the local licensing decision and package preparation. SH5 still requires independent review/reproduction and target-wallet/device evidence; hosted activation requires separate approval. Cloudflare's app target is `devnet.zft.foo/shielded`; the external RPC remains `devnet.zenon.foo/zvm/rpc`.
+The prepared devnet client now has an owner-approved [scoped GPL-3.0-only release](../SHIELDED-LICENSE.md) and [source/notice downloads with reconstruction evidence](SHIELDED-SOURCE-DISTRIBUTION.md). This completes the local licensing decision and package preparation. SH5 still requires independent review/reproduction and target-wallet/device evidence; the prior PR38 static package was separately approved and activated on October 11, 2026. The [usability follow-up](SHIELDED-USABILITY.md) is tested locally and remains undeployed. Cloudflare's app target is `devnet.zft.foo/shielded`; the external RPC remains `devnet.zenon.foo/zvm/rpc`.
 
 ## Publication and evidence policy
 

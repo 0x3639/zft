@@ -47,6 +47,10 @@ export type Snapshot = {
     acknowledged: boolean;
     proofReady: boolean;
     needsObservation: boolean;
+    creationProgress?: {
+      phase: "commit" | "waiting" | "reveal" | "expired";
+      blocksRemaining: number;
+    };
     image: Uint8Array;
   };
 };
@@ -65,6 +69,10 @@ export type ShieldedClient = {
   exportRecovery(): Promise<string>;
   acknowledge(text: string, password: string): Promise<void>;
   restore(text: string, password: string): Promise<boolean>;
+  inspect(
+    id: string,
+    password: string,
+  ): Promise<{ id: string; name: string; image: Uint8Array }>;
   unlock(id: string, password: string): Promise<void>;
   observe(password: string): Promise<string>;
   renewCreation(password: string): Promise<void>;

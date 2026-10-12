@@ -1362,7 +1362,7 @@ function App() {
             <Link to="/explore">Explore</Link>
             <Link to="/activity">Activity</Link>
             <Link to="/how-it-works">How it works</Link>
-            {__SHIELDED_CANDIDATE__ && <a href="/shielded">Shielded</a>}
+            <a href="/shielded">Shielded collection</a>
           </nav>
           <div className="actions">
             <ThemeControl />
@@ -1383,7 +1383,7 @@ function App() {
               className="nom-btn nom-btn--outline nom-btn--default"
               to="/wallet"
             >
-              My collection
+              Older wallet collection
             </Link>
             <button
               className="nom-btn nom-btn--outline nom-btn--default"
@@ -1406,7 +1406,7 @@ function App() {
             <Link to="/wallet">Wallet</Link>
             <Link to="/activity">Activity</Link>
             <Link to="/how-it-works">How it works</Link>
-            {__SHIELDED_CANDIDATE__ && <a href="/shielded">Shielded</a>}
+            <a href="/shielded">Shielded collection</a>
             <Link to="/mint">Mint a picture</Link>
             <Link to="/claim">Receive a file</Link>
             <Link to="/collection">My files</Link>

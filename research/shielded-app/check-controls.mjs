@@ -15,6 +15,20 @@ import assert from "node:assert/strict";
 const root = resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const controls = [
   [
+    "gallery-read-only",
+    "client.mjs",
+    "// Do not select, acknowledge, observe or write a record during gallery unlock.",
+    "select(opened, true); // Wrongly select a previewed record.",
+    "saved pictures remain discoverable",
+  ],
+  [
+    "creation-waiting-stage",
+    "client.mjs",
+    'phase: "waiting",',
+    'phase: "reveal",',
+    "creation progress distinguishes",
+  ],
+  [
     "saved-file-ack",
     "client.mjs",
     "row.acknowledged &&",

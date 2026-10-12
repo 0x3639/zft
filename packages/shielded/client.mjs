@@ -66,6 +66,7 @@ export async function createShieldedClient({
   let record,
     image,
     proof,
+    creationProgress,
     wallet,
     busy = false,
     closed = false,
@@ -126,6 +127,7 @@ export async function createShieldedClient({
     record = opened.record;
     image = opened.image;
     proof = undefined;
+    creationProgress = undefined;
     needsObservation = mustObserve;
   }
   async function save(next, bytes, password) {
@@ -168,6 +170,43 @@ export async function createShieldedClient({
     );
     return { authorization: a, signature, salt: randomHex() };
   }
+  // Advisory UI progress only. submit() independently rechecks every condition.
+  async function checkCreationProgress() {
+    creationProgress = undefined;
+    if (record.kind !== "create") return;
+    const a = authorizationArgs(record.creation.authorization),
+      head = await client.getBlock(),
+      at = (functionName, args) =>
+        client.readContract({
+          address: deployment.registry,
+          abi: transactionAbi,
+          functionName,
+          args,
+          blockNumber: head.number,
+        }),
+      commitment = await at("commitmentDigest", [a, record.creation.salt]),
+      [committed, nonce] = await Promise.all([
+        at("creationCommits", [commitment]),
+        at("creatorNonces", [a.creator]),
+      ]);
+    check(
+      (await client.getBlock({ blockNumber: head.number })).hash === head.hash,
+    );
+    alive();
+    creationProgress =
+      head.timestamp > a.deadline ||
+      nonce !== a.nonce ||
+      (committed !== 0n && head.number > committed + 256n)
+        ? { phase: "expired", blocksRemaining: 0 }
+        : committed === 0n
+          ? { phase: "commit", blocksRemaining: 0 }
+          : head.number < committed + 2n
+            ? {
+                phase: "waiting",
+                blocksRemaining: Number(committed + 2n - head.number),
+              }
+            : { phase: "reveal", blocksRemaining: 0 };
+  }
   async function observe(password) {
     selected();
     proof = undefined;
@@ -180,6 +219,8 @@ export async function createShieldedClient({
       pins,
     );
     alive();
+    if (result.state === "unobserved") await checkCreationProgress();
+    else creationProgress = undefined;
     needsObservation = false;
     return result.state;
   }
@@ -204,6 +245,7 @@ export async function createShieldedClient({
               acknowledged: row?.acknowledged === true,
               proofReady: !!proof,
               needsObservation,
+              creationProgress: creationProgress && { ...creationProgress },
               image: new Uint8Array(image),
             }
           : null,
@@ -291,6 +333,17 @@ export async function createShieldedClient({
         select(opened, true);
         return exists;
       }),
+    inspect: (id, password) =>
+      run(async () => {
+        const opened = await vault.unlock(id, password, profile, deployment);
+        alive();
+        // Do not select, acknowledge, observe or write a record during gallery unlock.
+        return {
+          id: opened.record.id,
+          name: opened.record.destination.metadata.name,
+          image: new Uint8Array(opened.image),
+        };
+      }),
     unlock: (id, password) =>
       run(async () => {
         select(await vault.unlock(id, password, profile, deployment), true);
@@ -315,6 +368,10 @@ export async function createShieldedClient({
         await ready();
         proof = undefined;
         await verifyDeployment(client, pins);
+        if (record.kind === "create") {
+          await checkCreationProgress();
+          check(["commit", "reveal"].includes(creationProgress.phase));
+        }
         let input, name;
         if (record.kind === "create") {
           name = "create";
@@ -448,6 +505,7 @@ export async function createShieldedClient({
       wallet?.close?.();
       vault.close();
       record = undefined;
+      creationProgress = undefined;
       image = undefined;
       proof = undefined;
       wallet = undefined;
