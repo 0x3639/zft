@@ -44,3 +44,36 @@ export function stageDescription(item: Selection) {
     ? "Reservation ready. Finish creating this same picture with the second transaction."
     : "First, reserve this picture on devnet. A second transaction will finish creation.";
 }
+
+// Match the existing input bounds before asking the client or wallet to act.
+export function draftProblem(input: {
+  ready: boolean;
+  passwordLength: number;
+  create: boolean;
+  account: string;
+  fileSize?: number;
+  name: string;
+  description: string;
+}) {
+  if (!input.ready) return "Open your collection above before saving a draft.";
+  if (input.passwordLength < 12)
+    return "Enter or generate a recovery password of at least 12 characters above.";
+  if (input.create && !input.account)
+    return "Connect your fee wallet above before saving. MetaMask will ask you to sign the public creation details; this does not send a transaction.";
+  if (input.fileSize === undefined || input.fileSize < 1)
+    return input.create
+      ? "Choose a PNG or JPG image before saving your draft."
+      : "Choose the bearer PNG picture you received before saving your draft.";
+  if (input.fileSize > (input.create ? 10 : 11) * 1024 * 1024)
+    return input.create
+      ? "Choose an image no larger than 10 MiB."
+      : "Choose a bearer PNG no larger than 11 MiB.";
+  if (input.create) {
+    if (!input.name.trim()) return "Give your picture a name before saving.";
+    const utf8 = new TextEncoder();
+    if (utf8.encode(input.name).length > 256)
+      return "Shorten your picture’s name. It must fit within 256 UTF-8 bytes; emoji and some letters use more than one byte.";
+    if (utf8.encode(input.description).length > 4096)
+      return "Shorten your description. It must fit within 4096 UTF-8 bytes; emoji and some letters use more than one byte.";
+  }
+}

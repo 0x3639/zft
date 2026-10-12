@@ -65,7 +65,7 @@ html.bytes = Buffer.from(
     .toString()
     .replace(
       "<body>",
-      '<body><aside><strong>Disposable local trial</strong> · <button id="test-mine">Advance two local blocks</button> · <span id="test-state">Opening test wallet…</span></aside><script type="module" src="/test-wallet/wallet.js"></script>',
+      '<body><aside><strong>Disposable local trial</strong> · <button id="test-mine">Advance two local blocks</button> · <span id="test-state">Opening test wallet…</span><label><input id="test-pause-signature" type="checkbox"> Pause test signatures</label><button id="test-approve-signature" disabled>Approve test signature</button><button id="test-reject-signature" disabled>Reject test signature</button></aside><script type="module" src="/test-wallet/wallet.js"></script>',
     ),
 );
 for (const path of [
